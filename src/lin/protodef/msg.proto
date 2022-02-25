@@ -1,0 +1,9 @@
+syntax = "proto3";
+package msg;
+
+option go_package = "./;msg";
+
+message MSG_TEST
+{
+    int32 msg_int = 1;
+}
