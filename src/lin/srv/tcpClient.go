@@ -3,15 +3,18 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"lin/log"
 	"net"
+	"time"
 )
 
 const G_MTU int = 1536
 const MAX_PACK_LEN int = 65535
 
 type InterfaceTcpConnection interface {
-	CBReadProcess(recvBuf * bytes.Buffer)(bytesProcess int)
+	CBReadProcess(pthis * TcpConnection, recvBuf * bytes.Buffer)(bytesProcess int)
 	CBConnect(tcpConn * TcpConnection)
+	CBConnectClose(id int64)
 }
 
 type interMsgTcpWrite struct {
@@ -19,19 +22,23 @@ type interMsgTcpWrite struct {
 }
 
 type TcpConnection struct {
+	clientID int64
 	clientConn net.Conn
-	CBTcpConnection InterfaceTcpConnection
+	cbTcpConnection InterfaceTcpConnection
 	chMsgWrite chan *interMsgTcpWrite
+	closeExpireSec int
 }
 
-func StartAcceptTcpConnect(conn net.Conn, CBTcpConnection InterfaceTcpConnection) (*TcpConnection, error) {
+func StartAcceptTcpConnect(clientID int64, conn net.Conn, closeExpireSec int, CBTcpConnection InterfaceTcpConnection) (*TcpConnection, error) {
 	tcpConn := &TcpConnection{
+		clientID:clientID,
 		clientConn:conn,
-		CBTcpConnection:CBTcpConnection,
+		cbTcpConnection:CBTcpConnection,
+		closeExpireSec:closeExpireSec,
 	}
 
-	if tcpConn.CBTcpConnection != nil {
-		tcpConn.CBTcpConnection.CBConnect(tcpConn)
+	if tcpConn.cbTcpConnection != nil {
+		tcpConn.cbTcpConnection.CBConnect(tcpConn)
 	}
 
 	go tcpConn.go_tcpConnRead()
@@ -41,8 +48,25 @@ func StartAcceptTcpConnect(conn net.Conn, CBTcpConnection InterfaceTcpConnection
 }
 
 func (pthis * TcpConnection)go_tcpConnRead() {
+	defer func() {
+		pthis.cbTcpConnection.CBConnectClose(pthis.clientID)
+
+		err := recover()
+		if err != nil {
+			log.LogErr(err)
+		}
+	}()
+
 	TmpBuf := make([]byte, G_MTU)
 	recvBuf := bytes.NewBuffer(make([]byte, 0, MAX_PACK_LEN))
+
+	expireInterval := time.Second * time.Duration(pthis.closeExpireSec)
+	var TimerConnClose * time.Timer = nil
+	if pthis.closeExpireSec > 0 {
+		TimerConnClose = time.AfterFunc(expireInterval, func() {
+			pthis.TcpClose()
+		})
+	}
 
 	READ_LOOP:
 	for {
@@ -50,14 +74,19 @@ func (pthis * TcpConnection)go_tcpConnRead() {
 		if err != nil {
 			break READ_LOOP
 		}
+
+		if pthis.closeExpireSec > 0 {
+			TimerConnClose.Reset(expireInterval)
+		}
+
 		recvBuf.Write(TmpBuf[0:readSize])
 
-		if pthis.CBTcpConnection == nil {
+		if pthis.cbTcpConnection == nil {
 			recvBuf.Next(readSize)
 			continue
 		}
 
-		bytesProcess := pthis.CBTcpConnection.CBReadProcess(recvBuf)
+		bytesProcess := pthis.cbTcpConnection.CBReadProcess(pthis, recvBuf)
 		if bytesProcess < 0 {
 			break READ_LOOP
 		} else if bytesProcess > 0 {
@@ -67,6 +96,13 @@ func (pthis * TcpConnection)go_tcpConnRead() {
 }
 
 func (pthis * TcpConnection)go_tcpConnWrite() {
+	defer func() {
+		err := recover()
+		if err != nil {
+			log.LogErr(err)
+		}
+	}()
+
 	WRITE_LOOP:
 	for {
 		select {
@@ -87,4 +123,17 @@ func (pthis * TcpConnection)TcpWrite(bin []byte) {
 	fmt.Println(&tcpW.bin, &bin)
 	pthis.chMsgWrite <- tcpW
 	//tcpW.bin = append(tcpW.bin, bin...)
+}
+
+func (pthis * TcpConnection)TcpGetConn() net.Conn {
+	return pthis.clientConn
+}
+
+func (pthis * TcpConnection)TcpClose() {
+	pthis.chMsgWrite <- nil
+	pthis.clientConn.Close()
+}
+
+func (pthis * TcpConnection)TcpClientID() int64 {
+	return pthis.clientID
 }

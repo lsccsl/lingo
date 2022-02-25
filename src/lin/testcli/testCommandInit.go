@@ -21,6 +21,6 @@ func CommandLogin(argStr []string) {
 
 func AddAllCmd(){
 	InitCmd()
-	AddCmd("ping", "ping",CommandTest)
+	AddCmd("test", "test",CommandTest)
 	AddCmd("login", "login",CommandLogin)
 }

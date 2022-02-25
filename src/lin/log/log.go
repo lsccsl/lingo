@@ -12,7 +12,7 @@ func LogDebug(args ... interface{}) {
 	funcName := runtime.FuncForPC(pc).Name()
 
 	fmt.Println(fmt.Sprintf("%s[%s:%d]%s",
-		time.Now().Format(time.StampNano),
+		time.Now().Format(time.RFC3339Nano),
 		path.Base(filename), line, funcName),
 		fmt.Sprint(args...))
 }
@@ -22,7 +22,7 @@ func LogErr(args ... interface{}) {
 	funcName := runtime.FuncForPC(pc).Name()
 
 	fmt.Println(fmt.Sprintf("%s[%s:%d]%s",
-		time.Now().Format(time.StampNano),
+		time.Now().Format(time.RFC3339Nano),
 		path.Base(filename), line, funcName),
 		fmt.Sprint(args...))
 }
