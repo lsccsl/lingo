@@ -2,21 +2,40 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"net"
 )
 
 const G_MTU int = 1536
 const MAX_PACK_LEN int = 65535
 
-type TcpConnection struct {
-	clientConn net.Conn
+type InterfaceTcpConnection interface {
+	CBReadProcess(recvBuf * bytes.Buffer)(bytesProcess int)
+	CBConnect(tcpConn * TcpConnection)
 }
 
-func StartAcceptTcpConnect(conn net.Conn) (*TcpConnection, error) {
+type interMsgTcpWrite struct {
+	bin []byte
+}
+
+type TcpConnection struct {
+	clientConn net.Conn
+	CBTcpConnection InterfaceTcpConnection
+	chMsgWrite chan *interMsgTcpWrite
+}
+
+func StartAcceptTcpConnect(conn net.Conn, CBTcpConnection InterfaceTcpConnection) (*TcpConnection, error) {
 	tcpConn := &TcpConnection{
 		clientConn:conn,
+		CBTcpConnection:CBTcpConnection,
 	}
-	tcpConn.go_tcpConnRead()
+
+	if tcpConn.CBTcpConnection != nil {
+		tcpConn.CBTcpConnection.CBConnect(tcpConn)
+	}
+
+	go tcpConn.go_tcpConnRead()
+	go tcpConn.go_tcpConnWrite()
 
 	return tcpConn, nil
 }
@@ -32,5 +51,40 @@ func (pthis * TcpConnection)go_tcpConnRead() {
 			break READ_LOOP
 		}
 		recvBuf.Write(TmpBuf[0:readSize])
+
+		if pthis.CBTcpConnection == nil {
+			recvBuf.Next(readSize)
+			continue
+		}
+
+		bytesProcess := pthis.CBTcpConnection.CBReadProcess(recvBuf)
+		if bytesProcess < 0 {
+			break READ_LOOP
+		} else if bytesProcess > 0 {
+			recvBuf.Next(bytesProcess)
+		}
 	}
+}
+
+func (pthis * TcpConnection)go_tcpConnWrite() {
+	WRITE_LOOP:
+	for {
+		select {
+		case tcpW := <- pthis.chMsgWrite:
+			if tcpW == nil {
+				break WRITE_LOOP
+			}
+			pthis.clientConn.Write(tcpW.bin)
+		}
+	}
+}
+
+func (pthis * TcpConnection)TcpWrite(bin []byte) {
+	tcpW := &interMsgTcpWrite{
+		make([]byte,0,len(bin)),
+	}
+	copy(tcpW.bin, bin)
+	fmt.Println(&tcpW.bin, &bin)
+	pthis.chMsgWrite <- tcpW
+	//tcpW.bin = append(tcpW.bin, bin...)
 }
