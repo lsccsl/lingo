@@ -41,7 +41,7 @@ type ClientTcpInfo struct{
 var globalTcpInfo *ClientTcpInfo
 
 type PackHead struct{
-	packLen uint16
+	packLen uint32
 	packType uint16
 }
 
@@ -165,8 +165,8 @@ func (tcpInfo *ClientTcpInfo)FormatMsg(msgtype msg.MSG_TYPE, msg proto.Message)[
 	binMsg, _ := proto.Marshal(msg)
 	var wb []byte
 	var buf bytes.Buffer
-	_ = binary.Write(&buf,binary.LittleEndian,int16(4 + len(binMsg)))
-	_ = binary.Write(&buf,binary.LittleEndian,int16(msgtype))
+	_ = binary.Write(&buf,binary.LittleEndian,uint32(6 + len(binMsg)))
+	_ = binary.Write(&buf,binary.LittleEndian,uint16(msgtype))
 	wb = buf.Bytes()
 	wb = append(wb, binMsg...)
 
@@ -210,7 +210,7 @@ Loop:
 
 		if curHead.packLen > 0 {
 			if recvBuf.Len() >= int(curHead.packLen){
-				binBody := recvBuf.Bytes()[4:curHead.packLen]
+				binBody := recvBuf.Bytes()[6:curHead.packLen]
 
 				protoMsg := ParseProtoMsg(binBody, int32(curHead.packType))
 				fmt.Println(protoMsg)
@@ -221,17 +221,17 @@ Loop:
 		}
 	READ_LOOP:
 		for ; recvBuf.Len() >= PACK_HEAD_SIZE; {
-			binHead := recvBuf.Bytes()[0:4]
+			binHead := recvBuf.Bytes()[0:6]
 
 
-			curHead.packLen = binary.LittleEndian.Uint16(binHead[0:2])
-			curHead.packType = binary.LittleEndian.Uint16(binHead[2:4])
+			curHead.packLen = binary.LittleEndian.Uint32(binHead[0:4])
+			curHead.packType = binary.LittleEndian.Uint16(binHead[4:6])
 
 			if recvBuf.Len() < int(curHead.packLen){
 				break READ_LOOP
 			}
 
-			binBody := recvBuf.Bytes()[4:curHead.packLen]
+			binBody := recvBuf.Bytes()[6:curHead.packLen]
 
 			protoMsg := ParseProtoMsg(binBody, int32(curHead.packType))
 			fmt.Println("parse protomsg", protoMsg)

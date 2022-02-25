@@ -6,6 +6,7 @@ import (
 
 
 func main() {
+	InitMsgParseVirtualTable()
 	srvMgr := ConstructSrvManager()
 
 	tcpLsn, err := StartTcpListener("0.0.0.0", 1123, srvMgr, 30)

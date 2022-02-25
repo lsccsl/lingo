@@ -23,18 +23,21 @@ type interMsgTcpWrite struct {
 
 type TcpConnection struct {
 	clientID int64
+	clientAppID int64
 	clientConn net.Conn
 	cbTcpConnection InterfaceTcpConnection
 	chMsgWrite chan *interMsgTcpWrite
 	closeExpireSec int
+	srv *TcpSrv
 }
 
-func StartAcceptTcpConnect(clientID int64, conn net.Conn, closeExpireSec int, CBTcpConnection InterfaceTcpConnection) (*TcpConnection, error) {
+func StartTcpAcceptClient(srv *TcpSrv, clientID int64, conn net.Conn, closeExpireSec int, CBTcpConnection InterfaceTcpConnection) (*TcpConnection, error) {
 	tcpConn := &TcpConnection{
 		clientID:clientID,
 		clientConn:conn,
 		cbTcpConnection:CBTcpConnection,
 		closeExpireSec:closeExpireSec,
+		srv:srv,
 	}
 
 	if tcpConn.cbTcpConnection != nil {
@@ -50,6 +53,7 @@ func StartAcceptTcpConnect(clientID int64, conn net.Conn, closeExpireSec int, CB
 func (pthis * TcpConnection)go_tcpConnRead() {
 	defer func() {
 		pthis.cbTcpConnection.CBConnectClose(pthis.clientID)
+		pthis.srv.TcpSrvDelTcpConn(pthis.clientID)
 
 		err := recover()
 		if err != nil {
@@ -136,4 +140,11 @@ func (pthis * TcpConnection)TcpClose() {
 
 func (pthis * TcpConnection)TcpClientID() int64 {
 	return pthis.clientID
+}
+
+func (pthis * TcpConnection)TcpClientAppID() int64 {
+	return pthis.clientAppID
+}
+func (pthis * TcpConnection)TcpSetClientAppID(id int64) {
+	pthis.clientAppID = id
 }

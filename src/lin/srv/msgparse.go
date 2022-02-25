@@ -12,12 +12,16 @@ type MAP_PARSE_FUNC map[int32]func(binMsg[]byte) proto.Message
 var mapVirtualTable = make(MAP_PARSE_FUNC)
 
 func InitMsgParseVirtualTable(){
+	mapVirtualTable[int32(MSG_TYPE__MSG_LOGIN)] = func (binMsg []byte)proto.Message {
+		msg := &MSG_LOGIN{}
+		proto.Unmarshal(binMsg, msg)
+		return msg
+	}
 
-
-	PBParseAddText("msg.MSG_TEXT", "_MSG_TEXT")
+	ProtoParseAddText("msg.MSG_TEST", "_MSG_TEST")
 }
 
-func ParseProtoMsg(binMsg []byte, msgType int32)proto.Message{
+func ParseProtoMsg(binMsg []byte, msgType int32) proto.Message {
 	if nil == mapVirtualTable{
 		fmt.Println("parse table not init")
 	}
@@ -25,26 +29,26 @@ func ParseProtoMsg(binMsg []byte, msgType int32)proto.Message{
 	if ok && parsor != nil {
 		return parsor(binMsg)
 	}
-	return PBParseByName(binMsg, msgType)
+	return ProtoParseByName(binMsg, msgType)
 }
 
 
 
 // ========================================= //
-type PBMsgParse struct{
+type ProtoMsgParse struct{
 	msgType int32
 	fullName string
 	msgRef protoreflect.MessageType
 }
 
-var mapPBMsgParse map[int32]PBMsgParse
+var mapProtoMsgParse map[int32]ProtoMsgParse
 
-func PBParseAdd(name string, msgTye int32){
-	if nil == mapPBMsgParse{
-		mapPBMsgParse = make(map[int32]PBMsgParse)
+func ProtoParseAdd(name string, msgTye int32){
+	if nil == mapProtoMsgParse{
+		mapProtoMsgParse = make(map[int32]ProtoMsgParse)
 	}
 
-	_, ok := mapPBMsgParse[msgTye]
+	_, ok := mapProtoMsgParse[msgTye]
 	if ok{
 		return
 	}
@@ -55,19 +59,19 @@ func PBParseAdd(name string, msgTye int32){
 		fmt.Println(err)
 		return
 	}
-	mapPBMsgParse[msgTye] = PBMsgParse{msgTye, name, msgType}
+	mapProtoMsgParse[msgTye] = ProtoMsgParse{msgTye, name, msgType}
 }
-func PBParseAddText(name string, msgType string){
+func ProtoParseAddText(name string, msgType string){
 	intType, ok := MSG_TYPE_value[msgType]
 	if !ok{
 		fmt.Println("no msgtype:", msgType)
 		return
 	}
-	PBParseAdd(name, intType)
+	ProtoParseAdd(name, intType)
 }
 
-func PBParseByName(binMsg []byte, msgType int32)proto.Message {
-	parse, ok := mapPBMsgParse[msgType]
+func ProtoParseByName(binMsg []byte, msgType int32)proto.Message {
+	parse, ok := mapProtoMsgParse[msgType]
 	if !ok{
 		return nil
 	}
