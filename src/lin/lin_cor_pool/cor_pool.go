@@ -6,7 +6,7 @@ package cor_pool
 import (
 	"container/list"
 	"fmt"
-	"lin_common"
+	"lin/lin_common"
 	"sync"
 )
 

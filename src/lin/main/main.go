@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	. "lin_cor_pool"
+	. "lin/lin_cor_pool"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -92,7 +92,7 @@ func test_cor_pool(max_count int, work_sleep int, loop_count int) {
 }
 
 func main() {
-	test_chan()
+	//test_chan()
 	test_cor_pool(1000, 0, 10 * 1000 * 1000)
 	test_cor_pool(10, 10, 1000 * 1000)
 }
