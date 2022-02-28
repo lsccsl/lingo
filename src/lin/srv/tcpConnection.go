@@ -2,8 +2,10 @@ package main
 
 import (
 	"bytes"
-	"fmt"
+	"encoding/binary"
+	"github.com/golang/protobuf/proto"
 	"lin/log"
+	"lin/msg"
 	"net"
 	"sync/atomic"
 	"time"
@@ -42,10 +44,19 @@ func StartTcpConnection(tcpAccept *TcpAccept, connectionID TCP_CONNECTION_ID, co
 		closeExpireSec:closeExpireSec,
 		tcpAccept:tcpAccept,
 		canWrite:0,
+		chMsgWrite:make(chan*interMsgTcpWrite),
 	}
 
 	if tcpConn.cbTcpConnection != nil {
-		tcpConn.cbTcpConnection.CBConnect(tcpConn)
+		func(){
+			defer func() {
+				err := recover()
+				if err != nil {
+					log.LogErr(err)
+				}
+			}()
+			tcpConn.cbTcpConnection.CBConnect(tcpConn)
+		}()
 	}
 
 	go tcpConn.go_tcpConnRead()
@@ -94,7 +105,17 @@ func (pthis * TcpConnection)go_tcpConnRead() {
 			continue
 		}
 
-		bytesProcess := pthis.cbTcpConnection.CBReadProcess(pthis, recvBuf)
+		bytesProcess := 0
+		func(){
+			defer func() {
+				err := recover()
+				if err != nil {
+					log.LogErr(err)
+				}
+			}()
+			bytesProcess = pthis.cbTcpConnection.CBReadProcess(pthis, recvBuf)
+		}()
+
 		if bytesProcess < 0 {
 			break READ_LOOP
 		} else if bytesProcess > 0 {
@@ -127,18 +148,29 @@ func (pthis * TcpConnection)go_tcpConnWrite() {
 	close(pthis.chMsgWrite)
 }
 
-func (pthis * TcpConnection)TcpConnectWrite(bin []byte) {
+func (pthis * TcpConnection)TcpConnectWriteBin(bin []byte) {
 	if atomic.LoadInt32(&pthis.canWrite) != 0 {
 		return
 	}
 
 	tcpW := &interMsgTcpWrite{
-		make([]byte,0,len(bin)),
+		make([]byte,len(bin)),
 	}
 	copy(tcpW.bin, bin)
-	fmt.Println(&tcpW.bin, &bin)
+	//fmt.Println(&tcpW.bin[0], &bin[0], ret)
 	pthis.chMsgWrite <- tcpW
 	//tcpW.bin = append(tcpW.bin, bin...)
+}
+func (pthis*TcpConnection)TcpConnectWriteProtoMsg(msgType msg.MSG_TYPE, protoMsg proto.Message) {
+	binMsg, _ := proto.Marshal(protoMsg)
+	var wb []byte
+	var buf bytes.Buffer
+	_ = binary.Write(&buf,binary.LittleEndian,uint32(6 + len(binMsg)))
+	_ = binary.Write(&buf,binary.LittleEndian,uint16(msgType))
+	wb = buf.Bytes()
+	wb = append(wb, binMsg...)
+
+	pthis.TcpConnectWriteBin(wb)
 }
 
 func (pthis * TcpConnection)TcpGetConn() net.Conn {

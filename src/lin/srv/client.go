@@ -3,20 +3,20 @@ package main
 import "github.com/golang/protobuf/proto"
 
 type Client struct {
-	tcpConnID TCP_CONNECTION_ID
+	tcpConn *TcpConnection
 	clientID int64
 }
 
-func ConstructClient(tcpConnID TCP_CONNECTION_ID,clientID int64) *Client {
+func ConstructClient(tcpConn *TcpConnection,clientID int64) *Client {
 	c := &Client{
-		tcpConnID:tcpConnID,
+		tcpConn:tcpConn,
 		clientID:clientID,
 	}
 	return c
 }
 
-func (pthis*Client) ClientGetConnectID()TCP_CONNECTION_ID{
-	return pthis.tcpConnID
+func (pthis*Client) ClientGetConnection()*TcpConnection{
+	return pthis.tcpConn
 }
 func (pthis*Client) ClientGetClientID()int64{
 	return pthis.clientID

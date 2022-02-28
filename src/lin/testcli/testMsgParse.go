@@ -12,8 +12,7 @@ type MAP_PARSE_FUNC map[int32]func(binMsg[]byte) proto.Message
 var mapVirtualTable = make(MAP_PARSE_FUNC)
 
 func InitMsgParseVirtualTable(){
-
-
+	PBParseAddText("msg.MSG_LOGIN_RES", "_MSG_LOGIN_RES")
 	PBParseAddText("msg.MSG_TEXT", "_MSG_TEXT")
 }
 
