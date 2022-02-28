@@ -7,13 +7,18 @@ enum MSG_TYPE
 {
     _MSG_NULL = 0;
     _MSG_TEST = 1;
-    _MSG_LOGIN = 2;
-    _MSG_LOGIN_RES = 3;
+    _MSG_TEST_RES = 2;
+    _MSG_LOGIN = 3;
+    _MSG_LOGIN_RES = 4;
 }
 
 message MSG_TEST
 {
-    int64 msg_int = 1;
+    int64 id = 1;
+}
+message MSG_TEST_RES
+{
+    int64 id = 1;
 }
 
 message MSG_LOGIN

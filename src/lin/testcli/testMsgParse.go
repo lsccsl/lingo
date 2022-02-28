@@ -13,7 +13,8 @@ var mapVirtualTable = make(MAP_PARSE_FUNC)
 
 func InitMsgParseVirtualTable(){
 	PBParseAddText("msg.MSG_LOGIN_RES", "_MSG_LOGIN_RES")
-	PBParseAddText("msg.MSG_TEXT", "_MSG_TEXT")
+	PBParseAddText("msg.MSG_TEST", "_MSG_TEST")
+	PBParseAddText("msg.MSG_TEST_RES", "_MSG_TEST_RES")
 }
 
 func ParseProtoMsg(binMsg []byte, msgType int32)proto.Message{

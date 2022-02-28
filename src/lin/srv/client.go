@@ -76,6 +76,14 @@ func (pthis*Client) PushClientMsg(msgType msg.MSG_TYPE, protoMsg proto.Message) 
 func (pthis*Client) processClientMsg (interMsg * interClientMsg) {
 	switch t:=interMsg.protoMsg.(type){
 	case *msg.MSG_TEST:
-		log.LogDebug(t)
+		pthis.process_MSG_TEST(t)
 	}
+}
+
+func (pthis*Client) process_MSG_TEST (protoMsg * msg.MSG_TEST) {
+	log.LogDebug(protoMsg)
+
+	msgRes := &msg.MSG_TEST_RES{}
+	msgRes.Id = protoMsg.Id
+	pthis.tcpConn.TcpConnectWriteProtoMsg(msg.MSG_TYPE__MSG_TEST_RES, msgRes)
 }

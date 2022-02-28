@@ -9,7 +9,7 @@ import (
 
 func CommandTest(argStr []string) {
 	msg := &MSG_TEST{}
-	msg.MsgInt = 123
+	msg.Id = 123
 	globalTcpInfo.TcpSend(MSG_TYPE__MSG_TEST, msg)
 }
 
