@@ -19,7 +19,7 @@ func main() {
 		fmt.Fprint(writer, request.URL.Path, " ", request.Form)
 	})
 
-	tcpAccept, err := StartTcpAccept("0.0.0.0", 1126, server, 30)
+	tcpAccept, err := StartTcpAccept("0.0.0.0", 1126, server, 180)
 	if err != nil {
 		log.LogErr(err)
 		return

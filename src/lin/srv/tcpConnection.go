@@ -83,6 +83,7 @@ func (pthis * TcpConnection)go_tcpConnRead() {
 	var TimerConnClose * time.Timer = nil
 	if pthis.closeExpireSec > 0 {
 		TimerConnClose = time.AfterFunc(expireInterval, func() {
+			log.LogDebug("time out close tcp connection", pthis.connectionID, pthis.clientAppID)
 			pthis.TcpConnectClose()
 		})
 	}

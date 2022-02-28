@@ -30,7 +30,7 @@ func NewHttpSrvMgr(ip string, port int) (*HttpSrvMgr, error) {
 	return srv, nil
 }
 
-func (self *HttpSrvMgr) ServeHTTP (w http.ResponseWriter, r *http.Request) {
+func (pthis *HttpSrvMgr) ServeHTTP (w http.ResponseWriter, r *http.Request) {
 	if r == nil {
 		log.LogDebug("request is nil")
 		return
@@ -47,14 +47,22 @@ func (self *HttpSrvMgr) ServeHTTP (w http.ResponseWriter, r *http.Request) {
 	log.LogDebug("request ", r.URL.Path)
 
 	//find method from self.mapCallBack
-	fn, ok := self.mapCallBack[r.URL.Path]
+	fn, ok := pthis.mapCallBack[r.URL.Path]
 	if !ok {
 		log.LogDebug("no func for", r.URL.Path)
 		return
 	}
-	fn(w, r)
+	func(){
+		defer func() {
+			err := recover()
+			if err != nil {
+				log.LogErr(r.URL.Path, err)
+			}
+		}()
+		fn(w, r)
+	}()
 }
 
-func (self *HttpSrvMgr) HttpSrvAddCallback(path string, fn FUNC_HTTP_CALLBACK) {
-	self.mapCallBack[path] = fn
+func (pthis *HttpSrvMgr) HttpSrvAddCallback(path string, fn FUNC_HTTP_CALLBACK) {
+	pthis.mapCallBack[path] = fn
 }

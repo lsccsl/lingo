@@ -17,12 +17,15 @@ type Server struct {
 }
 
 func (pthis*Server)CBReadProcess(tcpConn * TcpConnection, recvBuf * bytes.Buffer) (bytesProcess int) {
-	log.LogDebug("len:", recvBuf.Len())
-
+	if recvBuf.Len() < 6{
+		return 0
+	}
 	binHead := recvBuf.Bytes()[0:6]
 
 	packLen := binary.LittleEndian.Uint32(binHead[0:4])
 	packType := binary.LittleEndian.Uint16(binHead[4:6])
+
+	log.LogDebug("packLen:", packLen, " packType:", packType)
 
 	if recvBuf.Len() < int(packLen){
 		return 0
@@ -78,6 +81,16 @@ func ConstructServer() *Server {
 }
 
 func (pthis*Server)addClient(clientID int64, tcpConn * TcpConnection) {
+	oldC, ok := pthis.mapClient[clientID]
+	if ok && oldC != nil {
+		conn := oldC.ClientGetConnection()
+		if conn != nil {
+			if conn.TcpConnectionID() != tcpConn.TcpConnectionID() {
+				pthis.accept.TcpAcceptCloseConn(oldC.ClientGetConnection().TcpConnectionID())
+			}
+		}
+	}
+
 	// todo: add here
 	c := ConstructClient(tcpConn, clientID)
 	conn := c.ClientGetConnection()
@@ -85,13 +98,6 @@ func (pthis*Server)addClient(clientID int64, tcpConn * TcpConnection) {
 		return
 	}
 	tcpConn.TcpConnectSetClientAppID(clientID)
-
-	oldC, ok := pthis.mapClient[clientID]
-	if ok && oldC != nil {
-		if oldC.ClientGetConnection() != nil {
-			pthis.accept.TcpAcceptCloseConn(oldC.ClientGetConnection().TcpConnectionID())
-		}
-	}
 
 	pthis.mapClient[clientID] = c
 }
