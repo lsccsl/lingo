@@ -53,7 +53,7 @@ func (pthis*Server)CBReadProcess(tcpConn * TcpConnection, recvBuf * bytes.Buffer
 			tcpConn.TcpConnectWriteProtoMsg(msg.MSG_TYPE__MSG_LOGIN_RES, msgRes)
 		}
 	default:
-		pthis.processClient(tcpConn, protoMsg)
+		pthis.processClient(tcpConn, msg.MSG_TYPE(packType), protoMsg)
 	}
 
 	return int(packLen)
@@ -95,10 +95,10 @@ func (pthis*Server)addClient(clientID int64, tcpConn * TcpConnection) {
 	pthis.mapClient[clientID] = c
 }
 
-func (pthis*Server)processClient(tcpConn * TcpConnection, protoMsg proto.Message) {
+func (pthis*Server)processClient(tcpConn * TcpConnection, msgType msg.MSG_TYPE, protoMsg proto.Message) {
 	oldC, ok := pthis.mapClient[tcpConn.TcpConnectClientAppID()]
 	if ok && oldC != nil {
-		oldC.ClientProcess(protoMsg)
+		oldC.PushClientMsg(msgType, protoMsg)
 		return
 	}
 	pthis.accept.TcpAcceptCloseConn(tcpConn.TcpConnectionID())
