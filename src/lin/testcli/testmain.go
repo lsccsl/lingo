@@ -50,7 +50,7 @@ var wg sync.WaitGroup
 func main() {
 	AddAllCmd()
 	InitMsgParseVirtualTable()
-	conn, err := net.Dial("tcp", "127.0.0.1:1126")
+	conn, err := net.Dial("tcp", "10.0.14.48:1126")
 	fmt.Println(conn, err)
 
 	tcpInfo := &ClientTcpInfo{

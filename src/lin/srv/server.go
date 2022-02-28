@@ -13,6 +13,7 @@ type MAP_CLIENT map[int64/*client id*/]*Client
 type Server struct {
 	mapClient MAP_CLIENT
 	accept *TcpAccept
+	httpSrv *HttpSrvMgr
 }
 
 func (pthis*Server)CBReadProcess(tcpConn * TcpConnection, recvBuf * bytes.Buffer) (bytesProcess int) {
