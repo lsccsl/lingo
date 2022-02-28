@@ -114,6 +114,7 @@ func (pthis * TcpConnection)go_tcpConnWrite() {
 			if tcpW == nil {
 				break WRITE_LOOP
 			}
+			//todo: option wait for more data and combine write to tcp channel
 			pthis.clientConn.Write(tcpW.bin)
 		}
 	}
