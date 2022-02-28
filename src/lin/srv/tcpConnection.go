@@ -28,16 +28,16 @@ type TcpConnection struct {
 	cbTcpConnection InterfaceTcpConnection
 	chMsgWrite chan *interMsgTcpWrite
 	closeExpireSec int
-	srv *TcpSrv
+	tcpAccept *TcpAccept
 }
 
-func StartTcpAcceptClient(srv *TcpSrv, clientID int64, conn net.Conn, closeExpireSec int, CBTcpConnection InterfaceTcpConnection) (*TcpConnection, error) {
+func StartTcpConnection(tcpAccept *TcpAccept, clientID int64, conn net.Conn, closeExpireSec int, CBTcpConnection InterfaceTcpConnection) (*TcpConnection, error) {
 	tcpConn := &TcpConnection{
 		clientID:clientID,
 		clientConn:conn,
 		cbTcpConnection:CBTcpConnection,
 		closeExpireSec:closeExpireSec,
-		srv:srv,
+		tcpAccept:tcpAccept,
 	}
 
 	if tcpConn.cbTcpConnection != nil {
@@ -53,7 +53,7 @@ func StartTcpAcceptClient(srv *TcpSrv, clientID int64, conn net.Conn, closeExpir
 func (pthis * TcpConnection)go_tcpConnRead() {
 	defer func() {
 		pthis.cbTcpConnection.CBConnectClose(pthis.clientID)
-		pthis.srv.TcpSrvDelTcpConn(pthis.clientID)
+		pthis.tcpAccept.TcpAcceptDelTcpConn(pthis.clientID)
 
 		err := recover()
 		if err != nil {

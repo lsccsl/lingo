@@ -10,7 +10,7 @@ import (
 
 type MAP_TCPCONN map[int64]*TcpConnection
 
-type TcpSrv struct {
+type TcpAccept struct {
 	tcpLsn       net.Listener
 	wg           sync.WaitGroup
 	cbConnection InterfaceTcpConnection
@@ -20,25 +20,25 @@ type TcpSrv struct {
 	mapConn MAP_TCPCONN
 }
 
-func (pthis * TcpSrv)go_tcpAccept() {
+func (pthis * TcpAccept)go_tcpAccept() {
 	for {
 		conn, err := pthis.tcpLsn.Accept()
 		if err != nil {
 			log.LogErr("tcp accept err", err)
 		}
 
-		tcpConn, err := StartTcpAcceptClient(pthis, pthis.TcpSrvGenClientID(), conn, pthis.closeExpireSec, pthis.cbConnection)
+		tcpConn, err := StartTcpConnection(pthis, pthis.TcpAcceptGenClientID(), conn, pthis.closeExpireSec, pthis.cbConnection)
 		if err != nil {
 			log.LogErr("start accept tcp connect err", err)
 		}
-		pthis.TcpSrvAddTcpConn(tcpConn)
+		pthis.TcpAcceptAddTcpConn(tcpConn)
 	}
 
 	pthis.wg.Done()
 }
 
-func StartTcpListener(ip string, port int, CBConnection InterfaceTcpConnection,  closeExpireSec int) (*TcpSrv, error) {
-	ts := &TcpSrv{}
+func StartTcpListener(ip string, port int, CBConnection InterfaceTcpConnection,  closeExpireSec int) (*TcpAccept, error) {
+	ts := &TcpAccept{}
 
 	addr := ip + ":" + strconv.Itoa(port)
 	lsn, err := net.Listen("tcp", addr)
@@ -56,23 +56,23 @@ func StartTcpListener(ip string, port int, CBConnection InterfaceTcpConnection, 
 	return ts, nil
 }
 
-func (pthis * TcpSrv) TcpSrvGenClientID() int64 {
+func (pthis * TcpAccept) TcpAcceptGenClientID() int64 {
 	return lin_common.GenUUID64_V4()
 }
 
-func (pthis * TcpSrv) TcpSrvWait() {
+func (pthis * TcpAccept) TcpAcceptWait() {
 	log.LogDebug("begin wait")
 	pthis.wg.Wait()
 	log.LogDebug("end wait")
 }
 
-func (pthis * TcpSrv) TcpSrvAddTcpConn(tcpConn *TcpConnection) {
+func (pthis * TcpAccept) TcpAcceptAddTcpConn(tcpConn *TcpConnection) {
 	pthis.mapConnMutex.Lock()
 	pthis.mapConn[tcpConn.TcpClientID()] = tcpConn
 	pthis.mapConnMutex.Unlock()
 }
 
-func (pthis * TcpSrv) TcpSrvDelTcpConn(id int64) {
+func (pthis * TcpAccept) TcpAcceptDelTcpConn(id int64) {
 	pthis.mapConnMutex.Lock()
 	delete(pthis.mapConn, id)
 	pthis.mapConnMutex.Unlock()
