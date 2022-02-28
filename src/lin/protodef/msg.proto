@@ -8,14 +8,21 @@ enum MSG_TYPE
     _MSG_NULL = 0;
     _MSG_TEST = 1;
     _MSG_LOGIN = 2;
+    _MSG_LOGIN_RES = 3;
 }
 
 message MSG_TEST
 {
-    int32 msg_int = 1;
+    int64 msg_int = 1;
 }
 
 message MSG_LOGIN
 {
-    int32 id = 1;
+    int64 id = 1;
+}
+
+message MSG_LOGIN_RES
+{
+    int64 id = 1;
+    int64 connect_id = 2;
 }

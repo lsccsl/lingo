@@ -7,15 +7,16 @@ import (
 
 func main() {
 	InitMsgParseVirtualTable()
-	srvMgr := ConstructSrvManager()
+	server := ConstructServer()
 
-	tcpLsn, err := StartTcpListener("0.0.0.0", 1126, srvMgr, 30)
+	tcpAccept, err := StartTcpAccept("0.0.0.0", 1126, server, 30)
 	if err != nil {
 		log.LogErr(err)
 		return
 	}
-	log.LogDebug(tcpLsn)
+	log.LogDebug(tcpAccept)
+	server.accept = tcpAccept
 
-	tcpLsn.TcpAcceptWait()
+	tcpAccept.TcpAcceptWait()
 }
 

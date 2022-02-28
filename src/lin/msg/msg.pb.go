@@ -23,9 +23,10 @@ const (
 type MSG_TYPE int32
 
 const (
-	MSG_TYPE__MSG_NULL  MSG_TYPE = 0
-	MSG_TYPE__MSG_TEST  MSG_TYPE = 1
-	MSG_TYPE__MSG_LOGIN MSG_TYPE = 2
+	MSG_TYPE__MSG_NULL      MSG_TYPE = 0
+	MSG_TYPE__MSG_TEST      MSG_TYPE = 1
+	MSG_TYPE__MSG_LOGIN     MSG_TYPE = 2
+	MSG_TYPE__MSG_LOGIN_RES MSG_TYPE = 3
 )
 
 // Enum value maps for MSG_TYPE.
@@ -34,11 +35,13 @@ var (
 		0: "_MSG_NULL",
 		1: "_MSG_TEST",
 		2: "_MSG_LOGIN",
+		3: "_MSG_LOGIN_RES",
 	}
 	MSG_TYPE_value = map[string]int32{
-		"_MSG_NULL":  0,
-		"_MSG_TEST":  1,
-		"_MSG_LOGIN": 2,
+		"_MSG_NULL":      0,
+		"_MSG_TEST":      1,
+		"_MSG_LOGIN":     2,
+		"_MSG_LOGIN_RES": 3,
 	}
 )
 
@@ -74,7 +77,7 @@ type MSG_TEST struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	MsgInt int32 `protobuf:"varint,1,opt,name=msg_int,json=msgInt,proto3" json:"msg_int,omitempty"`
+	MsgInt int64 `protobuf:"varint,1,opt,name=msg_int,json=msgInt,proto3" json:"msg_int,omitempty"`
 }
 
 func (x *MSG_TEST) Reset() {
@@ -109,7 +112,7 @@ func (*MSG_TEST) Descriptor() ([]byte, []int) {
 	return file_msg_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *MSG_TEST) GetMsgInt() int32 {
+func (x *MSG_TEST) GetMsgInt() int64 {
 	if x != nil {
 		return x.MsgInt
 	}
@@ -121,7 +124,7 @@ type MSG_LOGIN struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Id int32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 }
 
 func (x *MSG_LOGIN) Reset() {
@@ -156,9 +159,64 @@ func (*MSG_LOGIN) Descriptor() ([]byte, []int) {
 	return file_msg_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *MSG_LOGIN) GetId() int32 {
+func (x *MSG_LOGIN) GetId() int64 {
 	if x != nil {
 		return x.Id
+	}
+	return 0
+}
+
+type MSG_LOGIN_RES struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id        int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	ConnectId int64 `protobuf:"varint,2,opt,name=connect_id,json=connectId,proto3" json:"connect_id,omitempty"`
+}
+
+func (x *MSG_LOGIN_RES) Reset() {
+	*x = MSG_LOGIN_RES{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_msg_proto_msgTypes[2]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *MSG_LOGIN_RES) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MSG_LOGIN_RES) ProtoMessage() {}
+
+func (x *MSG_LOGIN_RES) ProtoReflect() protoreflect.Message {
+	mi := &file_msg_proto_msgTypes[2]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MSG_LOGIN_RES.ProtoReflect.Descriptor instead.
+func (*MSG_LOGIN_RES) Descriptor() ([]byte, []int) {
+	return file_msg_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *MSG_LOGIN_RES) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *MSG_LOGIN_RES) GetConnectId() int64 {
+	if x != nil {
+		return x.ConnectId
 	}
 	return 0
 }
@@ -168,14 +226,20 @@ var File_msg_proto protoreflect.FileDescriptor
 var file_msg_proto_rawDesc = []byte{
 	0x0a, 0x09, 0x6d, 0x73, 0x67, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x03, 0x6d, 0x73, 0x67,
 	0x22, 0x23, 0x0a, 0x08, 0x4d, 0x53, 0x47, 0x5f, 0x54, 0x45, 0x53, 0x54, 0x12, 0x17, 0x0a, 0x07,
-	0x6d, 0x73, 0x67, 0x5f, 0x69, 0x6e, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x06, 0x6d,
+	0x6d, 0x73, 0x67, 0x5f, 0x69, 0x6e, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x06, 0x6d,
 	0x73, 0x67, 0x49, 0x6e, 0x74, 0x22, 0x1b, 0x0a, 0x09, 0x4d, 0x53, 0x47, 0x5f, 0x4c, 0x4f, 0x47,
-	0x49, 0x4e, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x02,
-	0x69, 0x64, 0x2a, 0x38, 0x0a, 0x08, 0x4d, 0x53, 0x47, 0x5f, 0x54, 0x59, 0x50, 0x45, 0x12, 0x0d,
+	0x49, 0x4e, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x02,
+	0x69, 0x64, 0x22, 0x3e, 0x0a, 0x0d, 0x4d, 0x53, 0x47, 0x5f, 0x4c, 0x4f, 0x47, 0x49, 0x4e, 0x5f,
+	0x52, 0x45, 0x53, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52,
+	0x02, 0x69, 0x64, 0x12, 0x1d, 0x0a, 0x0a, 0x63, 0x6f, 0x6e, 0x6e, 0x65, 0x63, 0x74, 0x5f, 0x69,
+	0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x03, 0x52, 0x09, 0x63, 0x6f, 0x6e, 0x6e, 0x65, 0x63, 0x74,
+	0x49, 0x64, 0x2a, 0x4c, 0x0a, 0x08, 0x4d, 0x53, 0x47, 0x5f, 0x54, 0x59, 0x50, 0x45, 0x12, 0x0d,
 	0x0a, 0x09, 0x5f, 0x4d, 0x53, 0x47, 0x5f, 0x4e, 0x55, 0x4c, 0x4c, 0x10, 0x00, 0x12, 0x0d, 0x0a,
 	0x09, 0x5f, 0x4d, 0x53, 0x47, 0x5f, 0x54, 0x45, 0x53, 0x54, 0x10, 0x01, 0x12, 0x0e, 0x0a, 0x0a,
-	0x5f, 0x4d, 0x53, 0x47, 0x5f, 0x4c, 0x4f, 0x47, 0x49, 0x4e, 0x10, 0x02, 0x42, 0x08, 0x5a, 0x06,
-	0x2e, 0x2f, 0x3b, 0x6d, 0x73, 0x67, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x5f, 0x4d, 0x53, 0x47, 0x5f, 0x4c, 0x4f, 0x47, 0x49, 0x4e, 0x10, 0x02, 0x12, 0x12, 0x0a, 0x0e,
+	0x5f, 0x4d, 0x53, 0x47, 0x5f, 0x4c, 0x4f, 0x47, 0x49, 0x4e, 0x5f, 0x52, 0x45, 0x53, 0x10, 0x03,
+	0x42, 0x08, 0x5a, 0x06, 0x2e, 0x2f, 0x3b, 0x6d, 0x73, 0x67, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74,
+	0x6f, 0x33,
 }
 
 var (
@@ -191,11 +255,12 @@ func file_msg_proto_rawDescGZIP() []byte {
 }
 
 var file_msg_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_msg_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_msg_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_msg_proto_goTypes = []interface{}{
-	(MSG_TYPE)(0),     // 0: msg.MSG_TYPE
-	(*MSG_TEST)(nil),  // 1: msg.MSG_TEST
-	(*MSG_LOGIN)(nil), // 2: msg.MSG_LOGIN
+	(MSG_TYPE)(0),         // 0: msg.MSG_TYPE
+	(*MSG_TEST)(nil),      // 1: msg.MSG_TEST
+	(*MSG_LOGIN)(nil),     // 2: msg.MSG_LOGIN
+	(*MSG_LOGIN_RES)(nil), // 3: msg.MSG_LOGIN_RES
 }
 var file_msg_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -235,6 +300,18 @@ func file_msg_proto_init() {
 				return nil
 			}
 		}
+		file_msg_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*MSG_LOGIN_RES); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -242,7 +319,7 @@ func file_msg_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_msg_proto_rawDesc,
 			NumEnums:      1,
-			NumMessages:   2,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
