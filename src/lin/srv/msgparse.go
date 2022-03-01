@@ -54,12 +54,12 @@ func genAllMsgParse() {
 				if valobj.Kind != ast.Con {
 					continue
 				}
-				b, msgName, msgType := isMsgType(valobj.Name)
-				log.LogDebug("name:", msgName, "type:", msgType)
+				b, msgType, msgName := isMsgType(valobj.Name)
+				log.LogDebug("name:", msgName, " type:", msgType)
 				if !b {
 					continue
 				}
-				ProtoParseAddText("msg.MSG_TEST", "_MSG_TEST")
+				ProtoParseAddText(msgName, msgType)
 			}
 
 /*			ast.Inspect(file, func(n ast.Node) bool {
@@ -83,11 +83,11 @@ func InitMsgParseVirtualTable(){
 
 	genAllMsgParse()
 
-	mapVirtualTable[int32(MSG_TYPE__MSG_LOGIN)] = func (binMsg []byte)proto.Message {
+/*	mapVirtualTable[int32(MSG_TYPE__MSG_LOGIN)] = func (binMsg []byte)proto.Message {
 		msg := &MSG_LOGIN{}
 		proto.Unmarshal(binMsg, msg)
 		return msg
-	}
+	}*/
 
 	//ProtoParseAddText("msg.MSG_TEST", "_MSG_TEST")
 }
