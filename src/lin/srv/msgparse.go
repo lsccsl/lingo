@@ -3,22 +3,93 @@ package main
 import (
 	"fmt"
 	"github.com/golang/protobuf/proto"
+	"go/ast"
+	"go/parser"
+	"go/token"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/reflect/protoregistry"
+	"lin/log"
 	. "lin/msg"
+	"path/filepath"
+	"runtime"
+	"strings"
 )
 
 type MAP_PARSE_FUNC map[int32]func(binMsg[]byte) proto.Message
 var mapVirtualTable = make(MAP_PARSE_FUNC)
 
+func isMsgType(str string) (b bool, msgName string, msgType string) {
+	if strings.Index(str, "MSG_TYPE_") == 0 {
+		return true, str[len("MSG_TYPE_"):len(str)], "msg." + str[len("MSG_TYPE__"):len(str)]
+	}
+	return false, "", ""
+}
+
+func genAllMsgParse() {
+	_,filename,_,_ := runtime.Caller(0)
+	pathBase := filepath.Dir(filename) + "/.."
+	msgprotoPath := pathBase + "/msg"
+
+	var fset = token.NewFileSet()
+	pkgs, err := parser.ParseDir(fset, msgprotoPath, nil, 0)
+	if err != nil {
+		log.LogErr(err)
+		return
+	}
+	for _, pkg := range pkgs {
+		if pkg.Name != "msg" {
+			continue
+		}
+		for keyFileName, file := range pkg.Files {
+
+			strs := strings.Split(keyFileName, "\\")
+			if len(strs) == 1 {
+				strs = strings.Split(keyFileName, "/")
+			}
+			if strs[len(strs)-1] != "msg.pb.go" {
+				continue
+			}
+
+			for _, valobj := range file.Scope.Objects {
+				if valobj.Kind != ast.Con {
+					continue
+				}
+				b, msgName, msgType := isMsgType(valobj.Name)
+				log.LogDebug("name:", msgName, "type:", msgType)
+				if !b {
+					continue
+				}
+				ProtoParseAddText("msg.MSG_TEST", "_MSG_TEST")
+			}
+
+/*			ast.Inspect(file, func(n ast.Node) bool {
+				if n != nil {
+					fmt.Println("ast.node", n)
+				}
+
+				switch x := n.(type) {
+				case *ast.TypeSpec:
+					if _, ok := x.Type.(*ast.StructType); ok {
+						fmt.Println(x.Name.Name)
+					}
+				}
+				return true
+			})*/
+		}
+	}
+}
+
 func InitMsgParseVirtualTable(){
+
+	genAllMsgParse()
+
 	mapVirtualTable[int32(MSG_TYPE__MSG_LOGIN)] = func (binMsg []byte)proto.Message {
 		msg := &MSG_LOGIN{}
 		proto.Unmarshal(binMsg, msg)
 		return msg
 	}
 
-	ProtoParseAddText("msg.MSG_TEST", "_MSG_TEST")
+	//ProtoParseAddText("msg.MSG_TEST", "_MSG_TEST")
 }
 
 func ParseProtoMsg(binMsg []byte, msgType int32) proto.Message {
