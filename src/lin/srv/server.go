@@ -13,11 +13,12 @@ type MAP_CLIENT map[int64/*client id*/]*Client
 type Server struct {
 	mapClient MAP_CLIENT
 	accept *TcpAccept
+	dialMgr *TcpDialMgr
 	httpSrv *HttpSrvMgr
 }
 
 func (pthis*Server)CBReadProcess(tcpConn * TcpConnection, recvBuf * bytes.Buffer) (bytesProcess int) {
-	if recvBuf.Len() < 6{
+	if recvBuf.Len() < 6 {
 		return 0
 	}
 	binHead := recvBuf.Bytes()[0:6]
@@ -62,7 +63,10 @@ func (pthis*Server)CBReadProcess(tcpConn * TcpConnection, recvBuf * bytes.Buffer
 
 	return int(packLen)
 }
-func (pthis*Server)CBConnect(tcpConn * TcpConnection) {
+func (pthis*Server)CBConnect(tcpConn * TcpConnection, err error) {
+	if err != nil {
+		log.LogErr(err)
+	}
 	if tcpConn == nil {
 		return
 	}
@@ -97,13 +101,13 @@ func (pthis*Server)addClient(clientID int64, tcpConn * TcpConnection) {
 	if conn == nil {
 		return
 	}
-	tcpConn.TcpConnectSetClientAppID(clientID)
+	tcpConn.AppID = clientID
 
 	pthis.mapClient[clientID] = c
 }
 
 func (pthis*Server)processClient(tcpConn * TcpConnection, msgType msg.MSG_TYPE, protoMsg proto.Message) {
-	oldC, ok := pthis.mapClient[tcpConn.TcpConnectClientAppID()]
+	oldC, ok := pthis.mapClient[tcpConn.AppID]
 	if ok && oldC != nil {
 		oldC.PushClientMsg(msgType, protoMsg)
 		return

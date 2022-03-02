@@ -6,10 +6,27 @@ option go_package = "./;msg";
 enum MSG_TYPE
 {
     _MSG_NULL = 0;
-    _MSG_TEST = 1;
-    _MSG_TEST_RES = 2;
-    _MSG_LOGIN = 3;
-    _MSG_LOGIN_RES = 4;
+    _MSG_RPC = 1;
+    _MSG_RPC_RES = 2;
+
+    _MSG_TEST = 3;
+    _MSG_TEST_RES = 4;
+    _MSG_LOGIN = 5;
+    _MSG_LOGIN_RES = 6;
+
+}
+
+message MSG_RPC
+{
+    int64 msg_id = 1;
+    int32 msg_type = 2;
+    bytes msg_bin = 3;
+}
+message MSG_RPC_RES
+{
+    int64 msg_id = 1;
+    int32 msg_type = 2;
+    bytes msg_bin = 3;
 }
 
 message MSG_TEST

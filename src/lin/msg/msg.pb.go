@@ -24,27 +24,33 @@ type MSG_TYPE int32
 
 const (
 	MSG_TYPE__MSG_NULL      MSG_TYPE = 0
-	MSG_TYPE__MSG_TEST      MSG_TYPE = 1
-	MSG_TYPE__MSG_TEST_RES  MSG_TYPE = 2
-	MSG_TYPE__MSG_LOGIN     MSG_TYPE = 3
-	MSG_TYPE__MSG_LOGIN_RES MSG_TYPE = 4
+	MSG_TYPE__MSG_RPC       MSG_TYPE = 1
+	MSG_TYPE__MSG_RPC_RES   MSG_TYPE = 2
+	MSG_TYPE__MSG_TEST      MSG_TYPE = 3
+	MSG_TYPE__MSG_TEST_RES  MSG_TYPE = 4
+	MSG_TYPE__MSG_LOGIN     MSG_TYPE = 5
+	MSG_TYPE__MSG_LOGIN_RES MSG_TYPE = 6
 )
 
 // Enum value maps for MSG_TYPE.
 var (
 	MSG_TYPE_name = map[int32]string{
 		0: "_MSG_NULL",
-		1: "_MSG_TEST",
-		2: "_MSG_TEST_RES",
-		3: "_MSG_LOGIN",
-		4: "_MSG_LOGIN_RES",
+		1: "_MSG_RPC",
+		2: "_MSG_RPC_RES",
+		3: "_MSG_TEST",
+		4: "_MSG_TEST_RES",
+		5: "_MSG_LOGIN",
+		6: "_MSG_LOGIN_RES",
 	}
 	MSG_TYPE_value = map[string]int32{
 		"_MSG_NULL":      0,
-		"_MSG_TEST":      1,
-		"_MSG_TEST_RES":  2,
-		"_MSG_LOGIN":     3,
-		"_MSG_LOGIN_RES": 4,
+		"_MSG_RPC":       1,
+		"_MSG_RPC_RES":   2,
+		"_MSG_TEST":      3,
+		"_MSG_TEST_RES":  4,
+		"_MSG_LOGIN":     5,
+		"_MSG_LOGIN_RES": 6,
 	}
 )
 
@@ -75,6 +81,132 @@ func (MSG_TYPE) EnumDescriptor() ([]byte, []int) {
 	return file_msg_proto_rawDescGZIP(), []int{0}
 }
 
+type MSG_RPC struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	MsgId   int64  `protobuf:"varint,1,opt,name=msg_id,json=msgId,proto3" json:"msg_id,omitempty"`
+	MsgType int32  `protobuf:"varint,2,opt,name=msg_type,json=msgType,proto3" json:"msg_type,omitempty"`
+	MsgBin  []byte `protobuf:"bytes,3,opt,name=msg_bin,json=msgBin,proto3" json:"msg_bin,omitempty"`
+}
+
+func (x *MSG_RPC) Reset() {
+	*x = MSG_RPC{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_msg_proto_msgTypes[0]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *MSG_RPC) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MSG_RPC) ProtoMessage() {}
+
+func (x *MSG_RPC) ProtoReflect() protoreflect.Message {
+	mi := &file_msg_proto_msgTypes[0]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MSG_RPC.ProtoReflect.Descriptor instead.
+func (*MSG_RPC) Descriptor() ([]byte, []int) {
+	return file_msg_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *MSG_RPC) GetMsgId() int64 {
+	if x != nil {
+		return x.MsgId
+	}
+	return 0
+}
+
+func (x *MSG_RPC) GetMsgType() int32 {
+	if x != nil {
+		return x.MsgType
+	}
+	return 0
+}
+
+func (x *MSG_RPC) GetMsgBin() []byte {
+	if x != nil {
+		return x.MsgBin
+	}
+	return nil
+}
+
+type MSG_RPC_RES struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	MsgId   int64  `protobuf:"varint,1,opt,name=msg_id,json=msgId,proto3" json:"msg_id,omitempty"`
+	MsgType int32  `protobuf:"varint,2,opt,name=msg_type,json=msgType,proto3" json:"msg_type,omitempty"`
+	MsgBin  []byte `protobuf:"bytes,3,opt,name=msg_bin,json=msgBin,proto3" json:"msg_bin,omitempty"`
+}
+
+func (x *MSG_RPC_RES) Reset() {
+	*x = MSG_RPC_RES{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_msg_proto_msgTypes[1]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *MSG_RPC_RES) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MSG_RPC_RES) ProtoMessage() {}
+
+func (x *MSG_RPC_RES) ProtoReflect() protoreflect.Message {
+	mi := &file_msg_proto_msgTypes[1]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MSG_RPC_RES.ProtoReflect.Descriptor instead.
+func (*MSG_RPC_RES) Descriptor() ([]byte, []int) {
+	return file_msg_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *MSG_RPC_RES) GetMsgId() int64 {
+	if x != nil {
+		return x.MsgId
+	}
+	return 0
+}
+
+func (x *MSG_RPC_RES) GetMsgType() int32 {
+	if x != nil {
+		return x.MsgType
+	}
+	return 0
+}
+
+func (x *MSG_RPC_RES) GetMsgBin() []byte {
+	if x != nil {
+		return x.MsgBin
+	}
+	return nil
+}
+
 type MSG_TEST struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -86,7 +218,7 @@ type MSG_TEST struct {
 func (x *MSG_TEST) Reset() {
 	*x = MSG_TEST{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_msg_proto_msgTypes[0]
+		mi := &file_msg_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -99,7 +231,7 @@ func (x *MSG_TEST) String() string {
 func (*MSG_TEST) ProtoMessage() {}
 
 func (x *MSG_TEST) ProtoReflect() protoreflect.Message {
-	mi := &file_msg_proto_msgTypes[0]
+	mi := &file_msg_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -112,7 +244,7 @@ func (x *MSG_TEST) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MSG_TEST.ProtoReflect.Descriptor instead.
 func (*MSG_TEST) Descriptor() ([]byte, []int) {
-	return file_msg_proto_rawDescGZIP(), []int{0}
+	return file_msg_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *MSG_TEST) GetId() int64 {
@@ -133,7 +265,7 @@ type MSG_TEST_RES struct {
 func (x *MSG_TEST_RES) Reset() {
 	*x = MSG_TEST_RES{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_msg_proto_msgTypes[1]
+		mi := &file_msg_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -146,7 +278,7 @@ func (x *MSG_TEST_RES) String() string {
 func (*MSG_TEST_RES) ProtoMessage() {}
 
 func (x *MSG_TEST_RES) ProtoReflect() protoreflect.Message {
-	mi := &file_msg_proto_msgTypes[1]
+	mi := &file_msg_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -159,7 +291,7 @@ func (x *MSG_TEST_RES) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MSG_TEST_RES.ProtoReflect.Descriptor instead.
 func (*MSG_TEST_RES) Descriptor() ([]byte, []int) {
-	return file_msg_proto_rawDescGZIP(), []int{1}
+	return file_msg_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *MSG_TEST_RES) GetId() int64 {
@@ -180,7 +312,7 @@ type MSG_LOGIN struct {
 func (x *MSG_LOGIN) Reset() {
 	*x = MSG_LOGIN{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_msg_proto_msgTypes[2]
+		mi := &file_msg_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -193,7 +325,7 @@ func (x *MSG_LOGIN) String() string {
 func (*MSG_LOGIN) ProtoMessage() {}
 
 func (x *MSG_LOGIN) ProtoReflect() protoreflect.Message {
-	mi := &file_msg_proto_msgTypes[2]
+	mi := &file_msg_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -206,7 +338,7 @@ func (x *MSG_LOGIN) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MSG_LOGIN.ProtoReflect.Descriptor instead.
 func (*MSG_LOGIN) Descriptor() ([]byte, []int) {
-	return file_msg_proto_rawDescGZIP(), []int{2}
+	return file_msg_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *MSG_LOGIN) GetId() int64 {
@@ -228,7 +360,7 @@ type MSG_LOGIN_RES struct {
 func (x *MSG_LOGIN_RES) Reset() {
 	*x = MSG_LOGIN_RES{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_msg_proto_msgTypes[3]
+		mi := &file_msg_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -241,7 +373,7 @@ func (x *MSG_LOGIN_RES) String() string {
 func (*MSG_LOGIN_RES) ProtoMessage() {}
 
 func (x *MSG_LOGIN_RES) ProtoReflect() protoreflect.Message {
-	mi := &file_msg_proto_msgTypes[3]
+	mi := &file_msg_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -254,7 +386,7 @@ func (x *MSG_LOGIN_RES) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MSG_LOGIN_RES.ProtoReflect.Descriptor instead.
 func (*MSG_LOGIN_RES) Descriptor() ([]byte, []int) {
-	return file_msg_proto_rawDescGZIP(), []int{3}
+	return file_msg_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *MSG_LOGIN_RES) GetId() int64 {
@@ -275,6 +407,17 @@ var File_msg_proto protoreflect.FileDescriptor
 
 var file_msg_proto_rawDesc = []byte{
 	0x0a, 0x09, 0x6d, 0x73, 0x67, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x03, 0x6d, 0x73, 0x67,
+	0x22, 0x54, 0x0a, 0x07, 0x4d, 0x53, 0x47, 0x5f, 0x52, 0x50, 0x43, 0x12, 0x15, 0x0a, 0x06, 0x6d,
+	0x73, 0x67, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x05, 0x6d, 0x73, 0x67,
+	0x49, 0x64, 0x12, 0x19, 0x0a, 0x08, 0x6d, 0x73, 0x67, 0x5f, 0x74, 0x79, 0x70, 0x65, 0x18, 0x02,
+	0x20, 0x01, 0x28, 0x05, 0x52, 0x07, 0x6d, 0x73, 0x67, 0x54, 0x79, 0x70, 0x65, 0x12, 0x17, 0x0a,
+	0x07, 0x6d, 0x73, 0x67, 0x5f, 0x62, 0x69, 0x6e, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x06,
+	0x6d, 0x73, 0x67, 0x42, 0x69, 0x6e, 0x22, 0x58, 0x0a, 0x0b, 0x4d, 0x53, 0x47, 0x5f, 0x52, 0x50,
+	0x43, 0x5f, 0x52, 0x45, 0x53, 0x12, 0x15, 0x0a, 0x06, 0x6d, 0x73, 0x67, 0x5f, 0x69, 0x64, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x05, 0x6d, 0x73, 0x67, 0x49, 0x64, 0x12, 0x19, 0x0a, 0x08,
+	0x6d, 0x73, 0x67, 0x5f, 0x74, 0x79, 0x70, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x05, 0x52, 0x07,
+	0x6d, 0x73, 0x67, 0x54, 0x79, 0x70, 0x65, 0x12, 0x17, 0x0a, 0x07, 0x6d, 0x73, 0x67, 0x5f, 0x62,
+	0x69, 0x6e, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x06, 0x6d, 0x73, 0x67, 0x42, 0x69, 0x6e,
 	0x22, 0x1a, 0x0a, 0x08, 0x4d, 0x53, 0x47, 0x5f, 0x54, 0x45, 0x53, 0x54, 0x12, 0x0e, 0x0a, 0x02,
 	0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x02, 0x69, 0x64, 0x22, 0x1e, 0x0a, 0x0c,
 	0x4d, 0x53, 0x47, 0x5f, 0x54, 0x45, 0x53, 0x54, 0x5f, 0x52, 0x45, 0x53, 0x12, 0x0e, 0x0a, 0x02,
@@ -284,13 +427,15 @@ var file_msg_proto_rawDesc = []byte{
 	0x5f, 0x4c, 0x4f, 0x47, 0x49, 0x4e, 0x5f, 0x52, 0x45, 0x53, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64,
 	0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x02, 0x69, 0x64, 0x12, 0x1d, 0x0a, 0x0a, 0x63, 0x6f,
 	0x6e, 0x6e, 0x65, 0x63, 0x74, 0x5f, 0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x03, 0x52, 0x09,
-	0x63, 0x6f, 0x6e, 0x6e, 0x65, 0x63, 0x74, 0x49, 0x64, 0x2a, 0x5f, 0x0a, 0x08, 0x4d, 0x53, 0x47,
+	0x63, 0x6f, 0x6e, 0x6e, 0x65, 0x63, 0x74, 0x49, 0x64, 0x2a, 0x7f, 0x0a, 0x08, 0x4d, 0x53, 0x47,
 	0x5f, 0x54, 0x59, 0x50, 0x45, 0x12, 0x0d, 0x0a, 0x09, 0x5f, 0x4d, 0x53, 0x47, 0x5f, 0x4e, 0x55,
-	0x4c, 0x4c, 0x10, 0x00, 0x12, 0x0d, 0x0a, 0x09, 0x5f, 0x4d, 0x53, 0x47, 0x5f, 0x54, 0x45, 0x53,
-	0x54, 0x10, 0x01, 0x12, 0x11, 0x0a, 0x0d, 0x5f, 0x4d, 0x53, 0x47, 0x5f, 0x54, 0x45, 0x53, 0x54,
-	0x5f, 0x52, 0x45, 0x53, 0x10, 0x02, 0x12, 0x0e, 0x0a, 0x0a, 0x5f, 0x4d, 0x53, 0x47, 0x5f, 0x4c,
-	0x4f, 0x47, 0x49, 0x4e, 0x10, 0x03, 0x12, 0x12, 0x0a, 0x0e, 0x5f, 0x4d, 0x53, 0x47, 0x5f, 0x4c,
-	0x4f, 0x47, 0x49, 0x4e, 0x5f, 0x52, 0x45, 0x53, 0x10, 0x04, 0x42, 0x08, 0x5a, 0x06, 0x2e, 0x2f,
+	0x4c, 0x4c, 0x10, 0x00, 0x12, 0x0c, 0x0a, 0x08, 0x5f, 0x4d, 0x53, 0x47, 0x5f, 0x52, 0x50, 0x43,
+	0x10, 0x01, 0x12, 0x10, 0x0a, 0x0c, 0x5f, 0x4d, 0x53, 0x47, 0x5f, 0x52, 0x50, 0x43, 0x5f, 0x52,
+	0x45, 0x53, 0x10, 0x02, 0x12, 0x0d, 0x0a, 0x09, 0x5f, 0x4d, 0x53, 0x47, 0x5f, 0x54, 0x45, 0x53,
+	0x54, 0x10, 0x03, 0x12, 0x11, 0x0a, 0x0d, 0x5f, 0x4d, 0x53, 0x47, 0x5f, 0x54, 0x45, 0x53, 0x54,
+	0x5f, 0x52, 0x45, 0x53, 0x10, 0x04, 0x12, 0x0e, 0x0a, 0x0a, 0x5f, 0x4d, 0x53, 0x47, 0x5f, 0x4c,
+	0x4f, 0x47, 0x49, 0x4e, 0x10, 0x05, 0x12, 0x12, 0x0a, 0x0e, 0x5f, 0x4d, 0x53, 0x47, 0x5f, 0x4c,
+	0x4f, 0x47, 0x49, 0x4e, 0x5f, 0x52, 0x45, 0x53, 0x10, 0x06, 0x42, 0x08, 0x5a, 0x06, 0x2e, 0x2f,
 	0x3b, 0x6d, 0x73, 0x67, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
@@ -307,13 +452,15 @@ func file_msg_proto_rawDescGZIP() []byte {
 }
 
 var file_msg_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_msg_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_msg_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_msg_proto_goTypes = []interface{}{
 	(MSG_TYPE)(0),         // 0: msg.MSG_TYPE
-	(*MSG_TEST)(nil),      // 1: msg.MSG_TEST
-	(*MSG_TEST_RES)(nil),  // 2: msg.MSG_TEST_RES
-	(*MSG_LOGIN)(nil),     // 3: msg.MSG_LOGIN
-	(*MSG_LOGIN_RES)(nil), // 4: msg.MSG_LOGIN_RES
+	(*MSG_RPC)(nil),       // 1: msg.MSG_RPC
+	(*MSG_RPC_RES)(nil),   // 2: msg.MSG_RPC_RES
+	(*MSG_TEST)(nil),      // 3: msg.MSG_TEST
+	(*MSG_TEST_RES)(nil),  // 4: msg.MSG_TEST_RES
+	(*MSG_LOGIN)(nil),     // 5: msg.MSG_LOGIN
+	(*MSG_LOGIN_RES)(nil), // 6: msg.MSG_LOGIN_RES
 }
 var file_msg_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -330,7 +477,7 @@ func file_msg_proto_init() {
 	}
 	if !protoimpl.UnsafeEnabled {
 		file_msg_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*MSG_TEST); i {
+			switch v := v.(*MSG_RPC); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -342,7 +489,7 @@ func file_msg_proto_init() {
 			}
 		}
 		file_msg_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*MSG_TEST_RES); i {
+			switch v := v.(*MSG_RPC_RES); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -354,7 +501,7 @@ func file_msg_proto_init() {
 			}
 		}
 		file_msg_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*MSG_LOGIN); i {
+			switch v := v.(*MSG_TEST); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -366,6 +513,30 @@ func file_msg_proto_init() {
 			}
 		}
 		file_msg_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*MSG_TEST_RES); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_msg_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*MSG_LOGIN); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_msg_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MSG_LOGIN_RES); i {
 			case 0:
 				return &v.state
@@ -384,7 +555,7 @@ func file_msg_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_msg_proto_rawDesc,
 			NumEnums:      1,
-			NumMessages:   4,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

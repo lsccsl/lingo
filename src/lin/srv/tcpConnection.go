@@ -7,6 +7,7 @@ import (
 	"lin/log"
 	"lin/msg"
 	"net"
+	"strconv"
 	"sync/atomic"
 	"time"
 )
@@ -14,10 +15,20 @@ import (
 const G_MTU int = 1536
 const MAX_PACK_LEN int = 65535
 
+type TCP_CONNECTION_ID int64
+type MAP_TCPCONN map[TCP_CONNECTION_ID]*TcpConnection
+
 type InterfaceTcpConnection interface {
-	CBReadProcess(pthis * TcpConnection, recvBuf * bytes.Buffer)(bytesProcess int)
-	CBConnect(tcpConn * TcpConnection)
+	CBReadProcess(tcpConn * TcpConnection, recvBuf * bytes.Buffer)(bytesProcess int)
+	CBConnect(tcpConn * TcpConnection, err error)
 	CBConnectClose(id TCP_CONNECTION_ID)
+}
+
+type InterfaceConnManage interface {
+	CBAddTcpConn(tcpConn *TcpConnection)
+	CBGenConnectionID()TCP_CONNECTION_ID
+	CBGetConnectionCB()InterfaceTcpConnection
+	CBDelTcpConn(id TCP_CONNECTION_ID)
 }
 
 type interMsgTcpWrite struct {
@@ -26,26 +37,37 @@ type interMsgTcpWrite struct {
 
 type TcpConnection struct {
 	connectionID TCP_CONNECTION_ID
-	clientAppID int64
-	clientConn net.Conn
+	netConn net.Conn
 	cbTcpConnection InterfaceTcpConnection
 	chMsgWrite chan *interMsgTcpWrite
 	closeExpireSec int
-	tcpAccept *TcpAccept
+	connMgr InterfaceConnManage
 
 	canWrite int32
+	isAccept bool
+
+	AppID int64
+	AppType int64
+	AppData interface{}
 }
 
-func StartTcpConnection(tcpAccept *TcpAccept, connectionID TCP_CONNECTION_ID, conn net.Conn, closeExpireSec int, CBTcpConnection InterfaceTcpConnection) (*TcpConnection, error) {
+func startTcpConnection(connMgr InterfaceConnManage, conn net.Conn, closeExpireSec int) (*TcpConnection, error) {
+
 	tcpConn := &TcpConnection{
-		connectionID:connectionID,
-		clientConn:conn,
-		cbTcpConnection:CBTcpConnection,
+		connectionID:connMgr.CBGenConnectionID(),
+		netConn:conn,
+		cbTcpConnection:connMgr.CBGetConnectionCB(),
 		closeExpireSec:closeExpireSec,
-		tcpAccept:tcpAccept,
+		connMgr:connMgr,
 		canWrite:0,
 		chMsgWrite:make(chan*interMsgTcpWrite),
+		isAccept:true,
 	}
+
+	go tcpConn.go_tcpConnRead()
+	go tcpConn.go_tcpConnWrite()
+
+	connMgr.CBAddTcpConn(tcpConn)
 
 	if tcpConn.cbTcpConnection != nil {
 		func(){
@@ -55,12 +77,77 @@ func StartTcpConnection(tcpAccept *TcpAccept, connectionID TCP_CONNECTION_ID, co
 					log.LogErr(err)
 				}
 			}()
-			tcpConn.cbTcpConnection.CBConnect(tcpConn)
+			tcpConn.cbTcpConnection.CBConnect(tcpConn, nil)
 		}()
 	}
 
-	go tcpConn.go_tcpConnRead()
-	go tcpConn.go_tcpConnWrite()
+	return tcpConn, nil
+}
+
+func startTcpDial(connMgr InterfaceConnManage,	ip string, port int, closeExpireSec int, dialTimeoutSec int) (*TcpConnection, error) {
+	defer func() {
+		err := recover()
+		if err != nil {
+			log.LogErr(err)
+		}
+	}()
+
+	tcpConn := &TcpConnection{
+		connectionID:connMgr.CBGenConnectionID(),
+		netConn:nil,
+		cbTcpConnection:connMgr.CBGetConnectionCB(),
+		closeExpireSec:closeExpireSec,
+		connMgr:connMgr,
+		canWrite:0,
+		chMsgWrite:make(chan*interMsgTcpWrite),
+		isAccept:false,
+	}
+	addr := ip + ":" + strconv.Itoa(port)
+
+	if dialTimeoutSec > 0 {
+		go func() {
+			defer func() {
+				err := recover()
+				if err != nil {
+					log.LogErr(err)
+				}
+			}()
+
+			var err error
+			tcpConn.netConn, err = net.DialTimeout("tcp", addr, time.Second * time.Duration(dialTimeoutSec))
+			if err != nil {
+				log.LogErr(err)
+				if tcpConn.cbTcpConnection != nil {
+					tcpConn.cbTcpConnection.CBConnect(nil, err)
+				}
+			} else {
+				connMgr.CBAddTcpConn(tcpConn)
+				if tcpConn.cbTcpConnection != nil {
+					tcpConn.cbTcpConnection.CBConnect(tcpConn, nil)
+				}
+			}
+		}()
+	} else {
+		var err error
+		if dialTimeoutSec == 0 {
+			tcpConn.netConn, err = net.Dial("tcp", addr)
+		} else {
+			tcpConn.netConn, err = net.DialTimeout("tcp", addr, time.Second * time.Duration(-dialTimeoutSec))
+		}
+		if err != nil {
+			log.LogErr(err)
+			if tcpConn.cbTcpConnection != nil {
+				tcpConn.cbTcpConnection.CBConnect(nil, err)
+			}
+			return nil, err
+		}
+		if tcpConn.cbTcpConnection != nil {
+			tcpConn.cbTcpConnection.CBConnect(tcpConn, nil)
+		}
+
+		connMgr.CBAddTcpConn(tcpConn)
+		return tcpConn, nil
+	}
 
 	return tcpConn, nil
 }
@@ -68,7 +155,9 @@ func StartTcpConnection(tcpAccept *TcpAccept, connectionID TCP_CONNECTION_ID, co
 func (pthis * TcpConnection)go_tcpConnRead() {
 	defer func() {
 		pthis.cbTcpConnection.CBConnectClose(pthis.connectionID)
-		pthis.tcpAccept.delTcpConn(pthis.connectionID)
+		if pthis.connMgr != nil {
+			pthis.connMgr.CBDelTcpConn(pthis.connectionID)
+		}
 
 		err := recover()
 		if err != nil {
@@ -83,14 +172,14 @@ func (pthis * TcpConnection)go_tcpConnRead() {
 	var TimerConnClose * time.Timer = nil
 	if pthis.closeExpireSec > 0 {
 		TimerConnClose = time.AfterFunc(expireInterval, func() {
-			log.LogDebug("time out close tcp connection", pthis.connectionID, pthis.clientAppID)
+			log.LogDebug("time out close tcp connection", pthis.connectionID, pthis.AppID)
 			pthis.TcpConnectClose()
 		})
 	}
 
 	READ_LOOP:
 	for {
-		readSize, err := pthis.clientConn.Read(TmpBuf)
+		readSize, err := pthis.netConn.Read(TmpBuf)
 		if err != nil {
 			break READ_LOOP
 		}
@@ -141,7 +230,7 @@ func (pthis * TcpConnection)go_tcpConnWrite() {
 				break WRITE_LOOP
 			}
 			//todo: option wait for more data and combine write to tcp channel
-			pthis.clientConn.Write(tcpW.bin)
+			pthis.netConn.Write(tcpW.bin)
 		}
 	}
 
@@ -175,23 +264,16 @@ func (pthis*TcpConnection)TcpConnectWriteProtoMsg(msgType msg.MSG_TYPE, protoMsg
 }
 
 func (pthis * TcpConnection)TcpGetConn() net.Conn {
-	return pthis.clientConn
+	return pthis.netConn
 }
 
 func (pthis * TcpConnection)TcpConnectClose() {
 	if atomic.LoadInt32(&pthis.canWrite) != 0 {
 		pthis.chMsgWrite <- nil
 	}
-	pthis.clientConn.Close()
+	pthis.netConn.Close()
 }
 
 func (pthis * TcpConnection)TcpConnectionID() TCP_CONNECTION_ID {
 	return pthis.connectionID
-}
-
-func (pthis * TcpConnection)TcpConnectClientAppID() int64 {
-	return pthis.clientAppID
-}
-func (pthis * TcpConnection)TcpConnectSetClientAppID(id int64) {
-	pthis.clientAppID = id
 }

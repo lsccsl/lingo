@@ -8,9 +8,6 @@ import (
 	"sync"
 )
 
-type TCP_CONNECTION_ID int64
-type MAP_TCPCONN map[TCP_CONNECTION_ID]*TcpConnection
-
 type TcpAccept struct {
 	tcpLsn       net.Listener
 	wg           sync.WaitGroup
@@ -21,6 +18,24 @@ type TcpAccept struct {
 	mapConn MAP_TCPCONN
 }
 
+func (pthis * TcpAccept) CBGenConnectionID() TCP_CONNECTION_ID {
+	return TCP_CONNECTION_ID(lin_common.GenUUID64_V4())
+}
+func (pthis * TcpAccept) CBAddTcpConn(tcpConn *TcpConnection) {
+	pthis.mapConnMutex.Lock()
+	defer pthis.mapConnMutex.Unlock()
+
+	pthis.mapConn[tcpConn.TcpConnectionID()] = tcpConn
+}
+func (pthis * TcpAccept) CBGetConnectionCB()InterfaceTcpConnection {
+	return pthis.cbConnection
+}
+func (pthis * TcpAccept) CBDelTcpConn(id TCP_CONNECTION_ID) {
+	pthis.mapConnMutex.Lock()
+	defer pthis.mapConnMutex.Unlock()
+
+	delete(pthis.mapConn, id)
+}
 func (pthis * TcpAccept)go_tcpAccept() {
 	for {
 		conn, err := pthis.tcpLsn.Accept()
@@ -28,11 +43,10 @@ func (pthis * TcpAccept)go_tcpAccept() {
 			log.LogErr("tcp accept err", err)
 		}
 
-		tcpConn, err := StartTcpConnection(pthis, pthis.TcpAcceptGenConnectionID(), conn, pthis.closeExpireSec, pthis.cbConnection)
+		_, err = startTcpConnection(pthis, conn, pthis.closeExpireSec)
 		if err != nil {
 			log.LogErr("start accept tcp connect err", err)
 		}
-		pthis.TcpAcceptAddTcpConn(tcpConn)
 	}
 
 	pthis.wg.Done()
@@ -57,29 +71,12 @@ func StartTcpAccept(ip string, port int, CBConnection InterfaceTcpConnection,  c
 	return ts, nil
 }
 
-func (pthis * TcpAccept) TcpAcceptGenConnectionID() TCP_CONNECTION_ID {
-	return TCP_CONNECTION_ID(lin_common.GenUUID64_V4())
-}
-
 func (pthis * TcpAccept) TcpAcceptWait() {
 	log.LogDebug("begin wait")
 	pthis.wg.Wait()
 	log.LogDebug("end wait")
 }
 
-func (pthis * TcpAccept) TcpAcceptAddTcpConn(tcpConn *TcpConnection) {
-	pthis.mapConnMutex.Lock()
-	defer pthis.mapConnMutex.Unlock()
-
-	pthis.mapConn[tcpConn.TcpConnectionID()] = tcpConn
-}
-
-func (pthis * TcpAccept) delTcpConn(id TCP_CONNECTION_ID) {
-	pthis.mapConnMutex.Lock()
-	defer pthis.mapConnMutex.Unlock()
-
-	delete(pthis.mapConn, id)
-}
 
 func (pthis * TcpAccept) TcpAcceptCloseConn(id TCP_CONNECTION_ID) {
 	pthis.mapConnMutex.Lock()
