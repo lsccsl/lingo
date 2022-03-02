@@ -14,7 +14,7 @@ type HttpSrvMgr struct {
 	httpSrv     *http.Server
 }
 
-func NewHttpSrvMgr(ip string, port int) (*HttpSrvMgr, error) {
+func StartHttpSrvMgr(ip string, port int) (*HttpSrvMgr, error) {
 	srv := &HttpSrvMgr{
 		ip:ip,
 		port:port,

@@ -8,10 +8,11 @@ import (
 
 
 func main() {
+	ReadCfg()
 	InitMsgParseVirtualTable()
 	server := ConstructServer()
 
-	httpSrv, err := NewHttpSrvMgr("0.0.0.0", 8112)
+	httpSrv, err := StartHttpSrvMgr("0.0.0.0", 8112)
 	if err != nil {
 		log.LogErr(err)
 	}

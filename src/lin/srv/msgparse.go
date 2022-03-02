@@ -42,11 +42,8 @@ func genAllMsgParse() {
 		}
 		for keyFileName, file := range pkg.Files {
 
-			strs := strings.Split(keyFileName, "\\")
-			if len(strs) == 1 {
-				strs = strings.Split(keyFileName, "/")
-			}
-			if strs[len(strs)-1] != "msg.pb.go" {
+			str := filepath.Base(keyFileName)
+			if str != "msg.pb.go" {
 				continue
 			}
 

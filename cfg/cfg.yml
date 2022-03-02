@@ -1,0 +1,4 @@
+cluster: test
+cluster_addr: [0.0.0.0:1118,0.0.0.0:1128,0.0.0.0:1108]
+bind_addr: 0.0.0.0:1128
+alias_name: test_srv_1
