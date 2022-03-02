@@ -154,6 +154,7 @@ func startTcpDial(connMgr InterfaceConnManage,	ip string, port int, closeExpireS
 
 func (pthis * TcpConnection)go_tcpConnRead() {
 	defer func() {
+		pthis.quitTcpWrite()
 		pthis.cbTcpConnection.CBConnectClose(pthis.connectionID)
 		if pthis.connMgr != nil {
 			pthis.connMgr.CBDelTcpConn(pthis.connectionID)
@@ -268,10 +269,14 @@ func (pthis * TcpConnection)TcpGetConn() net.Conn {
 }
 
 func (pthis * TcpConnection)TcpConnectClose() {
+	pthis.quitTcpWrite()
+	pthis.netConn.Close()
+}
+
+func (pthis * TcpConnection)quitTcpWrite() {
 	if atomic.LoadInt32(&pthis.canWrite) != 0 {
 		pthis.chMsgWrite <- nil
 	}
-	pthis.netConn.Close()
 }
 
 func (pthis * TcpConnection)TcpConnectionID() TCP_CONNECTION_ID {

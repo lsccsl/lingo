@@ -22,6 +22,7 @@ func main() {
 	if err != nil {
 		log.LogErr(err)
 	}
+
 	httpSrv.HttpSrvAddCallback("/test", func(writer http.ResponseWriter, request *http.Request) {
 		fmt.Fprint(writer, request.URL.Path, " ", request.Form)
 	})
@@ -31,7 +32,6 @@ func main() {
 		log.LogErr(err)
 		return
 	}
-
 	tcpAccept, err := StartTcpAccept(tcpAddr.IP.String(), tcpAddr.Port, server, 180)
 	if err != nil {
 		log.LogErr(err)
@@ -39,7 +39,7 @@ func main() {
 	}
 	log.LogDebug(tcpAccept)
 
-	dialMgr, err := StartTcpDial(server, 180)
+	dialMgr, err := StartTcpDial(180)
 	if err != nil {
 		log.LogErr(err)
 		return
@@ -50,10 +50,16 @@ func main() {
 	server.httpSrv = httpSrv
 
 	if len(Global_ServerCfg.MapCluster) > 1 {
-		for _, val := range Global_ServerCfg.MapCluster {
+		for key, val := range Global_ServerCfg.MapCluster {
 			if val == Global_ServerCfg.BindAddr {
 				continue
 			}
+			dialAddr, err := net.ResolveTCPAddr("tcp", Global_ServerCfg.BindAddr)
+			if err != nil {
+				log.LogErr(err)
+				return
+			}
+			dialMgr.TcpDialMgrDial(int64(key), dialAddr.IP.String(), dialAddr.Port, 180, 30)
 			log.LogDebug(val)
 		}
 	}
