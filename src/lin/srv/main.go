@@ -32,38 +32,32 @@ func main() {
 		log.LogErr(err)
 		return
 	}
-	tcpAccept, err := StartTcpAccept(tcpAddr.IP.String(), tcpAddr.Port, server, 180)
+	tcpMgr, err := StartTcpManager(tcpAddr.IP.String(), tcpAddr.Port, server, 180)
 	if err != nil {
 		log.LogErr(err)
 		return
 	}
-	log.LogDebug(tcpAccept)
+	log.LogDebug(tcpMgr)
 
-	dialMgr, err := StartTcpDial(180)
-	if err != nil {
-		log.LogErr(err)
-		return
-	}
-
-	server.dialMgr = dialMgr
-	server.accept = tcpAccept
+	server.tcpMgr = tcpMgr
 	server.httpSrv = httpSrv
+
 
 	if len(Global_ServerCfg.MapCluster) > 1 {
 		for key, val := range Global_ServerCfg.MapCluster {
 			if val == Global_ServerCfg.BindAddr {
 				continue
 			}
-			dialAddr, err := net.ResolveTCPAddr("tcp", Global_ServerCfg.BindAddr)
+			dialAddr, err := net.ResolveTCPAddr("tcp", val)
 			if err != nil {
 				log.LogErr(err)
 				return
 			}
-			dialMgr.TcpDialMgrDial(int64(key), dialAddr.IP.String(), dialAddr.Port, 180, 30)
+			tcpMgr.TcpDialMgrDial(int64(key), dialAddr.IP.String(), dialAddr.Port, 180, 6, true, 10)
 			log.LogDebug(val)
 		}
 	}
 
-	tcpAccept.TcpAcceptWait()
+	tcpMgr.TcpMgrWait()
 }
 

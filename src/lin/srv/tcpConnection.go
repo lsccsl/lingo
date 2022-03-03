@@ -7,6 +7,7 @@ import (
 	"lin/log"
 	"lin/msg"
 	"net"
+	"runtime"
 	"strconv"
 	"sync/atomic"
 	"time"
@@ -20,8 +21,9 @@ type MAP_TCPCONN map[TCP_CONNECTION_ID]*TcpConnection
 
 type InterfaceTcpConnection interface {
 	CBReadProcess(tcpConn * TcpConnection, recvBuf * bytes.Buffer)(bytesProcess int)
-	CBConnect(tcpConn * TcpConnection, err error)
-	CBConnectClose(id TCP_CONNECTION_ID)
+	CBConnectAccept(tcpConn * TcpConnection, err error) // accept connection
+	CBConnectDial(tcpConn * TcpConnection, err error) // dial connection
+	CBConnectClose(tcpConn * TcpConnection)
 }
 
 type InterfaceConnManage interface {
@@ -29,6 +31,7 @@ type InterfaceConnManage interface {
 	CBGenConnectionID()TCP_CONNECTION_ID
 	CBGetConnectionCB()InterfaceTcpConnection
 	CBDelTcpConn(id TCP_CONNECTION_ID)
+	CBRedial(srvID int64)
 }
 
 type interMsgTcpWrite struct {
@@ -44,11 +47,13 @@ type TcpConnection struct {
 	connMgr InterfaceConnManage
 
 	canWrite int32
-	isAccept bool
 
-	AppID int64
-	AppType int64
-	AppData interface{}
+	IsAccept bool
+	SrvID int64
+	ClientID int64
+
+	ConnType int64
+	ConnData interface{}
 }
 
 func startTcpConnection(connMgr InterfaceConnManage, conn net.Conn, closeExpireSec int) (*TcpConnection, error) {
@@ -61,12 +66,11 @@ func startTcpConnection(connMgr InterfaceConnManage, conn net.Conn, closeExpireS
 		connMgr:connMgr,
 		canWrite:0,
 		chMsgWrite:make(chan*interMsgTcpWrite),
-		isAccept:true,
+		IsAccept:true,
 	}
 
 	go tcpConn.go_tcpConnRead()
 	go tcpConn.go_tcpConnWrite()
-
 	connMgr.CBAddTcpConn(tcpConn)
 
 	if tcpConn.cbTcpConnection != nil {
@@ -77,14 +81,14 @@ func startTcpConnection(connMgr InterfaceConnManage, conn net.Conn, closeExpireS
 					log.LogErr(err)
 				}
 			}()
-			tcpConn.cbTcpConnection.CBConnect(tcpConn, nil)
+			tcpConn.cbTcpConnection.CBConnectAccept(tcpConn, nil)
 		}()
 	}
 
 	return tcpConn, nil
 }
 
-func startTcpDial(connMgr InterfaceConnManage,	ip string, port int, closeExpireSec int, dialTimeoutSec int) (*TcpConnection, error) {
+func startTcpDial(connMgr InterfaceConnManage,	ip string, port int, closeExpireSec int, dialTimeoutSec int, redialCount int) (*TcpConnection, error) {
 	defer func() {
 		err := recover()
 		if err != nil {
@@ -100,7 +104,7 @@ func startTcpDial(connMgr InterfaceConnManage,	ip string, port int, closeExpireS
 		connMgr:connMgr,
 		canWrite:0,
 		chMsgWrite:make(chan*interMsgTcpWrite),
-		isAccept:false,
+		IsAccept:false,
 	}
 	addr := ip + ":" + strconv.Itoa(port)
 
@@ -114,38 +118,68 @@ func startTcpDial(connMgr InterfaceConnManage,	ip string, port int, closeExpireS
 			}()
 
 			var err error
-			tcpConn.netConn, err = net.DialTimeout("tcp", addr, time.Second * time.Duration(dialTimeoutSec))
+			for i := 0; i < redialCount; i ++ {
+				tBegin := time.Now()
+				tcpConn.netConn, err = net.DialTimeout("tcp", addr, time.Second * time.Duration(dialTimeoutSec))
+				tEnd := time.Now()
+				if err != nil {
+					log.LogErr("will retry ", i, " ", redialCount, " ", err)
+					runtime.Gosched()
+					interval := int64(dialTimeoutSec) - (tEnd.Unix() - tBegin.Unix())
+					if interval <= 0 {
+						interval = 1
+					}
+					time.Sleep(time.Second * time.Duration(interval))
+					continue
+				}
+			}
+
 			if err != nil {
-				log.LogErr(err)
+				log.LogErr("fail ", err)
 				if tcpConn.cbTcpConnection != nil {
-					tcpConn.cbTcpConnection.CBConnect(nil, err)
+					tcpConn.cbTcpConnection.CBConnectClose(tcpConn)
 				}
-			} else {
-				connMgr.CBAddTcpConn(tcpConn)
-				if tcpConn.cbTcpConnection != nil {
-					tcpConn.cbTcpConnection.CBConnect(tcpConn, nil)
-				}
+				return
+			}
+
+			go tcpConn.go_tcpConnRead()
+			go tcpConn.go_tcpConnWrite()
+			connMgr.CBAddTcpConn(tcpConn)
+
+			if tcpConn.cbTcpConnection != nil {
+				tcpConn.cbTcpConnection.CBConnectDial(tcpConn, nil)
 			}
 		}()
+		return tcpConn, nil
 	} else {
 		var err error
-		if dialTimeoutSec == 0 {
-			tcpConn.netConn, err = net.Dial("tcp", addr)
-		} else {
-			tcpConn.netConn, err = net.DialTimeout("tcp", addr, time.Second * time.Duration(-dialTimeoutSec))
+		dialTimeoutSec = -dialTimeoutSec
+		if dialTimeoutSec < 1 {
+			dialTimeoutSec = 1
+		}
+		for i:=0 ; i < redialCount; i ++ {
+			tcpConn.netConn, err = net.DialTimeout("tcp", addr, time.Second * time.Duration(dialTimeoutSec))
+			if err != nil {
+				log.LogErr("will retry ", i, " ", redialCount, " ", err)
+				continue
+			}
 		}
 		if err != nil {
-			log.LogErr(err)
-			if tcpConn.cbTcpConnection != nil {
-				tcpConn.cbTcpConnection.CBConnect(nil, err)
+			log.LogErr("fail ", err)
+/*			if tcpConn.cbTcpConnection != nil {
+				tcpConn.cbTcpConnection.CBConnectClose(tcpConn)
 			}
-			return nil, err
-		}
-		if tcpConn.cbTcpConnection != nil {
-			tcpConn.cbTcpConnection.CBConnect(tcpConn, nil)
+*/			return nil, err
 		}
 
+		go tcpConn.go_tcpConnRead()
+		go tcpConn.go_tcpConnWrite()
 		connMgr.CBAddTcpConn(tcpConn)
+
+		if tcpConn.cbTcpConnection != nil {
+			tcpConn.cbTcpConnection.CBConnectDial(tcpConn, nil)
+		}
+
 		return tcpConn, nil
 	}
 
@@ -155,9 +189,13 @@ func startTcpDial(connMgr InterfaceConnManage,	ip string, port int, closeExpireS
 func (pthis * TcpConnection)go_tcpConnRead() {
 	defer func() {
 		pthis.quitTcpWrite()
-		pthis.cbTcpConnection.CBConnectClose(pthis.connectionID)
+		pthis.cbTcpConnection.CBConnectClose(pthis)
 		if pthis.connMgr != nil {
 			pthis.connMgr.CBDelTcpConn(pthis.connectionID)
+		}
+
+		if pthis.IsAccept {
+			pthis.connMgr.CBRedial(pthis.SrvID)
 		}
 
 		err := recover()
@@ -173,7 +211,7 @@ func (pthis * TcpConnection)go_tcpConnRead() {
 	var TimerConnClose * time.Timer = nil
 	if pthis.closeExpireSec > 0 {
 		TimerConnClose = time.AfterFunc(expireInterval, func() {
-			log.LogDebug("time out close tcp connection", pthis.connectionID, pthis.AppID)
+			log.LogDebug("time out close tcp connection", pthis.connectionID, pthis.SrvID)
 			pthis.TcpConnectClose()
 		})
 	}

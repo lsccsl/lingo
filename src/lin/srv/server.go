@@ -12,8 +12,7 @@ type MAP_CLIENT map[int64/*client id*/]*Client
 
 type Server struct {
 	mapClient MAP_CLIENT
-	accept *TcpAccept
-	dialMgr *TcpDialMgr
+	tcpMgr *TcpMgr
 	httpSrv *HttpSrvMgr
 }
 
@@ -57,13 +56,42 @@ func (pthis*Server)CBReadProcess(tcpConn * TcpConnection, recvBuf * bytes.Buffer
 			msgRes.ConnectId = int64(tcpConn.TcpConnectionID())
 			tcpConn.TcpConnectWriteProtoMsg(msg.MSG_TYPE__MSG_LOGIN_RES, msgRes)
 		}
+
+	case msg.MSG_TYPE__MSG_RPC:
+		t, ok := protoMsg.(*msg.MSG_RPC)
+		if ok && t != nil {
+			//???
+		}
+
+	case msg.MSG_TYPE__MSG_RPC_RES:
+		t, ok := protoMsg.(*msg.MSG_RPC_RES)
+		if ok && t != nil {
+			//???
+		}
+
+	case msg.MSG_TYPE__MSG_SRV_REPORT:
+		t, ok := protoMsg.(*msg.MSG_SRV_REPORT)
+		if ok && t != nil {
+			//???
+		}
+
 	default:
 		pthis.processClient(tcpConn, msg.MSG_TYPE(packType), protoMsg)
 	}
 
 	return int(packLen)
 }
-func (pthis*Server)CBConnect(tcpConn * TcpConnection, err error) {
+
+func (pthis*Server)CBConnectAccept(tcpConn * TcpConnection, err error) {
+	if err != nil {
+		log.LogErr(err)
+	}
+	if tcpConn == nil {
+		return
+	}
+	log.LogDebug(tcpConn.TcpGetConn().LocalAddr(), tcpConn.TcpGetConn().RemoteAddr(), tcpConn.TcpConnectionID())
+}
+func (pthis*Server)CBConnectDial(tcpConn * TcpConnection, err error) {
 	if err != nil {
 		log.LogErr(err)
 	}
@@ -73,8 +101,11 @@ func (pthis*Server)CBConnect(tcpConn * TcpConnection, err error) {
 	log.LogDebug(tcpConn.TcpGetConn().LocalAddr(), tcpConn.TcpGetConn().RemoteAddr(), tcpConn.TcpConnectionID())
 }
 
-func (pthis*Server)CBConnectClose(id TCP_CONNECTION_ID) {
-	log.LogDebug("id:", id)
+func (pthis*Server)CBConnectClose(tcpConn * TcpConnection) {
+	log.LogDebug("id:", tcpConn.TcpConnectionID())
+	if !tcpConn.IsAccept {
+		pthis.tcpMgr.TcpDialMgrCheckReDial(tcpConn.SrvID)
+	}
 }
 
 func ConstructServer() *Server {
@@ -90,7 +121,7 @@ func (pthis*Server)addClient(clientID int64, tcpConn * TcpConnection) {
 		conn := oldC.ClientGetConnection()
 		if conn != nil {
 			if conn.TcpConnectionID() != tcpConn.TcpConnectionID() {
-				pthis.accept.TcpAcceptCloseConn(oldC.ClientGetConnection().TcpConnectionID())
+				pthis.tcpMgr.TcpMgrCloseConn(oldC.ClientGetConnection().TcpConnectionID())
 			}
 		}
 	}
@@ -101,18 +132,18 @@ func (pthis*Server)addClient(clientID int64, tcpConn * TcpConnection) {
 	if conn == nil {
 		return
 	}
-	tcpConn.AppID = clientID
+	tcpConn.ClientID = clientID
 
 	pthis.mapClient[clientID] = c
 }
 
 func (pthis*Server)processClient(tcpConn * TcpConnection, msgType msg.MSG_TYPE, protoMsg proto.Message) {
-	oldC, ok := pthis.mapClient[tcpConn.AppID]
+	oldC, ok := pthis.mapClient[tcpConn.ClientID]
 	if ok && oldC != nil {
 		oldC.PushClientMsg(msgType, protoMsg)
 		return
 	}
-	pthis.accept.TcpAcceptCloseConn(tcpConn.TcpConnectionID())
+	pthis.tcpMgr.TcpMgrCloseConn(tcpConn.TcpConnectionID())
 }
 
 func (pthis*Server)ClientWriteProtoMsg(clientID int64, msgType msg.MSG_TYPE, protoMsg proto.Message) {
