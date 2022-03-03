@@ -6,12 +6,23 @@ import (
 	"github.com/golang/protobuf/proto"
 	"lin/log"
 	"lin/msg"
+	"sync"
 )
 
 type MAP_CLIENT map[int64/*client id*/]*Client
+type MAP_SERVER map[int64/*server id*/]*Server
+type interMsg struct {
+	msgType msg.MSG_TYPE
+	protoMsg proto.Message
+}
 
-type ServerMgr struct {
+type ClientMapMgr struct {
+	mapClientMutex sync.Mutex
 	mapClient MAP_CLIENT
+}
+type ServerMgr struct {
+	ClientMapMgr
+	mapServer MAP_SERVER
 	tcpMgr *TcpMgr
 	httpSrv *HttpSrvMgr
 }
@@ -57,6 +68,14 @@ func (pthis*ServerMgr)CBReadProcess(tcpConn * TcpConnection, recvBuf * bytes.Buf
 			tcpConn.TcpConnectWriteProtoMsg(msg.MSG_TYPE__MSG_LOGIN_RES, msgRes)
 		}
 
+	case msg.MSG_TYPE__MSG_SRV_REPORT:
+		t, ok := protoMsg.(*msg.MSG_SRV_REPORT)
+		if ok && t != nil {
+			if tcpConn.IsAccept {
+				pthis.processSrvReport(tcpConn, t.SrvId)
+			}
+		}
+
 	case msg.MSG_TYPE__MSG_RPC:
 		t, ok := protoMsg.(*msg.MSG_RPC)
 		if ok && t != nil {
@@ -65,12 +84,6 @@ func (pthis*ServerMgr)CBReadProcess(tcpConn * TcpConnection, recvBuf * bytes.Buf
 
 	case msg.MSG_TYPE__MSG_RPC_RES:
 		t, ok := protoMsg.(*msg.MSG_RPC_RES)
-		if ok && t != nil {
-			//???
-		}
-
-	case msg.MSG_TYPE__MSG_SRV_REPORT:
-		t, ok := protoMsg.(*msg.MSG_SRV_REPORT)
 		if ok && t != nil {
 			//???
 		}
@@ -108,10 +121,11 @@ func (pthis*ServerMgr)CBConnectClose(tcpConn * TcpConnection) {
 	}
 }
 
-func ConstructServer() *ServerMgr {
+func ConstructServerMgr() *ServerMgr {
 	srvMgr := &ServerMgr{
-		mapClient: make(MAP_CLIENT),
+		mapServer: make(MAP_SERVER),
 	}
+	srvMgr.mapClient = make(MAP_CLIENT)
 	return srvMgr
 }
 
@@ -157,3 +171,18 @@ func (pthis*ServerMgr)ClientWriteProtoMsg(clientID int64, msgType msg.MSG_TYPE, 
 	}
 	conn.TcpConnectWriteProtoMsg(msgType, protoMsg)
 }
+
+func (pthis*ServerMgr)processSrvReport(tcpAccept * TcpConnection, srvID int64){
+	tcpDial := pthis.tcpMgr.TcpDialGetSrvConn(srvID)
+	if tcpDial == nil {
+		return
+	}
+
+	srv := ConstructServer(tcpDial, tcpAccept)
+
+	pthis.mapServer[srvID] = srv
+}
+/*
+func (pthis*ServerMgr)processSrvReport(tcpAccept * TcpConnection, protoMsg *msg.MSG_SRV_REPORT){
+
+}*/

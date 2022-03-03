@@ -7,15 +7,12 @@ import (
 	"sync/atomic"
 )
 
-type interClientMsg struct {
-	msgType msg.MSG_TYPE
-	protoMsg proto.Message
-}
+
 
 type Client struct {
 	tcpConn *TcpConnection
 	clientID int64
-	chClientMsg chan *interClientMsg
+	chClientMsg chan *interMsg
 	isStopProcess int32
 }
 
@@ -23,7 +20,7 @@ func ConstructClient(tcpConn *TcpConnection,clientID int64) *Client {
 	c := &Client{
 		tcpConn:tcpConn,
 		clientID:clientID,
-		chClientMsg:make(chan *interClientMsg),
+		chClientMsg:make(chan *interMsg),
 		isStopProcess:0,
 	}
 
@@ -67,13 +64,13 @@ func (pthis*Client) PushClientMsg(msgType msg.MSG_TYPE, protoMsg proto.Message) 
 		return
 	}
 
-	pthis.chClientMsg <- &interClientMsg{
+	pthis.chClientMsg <- &interMsg{
 		msgType:msgType,
 		protoMsg:protoMsg,
 	}
 }
 
-func (pthis*Client) processClientMsg (interMsg * interClientMsg) {
+func (pthis*Client) processClientMsg (interMsg * interMsg) {
 	switch t:=interMsg.protoMsg.(type){
 	case *msg.MSG_TEST:
 		pthis.process_MSG_TEST(t)
