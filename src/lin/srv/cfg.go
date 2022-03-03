@@ -19,9 +19,11 @@ type ServerCfg struct {
 
 var Global_ServerCfg ServerCfg
 
-func ReadCfg() {
-	_,filename,_,_ := runtime.Caller(0)
-	pathCfg := filepath.Dir(filename) + "\\..\\..\\..\\cfg\\cfg.yml"
+func ReadCfg(pathCfg string) {
+	if len(pathCfg) == 0 {
+		_,filename,_,_ := runtime.Caller(0)
+		pathCfg = filepath.Dir(filename) + "\\..\\..\\..\\cfg\\cfg.yml"
+	}
 
 	yamlFile, err := ioutil.ReadFile(pathCfg)
 	if err != nil {

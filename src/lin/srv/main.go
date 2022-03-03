@@ -5,11 +5,19 @@ import (
 	"lin/log"
 	"net"
 	"net/http"
+	"os"
 )
 
 
 func main() {
-	ReadCfg()
+	fmt.Println(os.Args)
+
+	var pathCfg string
+	if len(os.Args) >= 2 {
+		pathCfg = os.Args[1]
+	}
+	ReadCfg(pathCfg)
+
 	InitMsgParseVirtualTable()
 	server := ConstructServer()
 

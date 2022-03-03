@@ -123,15 +123,16 @@ func startTcpDial(connMgr InterfaceConnManage,	ip string, port int, closeExpireS
 				tcpConn.netConn, err = net.DialTimeout("tcp", addr, time.Second * time.Duration(dialTimeoutSec))
 				tEnd := time.Now()
 				if err != nil {
-					log.LogErr("will retry ", i, " ", redialCount, " ", err)
-					runtime.Gosched()
+					log.LogErr("will retry ", i, " ", redialCount, " ", tcpConn.netConn, " ", err)
 					interval := int64(dialTimeoutSec) - (tEnd.Unix() - tBegin.Unix())
+					runtime.Gosched()
 					if interval <= 0 {
-						interval = 1
+						interval = 0
 					}
-					time.Sleep(time.Second * time.Duration(interval))
+					time.Sleep(time.Second * time.Duration(interval + 1))
 					continue
 				}
+				break
 			}
 
 			if err != nil {
