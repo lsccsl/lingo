@@ -101,12 +101,10 @@ func (pthis * TcpDialMgr) TcpDialMgrDial(srvID int64, ip string, port int, close
 	dialTimeoutSec int,
 	needRedial bool, redialCount int) (*TcpConnection, error) {
 
-	tcpConn, err := startTcpDial(pthis.connMgr, ip, port, closeExpireSec, dialTimeoutSec, redialCount)
+	tcpConn, err := startTcpDial(pthis.connMgr, srvID, ip, port, closeExpireSec, dialTimeoutSec, redialCount)
 	if err != nil {
 		return nil, err
 	}
-
-	tcpConn.SrvID = srvID
 
 	pthis.addDialData(srvID,
 		&dialData{

@@ -19,7 +19,7 @@ func main() {
 	ReadCfg(pathCfg)
 
 	InitMsgParseVirtualTable()
-	server := ConstructServerMgr()
+	server := ConstructServerMgr(Global_ServerCfg.SrvID)
 
 	httpAddr, err := net.ResolveTCPAddr("tcp", Global_ServerCfg.HttpAddr)
 	if err != nil {
@@ -50,7 +50,6 @@ func main() {
 	server.tcpMgr = tcpMgr
 	server.httpSrv = httpSrv
 
-
 	if len(Global_ServerCfg.MapCluster) > 1 {
 		for key, val := range Global_ServerCfg.MapCluster {
 			if val == Global_ServerCfg.BindAddr {
@@ -61,7 +60,7 @@ func main() {
 				log.LogErr(err)
 				return
 			}
-			tcpMgr.TcpDialMgrDial(int64(key), dialAddr.IP.String(), dialAddr.Port, 180, 6, true, 10)
+			tcpMgr.TcpDialMgrDial(int64(key), dialAddr.IP.String(), dialAddr.Port, 180, 15, true, 10)
 			log.LogDebug(val)
 		}
 	}

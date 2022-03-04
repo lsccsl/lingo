@@ -6,18 +6,29 @@ import (
 )
 
 type Server struct {
+	srvMgr *ServerMgr
+	srvID int64
 	connDial *TcpConnection
 	connAcpt *TcpConnection
-	chServerMsg chan *interMsg
+	chSrvProtoMsg chan *interProtoMsg
+	chInterMsg chan interface{}
 
 	isStopProcess int32
 }
 
-func ConstructServer(connDial *TcpConnection, connAcpt *TcpConnection)*Server {
+type interMsgSrvReport struct {
+	tcpAccept * TcpConnection
+}
+type interMsgConnDial struct {
+	tcpDial * TcpConnection
+}
+
+func ConstructServer(srvMgr *ServerMgr, srvID int64)*Server {
 	s := &Server{
-		connDial:connDial,
-		connAcpt:connAcpt,
-		chServerMsg:make(chan *interMsg),
+		srvMgr:srvMgr,
+		srvID:srvID,
+		chSrvProtoMsg:make(chan *interProtoMsg),
+		chInterMsg:make(chan interface{}),
 		isStopProcess:0,
 	}
 	go s.go_serverProcess()
@@ -35,14 +46,48 @@ func (pthis*Server) go_serverProcess() {
 MSG_LOOP:
 	for {
 		select {
-		case clientMsg := <- pthis.chServerMsg:
-			if clientMsg == nil {
+		case ProtoMsg := <- pthis.chSrvProtoMsg:
+			if ProtoMsg == nil {
 				break MSG_LOOP
 			}
 			//pthis.processServerMsg(clientMsg)
+
+		case interMsg := <- pthis.chInterMsg:
+			{
+				switch t:= interMsg.(type) {
+				case *interMsgSrvReport:
+					pthis.processSrvReport(t.tcpAccept)
+				case *interMsgConnDial:
+					pthis.processDailConnect(t.tcpDial)
+				}
+			}
 		}
 	}
 
 	atomic.StoreInt32(&pthis.isStopProcess, 1)
-	close(pthis.chServerMsg)
+	close(pthis.chSrvProtoMsg)
+	close(pthis.chInterMsg)
+}
+
+func (pthis*Server) ServerClose() {
+	pthis.srvMgr.tcpMgr.TcpDialDelDialData(pthis.srvID)
+	pthis.srvMgr.tcpMgr.TcpMgrCloseConn(pthis.connAcpt.TcpConnectionID())
+	pthis.srvMgr.tcpMgr.TcpMgrCloseConn(pthis.connDial.TcpConnectionID())
+	pthis.chSrvProtoMsg <- nil
+}
+
+func (pthis*Server)processSrvReport(tcpAccept * TcpConnection){
+	pthis.connAcpt = tcpAccept
+
+	log.LogDebug(pthis.srvID, " ", pthis)
+}
+
+func (pthis*Server)processDailConnect(tcpDial * TcpConnection){
+	pthis.connDial = tcpDial
+
+	log.LogDebug(pthis.srvID, " ", pthis)
+}
+
+func (pthis*Server)PushInterMsg(msg interface{}){
+	pthis.chInterMsg <- msg
 }

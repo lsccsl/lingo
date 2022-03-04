@@ -1,8 +1,8 @@
 cluster: test
-bind_addr: 0.0.0.0:1128
+bind_addr: 0.0.0.0:1138
 srv_id: 2
 http_addr: 0.0.0.0:8112
 alias_name: test_srv_2
 map_cluster:
     1: 0.0.0.0:1118
-    2: 0.0.0.0:1128
+    2: 0.0.0.0:1138

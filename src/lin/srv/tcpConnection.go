@@ -88,7 +88,7 @@ func startTcpConnection(connMgr InterfaceConnManage, conn net.Conn, closeExpireS
 	return tcpConn, nil
 }
 
-func startTcpDial(connMgr InterfaceConnManage, ip string, port int, closeExpireSec int, dialTimeoutSec int, redialCount int) (*TcpConnection, error) {
+func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int, closeExpireSec int, dialTimeoutSec int, redialCount int) (*TcpConnection, error) {
 	defer func() {
 		err := recover()
 		if err != nil {
@@ -97,6 +97,7 @@ func startTcpDial(connMgr InterfaceConnManage, ip string, port int, closeExpireS
 	}()
 
 	tcpConn := &TcpConnection{
+		SrvID:SrvID,
 		connectionID:connMgr.CBGenConnectionID(),
 		netConn:nil,
 		cbTcpConnection:connMgr.CBGetConnectionCB(),

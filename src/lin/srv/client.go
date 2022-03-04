@@ -10,17 +10,19 @@ import (
 
 
 type Client struct {
+	srvMgr *ServerMgr
 	tcpConn *TcpConnection
 	clientID int64
-	chClientMsg chan *interMsg
+	chClientProtoMsg chan *interProtoMsg
 	isStopProcess int32
 }
 
-func ConstructClient(tcpConn *TcpConnection,clientID int64) *Client {
+func ConstructClient(srvMgr *ServerMgr, tcpConn *TcpConnection,clientID int64) *Client {
 	c := &Client{
+		srvMgr:srvMgr,
 		tcpConn:tcpConn,
 		clientID:clientID,
-		chClientMsg:make(chan *interMsg),
+		chClientProtoMsg:make(chan *interProtoMsg),
 		isStopProcess:0,
 	}
 
@@ -40,16 +42,16 @@ func (pthis*Client) go_clientProcess() {
 	MSG_LOOP:
 	for {
 		select {
-		case clientMsg := <- pthis.chClientMsg:
-			if clientMsg == nil {
+		case ProtoMsg := <- pthis.chClientProtoMsg:
+			if ProtoMsg == nil {
 				break MSG_LOOP
 			}
-			pthis.processClientMsg(clientMsg)
+			pthis.processClientMsg(ProtoMsg)
 		}
 	}
 
 	atomic.StoreInt32(&pthis.isStopProcess, 1)
-	close(pthis.chClientMsg)
+	close(pthis.chClientProtoMsg)
 }
 
 func (pthis*Client) ClientGetConnection()*TcpConnection{
@@ -59,18 +61,23 @@ func (pthis*Client) ClientGetClientID()int64{
 	return pthis.clientID
 }
 
+func (pthis*Client) ClientClose() {
+	pthis.srvMgr.tcpMgr.TcpMgrCloseConn(pthis.tcpConn.TcpConnectionID())
+	pthis.chClientProtoMsg <- nil
+}
+
 func (pthis*Client) PushClientMsg(msgType msg.MSG_TYPE, protoMsg proto.Message) {
 	if atomic.LoadInt32(&pthis.isStopProcess) == 1 {
 		return
 	}
 
-	pthis.chClientMsg <- &interMsg{
+	pthis.chClientProtoMsg <- &interProtoMsg{
 		msgType:msgType,
 		protoMsg:protoMsg,
 	}
 }
 
-func (pthis*Client) processClientMsg (interMsg * interMsg) {
+func (pthis*Client) processClientMsg (interMsg * interProtoMsg) {
 	switch t:=interMsg.protoMsg.(type){
 	case *msg.MSG_TEST:
 		pthis.process_MSG_TEST(t)
