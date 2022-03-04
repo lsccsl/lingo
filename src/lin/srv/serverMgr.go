@@ -185,6 +185,8 @@ func (pthis*ServerMgr)processClientLogin(clientID int64, tcpConn * TcpConnection
 		return
 	}
 
+	tcpConn.ClientID = clientID
+
 	oldC := pthis.getClient(clientID)
 	if oldC != nil {
 		conn := oldC.ClientGetConnection()
