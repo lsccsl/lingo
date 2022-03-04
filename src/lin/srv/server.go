@@ -37,6 +37,7 @@ func ConstructServer(srvMgr *ServerMgr, srvID int64)*Server {
 
 func (pthis*Server) go_serverProcess() {
 	defer func() {
+		atomic.StoreInt32(&pthis.isStopProcess, 1)
 		err := recover()
 		if err != nil {
 			log.LogErr(err)
@@ -70,10 +71,14 @@ MSG_LOOP:
 }
 
 func (pthis*Server) ServerClose() {
-	pthis.srvMgr.tcpMgr.TcpDialDelDialData(pthis.srvID)
 	pthis.srvMgr.tcpMgr.TcpMgrCloseConn(pthis.connAcpt.TcpConnectionID())
 	pthis.srvMgr.tcpMgr.TcpMgrCloseConn(pthis.connDial.TcpConnectionID())
 	pthis.chSrvProtoMsg <- nil
+}
+
+func (pthis*Server) ServerCloseAndDelDialData() {
+	pthis.srvMgr.tcpMgr.TcpDialDelDialData(pthis.srvID)
+	pthis.ServerClose()
 }
 
 func (pthis*Server)processSrvReport(tcpAccept * TcpConnection){
@@ -89,5 +94,8 @@ func (pthis*Server)processDailConnect(tcpDial * TcpConnection){
 }
 
 func (pthis*Server)PushInterMsg(msg interface{}){
+	if atomic.LoadInt32(&pthis.isStopProcess) == 1 {
+		return
+	}
 	pthis.chInterMsg <- msg
 }

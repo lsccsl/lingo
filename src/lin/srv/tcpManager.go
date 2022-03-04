@@ -38,9 +38,7 @@ func (pthis * TcpMgr) CBDelTcpConn(id TCP_CONNECTION_ID) {
 
 	delete(pthis.mapConn, id)
 }
-func (pthis * TcpMgr) CBRedial(srvID int64) {
-	pthis.TcpDialMgrCheckReDial(srvID)
-}
+
 func (pthis * TcpMgr)go_tcpAccept() {
 	for {
 		conn, err := pthis.tcpLsn.Accept()

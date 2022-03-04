@@ -42,7 +42,7 @@ func main() {
 	}
 	tcpMgr, err := StartTcpManager(tcpAddr.IP.String(), tcpAddr.Port, server, 180)
 	if err != nil {
-		log.LogErr(err)
+		log.LogErr("addr:", tcpAddr, " err:", err)
 		return
 	}
 	log.LogDebug(tcpMgr)

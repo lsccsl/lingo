@@ -117,9 +117,14 @@ func (pthis*ServerMgr)CBConnectDial(tcpConn * TcpConnection, err error) {
 }
 
 func (pthis*ServerMgr)CBConnectClose(tcpConn * TcpConnection) {
-	log.LogDebug("id:", tcpConn.TcpConnectionID())
+	log.LogDebug("id:", tcpConn.TcpConnectionID(), " is accept:", tcpConn.IsAccept)
 	if !tcpConn.IsAccept {
+		pthis.delServer(tcpConn.SrvID)
 		pthis.tcpMgr.TcpDialMgrCheckReDial(tcpConn.SrvID)
+	} else {
+		if tcpConn.SrvID != 0 {
+			pthis.delServer(tcpConn.SrvID)
+		}
 	}
 }
 
@@ -257,3 +262,5 @@ func (pthis*ServerMgr)processDailConnect(tcpDial * TcpConnection){
 	msgR.SrvId = pthis.srvID
 	tcpDial.TcpConnectWriteProtoMsg(msg.MSG_TYPE__MSG_SRV_REPORT, msgR)
 }
+
+// todo:多了一个accept dump all mem data

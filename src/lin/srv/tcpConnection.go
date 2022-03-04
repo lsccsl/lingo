@@ -31,7 +31,6 @@ type InterfaceConnManage interface {
 	CBGenConnectionID()TCP_CONNECTION_ID
 	CBGetConnectionCB()InterfaceTcpConnection
 	CBDelTcpConn(id TCP_CONNECTION_ID)
-	CBRedial(srvID int64)
 }
 
 type interMsgTcpWrite struct {
@@ -189,15 +188,15 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 }
 
 func (pthis * TcpConnection)go_tcpConnRead() {
+	var TimerConnClose * time.Timer = nil
 	defer func() {
+		if TimerConnClose != nil {
+			TimerConnClose.Stop()
+		}
 		pthis.quitTcpWrite()
 		pthis.cbTcpConnection.CBConnectClose(pthis)
 		if pthis.connMgr != nil {
 			pthis.connMgr.CBDelTcpConn(pthis.connectionID)
-		}
-
-		if pthis.IsAccept {
-			pthis.connMgr.CBRedial(pthis.SrvID)
 		}
 
 		err := recover()
@@ -210,10 +209,9 @@ func (pthis * TcpConnection)go_tcpConnRead() {
 	recvBuf := bytes.NewBuffer(make([]byte, 0, MAX_PACK_LEN))
 
 	expireInterval := time.Second * time.Duration(pthis.closeExpireSec)
-	var TimerConnClose * time.Timer = nil
 	if pthis.closeExpireSec > 0 {
 		TimerConnClose = time.AfterFunc(expireInterval, func() {
-			log.LogDebug("time out close tcp connection", pthis.connectionID, pthis.SrvID)
+			log.LogDebug("time out close tcp connection:", pthis.connectionID, " srvid:", pthis.SrvID, " clientid:", pthis.ClientID)
 			pthis.TcpConnectClose()
 		})
 	}
@@ -225,7 +223,7 @@ func (pthis * TcpConnection)go_tcpConnRead() {
 			break READ_LOOP
 		}
 
-		if pthis.closeExpireSec > 0 {
+		if TimerConnClose != nil {
 			TimerConnClose.Reset(expireInterval)
 		}
 
