@@ -27,8 +27,8 @@ func ConstructServer(srvMgr *ServerMgr, srvID int64)*Server {
 	s := &Server{
 		srvMgr:srvMgr,
 		srvID:srvID,
-		chSrvProtoMsg:make(chan *interProtoMsg),
-		chInterMsg:make(chan interface{}),
+		chSrvProtoMsg:make(chan *interProtoMsg, 100),
+		chInterMsg:make(chan interface{}, 100),
 		isStopProcess:0,
 	}
 	go s.go_serverProcess()
@@ -71,8 +71,12 @@ MSG_LOOP:
 }
 
 func (pthis*Server) ServerClose() {
-	pthis.srvMgr.tcpMgr.TcpMgrCloseConn(pthis.connAcpt.TcpConnectionID())
-	pthis.srvMgr.tcpMgr.TcpMgrCloseConn(pthis.connDial.TcpConnectionID())
+	if pthis.connAcpt != nil {
+		pthis.srvMgr.tcpMgr.TcpMgrCloseConn(pthis.connAcpt.TcpConnectionID())
+	}
+	if pthis.connDial != nil {
+		pthis.srvMgr.tcpMgr.TcpMgrCloseConn(pthis.connDial.TcpConnectionID())
+	}
 	pthis.chSrvProtoMsg <- nil
 }
 

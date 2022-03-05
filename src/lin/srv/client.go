@@ -22,7 +22,7 @@ func ConstructClient(srvMgr *ServerMgr, tcpConn *TcpConnection,clientID int64) *
 		srvMgr:srvMgr,
 		tcpConn:tcpConn,
 		clientID:clientID,
-		chClientProtoMsg:make(chan *interProtoMsg),
+		chClientProtoMsg:make(chan *interProtoMsg, 100),
 		isStopProcess:0,
 	}
 
