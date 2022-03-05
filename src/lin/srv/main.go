@@ -65,6 +65,13 @@ func main() {
 		}
 	}
 
+	InitCmd()
+	AddCmd("dump", "dump", func(argStr []string){
+		str := server.Dump()
+		fmt.Println(str)
+	})
+
+	ParseCmd()
 	tcpMgr.TcpMgrWait()
 }
 

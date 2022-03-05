@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 	"github.com/golang/protobuf/proto"
 	"lin/log"
 	"lin/msg"
@@ -263,4 +264,62 @@ func (pthis*ServerMgr)processDailConnect(tcpDial * TcpConnection){
 	tcpDial.TcpConnectWriteProtoMsg(msg.MSG_TYPE__MSG_SRV_REPORT, msgR)
 }
 
-// todo:多了一个accept dump all mem data
+func (pthis*ServerMgr)Dump() string {
+	var str string
+	str += "\r\nclient:\r\n"
+	func(){
+		pthis.ClientMapMgr.mapClientMutex.Lock()
+		defer pthis.ClientMapMgr.mapClientMutex.Unlock()
+		for _, val := range pthis.ClientMapMgr.mapClient {
+			var connID TCP_CONNECTION_ID
+			if val.tcpConn != nil {
+				connID = val.tcpConn.TcpConnectionID()
+			}
+			str += fmt.Sprintf("\r\n client id:%v id:%v", val.clientID, connID)
+		}
+	}()
+
+	str += "\r\nserver:\r\n"
+	func(){
+		pthis.ServerMapMgr.mapServerMutex.Lock()
+		defer pthis.ServerMapMgr.mapServerMutex.Unlock()
+		for _, val := range pthis.ServerMapMgr.mapServer {
+			var acptID TCP_CONNECTION_ID
+			var connID TCP_CONNECTION_ID
+			if val.connAcpt != nil {
+				acptID = val.connAcpt.TcpConnectionID()
+			}
+			if val.connDial != nil {
+				connID = val.connDial.TcpConnectionID()
+			}
+			str += fmt.Sprintf("\r\n server id:%v acpt:%v dial:%v", val.srvID, acptID, connID)
+		}
+	}()
+
+	str += "\r\ntcp connect:\r\n"
+	func(){
+		pthis.tcpMgr.mapConnMutex.Lock()
+		defer pthis.tcpMgr.mapConnMutex.Unlock()
+		for _, val := range pthis.tcpMgr.mapConn {
+			str += fmt.Sprintf(" \r\n connection:%v remote:[%v] local:[%v] IsAccept:%v SrvID:%v ClientID:%v",
+				val.TcpConnectionID(), val.netConn.RemoteAddr(), val.netConn.LocalAddr(), val.IsAccept, val.SrvID, val.ClientID)
+		}
+	}()
+
+	str += "\r\ntcp dial data\r\n"
+	func(){
+		pthis.tcpMgr.TcpDialMgr.mapDialDataMutex.Lock()
+		pthis.tcpMgr.TcpDialMgr.mapDialDataMutex.Unlock()
+		for _, val := range pthis.tcpMgr.TcpDialMgr.mapDialData {
+			var connID TCP_CONNECTION_ID
+			if val.tcpConn != nil {
+				connID = val.tcpConn.TcpConnectionID()
+			}
+			str += fmt.Sprintf("\r\n srvID:%v connection:%v [%v:%v]", val.srvID, connID, val.ip, val.port)
+		}
+	}()
+
+	return str
+}
+
+// todo: dump all mem data
