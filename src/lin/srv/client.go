@@ -66,7 +66,7 @@ func (pthis*Client) ClientClose() {
 	pthis.chClientProtoMsg <- nil
 }
 
-func (pthis*Client) PushClientMsg(msgType msgpacket.MSG_TYPE, protoMsg proto.Message) {
+func (pthis*Client) PushProtoMsg(msgType msgpacket.MSG_TYPE, protoMsg proto.Message) {
 	if atomic.LoadInt32(&pthis.isStopProcess) == 1 {
 		return
 	}
@@ -77,10 +77,9 @@ func (pthis*Client) PushClientMsg(msgType msgpacket.MSG_TYPE, protoMsg proto.Mes
 	}
 }
 
-func (pthis*Client)processRPC(tcpConn * TcpConnection, msg proto.Message) proto.Message {
-	return nil
+func (pthis*Client)Go_processRPC(tcpConn * TcpConnection, msg *msgpacket.MSG_RPC, msgBody proto.Message) {
 }
-func (pthis*Client)processRPCRes(tcpConn * TcpConnection, msg proto.Message) {
+func (pthis*Client)processRPCRes(tcpConn * TcpConnection, msg *msgpacket.MSG_RPC_RES, msgBody proto.Message) {
 }
 
 func (pthis*Client) processClientMsg (interMsg * interProtoMsg) {

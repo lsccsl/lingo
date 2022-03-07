@@ -8,6 +8,7 @@ import (
 	"os"
 )
 
+var srvMgr *ServerMgr
 
 func main() {
 	fmt.Println(os.Args)
@@ -19,7 +20,7 @@ func main() {
 	ReadCfg(pathCfg)
 
 	InitMsgParseVirtualTable()
-	server := ConstructServerMgr(Global_ServerCfg.SrvID, 90)
+	srvMgr = ConstructServerMgr(Global_ServerCfg.SrvID, 90, 10)
 
 	httpAddr, err := net.ResolveTCPAddr("tcp", Global_ServerCfg.HttpAddr)
 	if err != nil {
@@ -40,15 +41,15 @@ func main() {
 		log.LogErr(err)
 		return
 	}
-	tcpMgr, err := StartTcpManager(tcpAddr.IP.String(), tcpAddr.Port, server, 180)
+	tcpMgr, err := StartTcpManager(tcpAddr.IP.String(), tcpAddr.Port, srvMgr, 180)
 	if err != nil {
 		log.LogErr("addr:", tcpAddr, " err:", err)
 		return
 	}
 	log.LogDebug(tcpMgr)
 
-	server.tcpMgr = tcpMgr
-	server.httpSrv = httpSrv
+	srvMgr.tcpMgr = tcpMgr
+	srvMgr.httpSrv = httpSrv
 
 	if len(Global_ServerCfg.MapCluster) > 1 {
 		for key, val := range Global_ServerCfg.MapCluster {
@@ -65,11 +66,11 @@ func main() {
 		}
 	}
 
-	InitCmd()
 	AddCmd("dump", "dump", func(argStr []string){
-		str := server.Dump()
+		str := srvMgr.Dump()
 		fmt.Println(str)
 	})
+	commandLineInit()
 
 	ParseCmd()
 	tcpMgr.TcpMgrWait()

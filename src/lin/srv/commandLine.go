@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"strconv"
 	"strings"
 )
 
@@ -14,31 +13,17 @@ type CmdFuncInfo struct{
 }
 
 type CmdInfo struct {
-	//mapCmd map[string]func(argStr []string, argCount int)
 	mapCmd map[string]CmdFuncInfo
-	cur_iggid int64
-	cmdHelp string
 }
-var _cmd_info CmdInfo
-
-func set_iggid(argStr []string){
-	if len(argStr) < 1{
-		return
-	}
-	_cmd_info.cur_iggid, _ = strconv.ParseInt(argStr[0], 10, 64)
-	fmt.Println("cur iggid:", _cmd_info.cur_iggid)
-}
-
-func InitCmd(){
-	_cmd_info.mapCmd = make(map[string]CmdFuncInfo)
-	_cmd_info.mapCmd["setiggid"] = CmdFuncInfo{set_iggid, "set cur iggid"}
+var _cmd_info = CmdInfo{
+	mapCmd:make(map[string]CmdFuncInfo),
 }
 
 func AddCmd(cmd_name string, cmd_help string, cmd_func func(argStr []string)){
 	_cmd_info.mapCmd[cmd_name] = CmdFuncInfo{cmd_func, cmd_help}
 }
 
-func DumpAllCmd(){
+func DumpAllCmd(argStr []string){
 	for key, val := range _cmd_info.mapCmd{
 		fmt.Println(key, ":", val.cmdHelp)
 	}
@@ -56,7 +41,7 @@ func DoCmd(argStr []string, argCount int){
 	if len(argStr) >= 2{
 		funcInfo.cmdFunc(argStr[1:])
 	}else{
-		funcInfo.cmdFunc(nil)
+		funcInfo.cmdFunc([]string{})
 	}
 }
 

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"encoding/binary"
 	"fmt"
 	"github.com/golang/protobuf/proto"
 	"go/ast"
@@ -153,4 +155,36 @@ func ProtoParseByName(binMsg []byte, msgType int32)proto.Message {
 	}
 	proto.Unmarshal(binMsg, msgIns)
 	return msgIns
+}
+
+func ProtoPacketToBin(msgType MSG_TYPE, protoMsg proto.Message) []byte {
+	binMsg, _ := proto.Marshal(protoMsg)
+	var wb []byte
+	var buf bytes.Buffer
+	_ = binary.Write(&buf,binary.LittleEndian,uint32(6 + len(binMsg)))
+	_ = binary.Write(&buf,binary.LittleEndian,uint16(msgType))
+	wb = buf.Bytes()
+	wb = append(wb, binMsg...)
+
+	return wb
+}
+
+func ProtoUnPacketFromBin(recvBuf * bytes.Buffer) (MSG_TYPE, uint32, proto.Message) {
+	if recvBuf.Len() < 6 {
+		return MSG_TYPE__MSG_NULL, 0, nil
+	}
+	binHead := recvBuf.Bytes()[0:6]
+
+	packLen := binary.LittleEndian.Uint32(binHead[0:4])
+	packType := binary.LittleEndian.Uint16(binHead[4:6])
+
+	log.LogDebug("packLen:", packLen, " packType:", packType)
+
+	if recvBuf.Len() < int(packLen){
+		return MSG_TYPE__MSG_NULL, 0, nil
+	}
+
+	binBody := recvBuf.Bytes()[6:packLen]
+
+	return MSG_TYPE(packType), packLen, ParseProtoMsg(binBody, int32(packType))
 }

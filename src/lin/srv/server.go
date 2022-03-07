@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/golang/protobuf/proto"
+	"lin/lin_common"
 	"lin/log"
 	msgpacket "lin/msgpacket"
 	"sync/atomic"
@@ -12,10 +13,11 @@ type Server struct {
 	srvMgr *ServerMgr
 	srvID int64
 	connDial *TcpConnection
-	connAcpt *TcpConnection
+	connAcptID TCP_CONNECTION_ID
 	chSrvProtoMsg chan *interProtoMsg
 	chInterMsg chan interface{}
 	heartbeatIntervalSec int
+	rpcMgr *RPCManager
 
 	isStopProcess int32
 }
@@ -34,6 +36,7 @@ func ConstructServer(srvMgr *ServerMgr, srvID int64, heartbeatIntervalSec int)*S
 		chSrvProtoMsg:make(chan *interProtoMsg, 100),
 		chInterMsg:make(chan interface{}, 100),
 		heartbeatIntervalSec:heartbeatIntervalSec,
+		rpcMgr:ConstructRPCManager(),
 		isStopProcess:0,
 	}
 	go s.go_serverProcess()
@@ -59,7 +62,7 @@ func (pthis*Server) go_serverProcess() {
 				if ProtoMsg == nil {
 					break MSG_LOOP
 				}
-				//pthis.processServerMsg(clientMsg)
+				log.LogDebug(ProtoMsg)
 			}
 
 		case interMsg := <- pthis.chInterMsg:
@@ -89,9 +92,7 @@ func (pthis*Server) go_serverProcess() {
 }
 
 func (pthis*Server) ServerClose() {
-	if pthis.connAcpt != nil {
-		pthis.srvMgr.tcpMgr.TcpMgrCloseConn(pthis.connAcpt.TcpConnectionID())
-	}
+	pthis.srvMgr.tcpMgr.TcpMgrCloseConn(pthis.connAcptID)
 	if pthis.connDial != nil {
 		pthis.srvMgr.tcpMgr.TcpMgrCloseConn(pthis.connDial.TcpConnectionID())
 	}
@@ -104,7 +105,7 @@ func (pthis*Server) ServerCloseAndDelDialData() {
 }
 
 func (pthis*Server)processSrvReport(tcpAccept * TcpConnection){
-	pthis.connAcpt = tcpAccept
+	pthis.connAcptID = tcpAccept.TcpConnectionID()
 
 	log.LogDebug(pthis.srvID, " ", pthis)
 }
@@ -131,18 +132,87 @@ func (pthis*Server)PushProtoMsg(msgType msgpacket.MSG_TYPE, protoMsg proto.Messa
 	}
 }
 
-func (pthis*Server)processRPC(tcpConn * TcpConnection, msg proto.Message) proto.Message {
-	switch t:= msg.(type) {
+func (pthis*Server)Go_ProcessRPC(tcpConn * TcpConnection, msg *msgpacket.MSG_RPC, msgBody proto.Message) {
+	var msgRes proto.Message = nil
+	switch t:= msgBody.(type) {
 	case *msgpacket.MSG_TEST:
 		{
-			return pthis.processRPCTest(tcpConn, t)
+			msgRes = pthis.processRPCTest(tcpConn, t)
 		}
 	}
-	return nil
+
+	msgRPCRes := &msgpacket.MSG_RPC_RES{
+		MsgId:msg.MsgId,
+		MsgType:msg.MsgType,
+		ResCode:msgpacket.RESPONSE_CODE_RESPONSE_CODE_NONE,
+	}
+
+	if msgRes != nil {
+		var err error
+		msgRPCRes.MsgBin, err = proto.Marshal(msgRes)
+		if err != nil {
+			log.LogErr(err)
+		}
+	}
+	tcpConn.TcpConnectSendProtoMsg(msgpacket.MSG_TYPE__MSG_RPC_RES, msgRPCRes)
 }
-func (pthis*Server)processRPCRes(tcpConn * TcpConnection, msg proto.Message) {
+func (pthis*Server)processRPCRes(tcpConn * TcpConnection, msg *msgpacket.MSG_RPC_RES, msgBody proto.Message) {
+	defer func() {
+		err := recover()
+		if err != nil {
+			log.LogErr(err)
+		}
+	}()
+	if pthis.rpcMgr == nil {
+		return
+	}
+	rreq := pthis.rpcMgr.RPCManagerFindReq(msg.MsgId)
+	if rreq == nil {
+		return
+	}
+	if rreq.chNtf != nil {
+		rreq.chNtf <- msgBody
+	}
 }
 
 func (pthis*Server)processRPCTest(tcpDial * TcpConnection, msg *msgpacket.MSG_TEST) *msgpacket.MSG_TEST_RES {
-	return &msgpacket.MSG_TEST_RES{Id: 123}
+	log.LogDebug(msg)
+	return &msgpacket.MSG_TEST_RES{Id: msg.Id}
+}
+
+// SendRPC_Async @brief will block timeoutMilliSec
+func (pthis*Server)SendRPC_Async(msgType msgpacket.MSG_TYPE, protoMsg proto.Message, timeoutMilliSec int) proto.Message {
+
+	defer func() {
+		err := recover()
+		if err != nil {
+			log.LogErr(err)
+		}
+	}()
+
+	if pthis.rpcMgr == nil || pthis.connDial == nil{
+		return nil
+	}
+
+	msgRPC := msgpacket.MSG_RPC{
+		MsgId:lin_common.GenUUID64_V4(),
+		MsgType:int32(msgType),
+		MsgBin:ProtoPacketToBin(msgType, protoMsg),
+	}
+
+	rreq := pthis.rpcMgr.RPCManagerAddReq(msgRPC.MsgId)
+
+	pthis.connDial.TcpConnectSendProtoMsg(msgpacket.MSG_TYPE__MSG_RPC, &msgRPC)
+
+	var res proto.Message = nil
+	select{
+	case resCh := <-rreq.chNtf:
+		log.LogDebug(resCh)
+		res, _ = resCh.(proto.Message)
+	case <-time.After(time.Millisecond * time.Duration(timeoutMilliSec)):
+	}
+
+	pthis.rpcMgr.RPCManagerDelReq(msgRPC.MsgId)
+
+	return res
 }

@@ -2,12 +2,17 @@ package main
 
 import (
 	"bytes"
-	"encoding/binary"
 	"fmt"
 	"github.com/golang/protobuf/proto"
+	cor_pool "lin/lin_cor_pool"
 	"lin/log"
 	"lin/msgpacket"
 	"sync"
+)
+
+const(
+	EN_CORPOOL_JOBTYPE_Rpc_req = cor_pool.EN_CORPOOL_JOBTYPE_user + 1
+	EN_CORPOOL_JOBTYPE_client_Rpc_req = cor_pool.EN_CORPOOL_JOBTYPE_user + 2
 )
 
 type MAP_CLIENT map[int64/*client id*/]*Client
@@ -31,32 +36,19 @@ type ServerMgr struct {
 	ServerMapMgr
 	tcpMgr *TcpMgr
 	httpSrv *HttpSrvMgr
+	rpcPool *cor_pool.CorPool
 
 	heartbeatIntervalSec int
 }
 
 func (pthis*ServerMgr)CBReadProcess(tcpConn * TcpConnection, recvBuf * bytes.Buffer) (bytesProcess int) {
-	if recvBuf.Len() < 6 {
-		return 0
-	}
-	binHead := recvBuf.Bytes()[0:6]
 
-	packLen := binary.LittleEndian.Uint32(binHead[0:4])
-	packType := binary.LittleEndian.Uint16(binHead[4:6])
+	packType, packLen, protoMsg := ProtoUnPacketFromBin(recvBuf)
+	log.LogDebug("packLen:", packLen, " packType:", packType, " protoMsg:", protoMsg)
 
-	log.LogDebug("packLen:", packLen, " packType:", packType)
-
-	if recvBuf.Len() < int(packLen){
-		return 0
-	}
-
-	binBody := recvBuf.Bytes()[6:packLen]
-
-	protoMsg := ParseProtoMsg(binBody, int32(packType))
 	if protoMsg == nil {
 		return int(packLen)
 	}
-	log.LogDebug("parse protomsg:", protoMsg)
 
 /*	switch t:=protoMsg.(type) {
 	case *msg.MSG_LOGIN:
@@ -131,11 +123,13 @@ func (pthis*ServerMgr)CBConnectClose(tcpConn * TcpConnection) {
 	}
 }
 
-func ConstructServerMgr(srvID int64, heartbeatIntervalSec int) *ServerMgr {
+func ConstructServerMgr(srvID int64, heartbeatIntervalSec int, rpcPoolCount int) *ServerMgr {
 	srvMgr := &ServerMgr{srvID: srvID}
 	srvMgr.mapClient = make(MAP_CLIENT)
 	srvMgr.mapServer = make(MAP_SERVER)
 	srvMgr.heartbeatIntervalSec = heartbeatIntervalSec
+	srvMgr.rpcPool = cor_pool.CorPoolInit(rpcPoolCount)
+
 	return srvMgr
 }
 
@@ -227,7 +221,7 @@ func (pthis*ServerMgr)processMsg(tcpConn * TcpConnection, msgType msgpacket.MSG_
 	} else {
 		cli := pthis.getClient(tcpConn.ClientID)
 		if cli != nil {
-			cli.PushClientMsg(msgType, protoMsg)
+			cli.PushProtoMsg(msgType, protoMsg)
 			return
 		}
 		pthis.tcpMgr.TcpMgrCloseConn(tcpConn.TcpConnectionID())
@@ -281,12 +275,16 @@ func (pthis*ServerMgr)processDailConnect(tcpDial * TcpConnection){
 }
 
 func (pthis*ServerMgr)processRPCReq(tcpConn * TcpConnection, msg *msgpacket.MSG_RPC) {
-	var msgRes proto.Message
 	msgRPC := ParseProtoMsg(msg.MsgBin, msg.MsgType)
 	if tcpConn.SrvID != 0 {
 		srv := pthis.getServer(tcpConn.SrvID)
 		if srv != nil {
-			msgRes = srv.processRPC(tcpConn, msgRPC)
+			pthis.rpcPool.CorPoolAddJob(&cor_pool.CorPoolJobData{
+				JobType_ : EN_CORPOOL_JOBTYPE_Rpc_req,
+				JobCB_   : func(jd cor_pool.CorPoolJobData){
+					srv.Go_ProcessRPC(tcpConn, msg, msgRPC)
+				},
+			})
 		} else {
 			pthis.tcpMgr.TcpMgrCloseConn(tcpConn.TcpConnectionID())
 			return
@@ -294,36 +292,39 @@ func (pthis*ServerMgr)processRPCReq(tcpConn * TcpConnection, msg *msgpacket.MSG_
 	} else {
 		cli := pthis.getClient(tcpConn.ClientID)
 		if cli != nil {
-			msgRes = cli.processRPC(tcpConn, msgRPC)
+			pthis.rpcPool.CorPoolAddJob(&cor_pool.CorPoolJobData{
+				JobType_ : EN_CORPOOL_JOBTYPE_client_Rpc_req,
+				JobCB_   : func(jd cor_pool.CorPoolJobData){
+					cli.Go_processRPC(tcpConn, msg, msgRPC)
+				},
+			})
 		} else {
 			pthis.tcpMgr.TcpMgrCloseConn(tcpConn.TcpConnectionID())
 			return
 		}
 	}
-
-	msgRPCRes := &msgpacket.MSG_RPC_RES{MsgId:msg.MsgId, MsgType:msg.MsgType}
-	if msgRes != nil {
-		var err error
-		msgRPCRes.MsgBin, err = proto.Marshal(msgRes)
-		if err != nil {
-			log.LogErr(err)
-		}
-	}
-	tcpConn.TcpConnectSendProtoMsg(msgpacket.MSG_TYPE__MSG_RPC_RES, msgRPCRes)
 }
-func (pthis*ServerMgr)processRPCRes(tcpConn * TcpConnection, msg *msgpacket.MSG_RPC_RES) {
-	msgRPC := ParseProtoMsg(msg.MsgBin, msg.MsgType)
+func (pthis*ServerMgr)processRPCRes(tcpConn * TcpConnection, msgRPC *msgpacket.MSG_RPC_RES) {
+	msgBody := ParseProtoMsg(msgRPC.MsgBin, msgRPC.MsgType)
 	if tcpConn.SrvID != 0 {
 		srv := pthis.getServer(tcpConn.SrvID)
 		if srv != nil {
-			srv.processRPCRes(tcpConn, msgRPC)
+			srv.processRPCRes(tcpConn, msgRPC, msgBody)
 		}
 	} else {
 		cli := pthis.getClient(tcpConn.ClientID)
 		if cli != nil {
-			cli.processRPCRes(tcpConn, msgRPC)
+			cli.processRPCRes(tcpConn, msgRPC, msgBody)
 		}
 	}
+}
+
+func (pthis*ServerMgr)SendRPC_Async(srvID int64, msgType msgpacket.MSG_TYPE, protoMsg proto.Message, timeoutMilliSec int) {
+	srv := pthis.getServer(srvID)
+	if srv == nil {
+		return
+	}
+	srv.SendRPC_Async(msgType, protoMsg, timeoutMilliSec)
 }
 
 func (pthis*ServerMgr)Dump() string {
@@ -346,11 +347,8 @@ func (pthis*ServerMgr)Dump() string {
 		pthis.ServerMapMgr.mapServerMutex.Lock()
 		defer pthis.ServerMapMgr.mapServerMutex.Unlock()
 		for _, val := range pthis.ServerMapMgr.mapServer {
-			var acptID TCP_CONNECTION_ID
+			acptID := val.connAcptID
 			var connID TCP_CONNECTION_ID
-			if val.connAcpt != nil {
-				acptID = val.connAcpt.TcpConnectionID()
-			}
 			if val.connDial != nil {
 				connID = val.connDial.TcpConnectionID()
 			}

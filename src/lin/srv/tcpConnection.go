@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"encoding/binary"
 	"github.com/golang/protobuf/proto"
 	"lin/log"
 	"lin/msgpacket"
@@ -284,20 +283,11 @@ func (pthis * TcpConnection)TcpConnectSendBin(bin []byte) {
 		make([]byte,len(bin)),
 	}
 	copy(tcpW.bin, bin)
-	//fmt.Println(&tcpW.bin[0], &bin[0], ret)
 	pthis.chMsgWrite <- tcpW
 	//tcpW.bin = append(tcpW.bin, bin...)
 }
 func (pthis*TcpConnection)TcpConnectSendProtoMsg(msgType msgpacket.MSG_TYPE, protoMsg proto.Message) {
-	binMsg, _ := proto.Marshal(protoMsg)
-	var wb []byte
-	var buf bytes.Buffer
-	_ = binary.Write(&buf,binary.LittleEndian,uint32(6 + len(binMsg)))
-	_ = binary.Write(&buf,binary.LittleEndian,uint16(msgType))
-	wb = buf.Bytes()
-	wb = append(wb, binMsg...)
-
-	pthis.TcpConnectSendBin(wb)
+	pthis.TcpConnectSendBin(ProtoPacketToBin(msgType, protoMsg))
 }
 
 func (pthis * TcpConnection)TcpGetConn() net.Conn {

@@ -15,7 +15,13 @@ enum MSG_TYPE
     _MSG_TEST_RES = 102;
     _MSG_LOGIN = 103;
     _MSG_LOGIN_RES = 104;
+}
 
+enum RESPONSE_CODE
+{
+    RESPONSE_CODE_NONE = 0;
+    RESPONSE_CODE_Fail = 1;
+    RESPONSE_CODE_Rpc_not_accept = 2;
 }
 
 message MSG_RPC
@@ -28,7 +34,8 @@ message MSG_RPC_RES
 {
     int64 msg_id = 1;
     int32 msg_type = 2;
-    bytes msg_bin = 3;
+    RESPONSE_CODE res_code = 3;
+    bytes msg_bin = 4;
 }
 
 message MSG_SRV_REPORT
