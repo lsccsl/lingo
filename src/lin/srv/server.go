@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/golang/protobuf/proto"
 	"lin/log"
-	msgpacket "lin/msg"
+	msgpacket "lin/msgpacket"
 	"sync/atomic"
 	"time"
 )

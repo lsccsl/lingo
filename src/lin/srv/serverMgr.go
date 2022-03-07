@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/golang/protobuf/proto"
 	"lin/log"
-	"lin/msg"
+	"lin/msgpacket"
 	"sync"
 )
 

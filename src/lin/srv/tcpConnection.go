@@ -5,7 +5,7 @@ import (
 	"encoding/binary"
 	"github.com/golang/protobuf/proto"
 	"lin/log"
-	"lin/msg"
+	"lin/msgpacket"
 	"net"
 	"runtime"
 	"strconv"

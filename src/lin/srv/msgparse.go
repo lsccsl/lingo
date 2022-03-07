@@ -9,7 +9,7 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/reflect/protoregistry"
 	"lin/log"
-	. "lin/msg"
+	. "lin/msgpacket"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -28,7 +28,7 @@ func isMsgType(str string) (b bool, msgName string, msgType string) {
 func genAllMsgParse() {
 	_,filename,_,_ := runtime.Caller(0)
 	pathBase := filepath.Dir(filename) + "/.."
-	msgprotoPath := pathBase + "/msg"
+	msgprotoPath := pathBase + "/msgpacket"
 
 	var fset = token.NewFileSet()
 	pkgs, err := parser.ParseDir(fset, msgprotoPath, nil, 0)
