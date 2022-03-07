@@ -1,1 +1,1 @@
-protoc --go_out=../msg --proto_path=./ ./*.proto
+protoc --go_out=../msgpacket --proto_path=./ ./*.proto

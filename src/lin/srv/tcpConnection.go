@@ -275,7 +275,7 @@ func (pthis * TcpConnection)go_tcpConnWrite() {
 	close(pthis.chMsgWrite)
 }
 
-func (pthis * TcpConnection)TcpConnectWriteBin(bin []byte) {
+func (pthis * TcpConnection)TcpConnectSendBin(bin []byte) {
 	if atomic.LoadInt32(&pthis.canWrite) != 0 {
 		return
 	}
@@ -288,7 +288,7 @@ func (pthis * TcpConnection)TcpConnectWriteBin(bin []byte) {
 	pthis.chMsgWrite <- tcpW
 	//tcpW.bin = append(tcpW.bin, bin...)
 }
-func (pthis*TcpConnection)TcpConnectWriteProtoMsg(msgType msg.MSG_TYPE, protoMsg proto.Message) {
+func (pthis*TcpConnection)TcpConnectSendProtoMsg(msgType msgpacket.MSG_TYPE, protoMsg proto.Message) {
 	binMsg, _ := proto.Marshal(protoMsg)
 	var wb []byte
 	var buf bytes.Buffer
@@ -297,7 +297,7 @@ func (pthis*TcpConnection)TcpConnectWriteProtoMsg(msgType msg.MSG_TYPE, protoMsg
 	wb = buf.Bytes()
 	wb = append(wb, binMsg...)
 
-	pthis.TcpConnectWriteBin(wb)
+	pthis.TcpConnectSendBin(wb)
 }
 
 func (pthis * TcpConnection)TcpGetConn() net.Conn {

@@ -66,7 +66,7 @@ func (pthis*Client) ClientClose() {
 	pthis.chClientProtoMsg <- nil
 }
 
-func (pthis*Client) PushClientMsg(msgType msg.MSG_TYPE, protoMsg proto.Message) {
+func (pthis*Client) PushClientMsg(msgType msgpacket.MSG_TYPE, protoMsg proto.Message) {
 	if atomic.LoadInt32(&pthis.isStopProcess) == 1 {
 		return
 	}
@@ -77,17 +77,23 @@ func (pthis*Client) PushClientMsg(msgType msg.MSG_TYPE, protoMsg proto.Message) 
 	}
 }
 
+func (pthis*Client)processRPC(tcpConn * TcpConnection, msg proto.Message) proto.Message {
+	return nil
+}
+func (pthis*Client)processRPCRes(tcpConn * TcpConnection, msg proto.Message) {
+}
+
 func (pthis*Client) processClientMsg (interMsg * interProtoMsg) {
 	switch t:=interMsg.protoMsg.(type){
-	case *msg.MSG_TEST:
+	case *msgpacket.MSG_TEST:
 		pthis.process_MSG_TEST(t)
 	}
 }
 
-func (pthis*Client) process_MSG_TEST (protoMsg * msg.MSG_TEST) {
+func (pthis*Client) process_MSG_TEST (protoMsg * msgpacket.MSG_TEST) {
 	log.LogDebug(protoMsg)
 
-	msgRes := &msg.MSG_TEST_RES{}
+	msgRes := &msgpacket.MSG_TEST_RES{}
 	msgRes.Id = protoMsg.Id
-	pthis.tcpConn.TcpConnectWriteProtoMsg(msg.MSG_TYPE__MSG_TEST_RES, msgRes)
+	pthis.tcpConn.TcpConnectSendProtoMsg(msgpacket.MSG_TYPE__MSG_TEST_RES, msgRes)
 }

@@ -20,7 +20,7 @@ var mapVirtualTable = make(MAP_PARSE_FUNC)
 
 func isMsgType(str string) (b bool, msgName string, msgType string) {
 	if strings.Index(str, "MSG_TYPE_") == 0 {
-		return true, str[len("MSG_TYPE_"):len(str)], "msg." + str[len("MSG_TYPE__"):len(str)]
+		return true, str[len("MSG_TYPE_"):len(str)], "msgpacket." + str[len("MSG_TYPE__"):len(str)]
 	}
 	return false, "", ""
 }
@@ -37,7 +37,7 @@ func genAllMsgParse() {
 		return
 	}
 	for _, pkg := range pkgs {
-		if pkg.Name != "msg" {
+		if pkg.Name != "msgpacket" {
 			continue
 		}
 		for keyFileName, file := range pkg.Files {

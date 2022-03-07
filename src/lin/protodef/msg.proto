@@ -1,7 +1,7 @@
 syntax = "proto3";
-package msg;
+package msgpacket;
 
-option go_package = "./;msg";
+option go_package = "./;msgpacket";
 
 enum MSG_TYPE
 {

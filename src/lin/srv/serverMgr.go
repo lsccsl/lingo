@@ -13,7 +13,7 @@ import (
 type MAP_CLIENT map[int64/*client id*/]*Client
 type MAP_SERVER map[int64/*server id*/]*Server
 type interProtoMsg struct {
-	msgType msg.MSG_TYPE
+	msgType msgpacket.MSG_TYPE
 	protoMsg proto.Message
 }
 
@@ -31,6 +31,8 @@ type ServerMgr struct {
 	ServerMapMgr
 	tcpMgr *TcpMgr
 	httpSrv *HttpSrvMgr
+
+	heartbeatIntervalSec int
 }
 
 func (pthis*ServerMgr)CBReadProcess(tcpConn * TcpConnection, recvBuf * bytes.Buffer) (bytesProcess int) {
@@ -62,35 +64,35 @@ func (pthis*ServerMgr)CBReadProcess(tcpConn * TcpConnection, recvBuf * bytes.Buf
 	default:
 	}*/
 
-	switch msg.MSG_TYPE(packType) {
-	case msg.MSG_TYPE__MSG_LOGIN:
-		t, ok := protoMsg.(*msg.MSG_LOGIN)
+	switch msgpacket.MSG_TYPE(packType) {
+	case msgpacket.MSG_TYPE__MSG_LOGIN:
+		t, ok := protoMsg.(*msgpacket.MSG_LOGIN)
 		if ok && t != nil {
 			pthis.processClientLogin(t.Id, tcpConn)
 		}
 
-	case msg.MSG_TYPE__MSG_SRV_REPORT:
-		t, ok := protoMsg.(*msg.MSG_SRV_REPORT)
+	case msgpacket.MSG_TYPE__MSG_SRV_REPORT:
+		t, ok := protoMsg.(*msgpacket.MSG_SRV_REPORT)
 		if ok && t != nil {
 			if tcpConn.IsAccept {
 				pthis.processSrvReport(tcpConn, t.SrvId)
 			}
 		}
 
-	case msg.MSG_TYPE__MSG_RPC:
-		t, ok := protoMsg.(*msg.MSG_RPC)
+	case msgpacket.MSG_TYPE__MSG_RPC:
+		t, ok := protoMsg.(*msgpacket.MSG_RPC)
 		if ok && t != nil {
-			//???
+			pthis.processRPCReq(tcpConn, t)
 		}
 
-	case msg.MSG_TYPE__MSG_RPC_RES:
-		t, ok := protoMsg.(*msg.MSG_RPC_RES)
+	case msgpacket.MSG_TYPE__MSG_RPC_RES:
+		t, ok := protoMsg.(*msgpacket.MSG_RPC_RES)
 		if ok && t != nil {
-			//???
+			pthis.processRPCRes(tcpConn, t)
 		}
 
 	default:
-		pthis.processClient(tcpConn, msg.MSG_TYPE(packType), protoMsg)
+		pthis.processMsg(tcpConn, msgpacket.MSG_TYPE(packType), protoMsg)
 	}
 
 	return int(packLen)
@@ -129,10 +131,11 @@ func (pthis*ServerMgr)CBConnectClose(tcpConn * TcpConnection) {
 	}
 }
 
-func ConstructServerMgr(srvID int64) *ServerMgr {
+func ConstructServerMgr(srvID int64, heartbeatIntervalSec int) *ServerMgr {
 	srvMgr := &ServerMgr{srvID: srvID}
 	srvMgr.mapClient = make(MAP_CLIENT)
 	srvMgr.mapServer = make(MAP_SERVER)
+	srvMgr.heartbeatIntervalSec = heartbeatIntervalSec
 	return srvMgr
 }
 
@@ -206,31 +209,44 @@ func (pthis*ServerMgr)processClientLogin(clientID int64, tcpConn * TcpConnection
 	c := ConstructClient(pthis, tcpConn, clientID)
 	pthis.addClient(c)
 
-	msgRes := &msg.MSG_LOGIN_RES{}
+	msgRes := &msgpacket.MSG_LOGIN_RES{}
 	msgRes.Id = clientID
 	msgRes.ConnectId = int64(tcpConn.TcpConnectionID())
-	tcpConn.TcpConnectWriteProtoMsg(msg.MSG_TYPE__MSG_LOGIN_RES, msgRes)
+	tcpConn.TcpConnectSendProtoMsg(msgpacket.MSG_TYPE__MSG_LOGIN_RES, msgRes)
 }
 
-func (pthis*ServerMgr)processClient(tcpConn * TcpConnection, msgType msg.MSG_TYPE, protoMsg proto.Message) {
-	oldC, ok := pthis.mapClient[tcpConn.ClientID]
-	if ok && oldC != nil {
-		oldC.PushClientMsg(msgType, protoMsg)
+func (pthis*ServerMgr)processMsg(tcpConn * TcpConnection, msgType msgpacket.MSG_TYPE, protoMsg proto.Message) {
+	if tcpConn.SrvID != 0 {
+		srv := pthis.getServer(tcpConn.SrvID)
+		if srv != nil {
+			srv.PushProtoMsg(msgType, protoMsg)
+			return
+		}
+		pthis.tcpMgr.TcpMgrCloseConn(tcpConn.TcpConnectionID())
+		return
+	} else {
+		cli := pthis.getClient(tcpConn.ClientID)
+		if cli != nil {
+			cli.PushClientMsg(msgType, protoMsg)
+			return
+		}
+		pthis.tcpMgr.TcpMgrCloseConn(tcpConn.TcpConnectionID())
 		return
 	}
-	pthis.tcpMgr.TcpMgrCloseConn(tcpConn.TcpConnectionID())
 }
 
-func (pthis*ServerMgr)ClientWriteProtoMsg(clientID int64, msgType msg.MSG_TYPE, protoMsg proto.Message) {
-	oldC, ok := pthis.mapClient[clientID]
-	if !ok || oldC == nil {
+
+
+func (pthis*ServerMgr)ClientWriteProtoMsg(clientID int64, msgType msgpacket.MSG_TYPE, protoMsg proto.Message) {
+	oldC := pthis.getClient(clientID)
+	if oldC == nil {
 		return
 	}
 	conn := oldC.ClientGetConnection()
 	if  conn == nil {
 		return
 	}
-	conn.TcpConnectWriteProtoMsg(msgType, protoMsg)
+	conn.TcpConnectSendProtoMsg(msgType, protoMsg)
 }
 
 func (pthis*ServerMgr)processSrvReport(tcpAccept * TcpConnection, srvID int64){
@@ -241,7 +257,7 @@ func (pthis*ServerMgr)processSrvReport(tcpAccept * TcpConnection, srvID int64){
 		srv.PushInterMsg(&interMsgSrvReport{tcpAccept})
 		return
 	} else {
-		srv = ConstructServer(pthis, srvID)
+		srv = ConstructServer(pthis, srvID, pthis.heartbeatIntervalSec)
 		pthis.addServer(srv)
 		srv.PushInterMsg(&interMsgSrvReport{tcpAccept})
 		return
@@ -254,14 +270,60 @@ func (pthis*ServerMgr)processDailConnect(tcpDial * TcpConnection){
 	if srv != nil {
 		srv.PushInterMsg(&interMsgConnDial{tcpDial})
 	} else {
-		srv = ConstructServer(pthis, srvID)
+		srv = ConstructServer(pthis, srvID, pthis.heartbeatIntervalSec)
 		pthis.addServer(srv)
 		srv.PushInterMsg(&interMsgConnDial{tcpDial})
 	}
 
-	msgR := &msg.MSG_SRV_REPORT{}
+	msgR := &msgpacket.MSG_SRV_REPORT{}
 	msgR.SrvId = pthis.srvID
-	tcpDial.TcpConnectWriteProtoMsg(msg.MSG_TYPE__MSG_SRV_REPORT, msgR)
+	tcpDial.TcpConnectSendProtoMsg(msgpacket.MSG_TYPE__MSG_SRV_REPORT, msgR)
+}
+
+func (pthis*ServerMgr)processRPCReq(tcpConn * TcpConnection, msg *msgpacket.MSG_RPC) {
+	var msgRes proto.Message
+	msgRPC := ParseProtoMsg(msg.MsgBin, msg.MsgType)
+	if tcpConn.SrvID != 0 {
+		srv := pthis.getServer(tcpConn.SrvID)
+		if srv != nil {
+			msgRes = srv.processRPC(tcpConn, msgRPC)
+		} else {
+			pthis.tcpMgr.TcpMgrCloseConn(tcpConn.TcpConnectionID())
+			return
+		}
+	} else {
+		cli := pthis.getClient(tcpConn.ClientID)
+		if cli != nil {
+			msgRes = cli.processRPC(tcpConn, msgRPC)
+		} else {
+			pthis.tcpMgr.TcpMgrCloseConn(tcpConn.TcpConnectionID())
+			return
+		}
+	}
+
+	msgRPCRes := &msgpacket.MSG_RPC_RES{MsgId:msg.MsgId, MsgType:msg.MsgType}
+	if msgRes != nil {
+		var err error
+		msgRPCRes.MsgBin, err = proto.Marshal(msgRes)
+		if err != nil {
+			log.LogErr(err)
+		}
+	}
+	tcpConn.TcpConnectSendProtoMsg(msgpacket.MSG_TYPE__MSG_RPC_RES, msgRPCRes)
+}
+func (pthis*ServerMgr)processRPCRes(tcpConn * TcpConnection, msg *msgpacket.MSG_RPC_RES) {
+	msgRPC := ParseProtoMsg(msg.MsgBin, msg.MsgType)
+	if tcpConn.SrvID != 0 {
+		srv := pthis.getServer(tcpConn.SrvID)
+		if srv != nil {
+			srv.processRPCRes(tcpConn, msgRPC)
+		}
+	} else {
+		cli := pthis.getClient(tcpConn.ClientID)
+		if cli != nil {
+			cli.processRPCRes(tcpConn, msgRPC)
+		}
+	}
 }
 
 func (pthis*ServerMgr)Dump() string {
@@ -322,4 +384,3 @@ func (pthis*ServerMgr)Dump() string {
 	return str
 }
 
-// todo: dump all mem data

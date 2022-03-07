@@ -19,7 +19,7 @@ func main() {
 	ReadCfg(pathCfg)
 
 	InitMsgParseVirtualTable()
-	server := ConstructServerMgr(Global_ServerCfg.SrvID)
+	server := ConstructServerMgr(Global_ServerCfg.SrvID, 90)
 
 	httpAddr, err := net.ResolveTCPAddr("tcp", Global_ServerCfg.HttpAddr)
 	if err != nil {

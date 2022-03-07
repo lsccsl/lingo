@@ -1,8 +1,11 @@
 package main
 
 import (
+	"github.com/golang/protobuf/proto"
 	"lin/log"
+	msgpacket "lin/msg"
 	"sync/atomic"
+	"time"
 )
 
 type Server struct {
@@ -12,6 +15,7 @@ type Server struct {
 	connAcpt *TcpConnection
 	chSrvProtoMsg chan *interProtoMsg
 	chInterMsg chan interface{}
+	heartbeatIntervalSec int
 
 	isStopProcess int32
 }
@@ -23,12 +27,13 @@ type interMsgConnDial struct {
 	tcpDial * TcpConnection
 }
 
-func ConstructServer(srvMgr *ServerMgr, srvID int64)*Server {
+func ConstructServer(srvMgr *ServerMgr, srvID int64, heartbeatIntervalSec int)*Server {
 	s := &Server{
 		srvMgr:srvMgr,
 		srvID:srvID,
 		chSrvProtoMsg:make(chan *interProtoMsg, 100),
 		chInterMsg:make(chan interface{}, 100),
+		heartbeatIntervalSec:heartbeatIntervalSec,
 		isStopProcess:0,
 	}
 	go s.go_serverProcess()
@@ -44,14 +49,18 @@ func (pthis*Server) go_serverProcess() {
 		}
 	}()
 
-MSG_LOOP:
+	chTimer := time.After(time.Second * time.Duration(pthis.heartbeatIntervalSec))
+
+	MSG_LOOP:
 	for {
 		select {
 		case ProtoMsg := <- pthis.chSrvProtoMsg:
-			if ProtoMsg == nil {
-				break MSG_LOOP
+			{
+				if ProtoMsg == nil {
+					break MSG_LOOP
+				}
+				//pthis.processServerMsg(clientMsg)
 			}
-			//pthis.processServerMsg(clientMsg)
 
 		case interMsg := <- pthis.chInterMsg:
 			{
@@ -61,6 +70,15 @@ MSG_LOOP:
 				case *interMsgConnDial:
 					pthis.processDailConnect(t.tcpDial)
 				}
+			}
+
+		case <-chTimer:
+			{
+				chTimer = time.After(time.Second * time.Duration(pthis.heartbeatIntervalSec))
+				//send heartbeat
+				msgTest := &msgpacket.MSG_TEST{}
+				msgTest.Id = pthis.srvID
+				pthis.connDial.TcpConnectSendProtoMsg(msgpacket.MSG_TYPE__MSG_TEST, msgTest)
 			}
 		}
 	}
@@ -102,4 +120,29 @@ func (pthis*Server)PushInterMsg(msg interface{}){
 		return
 	}
 	pthis.chInterMsg <- msg
+}
+func (pthis*Server)PushProtoMsg(msgType msgpacket.MSG_TYPE, protoMsg proto.Message){
+	if atomic.LoadInt32(&pthis.isStopProcess) == 1 {
+		return
+	}
+	pthis.chSrvProtoMsg <- &interProtoMsg{
+		msgType:msgType,
+		protoMsg:protoMsg,
+	}
+}
+
+func (pthis*Server)processRPC(tcpConn * TcpConnection, msg proto.Message) proto.Message {
+	switch t:= msg.(type) {
+	case *msgpacket.MSG_TEST:
+		{
+			return pthis.processRPCTest(tcpConn, t)
+		}
+	}
+	return nil
+}
+func (pthis*Server)processRPCRes(tcpConn * TcpConnection, msg proto.Message) {
+}
+
+func (pthis*Server)processRPCTest(tcpDial * TcpConnection, msg *msgpacket.MSG_TEST) *msgpacket.MSG_TEST_RES {
+	return &msgpacket.MSG_TEST_RES{Id: 123}
 }
