@@ -1,8 +1,10 @@
 package main
 
 import (
+	"github.com/golang/protobuf/proto"
 	"lin/lin_common"
 	"lin/log"
+	"lin/msgpacket"
 	"net"
 	"strconv"
 	"sync"
@@ -37,6 +39,13 @@ func (pthis * TcpMgr) CBDelTcpConn(id TCP_CONNECTION_ID) {
 	defer pthis.mapConnMutex.Unlock()
 
 	delete(pthis.mapConn, id)
+}
+
+func (pthis * TcpMgr)getTcpConnection(tcpConnID TCP_CONNECTION_ID) *TcpConnection {
+	pthis.mapConnMutex.Lock()
+	defer pthis.mapConnMutex.Unlock()
+	conn, _ := pthis.mapConn[tcpConnID]
+	return conn
 }
 
 func (pthis * TcpMgr)go_tcpAccept() {
@@ -86,13 +95,17 @@ func (pthis * TcpMgr) TcpMgrWait() {
 
 
 func (pthis * TcpMgr) TcpMgrCloseConn(id TCP_CONNECTION_ID) {
-	pthis.mapConnMutex.Lock()
-	defer pthis.mapConnMutex.Unlock()
-
-	conn, ok := pthis.mapConn[id]
-	if !ok || conn == nil {
+	conn := pthis.getTcpConnection(id)
+	if conn == nil {
 		return
 	}
-
 	conn.TcpConnectClose()
+}
+
+func (pthis*TcpMgr)TcpConnectSendProtoMsg(tcpConnID TCP_CONNECTION_ID, msgType msgpacket.MSG_TYPE, protoMsg proto.Message) {
+	conn := pthis.getTcpConnection(tcpConnID)
+	if conn == nil {
+		return
+	}
+	conn.TcpConnectSendBin(ProtoPacketToBin(msgType, protoMsg))
 }

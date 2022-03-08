@@ -11,16 +11,16 @@ import (
 
 type Client struct {
 	srvMgr *ServerMgr
-	tcpConn *TcpConnection
+	tcpConnID TCP_CONNECTION_ID
 	clientID int64
 	chClientProtoMsg chan *interProtoMsg
 	isStopProcess int32
 }
 
-func ConstructClient(srvMgr *ServerMgr, tcpConn *TcpConnection,clientID int64) *Client {
+func ConstructClient(srvMgr *ServerMgr, tcpConnID TCP_CONNECTION_ID,clientID int64) *Client {
 	c := &Client{
 		srvMgr:srvMgr,
-		tcpConn:tcpConn,
+		tcpConnID:tcpConnID,
 		clientID:clientID,
 		chClientProtoMsg:make(chan *interProtoMsg, 100),
 		isStopProcess:0,
@@ -54,15 +54,15 @@ func (pthis*Client) go_clientProcess() {
 	close(pthis.chClientProtoMsg)
 }
 
-func (pthis*Client) ClientGetConnection()*TcpConnection{
-	return pthis.tcpConn
+func (pthis*Client) ClientGetConnectionID() TCP_CONNECTION_ID{
+	return pthis.tcpConnID
 }
 func (pthis*Client) ClientGetClientID()int64{
 	return pthis.clientID
 }
 
 func (pthis*Client) ClientClose() {
-	pthis.srvMgr.tcpMgr.TcpMgrCloseConn(pthis.tcpConn.TcpConnectionID())
+	pthis.srvMgr.tcpMgr.TcpMgrCloseConn(pthis.tcpConnID)
 	pthis.chClientProtoMsg <- nil
 }
 
@@ -94,5 +94,5 @@ func (pthis*Client) process_MSG_TEST (protoMsg * msgpacket.MSG_TEST) {
 
 	msgRes := &msgpacket.MSG_TEST_RES{}
 	msgRes.Id = protoMsg.Id
-	pthis.tcpConn.TcpConnectSendProtoMsg(msgpacket.MSG_TYPE__MSG_TEST_RES, msgRes)
+	pthis.srvMgr.tcpMgr.TcpConnectSendProtoMsg(pthis.tcpConnID, msgpacket.MSG_TYPE__MSG_TEST_RES, msgRes)
 }

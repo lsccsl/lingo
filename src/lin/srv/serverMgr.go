@@ -20,6 +20,7 @@ type MAP_SERVER map[int64/*server id*/]*Server
 type interProtoMsg struct {
 	msgType msgpacket.MSG_TYPE
 	protoMsg proto.Message
+	tcpConnID TCP_CONNECTION_ID
 }
 
 type ClientMapMgr struct {
@@ -192,28 +193,25 @@ func (pthis*ServerMgr)processClientLogin(clientID int64, tcpConn * TcpConnection
 
 	oldC := pthis.getClient(clientID)
 	if oldC != nil {
-		conn := oldC.ClientGetConnection()
-		if conn != nil {
-			if conn.TcpConnectionID() != tcpConn.TcpConnectionID() {
-				pthis.delClient(clientID)
-			}
+		if oldC.ClientGetConnectionID() != tcpConn.TcpConnectionID() {
+			pthis.delClient(clientID)
 		}
 	}
 
-	c := ConstructClient(pthis, tcpConn, clientID)
+	c := ConstructClient(pthis, tcpConn.TcpConnectionID(), clientID)
 	pthis.addClient(c)
 
 	msgRes := &msgpacket.MSG_LOGIN_RES{}
 	msgRes.Id = clientID
 	msgRes.ConnectId = int64(tcpConn.TcpConnectionID())
-	tcpConn.TcpConnectSendProtoMsg(msgpacket.MSG_TYPE__MSG_LOGIN_RES, msgRes)
+	tcpConn.TcpConnectSendBin(ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_LOGIN_RES, msgRes))
 }
 
 func (pthis*ServerMgr)processMsg(tcpConn * TcpConnection, msgType msgpacket.MSG_TYPE, protoMsg proto.Message) {
 	if tcpConn.SrvID != 0 {
 		srv := pthis.getServer(tcpConn.SrvID)
 		if srv != nil {
-			srv.PushProtoMsg(msgType, protoMsg)
+			srv.PushProtoMsg(msgType, protoMsg, tcpConn.TcpConnectionID())
 			return
 		}
 		pthis.tcpMgr.TcpMgrCloseConn(tcpConn.TcpConnectionID())
@@ -236,11 +234,7 @@ func (pthis*ServerMgr)ClientWriteProtoMsg(clientID int64, msgType msgpacket.MSG_
 	if oldC == nil {
 		return
 	}
-	conn := oldC.ClientGetConnection()
-	if  conn == nil {
-		return
-	}
-	conn.TcpConnectSendProtoMsg(msgType, protoMsg)
+	pthis.tcpMgr.TcpConnectSendProtoMsg(oldC.tcpConnID, msgType, protoMsg)
 }
 
 func (pthis*ServerMgr)processSrvReport(tcpAccept * TcpConnection, srvID int64){
@@ -271,7 +265,7 @@ func (pthis*ServerMgr)processDailConnect(tcpDial * TcpConnection){
 
 	msgR := &msgpacket.MSG_SRV_REPORT{}
 	msgR.SrvId = pthis.srvID
-	tcpDial.TcpConnectSendProtoMsg(msgpacket.MSG_TYPE__MSG_SRV_REPORT, msgR)
+	tcpDial.TcpConnectSendBin(ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_SRV_REPORT, msgR))
 }
 
 func (pthis*ServerMgr)processRPCReq(tcpConn * TcpConnection, msg *msgpacket.MSG_RPC) {
@@ -282,7 +276,7 @@ func (pthis*ServerMgr)processRPCReq(tcpConn * TcpConnection, msg *msgpacket.MSG_
 			pthis.rpcPool.CorPoolAddJob(&cor_pool.CorPoolJobData{
 				JobType_ : EN_CORPOOL_JOBTYPE_Rpc_req,
 				JobCB_   : func(jd cor_pool.CorPoolJobData){
-					srv.Go_ProcessRPC(tcpConn, msg, msgRPC)
+					srv.Go_ProcessRPC(tcpConn.TcpConnectionID(), msg, msgRPC)
 				},
 			})
 		} else {
@@ -319,12 +313,12 @@ func (pthis*ServerMgr)processRPCRes(tcpConn * TcpConnection, msgRPC *msgpacket.M
 	}
 }
 
-func (pthis*ServerMgr)SendRPC_Async(srvID int64, msgType msgpacket.MSG_TYPE, protoMsg proto.Message, timeoutMilliSec int) {
+func (pthis*ServerMgr)SendRPC_Async(srvID int64, msgType msgpacket.MSG_TYPE, protoMsg proto.Message, timeoutMilliSec int) proto.Message {
 	srv := pthis.getServer(srvID)
 	if srv == nil {
-		return
+		return nil
 	}
-	srv.SendRPC_Async(msgType, protoMsg, timeoutMilliSec)
+	return srv.SendRPC_Async(msgType, protoMsg, timeoutMilliSec)
 }
 
 func (pthis*ServerMgr)Dump() string {
@@ -334,11 +328,7 @@ func (pthis*ServerMgr)Dump() string {
 		pthis.ClientMapMgr.mapClientMutex.Lock()
 		defer pthis.ClientMapMgr.mapClientMutex.Unlock()
 		for _, val := range pthis.ClientMapMgr.mapClient {
-			var connID TCP_CONNECTION_ID
-			if val.tcpConn != nil {
-				connID = val.tcpConn.TcpConnectionID()
-			}
-			str += fmt.Sprintf("\r\n client id:%v id:%v", val.clientID, connID)
+			str += fmt.Sprintf("\r\n client id:%v id:%v", val.clientID, val.tcpConnID)
 		}
 	}()
 
@@ -347,12 +337,7 @@ func (pthis*ServerMgr)Dump() string {
 		pthis.ServerMapMgr.mapServerMutex.Lock()
 		defer pthis.ServerMapMgr.mapServerMutex.Unlock()
 		for _, val := range pthis.ServerMapMgr.mapServer {
-			acptID := val.connAcptID
-			var connID TCP_CONNECTION_ID
-			if val.connDial != nil {
-				connID = val.connDial.TcpConnectionID()
-			}
-			str += fmt.Sprintf("\r\n server id:%v acpt:%v dial:%v", val.srvID, acptID, connID)
+			str += fmt.Sprintf("\r\n server id:%v acpt:%v dial:%v", val.srvID, val.connAcptID, val.connDialID)
 		}
 	}()
 

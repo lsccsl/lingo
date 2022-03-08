@@ -12,7 +12,7 @@ import (
 type Server struct {
 	srvMgr *ServerMgr
 	srvID int64
-	connDial *TcpConnection
+	connDialID TCP_CONNECTION_ID
 	connAcptID TCP_CONNECTION_ID
 	chSrvProtoMsg chan *interProtoMsg
 	chInterMsg chan interface{}
@@ -52,6 +52,7 @@ func (pthis*Server) go_serverProcess() {
 		}
 	}()
 
+	log.LogErr("start test from dial, srvid:", pthis.srvID, pthis.heartbeatIntervalSec)
 	chTimer := time.After(time.Second * time.Duration(pthis.heartbeatIntervalSec))
 
 	MSG_LOOP:
@@ -62,7 +63,7 @@ func (pthis*Server) go_serverProcess() {
 				if ProtoMsg == nil {
 					break MSG_LOOP
 				}
-				log.LogDebug(ProtoMsg)
+				pthis.processServerMsg(ProtoMsg)
 			}
 
 		case interMsg := <- pthis.chInterMsg:
@@ -77,11 +78,12 @@ func (pthis*Server) go_serverProcess() {
 
 		case <-chTimer:
 			{
+				log.LogErr("send test from dial, srvid:", pthis.srvID, pthis.heartbeatIntervalSec)
 				chTimer = time.After(time.Second * time.Duration(pthis.heartbeatIntervalSec))
 				//send heartbeat
 				msgTest := &msgpacket.MSG_TEST{}
 				msgTest.Id = pthis.srvID
-				pthis.connDial.TcpConnectSendProtoMsg(msgpacket.MSG_TYPE__MSG_TEST, msgTest)
+				pthis.srvMgr.tcpMgr.TcpConnectSendProtoMsg(pthis.connDialID, msgpacket.MSG_TYPE__MSG_TEST, msgTest)
 			}
 		}
 	}
@@ -93,9 +95,8 @@ func (pthis*Server) go_serverProcess() {
 
 func (pthis*Server) ServerClose() {
 	pthis.srvMgr.tcpMgr.TcpMgrCloseConn(pthis.connAcptID)
-	if pthis.connDial != nil {
-		pthis.srvMgr.tcpMgr.TcpMgrCloseConn(pthis.connDial.TcpConnectionID())
-	}
+	pthis.srvMgr.tcpMgr.TcpMgrCloseConn(pthis.connDialID)
+
 	pthis.chSrvProtoMsg <- nil
 }
 
@@ -111,7 +112,7 @@ func (pthis*Server)processSrvReport(tcpAccept * TcpConnection){
 }
 
 func (pthis*Server)processDailConnect(tcpDial * TcpConnection){
-	pthis.connDial = tcpDial
+	pthis.connDialID = tcpDial.TcpConnectionID()
 
 	log.LogDebug(pthis.srvID, " ", pthis)
 }
@@ -122,22 +123,23 @@ func (pthis*Server)PushInterMsg(msg interface{}){
 	}
 	pthis.chInterMsg <- msg
 }
-func (pthis*Server)PushProtoMsg(msgType msgpacket.MSG_TYPE, protoMsg proto.Message){
+func (pthis*Server)PushProtoMsg(msgType msgpacket.MSG_TYPE, protoMsg proto.Message, tcpConnID TCP_CONNECTION_ID){
 	if atomic.LoadInt32(&pthis.isStopProcess) == 1 {
 		return
 	}
 	pthis.chSrvProtoMsg <- &interProtoMsg{
 		msgType:msgType,
 		protoMsg:protoMsg,
+		tcpConnID:tcpConnID,
 	}
 }
 
-func (pthis*Server)Go_ProcessRPC(tcpConn * TcpConnection, msg *msgpacket.MSG_RPC, msgBody proto.Message) {
+func (pthis*Server)Go_ProcessRPC(tcpConnID TCP_CONNECTION_ID, msg *msgpacket.MSG_RPC, msgBody proto.Message) {
 	var msgRes proto.Message = nil
 	switch t:= msgBody.(type) {
 	case *msgpacket.MSG_TEST:
 		{
-			msgRes = pthis.processRPCTest(tcpConn, t)
+			msgRes = pthis.processRPCTest(tcpConnID, t)
 		}
 	}
 
@@ -154,7 +156,7 @@ func (pthis*Server)Go_ProcessRPC(tcpConn * TcpConnection, msg *msgpacket.MSG_RPC
 			log.LogErr(err)
 		}
 	}
-	tcpConn.TcpConnectSendProtoMsg(msgpacket.MSG_TYPE__MSG_RPC_RES, msgRPCRes)
+	pthis.srvMgr.tcpMgr.TcpConnectSendProtoMsg(tcpConnID, msgpacket.MSG_TYPE__MSG_RPC_RES, msgRPCRes)
 }
 func (pthis*Server)processRPCRes(tcpConn * TcpConnection, msg *msgpacket.MSG_RPC_RES, msgBody proto.Message) {
 	defer func() {
@@ -175,7 +177,7 @@ func (pthis*Server)processRPCRes(tcpConn * TcpConnection, msg *msgpacket.MSG_RPC
 	}
 }
 
-func (pthis*Server)processRPCTest(tcpDial * TcpConnection, msg *msgpacket.MSG_TEST) *msgpacket.MSG_TEST_RES {
+func (pthis*Server)processRPCTest(tcpConnID TCP_CONNECTION_ID, msg *msgpacket.MSG_TEST) *msgpacket.MSG_TEST_RES {
 	log.LogDebug(msg)
 	return &msgpacket.MSG_TEST_RES{Id: msg.Id}
 }
@@ -190,7 +192,7 @@ func (pthis*Server)SendRPC_Async(msgType msgpacket.MSG_TYPE, protoMsg proto.Mess
 		}
 	}()
 
-	if pthis.rpcMgr == nil || pthis.connDial == nil{
+	if pthis.rpcMgr == nil{
 		return nil
 	}
 
@@ -202,7 +204,7 @@ func (pthis*Server)SendRPC_Async(msgType msgpacket.MSG_TYPE, protoMsg proto.Mess
 
 	rreq := pthis.rpcMgr.RPCManagerAddReq(msgRPC.MsgId)
 
-	pthis.connDial.TcpConnectSendProtoMsg(msgpacket.MSG_TYPE__MSG_RPC, &msgRPC)
+	pthis.srvMgr.tcpMgr.TcpConnectSendProtoMsg(pthis.connDialID, msgpacket.MSG_TYPE__MSG_RPC, &msgRPC)
 
 	var res proto.Message = nil
 	select{
@@ -215,4 +217,25 @@ func (pthis*Server)SendRPC_Async(msgType msgpacket.MSG_TYPE, protoMsg proto.Mess
 	pthis.rpcMgr.RPCManagerDelReq(msgRPC.MsgId)
 
 	return res
+}
+
+func (pthis*Server)processServerMsg (interMsg * interProtoMsg){
+	switch t:=interMsg.protoMsg.(type){
+	case *msgpacket.MSG_TEST:
+		pthis.process_MSG_TEST(interMsg.tcpConnID, t)
+	case *msgpacket.MSG_TEST_RES:
+		pthis.process_MSG_TEST_RES(interMsg.tcpConnID, t)
+	}
+}
+
+func (pthis*Server) process_MSG_TEST (tcpConnID TCP_CONNECTION_ID, protoMsg * msgpacket.MSG_TEST) {
+	log.LogDebug(protoMsg)
+
+	msgRes := &msgpacket.MSG_TEST_RES{}
+	msgRes.Id = protoMsg.Id
+	pthis.srvMgr.tcpMgr.TcpConnectSendProtoMsg(tcpConnID, msgpacket.MSG_TYPE__MSG_TEST_RES, msgRes)
+}
+
+func (pthis*Server) process_MSG_TEST_RES (tcpConnID TCP_CONNECTION_ID, protoMsg * msgpacket.MSG_TEST_RES) {
+	log.LogDebug(protoMsg)
 }

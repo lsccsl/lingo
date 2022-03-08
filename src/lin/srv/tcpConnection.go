@@ -2,9 +2,7 @@ package main
 
 import (
 	"bytes"
-	"github.com/golang/protobuf/proto"
 	"lin/log"
-	"lin/msgpacket"
 	"net"
 	"runtime"
 	"strconv"
@@ -205,6 +203,7 @@ func (pthis * TcpConnection)go_tcpConnRead() {
 	TmpBuf := make([]byte, G_MTU)
 	recvBuf := bytes.NewBuffer(make([]byte, 0, MAX_PACK_LEN))
 
+	log.LogDebug("start close timeout", pthis.connectionID, " srvid:", pthis.SrvID, " clientid:", pthis.ClientID, " expire:", pthis.closeExpireSec)
 	expireInterval := time.Second * time.Duration(pthis.closeExpireSec)
 	if pthis.closeExpireSec > 0 {
 		TimerConnClose = time.AfterFunc(expireInterval, func() {
@@ -221,6 +220,7 @@ func (pthis * TcpConnection)go_tcpConnRead() {
 		}
 
 		if TimerConnClose != nil {
+			log.LogDebug("reset close timeout:", pthis.connectionID, " srvid:", pthis.SrvID, " clientid:", pthis.ClientID, " expire:", pthis.closeExpireSec)
 			TimerConnClose.Reset(expireInterval)
 		}
 
@@ -286,9 +286,7 @@ func (pthis * TcpConnection)TcpConnectSendBin(bin []byte) {
 	pthis.chMsgWrite <- tcpW
 	//tcpW.bin = append(tcpW.bin, bin...)
 }
-func (pthis*TcpConnection)TcpConnectSendProtoMsg(msgType msgpacket.MSG_TYPE, protoMsg proto.Message) {
-	pthis.TcpConnectSendBin(ProtoPacketToBin(msgType, protoMsg))
-}
+
 
 func (pthis * TcpConnection)TcpGetConn() net.Conn {
 	return pthis.netConn
