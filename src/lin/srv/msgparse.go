@@ -178,8 +178,6 @@ func ProtoUnPacketFromBin(recvBuf * bytes.Buffer) (MSG_TYPE, uint32, proto.Messa
 	packLen := binary.LittleEndian.Uint32(binHead[0:4])
 	packType := binary.LittleEndian.Uint16(binHead[4:6])
 
-	log.LogDebug("packLen:", packLen, " packType:", packType)
-
 	if recvBuf.Len() < int(packLen){
 		return MSG_TYPE__MSG_NULL, 0, nil
 	}

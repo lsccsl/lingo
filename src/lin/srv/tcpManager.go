@@ -55,8 +55,7 @@ func (pthis * TcpMgr)go_tcpAccept() {
 			log.LogErr("tcp accept err", err)
 		}
 
-		log.LogDebug(conn.LocalAddr(), conn.RemoteAddr())
-
+		//log.LogDebug(conn.LocalAddr(), conn.RemoteAddr())
 		_, err = startTcpConnection(pthis, conn, pthis.closeExpireSec)
 		if err != nil {
 			log.LogErr("start accept tcp connect err", err)

@@ -52,7 +52,6 @@ func (pthis*Server) go_serverProcess() {
 		}
 	}()
 
-	log.LogErr("start test from dial, srvid:", pthis.srvID, pthis.heartbeatIntervalSec)
 	chTimer := time.After(time.Second * time.Duration(pthis.heartbeatIntervalSec))
 
 	MSG_LOOP:
@@ -78,7 +77,7 @@ func (pthis*Server) go_serverProcess() {
 
 		case <-chTimer:
 			{
-				log.LogErr("send test from dial, srvid:", pthis.srvID, pthis.heartbeatIntervalSec)
+				//log.LogErr("send test from dial, srvid:", pthis.srvID, pthis.heartbeatIntervalSec)
 				chTimer = time.After(time.Second * time.Duration(pthis.heartbeatIntervalSec))
 				//send heartbeat
 				msgTest := &msgpacket.MSG_HEARTBEAT{}
@@ -209,13 +208,11 @@ func (pthis*Server)SendRPC_Async(msgType msgpacket.MSG_TYPE, protoMsg proto.Mess
 
 	rreq := pthis.rpcMgr.RPCManagerAddReq(msgRPC.MsgId)
 
-	log.LogDebug(msgRPC)
 	pthis.srvMgr.tcpMgr.TcpConnectSendProtoMsg(pthis.connDialID, msgpacket.MSG_TYPE__MSG_RPC, msgRPC)
 
 	var res proto.Message = nil
 	select{
 	case resCh := <-rreq.chNtf:
-		log.LogDebug(resCh)
 		res, _ = resCh.(proto.Message)
 	case <-time.After(time.Millisecond * time.Duration(timeoutMilliSec)):
 	}

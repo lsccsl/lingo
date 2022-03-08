@@ -51,12 +51,6 @@ func (pthis*ServerMgr)CBReadProcess(tcpConn * TcpConnection, recvBuf * bytes.Buf
 		return int(packLen)
 	}
 
-/*	switch t:=protoMsg.(type) {
-	case *msg.MSG_LOGIN:
-		addClient(t.Id, tcpConn)
-	default:
-	}*/
-
 	switch msgpacket.MSG_TYPE(packType) {
 	case msgpacket.MSG_TYPE__MSG_LOGIN:
 		t, ok := protoMsg.(*msgpacket.MSG_LOGIN)
