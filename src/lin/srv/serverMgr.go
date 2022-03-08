@@ -270,6 +270,7 @@ func (pthis*ServerMgr)processDailConnect(tcpDial * TcpConnection){
 
 func (pthis*ServerMgr)processRPCReq(tcpConn * TcpConnection, msg *msgpacket.MSG_RPC) {
 	msgRPC := ParseProtoMsg(msg.MsgBin, msg.MsgType)
+	log.LogDebug(msgRPC)
 	if tcpConn.SrvID != 0 {
 		srv := pthis.getServer(tcpConn.SrvID)
 		if srv != nil {

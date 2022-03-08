@@ -9,6 +9,8 @@ enum MSG_TYPE
     _MSG_RPC = 1;
     _MSG_RPC_RES = 2;
     _MSG_SRV_REPORT = 3;
+    _MSG_HEARTBEAT = 4;
+    _MSG_HEARTBEAT_RES = 5;
     _MSG_MAX = 100;
 
     _MSG_TEST = 101;
@@ -41,6 +43,15 @@ message MSG_RPC_RES
 message MSG_SRV_REPORT
 {
     int64 srv_id = 1;
+}
+
+message MSG_HEARTBEAT
+{
+    int64 id = 1;
+}
+message MSG_HEARTBEAT_RES
+{
+    int64 id = 1;
 }
 
 message MSG_TEST

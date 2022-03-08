@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"lin/log"
 	"lin/msgpacket"
 	"strconv"
 )
@@ -12,8 +12,10 @@ func testrpc(argStr []string){
 		srvID, _ = strconv.ParseInt(argStr[0], 10, 64)
 	}
 
-	msg := srvMgr.SendRPC_Async(srvID, msgpacket.MSG_TYPE__MSG_TEST, &msgpacket.MSG_TEST{Id:567}, 10)
-	fmt.Println(msg)
+	log.LogDebug(srvID)
+	msg := srvMgr.SendRPC_Async(srvID, msgpacket.MSG_TYPE__MSG_TEST, &msgpacket.MSG_TEST{Id:567}, 10 * 1000)
+
+	log.LogDebug(msg)
 }
 
 func commandLineInit(){
