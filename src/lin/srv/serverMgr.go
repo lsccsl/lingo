@@ -338,7 +338,7 @@ func (pthis*ServerMgr)Dump() string {
 		for _, val := range pthis.ServerMapMgr.mapServer {
 			str += fmt.Sprintf("\r\n server id:%v acpt:%v dial:%v", val.srvID, val.connAcptID, val.connDialID)
 		}
-		str += "\r\nserver count:" + strconv.Itoa(len(pthis.tcpMgr.mapConn))
+		str += "\r\nserver count:" + strconv.Itoa(len(pthis.ServerMapMgr.mapServer))
 	}()
 
 	str += "\r\ntcp connect:\r\n"
