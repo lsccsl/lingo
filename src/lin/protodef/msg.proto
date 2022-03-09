@@ -57,10 +57,12 @@ message MSG_HEARTBEAT_RES
 message MSG_TEST
 {
     int64 id = 1;
+    string str = 2;
 }
 message MSG_TEST_RES
 {
     int64 id = 1;
+    string str = 2;
 }
 
 message MSG_LOGIN

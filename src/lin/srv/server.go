@@ -178,7 +178,7 @@ func (pthis*Server)processRPCRes(tcpConn * TcpConnection, msg *msgpacket.MSG_RPC
 
 func (pthis*Server)processRPCTest(tcpConnID TCP_CONNECTION_ID, msg *msgpacket.MSG_TEST) *msgpacket.MSG_TEST_RES {
 	log.LogDebug(msg)
-	return &msgpacket.MSG_TEST_RES{Id: msg.Id}
+	return &msgpacket.MSG_TEST_RES{Id: msg.Id, Str:msg.Str}
 }
 
 // SendRPC_Async @brief will block timeoutMilliSec

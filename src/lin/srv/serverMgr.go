@@ -114,6 +114,8 @@ func (pthis*ServerMgr)CBConnectClose(tcpConn * TcpConnection) {
 	} else {
 		if tcpConn.SrvID != 0 {
 			pthis.delServer(tcpConn.SrvID)
+		} else if tcpConn.ClientID != 0 {
+			pthis.delClient(tcpConn.ClientID)
 		}
 	}
 }

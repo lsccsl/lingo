@@ -173,3 +173,7 @@ func ProtoUnPacketFromBin(recvBuf * bytes.Buffer) (MSG_TYPE, uint32, proto.Messa
 
 	return MSG_TYPE(packType), packLen, ParseProtoMsg(binBody, int32(packType))
 }
+
+func init(){
+	InitMsgParseVirtualTable()
+}

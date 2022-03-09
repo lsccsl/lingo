@@ -104,5 +104,6 @@ func (pthis*Client) process_MSG_TEST (protoMsg * msgpacket.MSG_TEST) {
 
 	msgRes := &msgpacket.MSG_TEST_RES{}
 	msgRes.Id = protoMsg.Id
+	msgRes.Str = protoMsg.Str
 	pthis.srvMgr.tcpMgr.TcpConnectSendProtoMsg(pthis.tcpConnID, msgpacket.MSG_TYPE__MSG_TEST_RES, msgRes)
 }

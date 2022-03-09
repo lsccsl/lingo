@@ -3,56 +3,29 @@ package main
 import (
 	"flag"
 	"fmt"
+	"lin/lin_common"
 	"lin/log"
-	"lin/msgpacket"
+	_ "lin/msgpacket"
 	"net"
 	"net/http"
-	_ "net/http/pprof"
 	"os"
-	"runtime"
-	"time"
 )
 
 var srvMgr *ServerMgr
 
-func goMemstatic() {
-	for {
-		//go vet ./…
-		//GODEBUG=gctrace=1 ./xxx
-		//GODEBUG=gctrace=1 ./xxx 2> gc.log
-		runtime.GC()
-		var ms runtime.MemStats
-		runtime.ReadMemStats(&ms)
-		fmt.Printf("Alloc:%d(bytes) HeapIdle:%d(bytes) HeapReleased:%d(bytes)\r\n", ms.Alloc, ms.HeapIdle, ms.HeapReleased)
-
-		time.Sleep(time.Second * time.Duration(10))
-	}
-}
-
 // --path="../cfg/cfg.yml" --id=1
 func main() {
-	runtime.SetMutexProfileFraction(1)
-	runtime.SetBlockProfileRate(1)
-
-	go func() {
-		http.ListenAndServe("0.0.0.0:6060", nil) //go tool pprof --text http://127.0.0.1:6060/debug/pprof/heap
-	}()
-	go goMemstatic()
-
+	lin_common.ProfileInit()
 	fmt.Println(os.Args)
 
 	var pathCfg string
 	var id string
 	flag.StringVar(&pathCfg, "path", "cfg.yml", "config path")
 	flag.StringVar(&id, "id", "123", "server id")
-
 	flag.Parse()
-
 	ReadCfg(pathCfg)
-
 	srvCfg := GetSrvCfgByID(id)
 
-	msgpacket.InitMsgParseVirtualTable()
 	srvMgr = ConstructServerMgr(srvCfg.SrvID, 90, 10)
 
 	httpAddr, err := net.ResolveTCPAddr("tcp", srvCfg.HttpAddr)
