@@ -85,14 +85,24 @@ func (pthis*Client)processRPCRes(tcpConn * TcpConnection, msg *msgpacket.MSG_RPC
 func (pthis*Client) processClientMsg (interMsg * interProtoMsg) {
 	switch t:=interMsg.protoMsg.(type){
 	case *msgpacket.MSG_HEARTBEAT:
+		pthis.process_MSG_HEARTBEAT(t)
+	case *msgpacket.MSG_TEST:
 		pthis.process_MSG_TEST(t)
 	}
 }
 
-func (pthis*Client) process_MSG_TEST (protoMsg * msgpacket.MSG_HEARTBEAT) {
+func (pthis*Client) process_MSG_HEARTBEAT (protoMsg * msgpacket.MSG_HEARTBEAT) {
 	log.LogDebug(protoMsg)
 
 	msgRes := &msgpacket.MSG_HEARTBEAT_RES{}
 	msgRes.Id = protoMsg.Id
 	pthis.srvMgr.tcpMgr.TcpConnectSendProtoMsg(pthis.tcpConnID, msgpacket.MSG_TYPE__MSG_HEARTBEAT_RES, msgRes)
+}
+
+func (pthis*Client) process_MSG_TEST (protoMsg * msgpacket.MSG_TEST) {
+	log.LogDebug(protoMsg)
+
+	msgRes := &msgpacket.MSG_TEST_RES{}
+	msgRes.Id = protoMsg.Id
+	pthis.srvMgr.tcpMgr.TcpConnectSendProtoMsg(pthis.tcpConnID, msgpacket.MSG_TYPE__MSG_TEST_RES, msgRes)
 }
