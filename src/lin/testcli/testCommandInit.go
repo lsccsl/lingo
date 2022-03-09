@@ -58,7 +58,7 @@ func CommandMultLogin(argStr []string) {
 	}
 
 	for i := 0; i < count; i ++ {
-		StartClient(int64(idbase + i), "192.168.2.129:2003")
+		StartClient(int64(idbase + i), "10.0.14.48:2001")
 	}
 }
 

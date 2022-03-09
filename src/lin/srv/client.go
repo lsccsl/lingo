@@ -8,13 +8,14 @@ import (
 )
 
 
-
+type MAP_CLIENT_STATIC map[msgpacket.MSG_TYPE]int64
 type Client struct {
 	srvMgr *ServerMgr
 	tcpConnID TCP_CONNECTION_ID
 	clientID int64
 	chClientProtoMsg chan *interProtoMsg
 	isStopProcess int32
+	mapStaticMsgRecv MAP_CLIENT_STATIC
 }
 
 func ConstructClient(srvMgr *ServerMgr, tcpConnID TCP_CONNECTION_ID,clientID int64) *Client {
@@ -24,6 +25,7 @@ func ConstructClient(srvMgr *ServerMgr, tcpConnID TCP_CONNECTION_ID,clientID int
 		clientID:clientID,
 		chClientProtoMsg:make(chan *interProtoMsg, 100),
 		isStopProcess:0,
+		mapStaticMsgRecv:make(MAP_CLIENT_STATIC),
 	}
 
 	go c.go_clientProcess()
@@ -46,6 +48,7 @@ func (pthis*Client) go_clientProcess() {
 			if ProtoMsg == nil {
 				break MSG_LOOP
 			}
+			pthis.mapStaticMsgRecv[ProtoMsg.msgType] = pthis.mapStaticMsgRecv[ProtoMsg.msgType] + 1
 			pthis.processClientMsg(ProtoMsg)
 		}
 	}
@@ -92,7 +95,7 @@ func (pthis*Client) processClientMsg (interMsg * interProtoMsg) {
 }
 
 func (pthis*Client) process_MSG_HEARTBEAT (protoMsg * msgpacket.MSG_HEARTBEAT) {
-	log.LogDebug(protoMsg)
+	//log.LogDebug(protoMsg)
 
 	msgRes := &msgpacket.MSG_HEARTBEAT_RES{}
 	msgRes.Id = protoMsg.Id
@@ -100,7 +103,7 @@ func (pthis*Client) process_MSG_HEARTBEAT (protoMsg * msgpacket.MSG_HEARTBEAT) {
 }
 
 func (pthis*Client) process_MSG_TEST (protoMsg * msgpacket.MSG_TEST) {
-	log.LogDebug(protoMsg)
+	//log.LogDebug(protoMsg)
 
 	msgRes := &msgpacket.MSG_TEST_RES{}
 	msgRes.Id = protoMsg.Id

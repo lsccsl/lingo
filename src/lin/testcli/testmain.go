@@ -14,8 +14,8 @@ func main() {
 	AddAllCmd()
 	msgpacket.InitMsgParseVirtualTable()
 
-	//conn, err := net.Dial("tcp", "10.0.14.48:2018")
-	StartClient(123,"192.168.2.129:2003")
+	StartClient(123, "10.0.14.48:2001")
+	//StartClient(123,"192.168.2.129:2003")
 
 	ParseCmd()
 	Global_wg.Wait()

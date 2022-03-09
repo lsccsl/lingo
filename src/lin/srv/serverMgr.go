@@ -46,7 +46,7 @@ type ServerMgr struct {
 func (pthis*ServerMgr)CBReadProcess(tcpConn * TcpConnection, recvBuf * bytes.Buffer) (bytesProcess int) {
 
 	packType, packLen, protoMsg := msgpacket.ProtoUnPacketFromBin(recvBuf)
-	log.LogDebug("packLen:", packLen, " packType:", packType, " protoMsg:", protoMsg)
+	//log.LogDebug("packLen:", packLen, " packType:", packType, " protoMsg:", protoMsg)
 
 	if protoMsg == nil {
 		return int(packLen)
@@ -197,11 +197,14 @@ func (pthis*ServerMgr)processClientLogin(clientID int64, tcpConn * TcpConnection
 	if oldC != nil {
 		if oldC.ClientGetConnectionID() != tcpConn.TcpConnectionID() {
 			pthis.delClient(clientID)
-		}
-	}
 
-	c := ConstructClient(pthis, tcpConn.TcpConnectionID(), clientID)
-	pthis.addClient(c)
+			c := ConstructClient(pthis, tcpConn.TcpConnectionID(), clientID)
+			pthis.addClient(c)
+		}
+	} else {
+		c := ConstructClient(pthis, tcpConn.TcpConnectionID(), clientID)
+		pthis.addClient(c)
+	}
 
 	msgRes := &msgpacket.MSG_LOGIN_RES{}
 	msgRes.Id = clientID
@@ -331,7 +334,7 @@ func (pthis*ServerMgr)Dump() string {
 		pthis.ClientMapMgr.mapClientMutex.Lock()
 		defer pthis.ClientMapMgr.mapClientMutex.Unlock()
 		for _, val := range pthis.ClientMapMgr.mapClient {
-			str += fmt.Sprintf("\r\n client id:%v id:%v", val.clientID, val.tcpConnID)
+			str += fmt.Sprintf("\r\n client id:%v id:%v map:%v", val.clientID, val.tcpConnID, val.mapStaticMsgRecv)
 		}
 		str += "\r\nclient count:" + strconv.Itoa(len(pthis.ClientMapMgr.mapClient))
 	}()
@@ -351,8 +354,10 @@ func (pthis*ServerMgr)Dump() string {
 		pthis.tcpMgr.mapConnMutex.Lock()
 		defer pthis.tcpMgr.mapConnMutex.Unlock()
 		for _, val := range pthis.tcpMgr.mapConn {
-			str += fmt.Sprintf(" \r\n connection:%v remote:[%v] local:[%v] IsAccept:%v SrvID:%v ClientID:%v",
-				val.TcpConnectionID(), val.netConn.RemoteAddr(), val.netConn.LocalAddr(), val.IsAccept, val.SrvID, val.ClientID)
+			str += fmt.Sprintf(" \r\n connection:%v remote:[%v] local:[%v] IsAccept:%v SrvID:%v ClientID:%v" +
+				"recv:%v send:%v",
+				val.TcpConnectionID(), val.netConn.RemoteAddr(), val.netConn.LocalAddr(), val.IsAccept, val.SrvID, val.ClientID,
+				val.ByteRecv, val.ByteSend)
 		}
 		str += "\r\ntcp conn count:" + strconv.Itoa(len(pthis.tcpMgr.mapConn))
 	}()
@@ -373,3 +378,4 @@ func (pthis*ServerMgr)Dump() string {
 	return str
 }
 
+// todo static wrong

@@ -50,6 +50,10 @@ type TcpConnection struct {
 
 	ConnType int64
 	ConnData interface{}
+
+	// stats
+	ByteRecv int64
+	ByteSend int64
 }
 
 func startTcpConnection(connMgr InterfaceConnManage, conn net.Conn, closeExpireSec int) (*TcpConnection, error) {
@@ -63,6 +67,8 @@ func startTcpConnection(connMgr InterfaceConnManage, conn net.Conn, closeExpireS
 		canWrite:0,
 		chMsgWrite:make(chan*interMsgTcpWrite, 100),
 		IsAccept:true,
+		ByteRecv:0,
+		ByteSend:0,
 	}
 
 	connMgr.CBAddTcpConn(tcpConn)
@@ -101,6 +107,8 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 		canWrite:0,
 		chMsgWrite:make(chan*interMsgTcpWrite, 100),
 		IsAccept:false,
+		ByteRecv:0,
+		ByteSend:0,
 	}
 	addr := ip + ":" + strconv.Itoa(port)
 
@@ -217,6 +225,7 @@ func (pthis * TcpConnection)go_tcpConnRead() {
 		if err != nil {
 			break READ_LOOP
 		}
+		pthis.ByteRecv += int64(readSize)
 
 		if TimerConnClose != nil {
 			//log.LogDebug("reset close timeout:", pthis.connectionID, " srvid:", pthis.SrvID, " clientid:", pthis.ClientID, " expire:", pthis.closeExpireSec)
@@ -265,7 +274,12 @@ func (pthis * TcpConnection)go_tcpConnWrite() {
 				break WRITE_LOOP
 			}
 			//todo: option wait for more data and combine write to tcp channel
-			pthis.netConn.Write(tcpW.bin)
+			writeSZ, err := pthis.netConn.Write(tcpW.bin)
+			if err != nil {
+				pthis.netConn.Close()
+				break WRITE_LOOP
+			}
+			pthis.ByteSend += int64(writeSZ)
 		}
 	}
 
