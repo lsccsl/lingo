@@ -7,6 +7,7 @@ import (
 	cor_pool "lin/lin_cor_pool"
 	"lin/log"
 	"lin/msgpacket"
+	"strconv"
 	"sync"
 )
 
@@ -327,6 +328,7 @@ func (pthis*ServerMgr)Dump() string {
 		for _, val := range pthis.ClientMapMgr.mapClient {
 			str += fmt.Sprintf("\r\n client id:%v id:%v", val.clientID, val.tcpConnID)
 		}
+		str += "\r\nclient count:" + strconv.Itoa(len(pthis.ClientMapMgr.mapClient))
 	}()
 
 	str += "\r\nserver:\r\n"
@@ -336,6 +338,7 @@ func (pthis*ServerMgr)Dump() string {
 		for _, val := range pthis.ServerMapMgr.mapServer {
 			str += fmt.Sprintf("\r\n server id:%v acpt:%v dial:%v", val.srvID, val.connAcptID, val.connDialID)
 		}
+		str += "\r\nserver count:" + strconv.Itoa(len(pthis.tcpMgr.mapConn))
 	}()
 
 	str += "\r\ntcp connect:\r\n"
@@ -346,6 +349,7 @@ func (pthis*ServerMgr)Dump() string {
 			str += fmt.Sprintf(" \r\n connection:%v remote:[%v] local:[%v] IsAccept:%v SrvID:%v ClientID:%v",
 				val.TcpConnectionID(), val.netConn.RemoteAddr(), val.netConn.LocalAddr(), val.IsAccept, val.SrvID, val.ClientID)
 		}
+		str += "\r\ntcp conn count:" + strconv.Itoa(len(pthis.tcpMgr.mapConn))
 	}()
 
 	str += "\r\ntcp dial data\r\n"
