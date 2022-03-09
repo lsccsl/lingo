@@ -44,7 +44,7 @@ type ServerMgr struct {
 
 func (pthis*ServerMgr)CBReadProcess(tcpConn * TcpConnection, recvBuf * bytes.Buffer) (bytesProcess int) {
 
-	packType, packLen, protoMsg := ProtoUnPacketFromBin(recvBuf)
+	packType, packLen, protoMsg := msgpacket.ProtoUnPacketFromBin(recvBuf)
 	log.LogDebug("packLen:", packLen, " packType:", packType, " protoMsg:", protoMsg)
 
 	if protoMsg == nil {
@@ -198,7 +198,7 @@ func (pthis*ServerMgr)processClientLogin(clientID int64, tcpConn * TcpConnection
 	msgRes := &msgpacket.MSG_LOGIN_RES{}
 	msgRes.Id = clientID
 	msgRes.ConnectId = int64(tcpConn.TcpConnectionID())
-	tcpConn.TcpConnectSendBin(ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_LOGIN_RES, msgRes))
+	tcpConn.TcpConnectSendBin(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_LOGIN_RES, msgRes))
 }
 
 func (pthis*ServerMgr)processMsg(tcpConn * TcpConnection, msgType msgpacket.MSG_TYPE, protoMsg proto.Message) {
@@ -259,11 +259,11 @@ func (pthis*ServerMgr)processDailConnect(tcpDial * TcpConnection){
 
 	msgR := &msgpacket.MSG_SRV_REPORT{}
 	msgR.SrvId = pthis.srvID
-	tcpDial.TcpConnectSendBin(ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_SRV_REPORT, msgR))
+	tcpDial.TcpConnectSendBin(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_SRV_REPORT, msgR))
 }
 
 func (pthis*ServerMgr)processRPCReq(tcpConn * TcpConnection, msg *msgpacket.MSG_RPC) {
-	msgRPC := ParseProtoMsg(msg.MsgBin, msg.MsgType)
+	msgRPC := msgpacket.ParseProtoMsg(msg.MsgBin, msg.MsgType)
 	log.LogDebug(msgRPC)
 	if tcpConn.SrvID != 0 {
 		srv := pthis.getServer(tcpConn.SrvID)
@@ -294,7 +294,7 @@ func (pthis*ServerMgr)processRPCReq(tcpConn * TcpConnection, msg *msgpacket.MSG_
 	}
 }
 func (pthis*ServerMgr)processRPCRes(tcpConn * TcpConnection, msgRPC *msgpacket.MSG_RPC_RES) {
-	msgBody := ParseProtoMsg(msgRPC.MsgBin, msgRPC.MsgType)
+	msgBody := msgpacket.ParseProtoMsg(msgRPC.MsgBin, msgRPC.MsgType)
 	if tcpConn.SrvID != 0 {
 		srv := pthis.getServer(tcpConn.SrvID)
 		if srv != nil {

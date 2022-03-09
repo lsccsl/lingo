@@ -1,4 +1,4 @@
-package main
+package msgpacket
 
 import (
 	"bytes"
@@ -11,7 +11,6 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/reflect/protoregistry"
 	"lin/log"
-	. "lin/msgpacket"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -61,19 +60,7 @@ func genAllMsgParse() {
 				ProtoParseAddText(msgName, msgType)
 			}
 
-/*			ast.Inspect(file, func(n ast.Node) bool {
-				if n != nil {
-					fmt.Println("ast.node", n)
-				}
 
-				switch x := n.(type) {
-				case *ast.TypeSpec:
-					if _, ok := x.Type.(*ast.StructType); ok {
-						fmt.Println(x.Name.Name)
-					}
-				}
-				return true
-			})*/
 		}
 	}
 }
@@ -92,7 +79,7 @@ func InitMsgParseVirtualTable(){
 }
 
 func ParseProtoMsg(binMsg []byte, msgType int32) proto.Message {
-	if nil == mapVirtualTable{
+	if nil == mapVirtualTable {
 		fmt.Println("parse table not init")
 	}
 	parsor, ok := mapVirtualTable[msgType]
@@ -114,7 +101,7 @@ type ProtoMsgParse struct{
 var mapProtoMsgParse map[int32]ProtoMsgParse
 
 func ProtoParseAdd(name string, msgTye int32){
-	if nil == mapProtoMsgParse{
+	if nil == mapProtoMsgParse {
 		mapProtoMsgParse = make(map[int32]ProtoMsgParse)
 	}
 

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"lin/log"
+	"lin/msgpacket"
 	"net"
 	"net/http"
 	"os"
@@ -19,7 +20,7 @@ func main() {
 	}
 	ReadCfg(pathCfg)
 
-	InitMsgParseVirtualTable()
+	msgpacket.InitMsgParseVirtualTable()
 	srvMgr = ConstructServerMgr(Global_ServerCfg.SrvID, 90, 10)
 
 	httpAddr, err := net.ResolveTCPAddr("tcp", Global_ServerCfg.HttpAddr)

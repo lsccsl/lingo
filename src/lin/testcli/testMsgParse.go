@@ -1,15 +1,16 @@
 package main
 
-import (
+/*import (
 	"fmt"
 	"github.com/golang/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/reflect/protoregistry"
-	. "lin/msg"
+	. "lin/msgpacket"
 )
 
 type MAP_PARSE_FUNC map[int32]func(binMsg[]byte) proto.Message
 var mapVirtualTable = make(MAP_PARSE_FUNC)
+
 
 func InitMsgParseVirtualTable(){
 	PBParseAddText("msg.MSG_LOGIN_RES", "_MSG_LOGIN_RES")
@@ -81,4 +82,4 @@ func PBParseByName(binMsg []byte, msgType int32)proto.Message {
 	}
 	proto.Unmarshal(binMsg, msgIns)
 	return msgIns
-}
+}*/

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"google.golang.org/protobuf/proto"
 	"io"
-	"lin/msg"
+	"lin/msgpacket"
 	"net"
 	"os"
 	"sync"
@@ -26,7 +26,7 @@ type interMsg struct {
 	msgdata interface{}
 }
 type interSendMsg struct {
-	msgtype msg.MSG_TYPE
+	msgtype msgpacket.MSG_TYPE
 	msgproto proto.Message
 }
 const (
@@ -49,8 +49,9 @@ var wg sync.WaitGroup
 
 func main() {
 	AddAllCmd()
-	InitMsgParseVirtualTable()
-	conn, err := net.Dial("tcp", "10.0.14.48:1138")
+	msgpacket.InitMsgParseVirtualTable()
+	//conn, err := net.Dial("tcp", "10.0.14.48:2018")
+	conn, err := net.Dial("tcp", "192.168.2.129:2028")
 	fmt.Println(conn, err)
 
 	tcpInfo := &ClientTcpInfo{
@@ -161,7 +162,7 @@ func (tcpInfo *ClientTcpInfo)processSendMsg(msg *interSendMsg) {
 	tcpInfo.con.Write(bin)
 }
 
-func (tcpInfo *ClientTcpInfo)FormatMsg(msgtype msg.MSG_TYPE, msg proto.Message)[]byte{
+func (tcpInfo *ClientTcpInfo)FormatMsg(msgtype msgpacket.MSG_TYPE, msg proto.Message)[]byte{
 	binMsg, _ := proto.Marshal(msg)
 	var wb []byte
 	var buf bytes.Buffer
@@ -173,7 +174,7 @@ func (tcpInfo *ClientTcpInfo)FormatMsg(msgtype msg.MSG_TYPE, msg proto.Message)[
 	return wb
 }
 
-func (tcpInfo *ClientTcpInfo)TcpSend(msgtype msg.MSG_TYPE, msg proto.Message) {
+func (tcpInfo *ClientTcpInfo)TcpSend(msgtype msgpacket.MSG_TYPE, msg proto.Message) {
 	tcpInfo.msgChan <- &interMsg{
 		msgtype:INTER_MSG_TYPE_sendmsg,
 		msgdata: &interSendMsg{
@@ -212,7 +213,7 @@ Loop:
 			if recvBuf.Len() >= int(curHead.packLen){
 				binBody := recvBuf.Bytes()[6:curHead.packLen]
 
-				protoMsg := ParseProtoMsg(binBody, int32(curHead.packType))
+				protoMsg := msgpacket.ParseProtoMsg(binBody, int32(curHead.packType))
 				fmt.Println(protoMsg)
 
 				recvBuf.Next(int(curHead.packLen))
@@ -233,7 +234,7 @@ Loop:
 
 			binBody := recvBuf.Bytes()[6:curHead.packLen]
 
-			protoMsg := ParseProtoMsg(binBody, int32(curHead.packType))
+			protoMsg := msgpacket.ParseProtoMsg(binBody, int32(curHead.packType))
 			fmt.Println("parse protomsg", protoMsg)
 
 			recvBuf.Next(int(curHead.packLen))

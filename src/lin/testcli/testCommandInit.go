@@ -1,7 +1,7 @@
 package main
 
 import (
-	. "lin/msg"
+	. "lin/msgpacket"
 )
 
 // "github.com/golang/protobuf/proto"

@@ -106,5 +106,5 @@ func (pthis*TcpMgr)TcpConnectSendProtoMsg(tcpConnID TCP_CONNECTION_ID, msgType m
 	if conn == nil {
 		return
 	}
-	conn.TcpConnectSendBin(ProtoPacketToBin(msgType, protoMsg))
+	conn.TcpConnectSendBin(msgpacket.ProtoPacketToBin(msgType, protoMsg))
 }
