@@ -51,7 +51,7 @@ func main() {
 	AddAllCmd()
 	msgpacket.InitMsgParseVirtualTable()
 	//conn, err := net.Dial("tcp", "10.0.14.48:2018")
-	conn, err := net.Dial("tcp", "192.168.2.129:2028")
+	conn, err := net.Dial("tcp", "192.168.2.129:2003")
 	fmt.Println(conn, err)
 
 	tcpInfo := &ClientTcpInfo{
