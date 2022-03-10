@@ -354,13 +354,18 @@ func (pthis*ServerMgr)Dump() string {
 	func(){
 		pthis.tcpMgr.mapConnMutex.Lock()
 		defer pthis.tcpMgr.mapConnMutex.Unlock()
+		var mapProcessErr map[TCP_CONNECTION_ID]int
 		for _, val := range pthis.tcpMgr.mapConn {
 			str += fmt.Sprintf(" \r\n connection:%v remote:[%v] local:[%v] IsAccept:%v SrvID:%v ClientID:%v" +
-				"recv:%v send:%v proc:%v",
+				" recv:%v send:%v proc:%v",
 				val.TcpConnectionID(), val.netConn.RemoteAddr(), val.netConn.LocalAddr(), val.IsAccept, val.SrvID, val.ClientID,
 				val.ByteRecv, val.ByteSend, val.ByteProc)
+			if val.ByteRecv != val.ByteProc {
+				mapProcessErr[val.TcpConnectionID()] = int(val.ByteRecv - val.ByteProc)
+			}
 		}
 		str += "\r\ntcp conn count:" + strconv.Itoa(len(pthis.tcpMgr.mapConn))
+		str += fmt.Sprintf("process err:%v", mapProcessErr)
 	}()
 
 	str += "\r\ntcp dial data\r\n"

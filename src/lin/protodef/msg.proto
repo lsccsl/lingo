@@ -11,6 +11,8 @@ enum MSG_TYPE
     _MSG_SRV_REPORT = 3;
     _MSG_HEARTBEAT = 4;
     _MSG_HEARTBEAT_RES = 5;
+    _MSG_TCP_STATIC = 6;
+    _MSG_TCP_STATIC_RES = 7;
     _MSG_MAX = 100;
 
     _MSG_TEST = 101;
@@ -74,4 +76,16 @@ message MSG_LOGIN_RES
 {
     int64 id = 1;
     int64 connect_id = 2;
+}
+
+message MSG_TCP_STATIC
+{
+}
+message MSG_TCP_STATIC_RES
+{
+    int64 packet_count = 1;
+    int64 byte_recv = 2;
+    int64 byte_proc = 3;
+    int64 byte_send = 4;
+    map<int32, int64> map_static_msg_recv = 5;
 }

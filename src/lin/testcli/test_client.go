@@ -157,7 +157,7 @@ func (tcpInfo *ClientTcpInfo)processSendMsg(msg *interSendMsg) {
 	bin := tcpInfo.FormatMsg(msg.msgtype, msg.msgproto)
 
 	tcpInfo.ByteSend += len(bin)
-	fmt.Println("byte send", tcpInfo.ByteSend, len(bin))
+	//fmt.Println("byte send", tcpInfo.ByteSend, len(bin))
 	tcpInfo.con.Write(bin)
 }
 
@@ -216,10 +216,12 @@ func (tcpInfo *ClientTcpInfo)GoClientTcpRead(){
 				binBody := recvBuf.Bytes()[6:curHead.packLen]
 
 				protoMsg := msgpacket.ParseProtoMsg(binBody, int32(curHead.packType))
-				if msgpacket.MSG_TYPE(curHead.packType) != msgpacket.MSG_TYPE__MSG_HEARTBEAT_RES {
-					fmt.Println(msgpacket.MSG_TYPE(curHead.packType), " proto msg:", protoMsg)
+				switch msgpacket.MSG_TYPE(curHead.packType) {
+				case msgpacket.MSG_TYPE__MSG_HEARTBEAT_RES:
+				case msgpacket.MSG_TYPE__MSG_TEST_RES:
+				default:
+					fmt.Println(msgpacket.MSG_TYPE(curHead.packType), " !!proto msg:", protoMsg)
 				}
-
 				recvBuf.Next(int(curHead.packLen))
 				curHead.packLen = 0
 			}
@@ -240,8 +242,11 @@ func (tcpInfo *ClientTcpInfo)GoClientTcpRead(){
 			binBody := recvBuf.Bytes()[6:curHead.packLen]
 
 			protoMsg := msgpacket.ParseProtoMsg(binBody, int32(curHead.packType))
-			if msgpacket.MSG_TYPE(curHead.packType) != msgpacket.MSG_TYPE__MSG_HEARTBEAT_RES {
-				fmt.Println(msgpacket.MSG_TYPE(curHead.packType), " proto msg:", protoMsg)
+			switch msgpacket.MSG_TYPE(curHead.packType) {
+			case msgpacket.MSG_TYPE__MSG_HEARTBEAT_RES:
+			case msgpacket.MSG_TYPE__MSG_TEST_RES:
+			default:
+				fmt.Println(msgpacket.MSG_TYPE(curHead.packType), " !!proto msg:", protoMsg)
 			}
 
 			recvBuf.Next(int(curHead.packLen))
@@ -259,7 +264,7 @@ func StartClient(id int64, addr string) *ClientTcpInfo {
 	tcpInfo := &ClientTcpInfo{
 		id:id,
 		con : conn,
-		msgChan : make(chan * interMsg, 100),
+		msgChan : make(chan * interMsg, 1000),
 		ByteSend:0,
 		ByteRecv:0,
 	}

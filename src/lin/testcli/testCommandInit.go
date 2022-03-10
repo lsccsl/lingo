@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	. "lin/msgpacket"
+	"runtime"
 	"strconv"
+	"sync"
 )
 
 // "github.com/golang/protobuf/proto"
@@ -32,19 +34,30 @@ func CommandMultTest(argStr []string) {
 		count, _ = strconv.Atoi(argStr[1])
 	}
 	fmt.Println("cor:", cor, " count:", count)
-	for i := 0; i < cor; i ++ {
+	var wgtmp sync.WaitGroup
+	for icor := 0; icor < cor; icor ++ {
+		wgtmp.Add(1)
 		go func() {
 			for j := 0; j < count; j ++ {
-				//fmt.Println(i, j)
 				for _, val := range Global_cliMgr.mapClient {
 					msg := &MSG_TEST{}
 					msg.Id = val.id
-					msg.Str = fmt.Sprintf("%v_%v_%v", val.id, i, j)
+					msg.Str = fmt.Sprintf("%v_%v_%v", val.id, icor, j)
 					val.TcpSend(MSG_TYPE__MSG_TEST, msg)
+					if (j % 1000 == 0) {
+						fmt.Println("test:", icor, j)
+						runtime.Gosched()
+					}
 				}
-				//runtime.Gosched()
 			}
+			wgtmp.Done()
 		}()
+	}
+	wgtmp.Wait()
+	fmt.Println("\r\n\r\n all coroutine done")
+	for _, val := range Global_cliMgr.mapClient {
+		msg := &MSG_TCP_STATIC{}
+		val.TcpSend(MSG_TYPE__MSG_TCP_STATIC, msg)
 	}
 }
 
@@ -63,10 +76,26 @@ func CommandMultLogin(argStr []string) {
 	}
 }
 
+func CommandStatic(argStr []string) {
+	id := 123
+	if len(argStr) >= 1 {
+		id,_ = strconv.Atoi(argStr[0])
+	}
+
+	c := Global_cliMgr.ClientMgrAddGet(int64(id))
+	if c == nil {
+		return
+	}
+
+	msg := &MSG_TCP_STATIC{}
+	c.TcpSend(MSG_TYPE__MSG_TCP_STATIC, msg)
+}
+
 func AddAllCmd(){
 	InitCmd()
 	AddCmd("test", "test",CommandTest)
 	AddCmd("login", "login",CommandLogin)
 	AddCmd("mtest", "mult test",CommandMultTest)
 	AddCmd("mlogin", "loginMult",CommandMultLogin)
+	AddCmd("static", "static",CommandStatic)
 }

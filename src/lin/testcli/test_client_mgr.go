@@ -22,3 +22,11 @@ func (pthis *ClientMgr)ClientMgrDel(id int64) {
 
 	delete(pthis.mapClient, id)
 }
+
+func (pthis *ClientMgr)ClientMgrAddGet(id int64) *ClientTcpInfo {
+	pthis.mapClientMutex.Lock()
+	defer pthis.mapClientMutex.Unlock()
+
+	c, _ := pthis.mapClient[id]
+	return c
+}

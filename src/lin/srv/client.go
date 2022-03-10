@@ -49,7 +49,15 @@ func (pthis*Client) go_clientProcess() {
 				break MSG_LOOP
 			}
 			pthis.mapStaticMsgRecv[ProtoMsg.msgType] = pthis.mapStaticMsgRecv[ProtoMsg.msgType] + 1
-			pthis.processClientMsg(ProtoMsg)
+			func(){
+				defer func() {
+					err := recover()
+					if err != nil {
+						log.LogErr(err)
+					}
+				}()
+				pthis.processClientMsg(ProtoMsg)
+			}()
 		}
 	}
 
@@ -91,6 +99,8 @@ func (pthis*Client) processClientMsg (interMsg * interProtoMsg) {
 		pthis.process_MSG_HEARTBEAT(t)
 	case *msgpacket.MSG_TEST:
 		pthis.process_MSG_TEST(t)
+	case *msgpacket.MSG_TCP_STATIC:
+		pthis.process_MSG_TCP_STATIC(t)
 	}
 }
 
@@ -109,4 +119,18 @@ func (pthis*Client) process_MSG_TEST (protoMsg * msgpacket.MSG_TEST) {
 	msgRes.Id = protoMsg.Id
 	msgRes.Str = protoMsg.Str
 	pthis.srvMgr.tcpMgr.TcpConnectSendProtoMsg(pthis.tcpConnID, msgpacket.MSG_TYPE__MSG_TEST_RES, msgRes)
+}
+
+func (pthis*Client) process_MSG_TCP_STATIC(protoMsg * msgpacket.MSG_TCP_STATIC) {
+	tcpConn := pthis.srvMgr.tcpMgr.getTcpConnection(pthis.tcpConnID)
+	msgRes := &msgpacket.MSG_TCP_STATIC_RES{
+		ByteRecv:tcpConn.ByteRecv,
+		ByteProc:tcpConn.ByteProc,
+		ByteSend:tcpConn.ByteSend,
+	}
+	msgRes.MapStaticMsgRecv = make(map[int32]int64)
+	for key, val := range pthis.mapStaticMsgRecv {
+		msgRes.MapStaticMsgRecv[int32(key)] = val
+	}
+	pthis.srvMgr.tcpMgr.TcpConnectSendProtoMsg(pthis.tcpConnID, msgpacket.MSG_TYPE__MSG_TCP_STATIC_RES, msgRes)
 }

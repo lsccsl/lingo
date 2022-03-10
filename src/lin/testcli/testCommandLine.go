@@ -71,11 +71,12 @@ func ParseCmd(){
 	for input_scanner.Scan() {
 		str := input_scanner.Text()
 		fmt.Println("get input:", str)
+		if str == "q" {
+			break
+		}
 		if len(str) != 0 {
 			arrStr := strings.Fields(str)
 			DoCmd(arrStr, len(arrStr))
-		} else {
-			break
 		}
 	}
 }
