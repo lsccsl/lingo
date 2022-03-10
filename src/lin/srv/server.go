@@ -96,7 +96,7 @@ func (pthis*Server) ServerClose() {
 	pthis.srvMgr.tcpMgr.TcpMgrCloseConn(pthis.connAcptID)
 	pthis.srvMgr.tcpMgr.TcpMgrCloseConn(pthis.connDialID)
 
-	pthis.chSrvProtoMsg <- nil
+	go func() { pthis.chSrvProtoMsg <- nil }()
 }
 
 func (pthis*Server) ServerCloseAndDelDialData() {
@@ -120,17 +120,18 @@ func (pthis*Server)PushInterMsg(msg interface{}){
 	if atomic.LoadInt32(&pthis.isStopProcess) == 1 {
 		return
 	}
-	pthis.chInterMsg <- msg
+	go func() { pthis.chInterMsg <- msg	}()
 }
 func (pthis*Server)PushProtoMsg(msgType msgpacket.MSG_TYPE, protoMsg proto.Message, tcpConnID TCP_CONNECTION_ID){
 	if atomic.LoadInt32(&pthis.isStopProcess) == 1 {
 		return
 	}
-	pthis.chSrvProtoMsg <- &interProtoMsg{
-		msgType:msgType,
-		protoMsg:protoMsg,
-		tcpConnID:tcpConnID,
-	}
+	go func() { pthis.chSrvProtoMsg <- &interProtoMsg{
+			msgType:msgType,
+			protoMsg:protoMsg,
+			tcpConnID:tcpConnID,
+		}
+	}()
 }
 
 func (pthis*Server)Go_ProcessRPC(tcpConnID TCP_CONNECTION_ID, msg *msgpacket.MSG_RPC, msgBody proto.Message) {
@@ -172,7 +173,7 @@ func (pthis*Server)processRPCRes(tcpConn * TcpConnection, msg *msgpacket.MSG_RPC
 		return
 	}
 	if rreq.chNtf != nil {
-		rreq.chNtf <- msgBody
+		go func() { rreq.chNtf <- msgBody }()
 	}
 }
 

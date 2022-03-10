@@ -26,39 +26,44 @@ func CommandLogin(argStr []string) {
 
 func CommandMultTest(argStr []string) {
 	cor := 1
-	count := 100
+	count := 1000000
 	if len(argStr) >= 1 {
 		cor, _ = strconv.Atoi(argStr[0])
 	}
 	if len(argStr) >= 2 {
 		count, _ = strconv.Atoi(argStr[1])
 	}
-	fmt.Println("cor:", cor, " count:", count)
-	var wgtmp sync.WaitGroup
-	for icor := 0; icor < cor; icor ++ {
-		wgtmp.Add(1)
-		go func() {
-			for j := 0; j < count; j ++ {
-				for _, val := range Global_cliMgr.mapClient {
-					msg := &MSG_TEST{}
-					msg.Id = val.id
-					msg.Str = fmt.Sprintf("%v_%v_%v", val.id, icor, j)
-					val.TcpSend(MSG_TYPE__MSG_TEST, msg)
-					if (j % 1000 == 0) {
-						fmt.Println("test:", icor, j)
-						runtime.Gosched()
+
+	go func() {
+		fmt.Println("cor:", cor, " count:", count)
+		var wgtmp sync.WaitGroup
+		for icor := 0; icor < cor; icor ++ {
+			wgtmp.Add(1)
+			cori := icor
+			go func() {
+				for j := 0; j < count; j ++ {
+					for _, val := range Global_cliMgr.mapClient {
+						msg := &MSG_TEST{}
+						msg.Id = val.id
+						msg.Str = fmt.Sprintf("%v_%v_%v", val.id, cori, j)
+						val.TcpSend(MSG_TYPE__MSG_TEST, msg)
+						if (j % 1000 == 0) {
+							fmt.Println("test:", cori, j)
+							runtime.Gosched()
+						}
 					}
 				}
-			}
-			wgtmp.Done()
-		}()
-	}
-	wgtmp.Wait()
-	fmt.Println("\r\n\r\n all coroutine done")
-	for _, val := range Global_cliMgr.mapClient {
-		msg := &MSG_TCP_STATIC{}
-		val.TcpSend(MSG_TYPE__MSG_TCP_STATIC, msg)
-	}
+				wgtmp.Done()
+				fmt.Println("coroutine done", cori)
+			}()
+		}
+		wgtmp.Wait()
+		fmt.Println("\r\n\r\n all coroutine done")
+		for _, val := range Global_cliMgr.mapClient {
+			msg := &MSG_TCP_STATIC{}
+			val.TcpSend(MSG_TYPE__MSG_TCP_STATIC, msg)
+		}
+	}()
 }
 
 func CommandMultLogin(argStr []string) {
@@ -95,7 +100,7 @@ func AddAllCmd(){
 	InitCmd()
 	AddCmd("test", "test",CommandTest)
 	AddCmd("login", "login",CommandLogin)
-	AddCmd("mtest", "mult test",CommandMultTest)
+	AddCmd("mt", "mult test",CommandMultTest)
 	AddCmd("mlogin", "loginMult",CommandMultLogin)
 	AddCmd("static", "static",CommandStatic)
 }

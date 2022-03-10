@@ -74,18 +74,18 @@ func (pthis*Client) ClientGetClientID()int64{
 
 func (pthis*Client) ClientClose() {
 	pthis.srvMgr.tcpMgr.TcpMgrCloseConn(pthis.tcpConnID)
-	pthis.chClientProtoMsg <- nil
+	go func() { pthis.chClientProtoMsg <- nil }()
 }
 
 func (pthis*Client) PushProtoMsg(msgType msgpacket.MSG_TYPE, protoMsg proto.Message) {
 	if atomic.LoadInt32(&pthis.isStopProcess) == 1 {
 		return
 	}
-
-	pthis.chClientProtoMsg <- &interProtoMsg{
-		msgType:msgType,
-		protoMsg:protoMsg,
-	}
+	go func() { pthis.chClientProtoMsg <- &interProtoMsg{
+			msgType:msgType,
+			protoMsg:protoMsg,
+		}
+	}()
 }
 
 func (pthis*Client)Go_processRPC(tcpConn * TcpConnection, msg *msgpacket.MSG_RPC, msgBody proto.Message) {

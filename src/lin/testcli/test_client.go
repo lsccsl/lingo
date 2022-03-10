@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"google.golang.org/protobuf/proto"
 	"io"
+	"lin/lin_common"
 	"lin/msgpacket"
 	"net"
 	"os"
@@ -31,6 +32,8 @@ type interSendMsg struct {
 const (
 	INTER_MSG_TYPE_sendmsg = 1
 )
+
+const CHAN_BUF_LEN = 100
 
 type ClientTcpInfo struct{
 	id int64
@@ -121,6 +124,7 @@ func (tcpInfo *ClientTcpInfo)GoClientTcpProcess() {
 
 	PROCESS_LOOP:
 	for {
+		fmt.Println("begin wait msg", lin_common.GetGID(), count)
 		select {
 		case msg := <-tcpInfo.msgChan:
 			{
@@ -136,11 +140,13 @@ func (tcpInfo *ClientTcpInfo)GoClientTcpProcess() {
 
 		case <-chTimer:
 			{
+				fmt.Println("timeout")
 				msg := &msgpacket.MSG_HEARTBEAT{Id:tcpInfo.id}
 				tcpInfo.TcpSend(msgpacket.MSG_TYPE__MSG_HEARTBEAT, msg)
 				chTimer = time.After(time.Second * time.Duration(10))
 			}
 		}
+		fmt.Println("end wait msg", count)
 	}
 }
 
@@ -175,13 +181,14 @@ func (tcpInfo *ClientTcpInfo)FormatMsg(msgtype msgpacket.MSG_TYPE, msg proto.Mes
 
 // todo 省略 msgtype参数
 func (tcpInfo *ClientTcpInfo)TcpSend(msgtype msgpacket.MSG_TYPE, msg proto.Message) {
-	tcpInfo.msgChan <- &interMsg{
-		msgtype:INTER_MSG_TYPE_sendmsg,
-		msgdata: &interSendMsg{
-			msgtype:msgtype,
-			msgproto:msg,
-		},
-	}
+	go func() {	tcpInfo.msgChan <- &interMsg{
+			msgtype:INTER_MSG_TYPE_sendmsg,
+			msgdata: &interSendMsg{
+				msgtype:msgtype,
+				msgproto:msg,
+			},
+		}
+	}()
 }
 
 func (tcpInfo *ClientTcpInfo)GoClientTcpRead(){
@@ -246,7 +253,7 @@ func (tcpInfo *ClientTcpInfo)GoClientTcpRead(){
 			case msgpacket.MSG_TYPE__MSG_HEARTBEAT_RES:
 			case msgpacket.MSG_TYPE__MSG_TEST_RES:
 			default:
-				fmt.Println(msgpacket.MSG_TYPE(curHead.packType), " !!proto msg:", protoMsg)
+				fmt.Println(msgpacket.MSG_TYPE(curHead.packType), " ??proto msg:", protoMsg)
 			}
 
 			recvBuf.Next(int(curHead.packLen))
@@ -264,7 +271,7 @@ func StartClient(id int64, addr string) *ClientTcpInfo {
 	tcpInfo := &ClientTcpInfo{
 		id:id,
 		con : conn,
-		msgChan : make(chan * interMsg, 1000),
+		msgChan : make(chan * interMsg, CHAN_BUF_LEN),
 		ByteSend:0,
 		ByteRecv:0,
 	}
