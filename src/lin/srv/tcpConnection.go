@@ -54,6 +54,7 @@ type TcpConnection struct {
 	// stats
 	ByteRecv int64
 	ByteSend int64
+	ByteProc int64
 }
 
 func startTcpConnection(connMgr InterfaceConnManage, conn net.Conn, closeExpireSec int) (*TcpConnection, error) {
@@ -69,6 +70,7 @@ func startTcpConnection(connMgr InterfaceConnManage, conn net.Conn, closeExpireS
 		IsAccept:true,
 		ByteRecv:0,
 		ByteSend:0,
+		ByteProc:0,
 	}
 
 	connMgr.CBAddTcpConn(tcpConn)
@@ -109,6 +111,7 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 		IsAccept:false,
 		ByteRecv:0,
 		ByteSend:0,
+		ByteProc:0,
 	}
 	addr := ip + ":" + strconv.Itoa(port)
 
@@ -232,6 +235,9 @@ func (pthis * TcpConnection)go_tcpConnRead() {
 			TimerConnClose.Reset(expireInterval)
 		}
 
+		if recvBuf.Len() > 0 {
+			log.LogDebug("has data not process last loop len:", recvBuf.Len(), " recv:", pthis.ByteRecv, " proc:", pthis.ByteProc)
+		}
 		recvBuf.Write(TmpBuf[0:readSize])
 
 		if pthis.cbTcpConnection == nil {
@@ -239,7 +245,6 @@ func (pthis * TcpConnection)go_tcpConnRead() {
 			continue
 		}
 
-		bytesProcess := 0
 		func(){
 			defer func() {
 				err := recover()
@@ -247,14 +252,16 @@ func (pthis * TcpConnection)go_tcpConnRead() {
 					log.LogErr(err)
 				}
 			}()
-			bytesProcess = pthis.cbTcpConnection.CBReadProcess(pthis, recvBuf)
+			PROCESS_LOOP:
+			for recvBuf.Len() > 0 {
+				bytesProcess := pthis.cbTcpConnection.CBReadProcess(pthis, recvBuf)
+				if bytesProcess <= 0 {
+					break PROCESS_LOOP
+				}
+				pthis.ByteProc += int64(bytesProcess)
+				recvBuf.Next(bytesProcess)
+			}
 		}()
-
-		if bytesProcess < 0 {
-			break READ_LOOP
-		} else if bytesProcess > 0 {
-			recvBuf.Next(bytesProcess)
-		}
 	}
 }
 

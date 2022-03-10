@@ -37,6 +37,8 @@ type ClientTcpInfo struct{
 	con net.Conn
 	needDecrypt bool
 	msgChan chan *interMsg
+	ByteSend int
+	ByteRecv int
 }
 var globalTcpInfo *ClientTcpInfo
 
@@ -104,6 +106,8 @@ func CheckError(err error)bool{
 func (tcpInfo *ClientTcpInfo)GoClientTcpProcess() {
 	fmt.Println("GoClientTcpSend")
 
+	count := 0
+
 	defer func() {
 		err := recover()
 		if err != nil {
@@ -123,13 +127,17 @@ func (tcpInfo *ClientTcpInfo)GoClientTcpProcess() {
 				if msg == nil {
 					break PROCESS_LOOP
 				}
+				if (msg.msgtype == INTER_MSG_TYPE_sendmsg) {
+					count ++
+					//fmt.Println("write", count)
+				}
 				tcpInfo.processMsg(msg)
 			}
 
 		case <-chTimer:
 			{
 				msg := &msgpacket.MSG_HEARTBEAT{Id:tcpInfo.id}
-				globalTcpInfo.TcpSend(msgpacket.MSG_TYPE__MSG_HEARTBEAT, msg)
+				tcpInfo.TcpSend(msgpacket.MSG_TYPE__MSG_HEARTBEAT, msg)
 				chTimer = time.After(time.Second * time.Duration(10))
 			}
 		}
@@ -147,6 +155,9 @@ func (tcpInfo *ClientTcpInfo)processMsg(msg *interMsg) {
 }
 func (tcpInfo *ClientTcpInfo)processSendMsg(msg *interSendMsg) {
 	bin := tcpInfo.FormatMsg(msg.msgtype, msg.msgproto)
+
+	tcpInfo.ByteSend += len(bin)
+	fmt.Println("byte send", tcpInfo.ByteSend, len(bin))
 	tcpInfo.con.Write(bin)
 }
 
@@ -196,6 +207,7 @@ func (tcpInfo *ClientTcpInfo)GoClientTcpRead(){
 		if !CheckError(err){
 			break Loop
 		}
+		tcpInfo.ByteRecv += readSize
 		recvBuf.Write(TmpBuf[0:readSize])
 		//fmt.Println("tcp read:", readSize, err)
 
@@ -248,6 +260,8 @@ func StartClient(id int64, addr string) *ClientTcpInfo {
 		id:id,
 		con : conn,
 		msgChan : make(chan * interMsg, 100),
+		ByteSend:0,
+		ByteRecv:0,
 	}
 	globalTcpInfo = tcpInfo
 

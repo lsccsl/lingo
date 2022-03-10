@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	. "lin/msgpacket"
-	"runtime"
 	"strconv"
 )
 
@@ -25,23 +24,25 @@ func CommandLogin(argStr []string) {
 
 func CommandMultTest(argStr []string) {
 	cor := 1
-	count := 1
+	count := 100
 	if len(argStr) >= 1 {
 		cor, _ = strconv.Atoi(argStr[0])
 	}
 	if len(argStr) >= 2 {
 		count, _ = strconv.Atoi(argStr[1])
 	}
+	fmt.Println("cor:", cor, " count:", count)
 	for i := 0; i < cor; i ++ {
 		go func() {
 			for j := 0; j < count; j ++ {
+				//fmt.Println(i, j)
 				for _, val := range Global_cliMgr.mapClient {
 					msg := &MSG_TEST{}
 					msg.Id = val.id
 					msg.Str = fmt.Sprintf("%v_%v_%v", val.id, i, j)
 					val.TcpSend(MSG_TYPE__MSG_TEST, msg)
 				}
-				runtime.Gosched()
+				//runtime.Gosched()
 			}
 		}()
 	}
@@ -52,13 +53,13 @@ func CommandMultLogin(argStr []string) {
 	if len(argStr) >= 1 {
 		count, _ = strconv.Atoi(argStr[0])
 	}
-	idbase := 0
+	idbase := 100
 	if len(argStr) >= 2 {
 		idbase, _ = strconv.Atoi(argStr[1])
 	}
 
 	for i := 0; i < count; i ++ {
-		StartClient(int64(idbase + i), "10.0.14.48:2001")
+		StartClient(int64(idbase + i),Global_testCfg.addr)
 	}
 }
 

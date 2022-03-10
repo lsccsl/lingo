@@ -45,11 +45,12 @@ type ServerMgr struct {
 
 func (pthis*ServerMgr)CBReadProcess(tcpConn * TcpConnection, recvBuf * bytes.Buffer) (bytesProcess int) {
 
-	packType, packLen, protoMsg := msgpacket.ProtoUnPacketFromBin(recvBuf)
+	packType, bytesProcess, protoMsg := msgpacket.ProtoUnPacketFromBin(recvBuf)
 	//log.LogDebug("packLen:", packLen, " packType:", packType, " protoMsg:", protoMsg)
 
 	if protoMsg == nil {
-		return int(packLen)
+		log.LogErr("can't parse msg:", tcpConn.ByteRecv, " proc:", tcpConn.ByteProc)
+		return
 	}
 
 	switch packType {
@@ -83,7 +84,7 @@ func (pthis*ServerMgr)CBReadProcess(tcpConn * TcpConnection, recvBuf * bytes.Buf
 		pthis.processMsg(tcpConn, msgpacket.MSG_TYPE(packType), protoMsg)
 	}
 
-	return int(packLen)
+	return
 }
 
 func (pthis*ServerMgr)CBConnectAccept(tcpConn * TcpConnection, err error) {
@@ -355,9 +356,9 @@ func (pthis*ServerMgr)Dump() string {
 		defer pthis.tcpMgr.mapConnMutex.Unlock()
 		for _, val := range pthis.tcpMgr.mapConn {
 			str += fmt.Sprintf(" \r\n connection:%v remote:[%v] local:[%v] IsAccept:%v SrvID:%v ClientID:%v" +
-				"recv:%v send:%v",
+				"recv:%v send:%v proc:%v",
 				val.TcpConnectionID(), val.netConn.RemoteAddr(), val.netConn.LocalAddr(), val.IsAccept, val.SrvID, val.ClientID,
-				val.ByteRecv, val.ByteSend)
+				val.ByteRecv, val.ByteSend, val.ByteProc)
 		}
 		str += "\r\ntcp conn count:" + strconv.Itoa(len(pthis.tcpMgr.mapConn))
 	}()

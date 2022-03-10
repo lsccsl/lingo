@@ -10,12 +10,19 @@ var Global_cliMgr *ClientMgr = &ClientMgr{
 	mapClient :make(MAP_CLIENT),
 }
 
+type TestCfg struct {
+	addr string
+}
+var Global_testCfg = &TestCfg {
+	//addr : "192.168.2.129:2003",
+	addr : "10.0.14.48:2001",
+}
+
 func main() {
 	AddAllCmd()
 	msgpacket.InitMsgParseVirtualTable()
 
-	StartClient(123, "10.0.14.48:2001")
-	//StartClient(123,"192.168.2.129:2003")
+	StartClient(123, Global_testCfg.addr)
 
 	ParseCmd()
 	Global_wg.Wait()

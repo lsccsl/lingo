@@ -156,7 +156,7 @@ func ProtoPacketToBin(msgType MSG_TYPE, protoMsg proto.Message) []byte {
 	return wb
 }
 
-func ProtoUnPacketFromBin(recvBuf * bytes.Buffer) (MSG_TYPE, uint32, proto.Message) {
+func ProtoUnPacketFromBin(recvBuf * bytes.Buffer) (MSG_TYPE, int, proto.Message) {
 	if recvBuf.Len() < 6 {
 		return MSG_TYPE__MSG_NULL, 0, nil
 	}
@@ -171,7 +171,7 @@ func ProtoUnPacketFromBin(recvBuf * bytes.Buffer) (MSG_TYPE, uint32, proto.Messa
 
 	binBody := recvBuf.Bytes()[6:packLen]
 
-	return MSG_TYPE(packType), packLen, ParseProtoMsg(binBody, int32(packType))
+	return MSG_TYPE(packType), int(packLen), ParseProtoMsg(binBody, int32(packType))
 }
 
 func init(){

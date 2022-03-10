@@ -18,7 +18,7 @@ func goMemstatic() {
 		runtime.ReadMemStats(&ms)
 		fmt.Printf("Alloc:%d(bytes) HeapIdle:%d(bytes) HeapReleased:%d(bytes)\r\n", ms.Alloc, ms.HeapIdle, ms.HeapReleased)
 
-		time.Sleep(time.Second * time.Duration(10))
+		time.Sleep(time.Second * time.Duration(90))
 	}
 }
 

@@ -4,7 +4,7 @@ server:
         srv_id: 1
         http_addr: 10.0.14.48:8801
         alias_name: test_srv_1
-        cluster: test
+        cluster: test____
     2:
         bind_addr: 10.0.14.48:2002
         srv_id: 2
