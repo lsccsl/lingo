@@ -196,6 +196,14 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 func (pthis * TcpConnection)go_tcpConnRead() {
 	var TimerConnClose * time.Timer = nil
 	defer func() {
+		if TimerConnClose != nil {
+			TimerConnClose.Stop()
+		}
+		pthis.cbTcpConnection.CBConnectClose(pthis)
+		if pthis.connMgr != nil {
+			pthis.connMgr.CBDelTcpConn(pthis.connectionID)
+		}
+
 		err := recover()
 		if err != nil {
 			log.LogErr(err)
@@ -255,14 +263,7 @@ func (pthis * TcpConnection)go_tcpConnRead() {
 		}()
 	}
 
-	if TimerConnClose != nil {
-		TimerConnClose.Stop()
-	}
 	pthis.quitTcpWrite()
-	pthis.cbTcpConnection.CBConnectClose(pthis)
-	if pthis.connMgr != nil {
-		pthis.connMgr.CBDelTcpConn(pthis.connectionID)
-	}
 }
 
 func (pthis * TcpConnection)go_tcpConnWrite() {
