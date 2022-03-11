@@ -314,6 +314,12 @@ func (pthis * TcpConnection)TcpGetConn() net.Conn {
 }
 
 func (pthis * TcpConnection)TcpConnectClose() {
+	defer func() {
+		err := recover()
+		if err != nil {
+			lin_common.LogErr(err)
+		}
+	}()
 	pthis.quitTcpWrite()
 	pthis.netConn.Close()
 }

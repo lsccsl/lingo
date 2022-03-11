@@ -25,7 +25,7 @@ func main() {
 	ReadCfg(pathCfg)
 	srvCfg := GetSrvCfgByID(id)
 
-	srvMgr = ConstructServerMgr(srvCfg.SrvID, 90, 10)
+	srvMgr = ConstructServerMgr(srvCfg.SrvID, 30, 10)
 
 	httpAddr, err := net.ResolveTCPAddr("tcp", srvCfg.HttpAddr)
 	if err != nil {
@@ -46,7 +46,7 @@ func main() {
 		lin_common.LogErr(err)
 		return
 	}
-	tcpMgr, err := StartTcpManager(tcpAddr.IP.String(), tcpAddr.Port, srvMgr, 180)
+	tcpMgr, err := StartTcpManager(tcpAddr.IP.String(), tcpAddr.Port, srvMgr, 60)
 	if err != nil {
 		lin_common.LogErr("addr:", tcpAddr, " err:", err)
 		return
@@ -75,7 +75,11 @@ func main() {
 	}
 
 	AddCmd("dump", "dump", func(argStr []string){
-		str := srvMgr.Dump()
+		bDetail := false
+		if len(argStr) > 0 {
+			bDetail = true
+		}
+		str := srvMgr.Dump(bDetail)
 		fmt.Println(str)
 	})
 	commandLineInit()

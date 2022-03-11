@@ -328,14 +328,16 @@ func (pthis*ServerMgr)SendRPC_Async(srvID int64, msgType msgpacket.MSG_TYPE, pro
 	return srv.SendRPC_Async(msgType, protoMsg, timeoutMilliSec)
 }
 
-func (pthis*ServerMgr)Dump() string {
+func (pthis*ServerMgr)Dump(bDtail bool) string {
 	var str string
 	str += "\r\nclient:\r\n"
 	func(){
 		pthis.ClientMapMgr.mapClientMutex.Lock()
 		defer pthis.ClientMapMgr.mapClientMutex.Unlock()
-		for _, val := range pthis.ClientMapMgr.mapClient {
-			str += fmt.Sprintf("\r\n client id:%v id:%v map:%v", val.clientID, val.tcpConnID, val.mapStaticMsgRecv)
+		if bDtail {
+			for _, val := range pthis.ClientMapMgr.mapClient {
+				str += fmt.Sprintf("\r\n client id:%v id:%v map:%v", val.clientID, val.tcpConnID, val.mapStaticMsgRecv)
+			}
 		}
 		str += "\r\nclient count:" + strconv.Itoa(len(pthis.ClientMapMgr.mapClient))
 	}()
@@ -344,8 +346,10 @@ func (pthis*ServerMgr)Dump() string {
 	func(){
 		pthis.ServerMapMgr.mapServerMutex.Lock()
 		defer pthis.ServerMapMgr.mapServerMutex.Unlock()
-		for _, val := range pthis.ServerMapMgr.mapServer {
-			str += fmt.Sprintf("\r\n server id:%v acpt:%v dial:%v", val.srvID, val.connAcptID, val.connDialID)
+		if bDtail {
+			for _, val := range pthis.ServerMapMgr.mapServer {
+				str += fmt.Sprintf("\r\n server id:%v acpt:%v dial:%v", val.srvID, val.connAcptID, val.connDialID)
+			}
 		}
 		str += "\r\nserver count:" + strconv.Itoa(len(pthis.ServerMapMgr.mapServer))
 	}()
@@ -359,10 +363,12 @@ func (pthis*ServerMgr)Dump() string {
 		var totalProc int64 = 0
 		var totalSend int64 = 0
 		for _, val := range pthis.tcpMgr.mapConn {
-			str += fmt.Sprintf(" \r\n connection:%v remote:[%v] local:[%v] IsAccept:%v SrvID:%v ClientID:%v" +
-				" recv:%v send:%v proc:%v",
-				val.TcpConnectionID(), val.netConn.RemoteAddr(), val.netConn.LocalAddr(), val.IsAccept, val.SrvID, val.ClientID,
-				val.ByteRecv, val.ByteSend, val.ByteProc)
+			if bDtail {
+				str += fmt.Sprintf(" \r\n connection:%v remote:[%v] local:[%v] IsAccept:%v SrvID:%v ClientID:%v"+
+					" recv:%v send:%v proc:%v",
+					val.TcpConnectionID(), val.netConn.RemoteAddr(), val.netConn.LocalAddr(), val.IsAccept, val.SrvID, val.ClientID,
+					val.ByteRecv, val.ByteSend, val.ByteProc)
+			}
 			totalRecv += val.ByteRecv
 			totalProc += val.ByteProc
 			totalSend += val.ByteSend
