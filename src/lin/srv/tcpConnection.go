@@ -234,10 +234,10 @@ func (pthis * TcpConnection)go_tcpConnRead() {
 			TimerConnClose.Reset(expireInterval)
 		}
 
-		if recvBuf.Len() > 0 {
+/*		if recvBuf.Len() > 0 {
 			log.LogDebug("has data not process last loop len:", recvBuf.Len(), " recv:", pthis.ByteRecv, " proc:", pthis.ByteProc)
 		}
-		recvBuf.Write(TmpBuf[0:readSize])
+*/		recvBuf.Write(TmpBuf[0:readSize])
 
 		if pthis.cbTcpConnection == nil {
 			recvBuf.Next(readSize)
