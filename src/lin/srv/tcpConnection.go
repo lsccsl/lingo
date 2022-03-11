@@ -296,7 +296,7 @@ func (pthis * TcpConnection)go_tcpConnWrite() {
 }
 
 func (pthis * TcpConnection)TcpConnectSendBin(bin []byte) {
-	if atomic.LoadInt32(&pthis.canWrite) != 0 {
+	if atomic.LoadInt32(&pthis.canWrite) == 0 {
 		return
 	}
 

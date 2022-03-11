@@ -69,11 +69,11 @@ func CommandMultTest(argStr []string) {
 }
 
 func CommandMultLogin(argStr []string) {
-	count := 1
+	count := 100
 	if len(argStr) >= 1 {
 		count, _ = strconv.Atoi(argStr[0])
 	}
-	idbase := 100
+	idbase := 200
 	if len(argStr) >= 2 {
 		idbase, _ = strconv.Atoi(argStr[1])
 	}
