@@ -354,7 +354,7 @@ func (pthis*ServerMgr)Dump() string {
 	func(){
 		pthis.tcpMgr.mapConnMutex.Lock()
 		defer pthis.tcpMgr.mapConnMutex.Unlock()
-		var mapProcessErr map[TCP_CONNECTION_ID]int
+		mapProcessErr := make(map[TCP_CONNECTION_ID]int)
 		for _, val := range pthis.tcpMgr.mapConn {
 			str += fmt.Sprintf(" \r\n connection:%v remote:[%v] local:[%v] IsAccept:%v SrvID:%v ClientID:%v" +
 				" recv:%v send:%v proc:%v",

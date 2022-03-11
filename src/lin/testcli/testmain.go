@@ -1,6 +1,7 @@
 package main
 
 import (
+	"lin/lin_common"
 	"lin/msgpacket"
 	"sync"
 )
@@ -19,6 +20,7 @@ var Global_testCfg = &TestCfg {
 }
 
 func main() {
+	lin_common.ProfileInit()
 	AddAllCmd()
 	msgpacket.InitMsgParseVirtualTable()
 

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"google.golang.org/protobuf/proto"
 	"io"
-	"lin/lin_common"
 	"lin/msgpacket"
 	"net"
 	"os"
@@ -124,7 +123,7 @@ func (tcpInfo *ClientTcpInfo)GoClientTcpProcess() {
 
 	PROCESS_LOOP:
 	for {
-		fmt.Println("begin wait msg", lin_common.GetGID(), count)
+		//fmt.Println("begin wait msg", lin_common.GetGID(), count)
 		select {
 		case msg := <-tcpInfo.msgChan:
 			{
@@ -140,13 +139,13 @@ func (tcpInfo *ClientTcpInfo)GoClientTcpProcess() {
 
 		case <-chTimer:
 			{
-				fmt.Println("timeout")
+				//fmt.Println("timeout")
 				msg := &msgpacket.MSG_HEARTBEAT{Id:tcpInfo.id}
 				tcpInfo.TcpSend(msgpacket.MSG_TYPE__MSG_HEARTBEAT, msg)
 				chTimer = time.After(time.Second * time.Duration(10))
 			}
 		}
-		fmt.Println("end wait msg", count)
+		//fmt.Println("end wait msg", count)
 	}
 }
 

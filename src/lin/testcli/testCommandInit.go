@@ -47,9 +47,11 @@ func CommandMultTest(argStr []string) {
 						msg.Id = val.id
 						msg.Str = fmt.Sprintf("%v_%v_%v", val.id, cori, j)
 						val.TcpSend(MSG_TYPE__MSG_TEST, msg)
-						if (j % 1000 == 0) {
-							fmt.Println("test:", cori, j)
+						if (j % 10000 == 0) {
 							runtime.Gosched()
+						}
+						if (j % 100000 == 0) {
+							fmt.Println("test:", cori, j)
 						}
 					}
 				}
@@ -104,3 +106,5 @@ func AddAllCmd(){
 	AddCmd("mlogin", "loginMult",CommandMultLogin)
 	AddCmd("static", "static",CommandStatic)
 }
+
+// all channel write
