@@ -65,7 +65,7 @@ func startTcpConnection(connMgr InterfaceConnManage, conn net.Conn, closeExpireS
 		cbTcpConnection:connMgr.CBGetConnectionCB(),
 		closeExpireSec:closeExpireSec,
 		connMgr:connMgr,
-		canWrite:0,
+		canWrite:1,
 		chMsgWrite:make(chan*interMsgTcpWrite, 100),
 		IsAccept:true,
 		ByteRecv:0,
@@ -291,7 +291,7 @@ func (pthis * TcpConnection)go_tcpConnWrite() {
 		}
 	}
 
-	atomic.StoreInt32(&pthis.canWrite, 1)
+	atomic.StoreInt32(&pthis.canWrite, 0)
 	close(pthis.chMsgWrite)
 }
 
@@ -314,17 +314,20 @@ func (pthis * TcpConnection)TcpGetConn() net.Conn {
 }
 
 func (pthis * TcpConnection)TcpConnectClose() {
+	if pthis.netConn != nil {
+		pthis.netConn.Close()
+	}
+	pthis.quitTcpWrite()
+}
+
+func (pthis * TcpConnection)quitTcpWrite() {
 	defer func() {
 		err := recover()
 		if err != nil {
 			lin_common.LogErr(err)
 		}
 	}()
-	pthis.netConn.Close()
-	pthis.quitTcpWrite()
-}
 
-func (pthis * TcpConnection)quitTcpWrite() {
 	if atomic.LoadInt32(&pthis.canWrite) != 0 {
 		pthis.chMsgWrite <- nil
 	}
