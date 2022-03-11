@@ -2,7 +2,6 @@ package main
 
 import (
 	"sync"
-	"time"
 )
 
 type dialData struct {
@@ -34,10 +33,10 @@ func (pthis * TcpDialMgr) TcpDialMgrStart(connMgr InterfaceConnManage, closeExpi
 	pthis.connMgr = connMgr
 	pthis.wg.Add(1)
 
-	go pthis.go_checkRedial()
+	//go pthis.go_checkRedial()
 }
 
-func (pthis * TcpDialMgr) go_checkRedial(){
+/*func (pthis * TcpDialMgr) go_checkRedial(){
 	chTimer := time.After(time.Second * time.Duration(3))
 	for {
 		select {
@@ -47,7 +46,7 @@ func (pthis * TcpDialMgr) go_checkRedial(){
 			}
 		}
 	}
-}
+}*/
 
 func (pthis * TcpDialMgr)TcpDialMgrWait() {
 	pthis.wg.Wait()

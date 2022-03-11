@@ -320,8 +320,8 @@ func (pthis * TcpConnection)TcpConnectClose() {
 			lin_common.LogErr(err)
 		}
 	}()
-	pthis.quitTcpWrite()
 	pthis.netConn.Close()
+	pthis.quitTcpWrite()
 }
 
 func (pthis * TcpConnection)quitTcpWrite() {
