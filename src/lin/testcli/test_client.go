@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"google.golang.org/protobuf/proto"
 	"io"
+	"lin/lin_common"
 	"lin/msgpacket"
 	"net"
 	"os"
@@ -141,7 +142,7 @@ func (tcpInfo *ClientTcpInfo)GoClientTcpProcess() {
 			{
 				//fmt.Println("timeout")
 				msg := &msgpacket.MSG_HEARTBEAT{Id:tcpInfo.id}
-				tcpInfo.TcpSend(msgpacket.MSG_TYPE__MSG_HEARTBEAT, msg)
+				go tcpInfo.TcpSend(msgpacket.MSG_TYPE__MSG_HEARTBEAT, msg)
 				chTimer = time.After(time.Second * time.Duration(10))
 			}
 		}
@@ -180,14 +181,13 @@ func (tcpInfo *ClientTcpInfo)FormatMsg(msgtype msgpacket.MSG_TYPE, msg proto.Mes
 
 // todo 省略 msgtype参数
 func (tcpInfo *ClientTcpInfo)TcpSend(msgtype msgpacket.MSG_TYPE, msg proto.Message) {
-	go func() {	tcpInfo.msgChan <- &interMsg{
+	tcpInfo.msgChan <- &interMsg{
 			msgtype:INTER_MSG_TYPE_sendmsg,
 			msgdata: &interSendMsg{
 				msgtype:msgtype,
 				msgproto:msg,
 			},
 		}
-	}()
 }
 
 func (tcpInfo *ClientTcpInfo)GoClientTcpRead(){
@@ -226,7 +226,7 @@ func (tcpInfo *ClientTcpInfo)GoClientTcpRead(){
 				case msgpacket.MSG_TYPE__MSG_HEARTBEAT_RES:
 				case msgpacket.MSG_TYPE__MSG_TEST_RES:
 				default:
-					fmt.Println(msgpacket.MSG_TYPE(curHead.packType), " !!proto msg:", protoMsg)
+					lin_common.LogDebug(msgpacket.MSG_TYPE(curHead.packType), " !!proto msg:", protoMsg)
 				}
 				recvBuf.Next(int(curHead.packLen))
 				curHead.packLen = 0

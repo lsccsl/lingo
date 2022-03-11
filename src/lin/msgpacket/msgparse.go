@@ -10,7 +10,7 @@ import (
 	"go/token"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/reflect/protoregistry"
-	"lin/log"
+	"lin/lin_common"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -34,7 +34,7 @@ func genAllMsgParse() {
 	var fset = token.NewFileSet()
 	pkgs, err := parser.ParseDir(fset, msgprotoPath, nil, 0)
 	if err != nil {
-		log.LogErr(err)
+		lin_common.LogErr(err)
 		return
 	}
 	for _, pkg := range pkgs {
@@ -53,7 +53,7 @@ func genAllMsgParse() {
 					continue
 				}
 				b, msgType, msgName := isMsgType(valobj.Name)
-				log.LogDebug("name:", msgName, " type:", msgType)
+				lin_common.LogDebug("name:", msgName, " type:", msgType)
 				if !b {
 					continue
 				}

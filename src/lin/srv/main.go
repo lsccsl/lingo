@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"lin/lin_common"
-	"lin/log"
 	_ "lin/msgpacket"
 	"net"
 	"net/http"
@@ -30,12 +29,12 @@ func main() {
 
 	httpAddr, err := net.ResolveTCPAddr("tcp", srvCfg.HttpAddr)
 	if err != nil {
-		log.LogErr(err)
+		lin_common.LogErr(err)
 		return
 	}
 	httpSrv, err := StartHttpSrvMgr(httpAddr.IP.String(), httpAddr.Port)
 	if err != nil {
-		log.LogErr(err)
+		lin_common.LogErr(err)
 	}
 
 	httpSrv.HttpSrvAddCallback("/test", func(writer http.ResponseWriter, request *http.Request) {
@@ -44,15 +43,15 @@ func main() {
 
 	tcpAddr, err := net.ResolveTCPAddr("tcp", srvCfg.BindAddr)
 	if err != nil {
-		log.LogErr(err)
+		lin_common.LogErr(err)
 		return
 	}
 	tcpMgr, err := StartTcpManager(tcpAddr.IP.String(), tcpAddr.Port, srvMgr, 180)
 	if err != nil {
-		log.LogErr("addr:", tcpAddr, " err:", err)
+		lin_common.LogErr("addr:", tcpAddr, " err:", err)
 		return
 	}
-	log.LogDebug(tcpMgr)
+	lin_common.LogDebug(tcpMgr)
 
 	srvMgr.tcpMgr = tcpMgr
 	srvMgr.httpSrv = httpSrv
@@ -67,11 +66,11 @@ func main() {
 			}
 			dialAddr, err := net.ResolveTCPAddr("tcp", val.BindAddr)
 			if err != nil {
-				log.LogErr(err)
+				lin_common.LogErr(err)
 				return
 			}
 			tcpMgr.TcpDialMgrDial(val.SrvID, dialAddr.IP.String(), dialAddr.Port, 180, 15, true, 10)
-			log.LogDebug(val)
+			lin_common.LogDebug(val)
 		}
 	}
 

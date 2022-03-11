@@ -1,7 +1,7 @@
 package main
 
 import (
-	"lin/log"
+	"lin/lin_common"
 	"lin/msgpacket"
 	"strconv"
 )
@@ -12,10 +12,10 @@ func testrpc(argStr []string){
 		srvID, _ = strconv.ParseInt(argStr[0], 10, 64)
 	}
 
-	log.LogDebug(srvID)
+	lin_common.LogDebug(srvID)
 	msg := srvMgr.SendRPC_Async(srvID, msgpacket.MSG_TYPE__MSG_TEST, &msgpacket.MSG_TEST{Id:567}, 10 * 1000)
 
-	log.LogDebug(msg)
+	lin_common.LogDebug(msg)
 }
 
 func commandLineInit(){

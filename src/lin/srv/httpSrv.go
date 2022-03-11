@@ -1,7 +1,7 @@
 package main
 
 import (
-	"lin/log"
+	"lin/lin_common"
 	"net/http"
 	"strconv"
 )
@@ -24,7 +24,7 @@ func StartHttpSrvMgr(ip string, port int) (*HttpSrvMgr, error) {
 	go func() {
 		err := srv.httpSrv.ListenAndServe()
 		if err != nil {
-			log.LogErr(err)
+			lin_common.LogErr(err)
 		}
 	}()
 	return srv, nil
@@ -32,31 +32,31 @@ func StartHttpSrvMgr(ip string, port int) (*HttpSrvMgr, error) {
 
 func (pthis *HttpSrvMgr) ServeHTTP (w http.ResponseWriter, r *http.Request) {
 	if r == nil {
-		log.LogDebug("request is nil")
+		lin_common.LogDebug("request is nil")
 		return
 	}
 	if r.URL == nil {
-		log.LogDebug("request url is nil")
+		lin_common.LogDebug("request url is nil")
 		return
 	}
 	err := r.ParseForm()
 	if err != nil {
-		log.LogDebug("parse form err")
+		lin_common.LogDebug("parse form err")
 		return
 	}
-	log.LogDebug("request ", r.URL.Path)
+	lin_common.LogDebug("request ", r.URL.Path)
 
 	//find method from self.mapCallBack
 	fn, ok := pthis.mapCallBack[r.URL.Path]
 	if !ok {
-		log.LogDebug("no func for", r.URL.Path)
+		lin_common.LogDebug("no func for", r.URL.Path)
 		return
 	}
 	func(){
 		defer func() {
 			err := recover()
 			if err != nil {
-				log.LogErr(r.URL.Path, err)
+				lin_common.LogErr(r.URL.Path, err)
 			}
 		}()
 		fn(w, r)

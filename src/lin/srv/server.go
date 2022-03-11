@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/golang/protobuf/proto"
 	"lin/lin_common"
-	"lin/log"
 	msgpacket "lin/msgpacket"
 	"sync/atomic"
 	"time"
@@ -48,7 +47,7 @@ func (pthis*Server) go_serverProcess() {
 		atomic.StoreInt32(&pthis.isStopProcess, 1)
 		err := recover()
 		if err != nil {
-			log.LogErr(err)
+			lin_common.LogErr(err)
 		}
 	}()
 
@@ -107,13 +106,13 @@ func (pthis*Server) ServerCloseAndDelDialData() {
 func (pthis*Server)processSrvReport(tcpAccept * TcpConnection){
 	pthis.connAcptID = tcpAccept.TcpConnectionID()
 
-	log.LogDebug(pthis.srvID, " ", pthis)
+	lin_common.LogDebug(pthis.srvID, " ", pthis)
 }
 
 func (pthis*Server)processDailConnect(tcpDial * TcpConnection){
 	pthis.connDialID = tcpDial.TcpConnectionID()
 
-	log.LogDebug(pthis.srvID, " ", pthis)
+	lin_common.LogDebug(pthis.srvID, " ", pthis)
 }
 
 func (pthis*Server)PushInterMsg(msg interface{}){
@@ -153,7 +152,7 @@ func (pthis*Server)Go_ProcessRPC(tcpConnID TCP_CONNECTION_ID, msg *msgpacket.MSG
 		var err error
 		msgRPCRes.MsgBin, err = proto.Marshal(msgRes)
 		if err != nil {
-			log.LogErr(err)
+			lin_common.LogErr(err)
 		}
 	}
 	pthis.srvMgr.tcpMgr.TcpConnectSendProtoMsg(tcpConnID, msgpacket.MSG_TYPE__MSG_RPC_RES, msgRPCRes)
@@ -162,7 +161,7 @@ func (pthis*Server)processRPCRes(tcpConn * TcpConnection, msg *msgpacket.MSG_RPC
 	defer func() {
 		err := recover()
 		if err != nil {
-			log.LogErr(err)
+			lin_common.LogErr(err)
 		}
 	}()
 	if pthis.rpcMgr == nil {
@@ -178,7 +177,7 @@ func (pthis*Server)processRPCRes(tcpConn * TcpConnection, msg *msgpacket.MSG_RPC
 }
 
 func (pthis*Server)processRPCTest(tcpConnID TCP_CONNECTION_ID, msg *msgpacket.MSG_TEST) *msgpacket.MSG_TEST_RES {
-	log.LogDebug(msg)
+	lin_common.LogDebug(msg)
 	return &msgpacket.MSG_TEST_RES{Id: msg.Id, Str:msg.Str}
 }
 
@@ -188,7 +187,7 @@ func (pthis*Server)SendRPC_Async(msgType msgpacket.MSG_TYPE, protoMsg proto.Mess
 	defer func() {
 		err := recover()
 		if err != nil {
-			log.LogErr(err)
+			lin_common.LogErr(err)
 		}
 	}()
 
@@ -203,7 +202,7 @@ func (pthis*Server)SendRPC_Async(msgType msgpacket.MSG_TYPE, protoMsg proto.Mess
 	var err error
 	msgRPC.MsgBin, err = proto.Marshal(protoMsg)
 	if err != nil {
-		log.LogErr(err)
+		lin_common.LogErr(err)
 		return nil
 	}
 
@@ -233,7 +232,7 @@ func (pthis*Server)processServerMsg (interMsg * interProtoMsg){
 }
 
 func (pthis*Server) process_MSG_HEARTBEAT (tcpConnID TCP_CONNECTION_ID, protoMsg * msgpacket.MSG_HEARTBEAT) {
-	log.LogDebug(protoMsg)
+	lin_common.LogDebug(protoMsg)
 
 	msgRes := &msgpacket.MSG_HEARTBEAT_RES{}
 	msgRes.Id = protoMsg.Id
@@ -241,5 +240,5 @@ func (pthis*Server) process_MSG_HEARTBEAT (tcpConnID TCP_CONNECTION_ID, protoMsg
 }
 
 func (pthis*Server) process_MSG_HEARTBEAT_RES (tcpConnID TCP_CONNECTION_ID, protoMsg * msgpacket.MSG_HEARTBEAT_RES) {
-	log.LogDebug(protoMsg)
+	lin_common.LogDebug(protoMsg)
 }

@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/go-yaml/yaml"
 	"io/ioutil"
-	"lin/log"
+	"lin/lin_common"
 	"path/filepath"
 	"runtime"
 )
@@ -37,16 +37,16 @@ func ReadCfg(pathCfg string) {
 
 	yamlFile, err := ioutil.ReadFile(pathCfg)
 	if err != nil {
-		log.LogErr(err)
+		lin_common.LogErr(err)
 		return
 	}
 
 	err = yaml.Unmarshal(yamlFile, &Global_ServerCfg)
 	if err != nil {
-		log.LogErr(err)
+		lin_common.LogErr(err)
 		return
 	}
-	log.LogDebug(&Global_ServerCfg)
+	lin_common.LogDebug(&Global_ServerCfg)
 }
 
 func GetSrvCfgByID(id string) *ServerOneCfg {

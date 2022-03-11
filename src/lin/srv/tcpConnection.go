@@ -2,7 +2,7 @@ package main
 
 import (
 	"bytes"
-	"lin/log"
+	"lin/lin_common"
 	"net"
 	"runtime"
 	"strconv"
@@ -79,7 +79,7 @@ func startTcpConnection(connMgr InterfaceConnManage, conn net.Conn, closeExpireS
 			defer func() {
 				err := recover()
 				if err != nil {
-					log.LogErr(err)
+					lin_common.LogErr(err)
 				}
 			}()
 			tcpConn.cbTcpConnection.CBConnectAccept(tcpConn, nil)
@@ -95,7 +95,7 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 	defer func() {
 		err := recover()
 		if err != nil {
-			log.LogErr(err)
+			lin_common.LogErr(err)
 		}
 	}()
 
@@ -120,18 +120,18 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 			defer func() {
 				err := recover()
 				if err != nil {
-					log.LogErr(err)
+					lin_common.LogErr(err)
 				}
 			}()
 
 			var err error
 			for i := 0; i < redialCount; i ++ {
 				tBegin := time.Now()
-				log.LogDebug("begin dial:", addr)
+				lin_common.LogDebug("begin dial:", addr)
 				tcpConn.netConn, err = net.DialTimeout("tcp", addr, time.Second * time.Duration(dialTimeoutSec))
 				tEnd := time.Now()
 				if err != nil {
-					log.LogErr("will retry ", i, " ", redialCount, " ", tcpConn.netConn, " ", err)
+					lin_common.LogErr("will retry ", i, " ", redialCount, " ", tcpConn.netConn, " ", err)
 					interval := int64(dialTimeoutSec) - (tEnd.Unix() - tBegin.Unix())
 					runtime.Gosched()
 					if interval <= 0 {
@@ -144,7 +144,7 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 			}
 
 			if err != nil {
-				log.LogErr("fail ", err)
+				lin_common.LogErr("fail ", err)
 				if tcpConn.cbTcpConnection != nil {
 					tcpConn.cbTcpConnection.CBConnectClose(tcpConn)
 				}
@@ -168,12 +168,12 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 		for i:=0 ; i < redialCount; i ++ {
 			tcpConn.netConn, err = net.DialTimeout("tcp", addr, time.Second * time.Duration(dialTimeoutSec))
 			if err != nil {
-				log.LogErr("will retry ", i, " ", redialCount, " ", err)
+				lin_common.LogErr("will retry ", i, " ", redialCount, " ", err)
 				continue
 			}
 		}
 		if err != nil {
-			log.LogErr("fail ", err)
+			lin_common.LogErr("fail ", err)
 /*			if tcpConn.cbTcpConnection != nil {
 				tcpConn.cbTcpConnection.CBConnectClose(tcpConn)
 			}
@@ -206,7 +206,7 @@ func (pthis * TcpConnection)go_tcpConnRead() {
 
 		err := recover()
 		if err != nil {
-			log.LogErr(err)
+			lin_common.LogErr(err)
 		}
 	}()
 
@@ -216,7 +216,7 @@ func (pthis * TcpConnection)go_tcpConnRead() {
 	expireInterval := time.Second * time.Duration(pthis.closeExpireSec)
 	if pthis.closeExpireSec > 0 {
 		TimerConnClose = time.AfterFunc(expireInterval, func() {
-			log.LogDebug("time out close tcp connection:", pthis.connectionID, " srvid:", pthis.SrvID, " clientid:", pthis.ClientID)
+			lin_common.LogDebug("time out close tcp connection:", pthis.connectionID, " srvid:", pthis.SrvID, " clientid:", pthis.ClientID)
 			pthis.TcpConnectClose()
 		})
 	}
@@ -248,7 +248,7 @@ func (pthis * TcpConnection)go_tcpConnRead() {
 			defer func() {
 				err := recover()
 				if err != nil {
-					log.LogErr(err)
+					lin_common.LogErr(err)
 				}
 			}()
 			PROCESS_LOOP:
@@ -270,7 +270,7 @@ func (pthis * TcpConnection)go_tcpConnWrite() {
 	defer func() {
 		err := recover()
 		if err != nil {
-			log.LogErr(err)
+			lin_common.LogErr(err)
 		}
 	}()
 

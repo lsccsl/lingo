@@ -30,3 +30,4 @@ func main() {
 	Global_wg.Wait()
 }
 
+// todo : del go chan put, send msg by msg instance name

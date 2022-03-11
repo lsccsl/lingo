@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/golang/protobuf/proto"
-	"lin/log"
+	"lin/lin_common"
 	"lin/msgpacket"
 	"sync/atomic"
 )
@@ -37,7 +37,7 @@ func (pthis*Client) go_clientProcess() {
 	defer func() {
 		err := recover()
 		if err != nil {
-			log.LogErr(err)
+			lin_common.LogErr(err)
 		}
 	}()
 
@@ -53,7 +53,7 @@ func (pthis*Client) go_clientProcess() {
 				defer func() {
 					err := recover()
 					if err != nil {
-						log.LogErr(err)
+						lin_common.LogErr(err)
 					}
 				}()
 				pthis.processClientMsg(ProtoMsg)

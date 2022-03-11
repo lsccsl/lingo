@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/golang/protobuf/proto"
 	"lin/lin_common"
-	"lin/log"
 	"lin/msgpacket"
 	"net"
 	"strconv"
@@ -52,13 +51,13 @@ func (pthis * TcpMgr)go_tcpAccept() {
 	for {
 		conn, err := pthis.tcpLsn.Accept()
 		if err != nil {
-			log.LogErr("tcp accept err", err)
+			lin_common.LogErr("tcp accept err", err)
 		}
 
 		//log.LogDebug(conn.LocalAddr(), conn.RemoteAddr())
 		_, err = startTcpConnection(pthis, conn, pthis.closeExpireSec)
 		if err != nil {
-			log.LogErr("start accept tcp connect err", err)
+			lin_common.LogErr("start accept tcp connect err", err)
 		}
 	}
 
@@ -87,9 +86,9 @@ func StartTcpManager(ip string, port int, CBConnection InterfaceTcpConnection,  
 }
 
 func (pthis * TcpMgr) TcpMgrWait() {
-	log.LogDebug("begin wait")
+	lin_common.LogDebug("begin wait")
 	pthis.wg.Wait()
-	log.LogDebug("end wait")
+	lin_common.LogDebug("end wait")
 }
 
 

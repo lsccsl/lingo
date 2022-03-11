@@ -107,4 +107,3 @@ func AddAllCmd(){
 	AddCmd("static", "static",CommandStatic)
 }
 
-// all channel write

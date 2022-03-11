@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/golang/protobuf/proto"
+	"lin/lin_common"
 	cor_pool "lin/lin_cor_pool"
-	"lin/log"
 	"lin/msgpacket"
 	"strconv"
 	"sync"
@@ -49,7 +49,7 @@ func (pthis*ServerMgr)CBReadProcess(tcpConn * TcpConnection, recvBuf * bytes.Buf
 	//log.LogDebug("packLen:", packLen, " packType:", packType, " protoMsg:", protoMsg)
 
 	if protoMsg == nil {
-		log.LogErr("can't parse msg:", tcpConn.ByteRecv, " proc:", tcpConn.ByteProc)
+		//log.LogErr("can't parse msg:", tcpConn.ByteRecv, " proc:", tcpConn.ByteProc)
 		return
 	}
 
@@ -89,27 +89,27 @@ func (pthis*ServerMgr)CBReadProcess(tcpConn * TcpConnection, recvBuf * bytes.Buf
 
 func (pthis*ServerMgr)CBConnectAccept(tcpConn * TcpConnection, err error) {
 	if err != nil {
-		log.LogErr(err)
+		lin_common.LogErr(err)
 	}
 	if tcpConn == nil {
 		return
 	}
-	log.LogDebug(tcpConn.TcpGetConn().LocalAddr(), tcpConn.TcpGetConn().RemoteAddr(), tcpConn.TcpConnectionID())
+	lin_common.LogDebug(tcpConn.TcpGetConn().LocalAddr(), tcpConn.TcpGetConn().RemoteAddr(), tcpConn.TcpConnectionID())
 }
 func (pthis*ServerMgr)CBConnectDial(tcpConn * TcpConnection, err error) {
 	if err != nil {
-		log.LogErr(err)
+		lin_common.LogErr(err)
 	}
 	if tcpConn == nil {
 		return
 	}
-	log.LogDebug(tcpConn.TcpGetConn().LocalAddr(), tcpConn.TcpGetConn().RemoteAddr(), tcpConn.TcpConnectionID())
+	lin_common.LogDebug(tcpConn.TcpGetConn().LocalAddr(), tcpConn.TcpGetConn().RemoteAddr(), tcpConn.TcpConnectionID())
 
 	pthis.processDailConnect(tcpConn)
 }
 
 func (pthis*ServerMgr)CBConnectClose(tcpConn * TcpConnection) {
-	log.LogDebug("id:", tcpConn.TcpConnectionID(), " is accept:", tcpConn.IsAccept)
+	lin_common.LogDebug("id:", tcpConn.TcpConnectionID(), " is accept:", tcpConn.IsAccept)
 	if !tcpConn.IsAccept {
 		pthis.delServer(tcpConn.SrvID)
 		pthis.tcpMgr.TcpDialMgrCheckReDial(tcpConn.SrvID)
@@ -276,7 +276,7 @@ func (pthis*ServerMgr)processDailConnect(tcpDial * TcpConnection){
 
 func (pthis*ServerMgr)processRPCReq(tcpConn * TcpConnection, msg *msgpacket.MSG_RPC) {
 	msgRPC := msgpacket.ParseProtoMsg(msg.MsgBin, msg.MsgType)
-	log.LogDebug(msgRPC)
+	lin_common.LogDebug(msgRPC)
 	if tcpConn.SrvID != 0 {
 		srv := pthis.getServer(tcpConn.SrvID)
 		if srv != nil {

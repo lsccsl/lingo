@@ -1,8 +1,7 @@
-package log
+package lin_common
 
 import (
 	"fmt"
-	"lin/lin_common"
 	"path"
 	"runtime"
 	"time"
@@ -13,7 +12,7 @@ func LogDebug(args ... interface{}) {
 	funcName := runtime.FuncForPC(pc).Name()
 
 	fmt.Println(fmt.Sprintf("%s[%s:%d] route:%d %s",
-		time.Now().Format(time.RFC3339Nano), path.Base(filename), line, lin_common.GetGID(), funcName),
+		time.Now().Format(time.RFC3339Nano), path.Base(filename), line, GetGID(), funcName),
 		fmt.Sprint(args...))
 }
 
@@ -22,6 +21,6 @@ func LogErr(args ... interface{}) {
 	funcName := runtime.FuncForPC(pc).Name()
 
 	fmt.Println(fmt.Sprintf("%s[%s:%d] route:%d %s",
-		time.Now().Format(time.RFC3339Nano), path.Base(filename), line, lin_common.GetGID(), funcName),
+		time.Now().Format(time.RFC3339Nano), path.Base(filename), line, GetGID(), funcName),
 		fmt.Sprint(args...))
 }
