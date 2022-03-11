@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	. "lin/msgpacket"
-	"runtime"
 	"strconv"
 	"sync"
 )
@@ -47,10 +46,10 @@ func CommandMultTest(argStr []string) {
 						msg.Id = val.id
 						msg.Str = fmt.Sprintf("%v_%v_%v", val.id, cori, j)
 						val.TcpSend(MSG_TYPE__MSG_TEST, msg)
-						if (j % 10000 == 0) {
+/*						if (j % 10000 == 0) {
 							runtime.Gosched()
 						}
-						if (j % 100000 == 0) {
+*/						if (j % 1000 == 0) {
 							fmt.Println("test:", cori, j)
 						}
 					}

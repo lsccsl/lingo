@@ -334,11 +334,16 @@ func (pthis*ServerMgr)Dump(bDtail bool) string {
 	func(){
 		pthis.ClientMapMgr.mapClientMutex.Lock()
 		defer pthis.ClientMapMgr.mapClientMutex.Unlock()
-		if bDtail {
-			for _, val := range pthis.ClientMapMgr.mapClient {
+		mapStatic := make(MAP_CLIENT_STATIC)
+		for _, val := range pthis.ClientMapMgr.mapClient {
+			if bDtail {
 				str += fmt.Sprintf("\r\n client id:%v id:%v map:%v", val.clientID, val.tcpConnID, val.mapStaticMsgRecv)
 			}
+			for skey, sval := range val.mapStaticMsgRecv {
+				mapStatic[skey] += sval
+			}
 		}
+		str += fmt.Sprintf("static:%v", mapStatic)
 		str += "\r\nclient count:" + strconv.Itoa(len(pthis.ClientMapMgr.mapClient))
 	}()
 
