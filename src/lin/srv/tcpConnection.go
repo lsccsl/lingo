@@ -304,7 +304,7 @@ func (pthis * TcpConnection)TcpConnectSendBin(bin []byte) {
 		make([]byte,len(bin)),
 	}
 	copy(tcpW.bin, bin)
-	go func() { pthis.chMsgWrite <- tcpW }()
+	pthis.chMsgWrite <- tcpW
 	//tcpW.bin = append(tcpW.bin, bin...)
 }
 
@@ -320,7 +320,7 @@ func (pthis * TcpConnection)TcpConnectClose() {
 
 func (pthis * TcpConnection)quitTcpWrite() {
 	if atomic.LoadInt32(&pthis.canWrite) != 0 {
-		go func() { pthis.chMsgWrite <- nil }()
+		pthis.chMsgWrite <- nil
 	}
 }
 
