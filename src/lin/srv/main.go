@@ -80,7 +80,7 @@ func main() {
 			bDetail = true
 		}
 		str := srvMgr.Dump(bDetail)
-		fmt.Println(str)
+		lin_common.LogDebug(str)
 	})
 	commandLineInit()
 
