@@ -428,6 +428,11 @@ func (pthis*ServerMgr)Dump(bDtail bool) string {
 
 	pthis.timestamp = time.Now().Unix()
 
+	pthis.totalPacket = totalPacket
+	pthis.totalRecv = totalRecv
+	pthis.totalSend = totalSend
+	pthis.totalProc = totalProc
+
 	return str
 }
 
