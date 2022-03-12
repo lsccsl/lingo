@@ -18,7 +18,7 @@ func goStatic() {
 		runtime.ReadMemStats(&ms)
 		LogDebug("Alloc:", ms.Alloc, "(bytes) HeapIdle:", ms.HeapIdle, "(bytes) HeapReleased:", ms.HeapReleased, "(bytes)", " coroutine:", runtime.NumGoroutine())
 
-		time.Sleep(time.Second * time.Duration(10))
+		time.Sleep(time.Second * time.Duration(180))
 	}
 }
 
