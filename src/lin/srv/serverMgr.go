@@ -9,6 +9,7 @@ import (
 	"lin/msgpacket"
 	"strconv"
 	"sync"
+	"time"
 )
 
 const(
@@ -32,6 +33,13 @@ type ServerMapMgr struct {
 	mapServerMutex sync.Mutex
 	mapServer MAP_SERVER
 }
+type ServerStatic struct {
+	totalPacket int64
+	totalRecv int64
+	totalSend int64
+	totalProc int64
+	timestamp int64
+}
 type ServerMgr struct {
 	srvID int64
 	ClientMapMgr
@@ -41,6 +49,8 @@ type ServerMgr struct {
 	rpcPool *cor_pool.CorPool
 
 	heartbeatIntervalSec int
+
+	ServerStatic
 }
 
 func (pthis*ServerMgr)CBReadProcess(tcpConn * TcpConnection, recvBuf * bytes.Buffer) (bytesProcess int) {
@@ -331,6 +341,13 @@ func (pthis*ServerMgr)SendRPC_Async(srvID int64, msgType msgpacket.MSG_TYPE, pro
 func (pthis*ServerMgr)Dump(bDtail bool) string {
 	var str string
 	str += "\r\nclient:\r\n"
+
+	timestamp := time.Now().Unix()
+	var totalPacket int64 = 0
+	var totalRecv int64 = 0
+	var totalSend int64 = 0
+	var totalProc int64 = 0
+
 	func(){
 		pthis.ClientMapMgr.mapClientMutex.Lock()
 		defer pthis.ClientMapMgr.mapClientMutex.Unlock()
@@ -341,10 +358,11 @@ func (pthis*ServerMgr)Dump(bDtail bool) string {
 			}
 			for skey, sval := range val.mapStaticMsgRecv {
 				mapStatic[skey] += sval
+				totalPacket += mapStatic[skey]
 			}
 		}
 		str += fmt.Sprintf("static:%v", mapStatic)
-		str += "\r\nclient count:" + strconv.Itoa(len(pthis.ClientMapMgr.mapClient))
+		str += "\r\nclient count:" + strconv.Itoa(len(pthis.ClientMapMgr.mapClient)) + " totalPacket:" + strconv.FormatInt(totalPacket, 10)
 	}()
 
 	str += "\r\nserver:\r\n"
@@ -364,9 +382,6 @@ func (pthis*ServerMgr)Dump(bDtail bool) string {
 		pthis.tcpMgr.mapConnMutex.Lock()
 		defer pthis.tcpMgr.mapConnMutex.Unlock()
 		mapUnprocessd := make(map[TCP_CONNECTION_ID]int)
-		var totalRecv int64 = 0
-		var totalProc int64 = 0
-		var totalSend int64 = 0
 		for _, val := range pthis.tcpMgr.mapConn {
 			if bDtail {
 				str += fmt.Sprintf(" \r\n connection:%v remote:[%v] local:[%v] IsAccept:%v SrvID:%v ClientID:%v"+
@@ -399,6 +414,19 @@ func (pthis*ServerMgr)Dump(bDtail bool) string {
 			str += fmt.Sprintf("\r\n srvID:%v connection:%v [%v:%v]", val.srvID, connID, val.ip, val.port)
 		}
 	}()
+
+	diffTotal := totalPacket - pthis.totalPacket
+	diffRecv := totalRecv - pthis.totalRecv
+	diffSend := totalSend - pthis.totalSend
+	diffProc := totalSend - pthis.totalProc
+	tdiff := timestamp - pthis.timestamp
+	if tdiff <= 0 {
+		tdiff = 1
+	}
+	str += fmt.Sprintf("\r\n diffTotal:%v diffRecv:%v diffSend:%v diffProc:%v", diffTotal, diffRecv, diffSend, diffProc)
+	str += fmt.Sprintf("\r\n Total ps:%v Recv ps:%v Send ps:%v Proc ps:%v", diffTotal / tdiff, diffRecv / tdiff, diffSend / tdiff, diffProc / tdiff)
+
+	pthis.timestamp = time.Now().Unix()
 
 	return str
 }
