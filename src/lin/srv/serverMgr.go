@@ -358,8 +358,10 @@ func (pthis*ServerMgr)Dump(bDtail bool) string {
 			}
 			for skey, sval := range val.mapStaticMsgRecv {
 				mapStatic[skey] += sval
-				totalPacket += mapStatic[skey]
 			}
+		}
+		for _, sval := range mapStatic {
+			totalPacket += sval
 		}
 		str += fmt.Sprintf("static:%v", mapStatic)
 		str += "\r\nclient count:" + strconv.Itoa(len(pthis.ClientMapMgr.mapClient)) + " totalPacket:" + strconv.FormatInt(totalPacket, 10)
