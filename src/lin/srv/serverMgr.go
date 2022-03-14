@@ -118,8 +118,8 @@ func (pthis*ServerMgr)CBConnectDial(tcpConn * TcpConnection, err error) {
 	pthis.processDailConnect(tcpConn)
 }
 
-func (pthis*ServerMgr)CBConnectClose(tcpConn * TcpConnection) {
-	lin_common.LogDebug("id:", tcpConn.TcpConnectionID(), " is accept:", tcpConn.IsAccept)
+func (pthis*ServerMgr)CBConnectClose(tcpConn * TcpConnection, closeReason TCP_CONNECTION_CLOSE_REASON) {
+	lin_common.LogDebug("id:", tcpConn.TcpConnectionID(), " is accept:", tcpConn.IsAccept, " closeReason:", closeReason)
 	if !tcpConn.IsAccept {
 		pthis.delServer(tcpConn.SrvID)
 		pthis.tcpMgr.TcpDialMgrCheckReDial(tcpConn.SrvID)

@@ -13,6 +13,15 @@ import (
 const G_MTU int = 1536
 const MAX_PACK_LEN int = 65535
 
+type TCP_CONNECTION_CLOSE_REASON int
+const(
+	TCP_CONNECTION_CLOSE_REASON_none TCP_CONNECTION_CLOSE_REASON = 0
+	TCP_CONNECTION_CLOSE_REASON_timeout TCP_CONNECTION_CLOSE_REASON = 1
+	TCP_CONNECTION_CLOSE_REASON_readerr TCP_CONNECTION_CLOSE_REASON = 2
+	TCP_CONNECTION_CLOSE_REASON_dialfail TCP_CONNECTION_CLOSE_REASON = 3
+	TCP_CONNECTION_CLOSE_REASON_writeerr TCP_CONNECTION_CLOSE_REASON = 2
+)
+
 type TCP_CONNECTION_ID int64
 type MAP_TCPCONN map[TCP_CONNECTION_ID]*TcpConnection
 
@@ -20,7 +29,7 @@ type InterfaceTcpConnection interface {
 	CBReadProcess(tcpConn * TcpConnection, recvBuf * bytes.Buffer)(bytesProcess int)
 	CBConnectAccept(tcpConn * TcpConnection, err error) // accept connection
 	CBConnectDial(tcpConn * TcpConnection, err error) // dial connection
-	CBConnectClose(tcpConn * TcpConnection)
+	CBConnectClose(tcpConn * TcpConnection, closeReason TCP_CONNECTION_CLOSE_REASON)
 }
 
 type InterfaceConnManage interface {
@@ -55,6 +64,7 @@ type TcpConnection struct {
 	ByteRecv int64
 	ByteSend int64
 	ByteProc int64
+	clsRsn TCP_CONNECTION_CLOSE_REASON
 }
 
 func startTcpConnection(connMgr InterfaceConnManage, conn net.Conn, closeExpireSec int) (*TcpConnection, error) {
@@ -71,6 +81,7 @@ func startTcpConnection(connMgr InterfaceConnManage, conn net.Conn, closeExpireS
 		ByteRecv:0,
 		ByteSend:0,
 		ByteProc:0,
+		clsRsn:TCP_CONNECTION_CLOSE_REASON_none,
 	}
 
 	connMgr.CBAddTcpConn(tcpConn)
@@ -112,6 +123,7 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 		ByteRecv:0,
 		ByteSend:0,
 		ByteProc:0,
+		clsRsn:TCP_CONNECTION_CLOSE_REASON_none,
 	}
 	addr := ip + ":" + strconv.Itoa(port)
 
@@ -146,7 +158,7 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 			if err != nil {
 				lin_common.LogErr("fail ", err)
 				if tcpConn.cbTcpConnection != nil {
-					tcpConn.cbTcpConnection.CBConnectClose(tcpConn)
+					tcpConn.cbTcpConnection.CBConnectClose(tcpConn, TCP_CONNECTION_CLOSE_REASON_dialfail)
 				}
 				return
 			}
@@ -194,6 +206,7 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 }
 
 func (pthis * TcpConnection)go_tcpConnRead() {
+
 	var TimerConnClose * time.Timer = nil
 	defer func() {
 
@@ -209,6 +222,7 @@ func (pthis * TcpConnection)go_tcpConnRead() {
 	expireInterval := time.Second * time.Duration(pthis.closeExpireSec)
 	if pthis.closeExpireSec > 0 {
 		TimerConnClose = time.AfterFunc(expireInterval, func() {
+			pthis.TcpConnectSetCloseReason(TCP_CONNECTION_CLOSE_REASON_timeout)
 			lin_common.LogDebug("time out close tcp connection:", pthis.connectionID, " srvid:", pthis.SrvID, " clientid:", pthis.ClientID,
 				" expire sec:", pthis.closeExpireSec)
 			pthis.TcpConnectClose()
@@ -219,6 +233,7 @@ func (pthis * TcpConnection)go_tcpConnRead() {
 	for {
 		readSize, err := pthis.netConn.Read(TmpBuf)
 		if err != nil {
+			pthis.TcpConnectSetCloseReason(TCP_CONNECTION_CLOSE_REASON_readerr)
 			break READ_LOOP
 		}
 		pthis.ByteRecv += int64(readSize)
@@ -261,7 +276,7 @@ func (pthis * TcpConnection)go_tcpConnRead() {
 	if TimerConnClose != nil {
 		TimerConnClose.Stop()
 	}
-	pthis.cbTcpConnection.CBConnectClose(pthis)
+	pthis.cbTcpConnection.CBConnectClose(pthis, pthis.clsRsn)
 	if pthis.connMgr != nil {
 		pthis.connMgr.CBDelTcpConn(pthis.connectionID)
 	}
@@ -285,6 +300,7 @@ func (pthis * TcpConnection)go_tcpConnWrite() {
 			//todo: option wait for more data and combine write to tcp channel
 			writeSZ, err := pthis.netConn.Write(tcpW.bin)
 			if err != nil {
+				pthis.TcpConnectSetCloseReason(TCP_CONNECTION_CLOSE_REASON_writeerr)
 				pthis.netConn.Close()
 				break WRITE_LOOP
 			}
@@ -336,4 +352,10 @@ func (pthis * TcpConnection)quitTcpWrite() {
 
 func (pthis * TcpConnection)TcpConnectionID() TCP_CONNECTION_ID {
 	return pthis.connectionID
+}
+
+func (pthis * TcpConnection)TcpConnectSetCloseReason(closeReason TCP_CONNECTION_CLOSE_REASON) {
+	if TCP_CONNECTION_CLOSE_REASON_none != pthis.clsRsn {
+		pthis.clsRsn = closeReason
+	}
 }
