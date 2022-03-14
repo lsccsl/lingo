@@ -355,7 +355,7 @@ func (pthis * TcpConnection)TcpConnectionID() TCP_CONNECTION_ID {
 }
 
 func (pthis * TcpConnection)TcpConnectSetCloseReason(closeReason TCP_CONNECTION_CLOSE_REASON) {
-	if TCP_CONNECTION_CLOSE_REASON_none != pthis.clsRsn {
+	if TCP_CONNECTION_CLOSE_REASON_none == pthis.clsRsn {
 		pthis.clsRsn = closeReason
 	}
 }
