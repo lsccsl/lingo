@@ -14,13 +14,13 @@ func CommandTest(argStr []string) {
 	msg := &MSG_TEST{}
 	msg.Id = 123
 	msg.Str = "666"
-	globalTcpInfo.TcpSend(MSG_TYPE__MSG_TEST, msg)
+	globalTcpInfo.TcpSend(msg)
 }
 
 func CommandLogin(argStr []string) {
 	msg := &MSG_LOGIN{}
 	msg.Id = 123
-	globalTcpInfo.TcpSend(MSG_TYPE__MSG_LOGIN, msg)
+	globalTcpInfo.TcpSend(msg)
 }
 
 func CommandMultTest(argStr []string) {
@@ -45,7 +45,7 @@ func CommandMultTest(argStr []string) {
 						msg := &MSG_TEST{}
 						msg.Id = val.id
 						msg.Str = fmt.Sprintf("%v_%v_%v", val.id, cori, j)
-						val.TcpSend(MSG_TYPE__MSG_TEST, msg)
+						val.TcpSend(msg)
 /*						if (j % 10000 == 0) {
 							runtime.Gosched()
 						}
@@ -62,7 +62,7 @@ func CommandMultTest(argStr []string) {
 		fmt.Println("\r\n\r\n all coroutine done")
 		for _, val := range Global_cliMgr.mapClient {
 			msg := &MSG_TCP_STATIC{}
-			val.TcpSend(MSG_TYPE__MSG_TCP_STATIC, msg)
+			val.TcpSend(msg)
 		}
 	}()
 }
@@ -94,7 +94,7 @@ func CommandStatic(argStr []string) {
 	}
 
 	msg := &MSG_TCP_STATIC{}
-	c.TcpSend(MSG_TYPE__MSG_TCP_STATIC, msg)
+	c.TcpSend(msg)
 }
 
 func AddAllCmd(){

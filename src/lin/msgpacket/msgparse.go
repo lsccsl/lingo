@@ -19,11 +19,38 @@ import (
 type MAP_PARSE_FUNC map[int32]func(binMsg[]byte) proto.Message
 var mapVirtualTable = make(MAP_PARSE_FUNC)
 
+type MAP_MSGNAME_MSGTYPE map[string]int32
+var mapMsgNameType = make(MAP_MSGNAME_MSGTYPE)
+
 func isMsgType(str string) (b bool, msgName string, msgType string) {
 	if strings.Index(str, "MSG_TYPE_") == 0 {
 		return true, str[len("MSG_TYPE_"):len(str)], "msgpacket." + str[len("MSG_TYPE__"):len(str)]
 	}
 	return false, "", ""
+}
+
+func addMsgNameType(msgName string, msgType string) {
+	intType, ok := MSG_TYPE_value[msgType]
+	if !ok{
+		fmt.Println("no msgtype:", msgType)
+		return
+	}
+	mapMsgNameType[msgName] = intType
+}
+
+func GetMsgTypeByMsgInstance(msg proto.Message) int32 {
+	msgRef := proto.MessageReflect(msg)
+	if msgRef == nil {
+		return 0
+	}
+	des := msgRef.Descriptor()
+	if des == nil {
+		return 0
+	}
+	name := string(des.FullName())
+
+	intType, _ := mapMsgNameType[name]
+	return intType
 }
 
 func genAllMsgParse() {
@@ -58,9 +85,8 @@ func genAllMsgParse() {
 					continue
 				}
 				ProtoParseAddText(msgName, msgType)
+				addMsgNameType(msgName, msgType)
 			}
-
-
 		}
 	}
 }
@@ -69,6 +95,9 @@ func InitMsgParseVirtualTable(){
 
 	genAllMsgParse()
 
+/*	msg := &MSG_TEST{}
+	fmt.Println(GetMsgTypeByMsgInstance(msg))
+*/
 /*	mapVirtualTable[int32(MSG_TYPE__MSG_LOGIN)] = func (binMsg []byte)proto.Message {
 		msg := &MSG_LOGIN{}
 		proto.Unmarshal(binMsg, msg)

@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
-	"google.golang.org/protobuf/proto"
+	"github.com/golang/protobuf/proto"
 	"io"
 	"lin/lin_common"
 	"lin/msgpacket"
@@ -142,7 +142,7 @@ func (tcpInfo *ClientTcpInfo)GoClientTcpProcess() {
 			{
 				//fmt.Println("timeout")
 				msg := &msgpacket.MSG_HEARTBEAT{Id:tcpInfo.id}
-				go tcpInfo.TcpSend(msgpacket.MSG_TYPE__MSG_HEARTBEAT, msg)
+				go tcpInfo.TcpSend(msg)
 				chTimer = time.After(time.Second * time.Duration(10))
 			}
 		}
@@ -180,7 +180,8 @@ func (tcpInfo *ClientTcpInfo)FormatMsg(msgtype msgpacket.MSG_TYPE, msg proto.Mes
 }
 
 // todo 省略 msgtype参数
-func (tcpInfo *ClientTcpInfo)TcpSend(msgtype msgpacket.MSG_TYPE, msg proto.Message) {
+func (tcpInfo *ClientTcpInfo)TcpSend(msg proto.Message) {
+	var msgtype = msgpacket.MSG_TYPE(msgpacket.GetMsgTypeByMsgInstance(msg))
 	tcpInfo.msgChan <- &interMsg{
 			msgtype:INTER_MSG_TYPE_sendmsg,
 			msgdata: &interSendMsg{
@@ -217,31 +218,15 @@ func (tcpInfo *ClientTcpInfo)GoClientTcpRead(){
 		recvBuf.Write(TmpBuf[0:readSize])
 		//fmt.Println("tcp read:", readSize, err)
 
-		if curHead.packLen > 0 {
-			if recvBuf.Len() >= int(curHead.packLen){
-				binBody := recvBuf.Bytes()[6:curHead.packLen]
-
-				protoMsg := msgpacket.ParseProtoMsg(binBody, int32(curHead.packType))
-				switch msgpacket.MSG_TYPE(curHead.packType) {
-				case msgpacket.MSG_TYPE__MSG_HEARTBEAT_RES:
-				case msgpacket.MSG_TYPE__MSG_TEST_RES:
-				default:
-					lin_common.LogDebug(msgpacket.MSG_TYPE(curHead.packType), " !!proto msg:", protoMsg)
-				}
-				recvBuf.Next(int(curHead.packLen))
-				curHead.packLen = 0
-			}
-		}
-
 		READ_LOOP:
 		for ; recvBuf.Len() >= PACK_HEAD_SIZE; {
 			binHead := recvBuf.Bytes()[0:6]
-
 
 			curHead.packLen = binary.LittleEndian.Uint32(binHead[0:4])
 			curHead.packType = binary.LittleEndian.Uint16(binHead[4:6])
 
 			if recvBuf.Len() < int(curHead.packLen){
+				curHead.packLen = 0
 				break READ_LOOP
 			}
 
@@ -252,7 +237,7 @@ func (tcpInfo *ClientTcpInfo)GoClientTcpRead(){
 			case msgpacket.MSG_TYPE__MSG_HEARTBEAT_RES:
 			case msgpacket.MSG_TYPE__MSG_TEST_RES:
 			default:
-				lin_common.LogDebug(msgpacket.MSG_TYPE(curHead.packType), " ??proto msg:", protoMsg)
+				lin_common.LogDebug(msgpacket.MSG_TYPE(curHead.packType), " proto msg:", protoMsg)
 			}
 
 			recvBuf.Next(int(curHead.packLen))
@@ -282,7 +267,7 @@ func StartClient(id int64, addr string) *ClientTcpInfo {
 
 	msg := &msgpacket.MSG_LOGIN{}
 	msg.Id = id
-	tcpInfo.TcpSend(msgpacket.MSG_TYPE__MSG_LOGIN, msg)
+	tcpInfo.TcpSend(msg)
 
 	Global_cliMgr.ClientMgrAdd(tcpInfo)
 
