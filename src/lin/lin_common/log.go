@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"path"
 	"runtime"
+	"runtime/debug"
 	"time"
 )
 
@@ -23,4 +24,9 @@ func LogErr(args ... interface{}) {
 	fmt.Println(fmt.Sprintf("ERROR %s[%s:%d] route:%d %s",
 		time.Now().Format(time.RFC3339Nano), path.Base(filename), line, GetGID(), funcName),
 		fmt.Sprint(args...))
+	fmt.Println(string(debug.Stack()))
+}
+
+func LogDumpStack() string {
+	return string(debug.Stack())
 }

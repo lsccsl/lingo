@@ -252,7 +252,7 @@ func (tcpInfo *ClientTcpInfo)GoClientTcpRead(){
 			case msgpacket.MSG_TYPE__MSG_HEARTBEAT_RES:
 			case msgpacket.MSG_TYPE__MSG_TEST_RES:
 			default:
-				fmt.Println(msgpacket.MSG_TYPE(curHead.packType), " ??proto msg:", protoMsg)
+				lin_common.LogDebug(msgpacket.MSG_TYPE(curHead.packType), " ??proto msg:", protoMsg)
 			}
 
 			recvBuf.Next(int(curHead.packLen))

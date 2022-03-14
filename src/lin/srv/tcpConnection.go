@@ -331,6 +331,7 @@ func (pthis * TcpConnection)TcpGetConn() net.Conn {
 }
 
 func (pthis * TcpConnection)TcpConnectClose() {
+	lin_common.LogErr(" close:", pthis.TcpConnectionID())
 	if pthis.netConn != nil {
 		pthis.netConn.Close()
 	}
