@@ -209,7 +209,8 @@ func (pthis * TcpConnection)go_tcpConnRead() {
 	expireInterval := time.Second * time.Duration(pthis.closeExpireSec)
 	if pthis.closeExpireSec > 0 {
 		TimerConnClose = time.AfterFunc(expireInterval, func() {
-			lin_common.LogDebug("time out close tcp connection:", pthis.connectionID, " srvid:", pthis.SrvID, " clientid:", pthis.ClientID)
+			lin_common.LogDebug("time out close tcp connection:", pthis.connectionID, " srvid:", pthis.SrvID, " clientid:", pthis.ClientID,
+				" expire sec:", pthis.closeExpireSec)
 			pthis.TcpConnectClose()
 		})
 	}
