@@ -427,8 +427,8 @@ func (pthis*ServerMgr)Dump(bDtail bool) string {
 		tdiff = 1
 	}
 	str += fmt.Sprintf("\r\n diffTotal:%v diffRecv:%v diffSend:%v diffProc:%v", diffTotal, diffRecv, diffSend, diffProc)
-	str += fmt.Sprintf("\r\n Total ps:%v Recv ps:%v Send ps:%v Proc ps:%v",
-		float64(diffTotal) / tdiff, float64(diffRecv) / tdiff, float64(diffSend) / tdiff, float64(diffProc) / tdiff)
+	str += fmt.Sprintf("\r\n Total ps:%v Recv ps:%v Send ps:%v Proc ps:%v tdiff:%v",
+		float64(diffTotal) / tdiff, float64(diffRecv) / tdiff, float64(diffSend) / tdiff, float64(diffProc) / tdiff, tdiff)
 
 	pthis.timestamp = float64(time.Now().UnixMilli())
 

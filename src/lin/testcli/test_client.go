@@ -184,19 +184,22 @@ func (tcpInfo *ClientTcpInfo)processSendMsg(msg *interSendMsg) {
 
 func (pthis *ClientTcpInfo)processSendMsgLoop(msg *interSendMsgLoop) {
 	for i := 0; i < msg.loopCount; i ++ {
-		msgTest := &msgpacket.MSG_TEST{}
-		msgTest.Id = pthis.id
-		msgTest.Str = fmt.Sprintf("%v_%v_%v", pthis.id, pthis.id, i)
-		bin := pthis.FormatMsg(msgpacket.MSG_TYPE__MSG_TEST, msgTest)
-		pthis.ByteSend += len(bin)
-		pthis.con.Write(bin)
+		for j := 0; j < 200; j ++ {
+			msgTest := &msgpacket.MSG_TEST{}
+			msgTest.Id = pthis.id
+			msgTest.Str = fmt.Sprintf("%v_%v_%v", pthis.id, j, i)
+			bin := pthis.FormatMsg(msgpacket.MSG_TYPE__MSG_TEST, msgTest)
+			pthis.ByteSend += len(bin)
+			pthis.con.Write(bin)
+		}
 
-		lin_common.LogDebug("send test:", msgTest)
-		msgRes := <-pthis.msgChan
-		//_ = <-pthis.msgChan
-		lin_common.LogDebug("recv res:", msgRes.msgdata)
-		if i % 1000 == 0 {
-			lin_common.LogDebug(i)
+		for k := 0; k < 200; k ++ {
+			//msgRes := <-pthis.msgChan
+			_ = <-pthis.msgChan
+			//lin_common.LogDebug("recv res:", msgRes.msgdata)
+			if i % 1000 == 0 {
+				lin_common.LogDebug(i)
+			}
 		}
 	}
 }
@@ -254,7 +257,6 @@ func (tcpInfo *ClientTcpInfo)GoClientTcpRead(){
 	Loop:
 	for{
 		readSize, err := tcpInfo.con.Read(TmpBuf)
-		//tcpInfo.con.SetReadDeadline()
 		if !CheckError(err){
 			break Loop
 		}

@@ -15,8 +15,8 @@ type TestCfg struct {
 	addr string
 }
 var Global_testCfg = &TestCfg {
-	//addr : "192.168.2.129:2003",
-	addr : "10.0.14.48:2001",
+	addr : "192.168.2.129:2003",
+	//addr : "10.0.14.48:2001",
 }
 
 func main() {
