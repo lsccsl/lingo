@@ -209,11 +209,11 @@ func (pthis*ServerMgr)processClientLogin(clientID int64, tcpConn * TcpConnection
 		if oldC.ClientGetConnectionID() != tcpConn.TcpConnectionID() {
 			pthis.delClient(clientID)
 
-			c := ConstructClient(pthis, tcpConn.TcpConnectionID(), clientID)
+			c := ConstructClient(pthis, tcpConn, clientID)
 			pthis.addClient(c)
 		}
 	} else {
-		c := ConstructClient(pthis, tcpConn.TcpConnectionID(), clientID)
+		c := ConstructClient(pthis, tcpConn, clientID)
 		pthis.addClient(c)
 	}
 
@@ -233,7 +233,7 @@ func (pthis*ServerMgr)processMsg(tcpConn * TcpConnection, msgType msgpacket.MSG_
 		pthis.tcpMgr.TcpMgrCloseConn(tcpConn.TcpConnectionID())
 		return
 	} else {
-		cli := pthis.getClient(tcpConn.ClientID)
+		cli := tcpConn.ConnData.(*Client)
 		if cli != nil {
 			cli.PushProtoMsg(msgType, protoMsg)
 			return

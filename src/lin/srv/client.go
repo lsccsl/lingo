@@ -18,15 +18,21 @@ type Client struct {
 	mapStaticMsgRecv MAP_CLIENT_STATIC
 }
 
-func ConstructClient(srvMgr *ServerMgr, tcpConnID TCP_CONNECTION_ID,clientID int64) *Client {
+func ConstructClient(srvMgr *ServerMgr, tcpConn *TcpConnection,clientID int64) *Client {
+	if tcpConn == nil {
+		return nil
+	}
 	c := &Client{
 		srvMgr:srvMgr,
-		tcpConnID:tcpConnID,
+		tcpConnID:tcpConn.TcpConnectionID(),
 		clientID:clientID,
 		chClientProtoMsg:make(chan *interProtoMsg, 100),
 		isStopProcess:0,
 		mapStaticMsgRecv:make(MAP_CLIENT_STATIC),
 	}
+
+	tcpConn.ConnData = c
+	tcpConn.ConnType = TCP_CONNECTIOON_TYPE_client
 
 	go c.go_clientProcess()
 

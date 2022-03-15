@@ -22,6 +22,12 @@ const(
 	TCP_CONNECTION_CLOSE_REASON_writeerr TCP_CONNECTION_CLOSE_REASON = 2
 )
 
+type TCP_CONNECTIOON_TYPE int
+const(
+	TCP_CONNECTIOON_TYPE_client TCP_CONNECTIOON_TYPE = 1
+	TCP_CONNECTIOON_TYPE_server TCP_CONNECTIOON_TYPE = 2
+)
+
 type TCP_CONNECTION_ID int64
 type MAP_TCPCONN map[TCP_CONNECTION_ID]*TcpConnection
 
@@ -57,7 +63,7 @@ type TcpConnection struct {
 	SrvID int64
 	ClientID int64
 
-	ConnType int64
+	ConnType TCP_CONNECTIOON_TYPE
 	ConnData interface{}
 
 	// stats
