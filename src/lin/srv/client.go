@@ -26,7 +26,7 @@ func ConstructClient(srvMgr *ServerMgr, tcpConn *TcpConnection,clientID int64) *
 		srvMgr:srvMgr,
 		tcpConnID:tcpConn.TcpConnectionID(),
 		clientID:clientID,
-		chClientProtoMsg:make(chan *interProtoMsg, 100),
+		//chClientProtoMsg:make(chan *interProtoMsg, 100),
 		isStopProcess:0,
 		mapStaticMsgRecv:make(MAP_CLIENT_STATIC),
 	}
@@ -34,7 +34,7 @@ func ConstructClient(srvMgr *ServerMgr, tcpConn *TcpConnection,clientID int64) *
 	tcpConn.ConnData = c
 	tcpConn.ConnType = TCP_CONNECTIOON_TYPE_client
 
-	go c.go_clientProcess()
+	//go c.go_clientProcess()
 
 	return c
 }
@@ -84,13 +84,13 @@ func (pthis*Client) ClientClose() {
 }
 
 func (pthis*Client) PushProtoMsg(msgType msgpacket.MSG_TYPE, protoMsg proto.Message) {
-	if atomic.LoadInt32(&pthis.isStopProcess) == 1 {
+/*	if atomic.LoadInt32(&pthis.isStopProcess) == 1 {
 		return
 	}
 	pthis.chClientProtoMsg <- &interProtoMsg{
 		msgType:msgType,
 		protoMsg:protoMsg,
-	}
+	}*/
 }
 
 func (pthis*Client) ProcessProtoMsg(protoMsg proto.Message) {
