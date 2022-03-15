@@ -63,6 +63,10 @@ func (pthis * TcpMgr)go_tcpAccept() {
 			continue
 		}
 
+		tcpConn := conn.(*net.TCPConn)
+		if tcpConn != nil {
+			tcpConn.SetNoDelay(false)
+		}
 		//log.LogDebug(conn.LocalAddr(), conn.RemoteAddr())
 		_, err = startTcpConnection(pthis, conn, pthis.closeExpireSec)
 		if err != nil {
