@@ -197,9 +197,10 @@ func (pthis *ClientTcpInfo)processSendMsgLoop(msg *interSendMsgLoop) {
 			//msgRes := <-pthis.msgChan
 			_ = <-pthis.msgChan
 			//lin_common.LogDebug("recv res:", msgRes.msgdata)
-			if i % 1000 == 0 {
-				lin_common.LogDebug(i)
-			}
+		}
+
+		if i % 1000 == 0 {
+			lin_common.LogDebug(i)
 		}
 	}
 }

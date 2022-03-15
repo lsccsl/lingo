@@ -332,6 +332,7 @@ func (pthis * TcpConnection)TcpConnectSendBin(bin []byte) {
 }
 
 func (pthis * TcpConnection)TcpConnectSendBinDirect(bin []byte) {
+	pthis.ByteSend += int64(len(bin))
 	pthis.netConn.Write(bin)
 }
 
