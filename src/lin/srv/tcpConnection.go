@@ -331,6 +331,10 @@ func (pthis * TcpConnection)TcpConnectSendBin(bin []byte) {
 	//tcpW.bin = append(tcpW.bin, bin...)
 }
 
+func (pthis * TcpConnection)TcpConnectSendBinDirect(bin []byte) {
+	pthis.netConn.Write(bin)
+}
+
 
 func (pthis * TcpConnection)TcpGetConn() net.Conn {
 	return pthis.netConn

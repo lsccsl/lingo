@@ -12,6 +12,7 @@ type MAP_CLIENT_STATIC map[msgpacket.MSG_TYPE]int64
 type Client struct {
 	srvMgr *ServerMgr
 	tcpConnID TCP_CONNECTION_ID
+	tcpConn *TcpConnection
 	clientID int64
 	chClientProtoMsg chan *interProtoMsg
 	isStopProcess int32
@@ -25,6 +26,7 @@ func ConstructClient(srvMgr *ServerMgr, tcpConn *TcpConnection,clientID int64) *
 	c := &Client{
 		srvMgr:srvMgr,
 		tcpConnID:tcpConn.TcpConnectionID(),
+		tcpConn:tcpConn,
 		clientID:clientID,
 		//chClientProtoMsg:make(chan *interProtoMsg, 100),
 		isStopProcess:0,
@@ -131,12 +133,11 @@ func (pthis*Client) process_MSG_HEARTBEAT (protoMsg * msgpacket.MSG_HEARTBEAT) {
 }
 
 func (pthis*Client) process_MSG_TEST (protoMsg * msgpacket.MSG_TEST) {
-	//log.LogDebug(protoMsg)
-
 	msgRes := &msgpacket.MSG_TEST_RES{}
 	msgRes.Id = protoMsg.Id
 	msgRes.Str = protoMsg.Str
-	pthis.srvMgr.tcpMgr.TcpConnectSendProtoMsg(pthis.tcpConnID, msgpacket.MSG_TYPE__MSG_TEST_RES, msgRes)
+	pthis.tcpConn.TcpConnectSendBinDirect(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_TEST_RES, msgRes))
+	//pthis.srvMgr.tcpMgr.TcpConnectSendProtoMsg(pthis.tcpConnID, msgpacket.MSG_TYPE__MSG_TEST_RES, msgRes)
 }
 
 func (pthis*Client) process_MSG_TCP_STATIC(protoMsg * msgpacket.MSG_TCP_STATIC) {
