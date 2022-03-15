@@ -236,7 +236,7 @@ func (pthis*ServerMgr)processMsg(tcpConn * TcpConnection, msgType msgpacket.MSG_
 		cli := tcpConn.ConnData.(*Client)
 		if cli != nil {
 			//cli.PushProtoMsg(msgType, protoMsg)
-			cli.ProcessProtoMsg(protoMsg)
+			cli.ProcessProtoMsg(msgType, protoMsg)
 			return
 		}
 		pthis.tcpMgr.TcpMgrCloseConn(tcpConn.TcpConnectionID())

@@ -93,7 +93,8 @@ func (pthis*Client) PushProtoMsg(msgType msgpacket.MSG_TYPE, protoMsg proto.Mess
 	}*/
 }
 
-func (pthis*Client) ProcessProtoMsg(protoMsg proto.Message) {
+func (pthis*Client) ProcessProtoMsg(msgType msgpacket.MSG_TYPE, protoMsg proto.Message) {
+	pthis.mapStaticMsgRecv[msgType] = pthis.mapStaticMsgRecv[msgType] + 1
 	switch t:= protoMsg.(type){
 	case *msgpacket.MSG_HEARTBEAT:
 		pthis.process_MSG_HEARTBEAT(t)

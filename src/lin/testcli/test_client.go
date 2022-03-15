@@ -191,10 +191,10 @@ func (pthis *ClientTcpInfo)processSendMsgLoop(msg *interSendMsgLoop) {
 		pthis.ByteSend += len(bin)
 		pthis.con.Write(bin)
 
-		//lin_common.LogDebug("send test:", msgTest)
-		//msgRes := <-pthis.msgChan
-		_ = <-pthis.msgChan
-		//lin_common.LogDebug("recv res:", msgRes.msgdata)
+		lin_common.LogDebug("send test:", msgTest)
+		msgRes := <-pthis.msgChan
+		//_ = <-pthis.msgChan
+		lin_common.LogDebug("recv res:", msgRes.msgdata)
 		if i % 1000 == 0 {
 			lin_common.LogDebug(i)
 		}
