@@ -93,6 +93,18 @@ func (pthis*Client) PushProtoMsg(msgType msgpacket.MSG_TYPE, protoMsg proto.Mess
 	}
 }
 
+func (pthis*Client) ProcessProtoMsg(protoMsg proto.Message) {
+	switch t:= protoMsg.(type){
+	case *msgpacket.MSG_HEARTBEAT:
+		pthis.process_MSG_HEARTBEAT(t)
+	case *msgpacket.MSG_TEST:
+		pthis.process_MSG_TEST(t)
+	case *msgpacket.MSG_TCP_STATIC:
+		pthis.process_MSG_TCP_STATIC(t)
+	}
+}
+
+
 func (pthis*Client)Go_processRPC(tcpConn * TcpConnection, msg *msgpacket.MSG_RPC, msgBody proto.Message) {
 }
 func (pthis*Client)processRPCRes(tcpConn * TcpConnection, msg *msgpacket.MSG_RPC_RES, msgBody proto.Message) {
