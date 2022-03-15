@@ -13,7 +13,7 @@ func goStatic() {
 		//GODEBUG=gctrace=1 ./xxx
 		//GODEBUG=gctrace=1 ./xxx 2> gc.log
 		// cat /var/log/messages
-		runtime.GC()
+		//runtime.GC()
 		var ms runtime.MemStats
 		runtime.ReadMemStats(&ms)
 		LogDebug("Alloc:", ms.Alloc, "(bytes) HeapIdle:", ms.HeapIdle, "(bytes) HeapReleased:", ms.HeapReleased, "(bytes)", " coroutine:", runtime.NumGoroutine())

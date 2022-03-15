@@ -98,6 +98,16 @@ func CommandStatic(argStr []string) {
 	c.TcpSend(msg)
 }
 
+func CommandLoopTest(argStr []string) {
+	count := 1
+	if len(argStr) >= 1 {
+		count, _ = strconv.Atoi(argStr[0])
+	}
+	for _, val := range Global_cliMgr.mapClient {
+		val.TcpSendLoop(count)
+	}
+}
+
 func AddAllCmd(){
 	InitCmd()
 	AddCmd("test", "test",CommandTest)
@@ -105,4 +115,5 @@ func AddAllCmd(){
 	AddCmd("mt", "mult test",CommandMultTest)
 	AddCmd("mlogin", "loginMult",CommandMultLogin)
 	AddCmd("static", "static",CommandStatic)
+	AddCmd("lt", "loop test",CommandLoopTest)
 }

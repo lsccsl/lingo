@@ -29,8 +29,14 @@ type interSendMsg struct {
 	msgtype msgpacket.MSG_TYPE
 	msgproto proto.Message
 }
+type interSendMsgLoop struct {
+	loopCount int
+}
+
 const (
 	INTER_MSG_TYPE_sendmsg = 1
+	INTER_MSG_TYPE_sendmsg_loop = 2
+	INTER_MSG_TYPE_recvmsg = 3
 )
 
 const CHAN_BUF_LEN = 100
@@ -163,14 +169,36 @@ func (tcpInfo *ClientTcpInfo)processMsg(msg *interMsg) {
 		if ok && sendMsg != nil {
 			tcpInfo.processSendMsg(sendMsg)
 		}
+	case INTER_MSG_TYPE_sendmsg_loop:
+		sendMsgLoop, ok := msg.msgdata.(*interSendMsgLoop)
+		if ok && sendMsgLoop != nil {
+			tcpInfo.processSendMsgLoop(sendMsgLoop)
+		}
 	}
 }
 func (tcpInfo *ClientTcpInfo)processSendMsg(msg *interSendMsg) {
 	bin := tcpInfo.FormatMsg(msg.msgtype, msg.msgproto)
-
 	tcpInfo.ByteSend += len(bin)
-	//fmt.Println("byte send", tcpInfo.ByteSend, len(bin))
 	tcpInfo.con.Write(bin)
+}
+
+func (pthis *ClientTcpInfo)processSendMsgLoop(msg *interSendMsgLoop) {
+	for i := 0; i < msg.loopCount; i ++ {
+		msgTest := &msgpacket.MSG_TEST{}
+		msgTest.Id = pthis.id
+		msgTest.Str = fmt.Sprintf("%v_%v_%v", pthis.id, pthis.id, i)
+		bin := pthis.FormatMsg(msgpacket.MSG_TYPE__MSG_TEST, msgTest)
+		pthis.ByteSend += len(bin)
+		pthis.con.Write(bin)
+
+		//lin_common.LogDebug("send test:", msgTest)
+		//msgRes := <-pthis.msgChan
+		_ = <-pthis.msgChan
+		//lin_common.LogDebug("recv res:", msgRes.msgdata)
+		if i % 1000 == 0 {
+			lin_common.LogDebug(i)
+		}
+	}
 }
 
 func (tcpInfo *ClientTcpInfo)FormatMsg(msgtype msgpacket.MSG_TYPE, msg proto.Message)[]byte{
@@ -189,13 +217,22 @@ func (tcpInfo *ClientTcpInfo)FormatMsg(msgtype msgpacket.MSG_TYPE, msg proto.Mes
 func (tcpInfo *ClientTcpInfo)TcpSend(msg proto.Message) {
 	var msgtype = msgpacket.MSG_TYPE(msgpacket.GetMsgTypeByMsgInstance(msg))
 	tcpInfo.msgChan <- &interMsg{
-			msgtype:INTER_MSG_TYPE_sendmsg,
-			msgdata: &interSendMsg{
-				msgtype:msgtype,
-				msgproto:msg,
-			},
-		}
+		msgtype:INTER_MSG_TYPE_sendmsg,
+		msgdata: &interSendMsg{
+			msgtype:msgtype,
+			msgproto:msg,
+		},
+	}
 }
+
+func (tcpInfo *ClientTcpInfo)TcpSendLoop(loopCount int) {
+	tcpInfo.msgChan <- &interMsg{
+		msgtype:INTER_MSG_TYPE_sendmsg_loop,
+		msgdata:&interSendMsgLoop{loopCount},
+	}
+}
+
+
 
 func (tcpInfo *ClientTcpInfo)GoClientTcpRead(){
 	fmt.Println("GoClientTcpRead")
@@ -248,6 +285,12 @@ func (tcpInfo *ClientTcpInfo)GoClientTcpRead(){
 			}
 
 			recvBuf.Next(int(curHead.packLen))
+
+			tcpInfo.msgChan <- &interMsg{
+				msgtype:INTER_MSG_TYPE_recvmsg,
+				msgdata:protoMsg,
+			}
+
 			curHead.packLen = 0
 		}
 	}

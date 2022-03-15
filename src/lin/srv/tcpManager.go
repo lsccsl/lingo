@@ -51,7 +51,16 @@ func (pthis * TcpMgr)go_tcpAccept() {
 	for {
 		conn, err := pthis.tcpLsn.Accept()
 		if err != nil {
-			lin_common.LogErr("tcp accept err", err)
+			lin_common.LogErr("tcp accept err:", err)
+			if conn != nil {
+				conn.Close()
+			}
+			continue
+		}
+
+		if conn == nil {
+			lin_common.LogErr(" tcp conn is nil")
+			continue
 		}
 
 		//log.LogDebug(conn.LocalAddr(), conn.RemoteAddr())

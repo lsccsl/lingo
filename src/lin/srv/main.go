@@ -46,7 +46,7 @@ func main() {
 		lin_common.LogErr(err)
 		return
 	}
-	tcpMgr, err := StartTcpManager(tcpAddr.IP.String(), tcpAddr.Port, srvMgr, 3060)
+	tcpMgr, err := StartTcpManager(tcpAddr.IP.String(), tcpAddr.Port, srvMgr, 180)
 	if err != nil {
 		lin_common.LogErr("addr:", tcpAddr, " err:", err)
 		return
