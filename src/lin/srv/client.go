@@ -95,7 +95,7 @@ func (pthis*Client) PushProtoMsg(msgType msgpacket.MSG_TYPE, protoMsg proto.Mess
 	}
 }
 
-/*func (pthis*Client) ProcessProtoMsg(msgType msgpacket.MSG_TYPE, protoMsg proto.Message) {
+func (pthis*Client) ProcessProtoMsg(msgType msgpacket.MSG_TYPE, protoMsg proto.Message) {
 	pthis.mapStaticMsgRecv[msgType] = pthis.mapStaticMsgRecv[msgType] + 1
 	switch t:= protoMsg.(type){
 	case *msgpacket.MSG_HEARTBEAT:
@@ -105,7 +105,7 @@ func (pthis*Client) PushProtoMsg(msgType msgpacket.MSG_TYPE, protoMsg proto.Mess
 	case *msgpacket.MSG_TCP_STATIC:
 		pthis.process_MSG_TCP_STATIC(t)
 	}
-}*/
+}
 
 
 func (pthis*Client)Go_processRPC(tcpConn * TcpConnection, msg *msgpacket.MSG_RPC, msgBody proto.Message) {
@@ -136,8 +136,8 @@ func (pthis*Client) process_MSG_TEST (protoMsg * msgpacket.MSG_TEST) {
 	msgRes := &msgpacket.MSG_TEST_RES{}
 	msgRes.Id = protoMsg.Id
 	msgRes.Str = protoMsg.Str
-	//pthis.tcpConn.TcpConnectSendBinDirect(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_TEST_RES, msgRes))
-	pthis.srvMgr.tcpMgr.TcpConnectSendProtoMsg(pthis.tcpConnID, msgpacket.MSG_TYPE__MSG_TEST_RES, msgRes)
+	pthis.tcpConn.TcpConnectSendBinDirect(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_TEST_RES, msgRes))
+	//pthis.srvMgr.tcpMgr.TcpConnectSendProtoMsg(pthis.tcpConnID, msgpacket.MSG_TYPE__MSG_TEST_RES, msgRes)
 }
 
 func (pthis*Client) process_MSG_TCP_STATIC(protoMsg * msgpacket.MSG_TCP_STATIC) {
