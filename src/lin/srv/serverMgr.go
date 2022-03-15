@@ -38,7 +38,7 @@ type ServerStatic struct {
 	totalRecv int64
 	totalSend int64
 	totalProc int64
-	timestamp int64
+	timestamp float64
 }
 type ServerMgr struct {
 	srvID int64
@@ -343,7 +343,7 @@ func (pthis*ServerMgr)Dump(bDtail bool) string {
 	var str string
 	str += "\r\nclient:\r\n"
 
-	timestamp := time.Now().Unix()
+	timestamp := float64(time.Now().UnixMilli())
 	var totalPacket int64 = 0
 	var totalRecv int64 = 0
 	var totalSend int64 = 0
@@ -422,14 +422,15 @@ func (pthis*ServerMgr)Dump(bDtail bool) string {
 	diffRecv := totalRecv - pthis.totalRecv
 	diffSend := totalSend - pthis.totalSend
 	diffProc := totalSend - pthis.totalProc
-	tdiff := timestamp - pthis.timestamp
+	tdiff := (timestamp - pthis.timestamp) / float64(1000)
 	if tdiff <= 0 {
 		tdiff = 1
 	}
 	str += fmt.Sprintf("\r\n diffTotal:%v diffRecv:%v diffSend:%v diffProc:%v", diffTotal, diffRecv, diffSend, diffProc)
-	str += fmt.Sprintf("\r\n Total ps:%v Recv ps:%v Send ps:%v Proc ps:%v", diffTotal / tdiff, diffRecv / tdiff, diffSend / tdiff, diffProc / tdiff)
+	str += fmt.Sprintf("\r\n Total ps:%v Recv ps:%v Send ps:%v Proc ps:%v",
+		float64(diffTotal) / tdiff, float64(diffRecv) / tdiff, float64(diffSend) / tdiff, float64(diffProc) / tdiff)
 
-	pthis.timestamp = time.Now().Unix()
+	pthis.timestamp = float64(time.Now().UnixMilli())
 
 	pthis.totalPacket = totalPacket
 	pthis.totalRecv = totalRecv
