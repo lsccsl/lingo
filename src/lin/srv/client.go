@@ -121,6 +121,7 @@ func (pthis*Client) process_MSG_TEST (protoMsg * msgpacket.MSG_TEST) {
 }
 
 func (pthis*Client) process_MSG_TCP_STATIC(protoMsg * msgpacket.MSG_TCP_STATIC) {
+	lin_common.LogDebug(" seq:", protoMsg.Seq)
 	tcpConn := pthis.srvMgr.tcpMgr.getTcpConnection(pthis.tcpConnID)
 	msgRes := &msgpacket.MSG_TCP_STATIC_RES{
 		ByteRecv:tcpConn.ByteRecv,

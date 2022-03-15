@@ -80,6 +80,7 @@ message MSG_LOGIN_RES
 
 message MSG_TCP_STATIC
 {
+    int64 seq = 1;
 }
 message MSG_TCP_STATIC_RES
 {

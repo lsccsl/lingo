@@ -42,6 +42,7 @@ type ClientTcpInfo struct{
 	msgChan chan *interMsg
 	ByteSend int
 	ByteRecv int
+	seq int64
 }
 var globalTcpInfo *ClientTcpInfo
 
@@ -104,6 +105,11 @@ func CheckError(err error)bool{
 		}
 	}
 	return false
+}
+
+func (tcpInfo *ClientTcpInfo)GetSeq() int64 {
+	tcpInfo.seq ++
+	return tcpInfo.seq
 }
 
 func (tcpInfo *ClientTcpInfo)GoClientTcpProcess() {
@@ -211,6 +217,7 @@ func (tcpInfo *ClientTcpInfo)GoClientTcpRead(){
 	Loop:
 	for{
 		readSize, err := tcpInfo.con.Read(TmpBuf)
+		//tcpInfo.con.SetReadDeadline()
 		if !CheckError(err){
 			break Loop
 		}

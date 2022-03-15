@@ -94,6 +94,7 @@ func CommandStatic(argStr []string) {
 	}
 
 	msg := &MSG_TCP_STATIC{}
+	msg.Seq = c.GetSeq()
 	c.TcpSend(msg)
 }
 
@@ -105,4 +106,3 @@ func AddAllCmd(){
 	AddCmd("mlogin", "loginMult",CommandMultLogin)
 	AddCmd("static", "static",CommandStatic)
 }
-
