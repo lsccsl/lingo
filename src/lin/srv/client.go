@@ -182,10 +182,10 @@ func (pthis*Client) process_MSG_TCP_STATIC(protoMsg * msgpacket.MSG_TCP_STATIC) 
 }
 
 func (pthis*Client) ClientSendProtoMsg(msgType msgpacket.MSG_TYPE, protoMsg proto.Message) {
-	if lin_common.GetGID() != pthis.goRoutineID {
+/*	if lin_common.GetGID() != pthis.goRoutineID {
 		lin_common.LogErr(" should call ClientSendProtoMsg in the client process coroutine:", msgType)
 		return
-	}
+	}*/
 	pthis.tcpConn.TcpConnectSendBin(msgpacket.ProtoPacketToBin(msgType, protoMsg))
 }
 
