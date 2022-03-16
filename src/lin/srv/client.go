@@ -7,9 +7,9 @@ import (
 	"sync/atomic"
 )
 
-type interClientMsgTcpWrite struct {
+/*type interClientMsgTcpWrite struct {
 	bin []byte
-}
+}*/
 
 type MAP_CLIENT_STATIC map[msgpacket.MSG_TYPE]int64
 type Client struct {
@@ -18,7 +18,7 @@ type Client struct {
 	tcpConn *TcpConnection
 	clientID int64
 	chClientProtoMsg chan *interProtoMsg
-	chMsgWrite chan *interClientMsgTcpWrite
+	//chMsgWrite chan *interClientMsgTcpWrite
 	isStopProcess int32
 	mapStaticMsgRecv MAP_CLIENT_STATIC
 
@@ -75,14 +75,14 @@ func (pthis*Client) go_clientProcess() {
 				pthis.processClientMsg(ProtoMsg)
 			}()
 
-		case tcpW := <- pthis.chMsgWrite:
+/*		case tcpW := <- pthis.chMsgWrite:
 			{
 				_, err := pthis.tcpConn.TcpConnectSendBin(tcpW.bin)
 				if err != nil {
 					pthis.tcpConn.TcpConnectSetCloseReason(TCP_CONNECTION_CLOSE_REASON_writeerr)
 					break MSG_LOOP
 				}
-			}
+			}*/
 		}
 	}
 
@@ -93,9 +93,9 @@ func (pthis*Client) go_clientProcess() {
 	if pthis.chClientProtoMsg != nil {
 		close(pthis.chClientProtoMsg)
 	}
-	if pthis.chMsgWrite != nil {
+/*	if pthis.chMsgWrite != nil {
 		close(pthis.chMsgWrite)
-	}
+	}*/
 }
 
 func (pthis*Client) ClientGetConnectionID() TCP_CONNECTION_ID{
@@ -189,7 +189,7 @@ func (pthis*Client) ClientSendProtoMsg(msgType msgpacket.MSG_TYPE, protoMsg prot
 	pthis.tcpConn.TcpConnectSendBin(msgpacket.ProtoPacketToBin(msgType, protoMsg))
 }
 
-func (pthis * Client)ClientSendProtoMsgSync(msgType msgpacket.MSG_TYPE, protoMsg proto.Message) {
+/*func (pthis * Client)ClientSendProtoMsgSync(msgType msgpacket.MSG_TYPE, protoMsg proto.Message) {
 	if atomic.LoadInt32(&pthis.isStopProcess) != 0 {
 		return
 	}
@@ -199,4 +199,4 @@ func (pthis * Client)ClientSendProtoMsgSync(msgType msgpacket.MSG_TYPE, protoMsg
 	}
 	copy(tcpW.bin, bin)
 	pthis.chMsgWrite <- tcpW
-}
+}*/

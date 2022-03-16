@@ -180,26 +180,35 @@ func (tcpInfo *ClientTcpInfo)processSendMsg(msg *interSendMsg) {
 }
 
 func (pthis *ClientTcpInfo)processSendMsgLoop(msg *interSendMsgLoop) {
+	var seq int64 = 0
 	for i := 0; i < msg.loopCount; i ++ {
 		for j := 0; j < 200; j ++ {
 			msgTest := &msgpacket.MSG_TEST{}
 			msgTest.Id = pthis.id
 			msgTest.Str = fmt.Sprintf("%v_%v_%v", pthis.id, j, i)
-			lin_common.LogDebug("send test:", msgTest)
+			seq++
+			msgTest.Seq = seq
+			//lin_common.LogDebug("send test:", msgTest)
 			bin := pthis.FormatMsg(msgpacket.MSG_TYPE__MSG_TEST, msgTest)
 			pthis.ByteSend += len(bin)
 			pthis.con.Write(bin)
 		}
 
+		var maxSeq int64 = 0
 		for k := 0; k < 200; k ++ {
 			msgRes := <-pthis.msgChan
+			maxSeq = msgRes.msgdata.(*msgpacket.MSG_TEST_RES).Seq
 			//_ = <-pthis.msgChan
-			lin_common.LogDebug("recv res:", msgRes.msgdata)
+			//lin_common.LogDebug("recv res:", msgRes.msgdata)
 		}
 
-		if i % 1000 == 0 {
-			lin_common.LogDebug(i)
+		if maxSeq < seq {
+			lin_common.LogErr("err seq:", maxSeq)
 		}
+
+/*		if i % 1000 == 0 {
+			lin_common.LogDebug(i)
+		}*/
 	}
 }
 
