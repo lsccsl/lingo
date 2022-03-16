@@ -337,8 +337,8 @@ func (pthis * TcpConnection)go_tcpConnWrite() {
 */
 
 func (pthis * TcpConnection)TcpConnectSendBin(bin []byte) (n int, err error) {
-	n, err = pthis.netConn.Write(bin)
-	pthis.ByteSend += int64(n)
+	pthis.netConn.Write(bin)
+	pthis.ByteSend += int64(len(bin))
 	return
 }
 
