@@ -385,7 +385,7 @@ func (pthis*ServerMgr)Dump(bDtail bool) string {
 	diffTotal := totalPacket - pthis.totalPacket
 	diffRecv := totalRecv - pthis.totalRecv
 	diffSend := totalSend - pthis.totalSend
-	diffProc := totalSend - pthis.totalProc
+	diffProc := totalProc - pthis.totalProc
 	tdiff := (timestamp - pthis.timestamp) / float64(1000)
 	if tdiff <= 0 {
 		tdiff = 1

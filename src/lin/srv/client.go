@@ -105,7 +105,7 @@ func (pthis*Client) PushProtoMsg(msgType msgpacket.MSG_TYPE, protoMsg proto.Mess
 	}
 }
 
-func (pthis*Client) ProcessProtoMsg(msgType msgpacket.MSG_TYPE, protoMsg proto.Message) {
+/*func (pthis*Client) ProcessProtoMsg(msgType msgpacket.MSG_TYPE, protoMsg proto.Message) {
 	pthis.mapStaticMsgRecv[msgType] = pthis.mapStaticMsgRecv[msgType] + 1
 	switch t:= protoMsg.(type){
 	case *msgpacket.MSG_HEARTBEAT:
@@ -115,7 +115,7 @@ func (pthis*Client) ProcessProtoMsg(msgType msgpacket.MSG_TYPE, protoMsg proto.M
 	case *msgpacket.MSG_TCP_STATIC:
 		pthis.process_MSG_TCP_STATIC(t)
 	}
-}
+}*/
 
 
 func (pthis*Client)Go_processRPC(tcpConn *tcp.TcpConnection, msg *msgpacket.MSG_RPC, msgBody proto.Message) {
