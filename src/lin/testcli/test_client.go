@@ -188,7 +188,7 @@ func (pthis *ClientTcpInfo)processSendMsgLoop(msg *interSendMsgLoop) {
 			msgTest.Str = fmt.Sprintf("%v_%v_%v", pthis.id, j, i)
 			seq++
 			msgTest.Seq = seq
-			//lin_common.LogDebug("send test:", msgTest)
+			lin_common.LogDebug("send test:", msgTest)
 			bin := pthis.FormatMsg(msgpacket.MSG_TYPE__MSG_TEST, msgTest)
 			pthis.ByteSend += len(bin)
 			pthis.con.Write(bin)
@@ -199,7 +199,7 @@ func (pthis *ClientTcpInfo)processSendMsgLoop(msg *interSendMsgLoop) {
 			msgRes := <-pthis.msgChan
 			maxSeq = msgRes.msgdata.(*msgpacket.MSG_TEST_RES).Seq
 			//_ = <-pthis.msgChan
-			//lin_common.LogDebug("recv res:", msgRes.msgdata)
+			lin_common.LogDebug("recv res:", msgRes.msgdata)
 		}
 
 		if maxSeq < seq {
