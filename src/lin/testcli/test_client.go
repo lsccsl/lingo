@@ -185,15 +185,16 @@ func (pthis *ClientTcpInfo)processSendMsgLoop(msg *interSendMsgLoop) {
 			msgTest := &msgpacket.MSG_TEST{}
 			msgTest.Id = pthis.id
 			msgTest.Str = fmt.Sprintf("%v_%v_%v", pthis.id, j, i)
+			lin_common.LogDebug("send test:", msgTest)
 			bin := pthis.FormatMsg(msgpacket.MSG_TYPE__MSG_TEST, msgTest)
 			pthis.ByteSend += len(bin)
 			pthis.con.Write(bin)
 		}
 
 		for k := 0; k < 200; k ++ {
-			//msgRes := <-pthis.msgChan
-			_ = <-pthis.msgChan
-			//lin_common.LogDebug("recv res:", msgRes.msgdata)
+			msgRes := <-pthis.msgChan
+			//_ = <-pthis.msgChan
+			lin_common.LogDebug("recv res:", msgRes.msgdata)
 		}
 
 		if i % 1000 == 0 {

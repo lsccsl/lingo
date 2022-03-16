@@ -60,11 +60,13 @@ message MSG_TEST
 {
     int64 id = 1;
     string str = 2;
+    int64 seq = 3;
 }
 message MSG_TEST_RES
 {
     int64 id = 1;
     string str = 2;
+    int64 seq = 3;
 }
 
 message MSG_LOGIN

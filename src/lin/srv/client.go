@@ -161,6 +161,7 @@ func (pthis*Client) process_MSG_TEST (protoMsg * msgpacket.MSG_TEST) {
 	msgRes := &msgpacket.MSG_TEST_RES{}
 	msgRes.Id = protoMsg.Id
 	msgRes.Str = protoMsg.Str
+	msgRes.Seq = protoMsg.Seq
 	pthis.ClientSendProtoMsg(msgpacket.MSG_TYPE__MSG_TEST_RES, msgRes)
 }
 
