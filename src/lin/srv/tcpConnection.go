@@ -322,7 +322,7 @@ func (pthis * TcpConnection)go_tcpConnWrite() {
 }
 
 
-/*func (pthis * TcpConnection)TcpConnectSendBin(bin []byte) {
+func (pthis * TcpConnection)TcpConnectSendBin(bin []byte) {
 	if atomic.LoadInt32(&pthis.canWrite) == 0 {
 		return
 	}
@@ -334,13 +334,13 @@ func (pthis * TcpConnection)go_tcpConnWrite() {
 	pthis.chMsgWrite <- tcpW
 	//tcpW.bin = append(tcpW.bin, bin...)
 }
-*/
 
-func (pthis * TcpConnection)TcpConnectSendBin(bin []byte) (n int, err error) {
+
+/*func (pthis * TcpConnection)TcpConnectSendBin(bin []byte) (n int, err error) {
 	pthis.netConn.Write(bin)
 	pthis.ByteSend += int64(len(bin))
 	return
-}
+}*/
 
 
 func (pthis * TcpConnection)TcpGetConn() net.Conn {
