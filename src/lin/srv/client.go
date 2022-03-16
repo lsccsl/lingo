@@ -4,16 +4,17 @@ import (
 	"github.com/golang/protobuf/proto"
 	"lin/lin_common"
 	"lin/msgpacket"
+	"lin/tcp"
 	"sync/atomic"
 )
 
 
 type MAP_CLIENT_STATIC map[msgpacket.MSG_TYPE]int64
 type Client struct {
-	srvMgr *ServerMgr
-	tcpConnID TCP_CONNECTION_ID
-	tcpConn *TcpConnection
-	clientID int64
+	srvMgr    *ServerMgr
+	tcpConnID tcp.TCP_CONNECTION_ID
+	tcpConn   *tcp.TcpConnection
+	clientID  int64
 	chClientProtoMsg chan *interProtoMsg
 	isStopProcess int32
 	mapStaticMsgRecv MAP_CLIENT_STATIC
@@ -21,7 +22,7 @@ type Client struct {
 	goRoutineID uint64
 }
 
-func ConstructClient(srvMgr *ServerMgr, tcpConn *TcpConnection,clientID int64) *Client {
+func ConstructClient(srvMgr *ServerMgr, tcpConn *tcp.TcpConnection,clientID int64) *Client {
 	if tcpConn == nil {
 		return nil
 	}
@@ -36,7 +37,7 @@ func ConstructClient(srvMgr *ServerMgr, tcpConn *TcpConnection,clientID int64) *
 	}
 
 	tcpConn.ConnData = c
-	tcpConn.ConnType = TCP_CONNECTIOON_TYPE_client
+	tcpConn.ConnType = tcp.TCP_CONNECTIOON_TYPE_client
 
 	go c.go_clientProcess()
 
@@ -82,7 +83,7 @@ func (pthis*Client) go_clientProcess() {
 	}
 }
 
-func (pthis*Client) ClientGetConnectionID() TCP_CONNECTION_ID{
+func (pthis*Client) ClientGetConnectionID() tcp.TCP_CONNECTION_ID {
 	return pthis.tcpConnID
 }
 func (pthis*Client) ClientGetClientID()int64{
@@ -117,9 +118,9 @@ func (pthis*Client) ProcessProtoMsg(msgType msgpacket.MSG_TYPE, protoMsg proto.M
 }
 
 
-func (pthis*Client)Go_processRPC(tcpConn * TcpConnection, msg *msgpacket.MSG_RPC, msgBody proto.Message) {
+func (pthis*Client)Go_processRPC(tcpConn *tcp.TcpConnection, msg *msgpacket.MSG_RPC, msgBody proto.Message) {
 }
-func (pthis*Client)processRPCRes(tcpConn * TcpConnection, msg *msgpacket.MSG_RPC_RES, msgBody proto.Message) {
+func (pthis*Client)processRPCRes(tcpConn *tcp.TcpConnection, msg *msgpacket.MSG_RPC_RES, msgBody proto.Message) {
 }
 
 func (pthis*Client) processClientMsg (interMsg * interProtoMsg) {
@@ -149,7 +150,7 @@ func (pthis*Client) process_MSG_TEST (protoMsg * msgpacket.MSG_TEST) {
 
 func (pthis*Client) process_MSG_TCP_STATIC(protoMsg * msgpacket.MSG_TCP_STATIC) {
 	lin_common.LogDebug(" seq:", protoMsg.Seq)
-	tcpConn := pthis.srvMgr.tcpMgr.getTcpConnection(pthis.tcpConnID)
+	tcpConn := pthis.srvMgr.tcpMgr.GetTcpConnection(pthis.tcpConnID)
 	msgRes := &msgpacket.MSG_TCP_STATIC_RES{
 		ByteRecv:tcpConn.ByteRecv,
 		ByteProc:tcpConn.ByteProc,

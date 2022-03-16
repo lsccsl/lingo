@@ -1,4 +1,4 @@
-package main
+package tcp
 
 import (
 	"sync"
@@ -20,14 +20,14 @@ type MAP_DIALDATA map[int64/* srvID */]*dialData
 type TcpDialMgr struct {
 	wg sync.WaitGroup
 	closeExpireSec int
-	connMgr InterfaceConnManage
+	connMgr        InterfaceConnManage
 
 	mapDialDataMutex sync.Mutex
-	mapDialData MAP_DIALDATA
+	mapDialData      MAP_DIALDATA
 }
 
 
-func (pthis * TcpDialMgr) TcpDialMgrStart(connMgr InterfaceConnManage, closeExpireSec int){
+func (pthis *TcpDialMgr) TcpDialMgrStart(connMgr InterfaceConnManage, closeExpireSec int){
 	pthis.closeExpireSec = closeExpireSec
 	pthis.mapDialData = make(MAP_DIALDATA)
 	pthis.connMgr = connMgr
@@ -48,18 +48,18 @@ func (pthis * TcpDialMgr) TcpDialMgrStart(connMgr InterfaceConnManage, closeExpi
 	}
 }*/
 
-func (pthis * TcpDialMgr)TcpDialMgrWait() {
+func (pthis *TcpDialMgr)TcpDialMgrWait() {
 	pthis.wg.Wait()
 }
 
 
-func (pthis * TcpDialMgr) addDialData(srvID int64, dd *dialData) {
+func (pthis *TcpDialMgr) addDialData(srvID int64, dd *dialData) {
 	pthis.mapDialDataMutex.Lock()
 	defer pthis.mapDialDataMutex.Unlock()
 
 	pthis.mapDialData[srvID] = dd
 }
-func (pthis * TcpDialMgr) getDialData(srvID int64) *dialData {
+func (pthis *TcpDialMgr) getDialData(srvID int64) *dialData {
 	pthis.mapDialDataMutex.Lock()
 	defer pthis.mapDialDataMutex.Unlock()
 
@@ -69,7 +69,7 @@ func (pthis * TcpDialMgr) getDialData(srvID int64) *dialData {
 	}
 	return dd
 }
-func (pthis * TcpDialMgr) getDialDataConn(srvID int64) *TcpConnection {
+func (pthis *TcpDialMgr) getDialDataConn(srvID int64) *TcpConnection {
 	pthis.mapDialDataMutex.Lock()
 	defer pthis.mapDialDataMutex.Unlock()
 
@@ -80,13 +80,13 @@ func (pthis * TcpDialMgr) getDialDataConn(srvID int64) *TcpConnection {
 	return dd.tcpConn
 }
 
-func (pthis * TcpDialMgr) delDialData(srvID int64) {
+func (pthis *TcpDialMgr) delDialData(srvID int64) {
 	pthis.mapDialDataMutex.Lock()
 	defer pthis.mapDialDataMutex.Unlock()
 
 	delete(pthis.mapDialData, srvID)
 }
-func (pthis * TcpDialMgr) clearDialConn(srvID int64) {
+func (pthis *TcpDialMgr) clearDialConn(srvID int64) {
 	pthis.mapDialDataMutex.Lock()
 	defer pthis.mapDialDataMutex.Unlock()
 	dd, ok := pthis.mapDialData[srvID]
@@ -96,7 +96,7 @@ func (pthis * TcpDialMgr) clearDialConn(srvID int64) {
 	dd.tcpConn = nil
 }
 
-func (pthis * TcpDialMgr) TcpDialMgrDial(srvID int64, ip string, port int, closeExpireSec int,
+func (pthis *TcpDialMgr) TcpDialMgrDial(srvID int64, ip string, port int, closeExpireSec int,
 	dialTimeoutSec int,
 	needRedial bool, redialCount int) (*TcpConnection, error) {
 
@@ -119,7 +119,7 @@ func (pthis * TcpDialMgr) TcpDialMgrDial(srvID int64, ip string, port int, close
 	return tcpConn, nil
 }
 
-func (pthis * TcpDialMgr) TcpDialMgrCheckReDial(srvID int64) {
+func (pthis *TcpDialMgr) TcpDialMgrCheckReDial(srvID int64) {
 	dd := pthis.getDialData(srvID)
 	if dd == nil {
 		return
@@ -132,10 +132,10 @@ func (pthis * TcpDialMgr) TcpDialMgrCheckReDial(srvID int64) {
 	pthis.TcpDialMgrDial(dd.srvID, dd.ip, dd.port, dd.closeExpireSec, dd.dialTimeoutSec, dd.needRedial, dd.redialCount)
 }
 
-func (pthis * TcpDialMgr) TcpDialDelDialData(srvID int64) {
+func (pthis *TcpDialMgr) TcpDialDelDialData(srvID int64) {
 	pthis.delDialData(srvID)
 }
 
-func (pthis * TcpDialMgr) TcpDialGetSrvConn(srvID int64) *TcpConnection {
+func (pthis *TcpDialMgr) TcpDialGetSrvConn(srvID int64) *TcpConnection {
 	return pthis.getDialDataConn(srvID)
 }

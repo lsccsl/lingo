@@ -1,4 +1,4 @@
-package main
+package tcp
 
 import (
 	"bytes"
@@ -15,9 +15,9 @@ const MAX_PACK_LEN int = 65535
 
 type TCP_CONNECTION_CLOSE_REASON int
 const(
-	TCP_CONNECTION_CLOSE_REASON_none TCP_CONNECTION_CLOSE_REASON = 0
-	TCP_CONNECTION_CLOSE_REASON_timeout TCP_CONNECTION_CLOSE_REASON = 1
-	TCP_CONNECTION_CLOSE_REASON_readerr TCP_CONNECTION_CLOSE_REASON = 2
+	TCP_CONNECTION_CLOSE_REASON_none     TCP_CONNECTION_CLOSE_REASON = 0
+	TCP_CONNECTION_CLOSE_REASON_timeout  TCP_CONNECTION_CLOSE_REASON = 1
+	TCP_CONNECTION_CLOSE_REASON_readerr  TCP_CONNECTION_CLOSE_REASON = 2
 	TCP_CONNECTION_CLOSE_REASON_dialfail TCP_CONNECTION_CLOSE_REASON = 3
 	TCP_CONNECTION_CLOSE_REASON_writeerr TCP_CONNECTION_CLOSE_REASON = 2
 )
@@ -32,16 +32,16 @@ type TCP_CONNECTION_ID int64
 type MAP_TCPCONN map[TCP_CONNECTION_ID]*TcpConnection
 
 type InterfaceTcpConnection interface {
-	CBReadProcess(tcpConn * TcpConnection, recvBuf * bytes.Buffer)(bytesProcess int)
-	CBConnectAccept(tcpConn * TcpConnection, err error) // accept connection
-	CBConnectDial(tcpConn * TcpConnection, err error) // dial connection
-	CBConnectClose(tcpConn * TcpConnection, closeReason TCP_CONNECTION_CLOSE_REASON)
+	CBReadProcess(tcpConn *TcpConnection, recvBuf * bytes.Buffer)(bytesProcess int)
+	CBConnectAccept(tcpConn *TcpConnection, err error) // accept connection
+	CBConnectDial(tcpConn *TcpConnection, err error)   // dial connection
+	CBConnectClose(tcpConn *TcpConnection, closeReason TCP_CONNECTION_CLOSE_REASON)
 }
 
 type InterfaceConnManage interface {
 	CBAddTcpConn(tcpConn *TcpConnection)
-	CBGenConnectionID()TCP_CONNECTION_ID
-	CBGetConnectionCB()InterfaceTcpConnection
+	CBGenConnectionID() TCP_CONNECTION_ID
+	CBGetConnectionCB() InterfaceTcpConnection
 	CBDelTcpConn(id TCP_CONNECTION_ID)
 }
 
@@ -50,12 +50,12 @@ type interMsgTcpWrite struct {
 }
 
 type TcpConnection struct {
-	connectionID TCP_CONNECTION_ID
-	netConn net.Conn
+	connectionID    TCP_CONNECTION_ID
+	netConn         net.Conn
 	cbTcpConnection InterfaceTcpConnection
-	chMsgWrite chan *interMsgTcpWrite
-	closeExpireSec int
-	connMgr InterfaceConnManage
+	chMsgWrite      chan *interMsgTcpWrite
+	closeExpireSec  int
+	connMgr         InterfaceConnManage
 
 	canWrite int32
 
@@ -70,24 +70,24 @@ type TcpConnection struct {
 	ByteRecv int64
 	ByteSend int64
 	ByteProc int64
-	clsRsn TCP_CONNECTION_CLOSE_REASON
+	clsRsn   TCP_CONNECTION_CLOSE_REASON
 }
 
 func startTcpConnection(connMgr InterfaceConnManage, conn net.Conn, closeExpireSec int) (*TcpConnection, error) {
 
 	tcpConn := &TcpConnection{
-		connectionID:connMgr.CBGenConnectionID(),
-		netConn:conn,
-		cbTcpConnection:connMgr.CBGetConnectionCB(),
-		closeExpireSec:closeExpireSec,
-		connMgr:connMgr,
-		canWrite:1,
-		chMsgWrite:make(chan*interMsgTcpWrite, 100),
-		IsAccept:true,
-		ByteRecv:0,
-		ByteSend:0,
-		ByteProc:0,
-		clsRsn:TCP_CONNECTION_CLOSE_REASON_none,
+		connectionID:    connMgr.CBGenConnectionID(),
+		netConn:         conn,
+		cbTcpConnection: connMgr.CBGetConnectionCB(),
+		closeExpireSec:  closeExpireSec,
+		connMgr:         connMgr,
+		canWrite:        1,
+		chMsgWrite:      make(chan*interMsgTcpWrite, 100),
+		IsAccept:        true,
+		ByteRecv:        0,
+		ByteSend:        0,
+		ByteProc:        0,
+		clsRsn:          TCP_CONNECTION_CLOSE_REASON_none,
 	}
 
 	connMgr.CBAddTcpConn(tcpConn)
@@ -117,19 +117,19 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 	}()
 
 	tcpConn := &TcpConnection{
-		SrvID:SrvID,
-		connectionID:connMgr.CBGenConnectionID(),
-		netConn:nil,
-		cbTcpConnection:connMgr.CBGetConnectionCB(),
-		closeExpireSec:closeExpireSec,
-		connMgr:connMgr,
-		canWrite:0,
-		chMsgWrite:make(chan*interMsgTcpWrite, 100),
-		IsAccept:false,
-		ByteRecv:0,
-		ByteSend:0,
-		ByteProc:0,
-		clsRsn:TCP_CONNECTION_CLOSE_REASON_none,
+		SrvID:           SrvID,
+		connectionID:    connMgr.CBGenConnectionID(),
+		netConn:         nil,
+		cbTcpConnection: connMgr.CBGetConnectionCB(),
+		closeExpireSec:  closeExpireSec,
+		connMgr:         connMgr,
+		canWrite:        0,
+		chMsgWrite:      make(chan*interMsgTcpWrite, 100),
+		IsAccept:        false,
+		ByteRecv:        0,
+		ByteSend:        0,
+		ByteProc:        0,
+		clsRsn:          TCP_CONNECTION_CLOSE_REASON_none,
 	}
 	addr := ip + ":" + strconv.Itoa(port)
 
@@ -207,11 +207,9 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 
 		return tcpConn, nil
 	}
-
-	return tcpConn, nil
 }
 
-func (pthis * TcpConnection)go_tcpConnRead() {
+func (pthis *TcpConnection)go_tcpConnRead() {
 
 	if pthis.netConn == nil {
 		return
@@ -291,7 +289,7 @@ func (pthis * TcpConnection)go_tcpConnRead() {
 	}
 }
 
-func (pthis * TcpConnection)go_tcpConnWrite() {
+func (pthis *TcpConnection)go_tcpConnWrite() {
 	defer func() {
 		err := recover()
 		if err != nil {
@@ -322,7 +320,7 @@ func (pthis * TcpConnection)go_tcpConnWrite() {
 }
 
 
-func (pthis * TcpConnection)TcpConnectSendBin(bin []byte) {
+func (pthis *TcpConnection)TcpConnectSendBin(bin []byte) {
 	if atomic.LoadInt32(&pthis.canWrite) == 0 {
 		return
 	}
@@ -336,11 +334,11 @@ func (pthis * TcpConnection)TcpConnectSendBin(bin []byte) {
 }
 
 
-func (pthis * TcpConnection)TcpGetConn() net.Conn {
+func (pthis *TcpConnection)TcpGetConn() net.Conn {
 	return pthis.netConn
 }
 
-func (pthis * TcpConnection)TcpConnectClose() {
+func (pthis *TcpConnection)TcpConnectClose() {
 	lin_common.LogErr(" close:", pthis.TcpConnectionID())
 	if pthis.netConn != nil {
 		pthis.netConn.Close()
@@ -348,7 +346,7 @@ func (pthis * TcpConnection)TcpConnectClose() {
 	pthis.quitTcpWrite()
 }
 
-func (pthis * TcpConnection)quitTcpWrite() {
+func (pthis *TcpConnection)quitTcpWrite() {
 	defer func() {
 		err := recover()
 		if err != nil {
@@ -361,11 +359,11 @@ func (pthis * TcpConnection)quitTcpWrite() {
 	}
 }
 
-func (pthis * TcpConnection)TcpConnectionID() TCP_CONNECTION_ID {
+func (pthis *TcpConnection)TcpConnectionID() TCP_CONNECTION_ID {
 	return pthis.connectionID
 }
 
-func (pthis * TcpConnection)TcpConnectSetCloseReason(closeReason TCP_CONNECTION_CLOSE_REASON) {
+func (pthis *TcpConnection)TcpConnectSetCloseReason(closeReason TCP_CONNECTION_CLOSE_REASON) {
 	if TCP_CONNECTION_CLOSE_REASON_none == pthis.clsRsn {
 		pthis.clsRsn = closeReason
 	}

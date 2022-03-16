@@ -7,6 +7,7 @@ import (
 	"lin/lin_common"
 	cor_pool "lin/lin_cor_pool"
 	"lin/msgpacket"
+	"lin/tcp"
 	"strconv"
 	"sync"
 	"time"
@@ -21,8 +22,8 @@ type MAP_CLIENT map[int64/*client id*/]*Client
 type MAP_SERVER map[int64/*server id*/]*Server
 type interProtoMsg struct {
 	msgType msgpacket.MSG_TYPE
-	protoMsg proto.Message
-	tcpConnID TCP_CONNECTION_ID
+	protoMsg  proto.Message
+	tcpConnID tcp.TCP_CONNECTION_ID
 }
 
 type ClientMapMgr struct {
@@ -44,7 +45,7 @@ type ServerMgr struct {
 	srvID int64
 	ClientMapMgr
 	ServerMapMgr
-	tcpMgr *TcpMgr
+	tcpMgr *tcp.TcpMgr
 	httpSrv *HttpSrvMgr
 	rpcPool *cor_pool.CorPool
 
@@ -53,7 +54,7 @@ type ServerMgr struct {
 	ServerStatic
 }
 
-func (pthis*ServerMgr)CBReadProcess(tcpConn * TcpConnection, recvBuf * bytes.Buffer) (bytesProcess int) {
+func (pthis*ServerMgr)CBReadProcess(tcpConn *tcp.TcpConnection, recvBuf * bytes.Buffer) (bytesProcess int) {
 
 	packType, bytesProcess, protoMsg := msgpacket.ProtoUnPacketFromBin(recvBuf)
 	//log.LogDebug("packLen:", packLen, " packType:", packType, " protoMsg:", protoMsg)
@@ -97,7 +98,7 @@ func (pthis*ServerMgr)CBReadProcess(tcpConn * TcpConnection, recvBuf * bytes.Buf
 	return
 }
 
-func (pthis*ServerMgr)CBConnectAccept(tcpConn * TcpConnection, err error) {
+func (pthis*ServerMgr)CBConnectAccept(tcpConn *tcp.TcpConnection, err error) {
 	if err != nil {
 		lin_common.LogErr(err)
 	}
@@ -106,7 +107,7 @@ func (pthis*ServerMgr)CBConnectAccept(tcpConn * TcpConnection, err error) {
 	}
 	lin_common.LogDebug(tcpConn.TcpGetConn().LocalAddr(), tcpConn.TcpGetConn().RemoteAddr(), tcpConn.TcpConnectionID())
 }
-func (pthis*ServerMgr)CBConnectDial(tcpConn * TcpConnection, err error) {
+func (pthis*ServerMgr)CBConnectDial(tcpConn *tcp.TcpConnection, err error) {
 	if err != nil {
 		lin_common.LogErr(err)
 	}
@@ -118,7 +119,7 @@ func (pthis*ServerMgr)CBConnectDial(tcpConn * TcpConnection, err error) {
 	pthis.processDailConnect(tcpConn)
 }
 
-func (pthis*ServerMgr)CBConnectClose(tcpConn * TcpConnection, closeReason TCP_CONNECTION_CLOSE_REASON) {
+func (pthis*ServerMgr)CBConnectClose(tcpConn *tcp.TcpConnection, closeReason tcp.TCP_CONNECTION_CLOSE_REASON) {
 	lin_common.LogDebug("id:", tcpConn.TcpConnectionID(), " is accept:", tcpConn.IsAccept, " closeReason:", closeReason)
 	if !tcpConn.IsAccept {
 		pthis.delServer(tcpConn.SrvID)
@@ -197,7 +198,7 @@ func (pthis*ServerMgr)delServer(srvID int64) {
 	delete(pthis.ServerMapMgr.mapServer, srvID)
 }
 
-func (pthis*ServerMgr)processClientLogin(clientID int64, tcpConn * TcpConnection) {
+func (pthis*ServerMgr)processClientLogin(clientID int64, tcpConn *tcp.TcpConnection) {
 	if tcpConn == nil {
 		return
 	}
@@ -223,7 +224,7 @@ func (pthis*ServerMgr)processClientLogin(clientID int64, tcpConn * TcpConnection
 	tcpConn.TcpConnectSendBin(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_LOGIN_RES, msgRes))
 }
 
-func (pthis*ServerMgr)processMsg(tcpConn * TcpConnection, msgType msgpacket.MSG_TYPE, protoMsg proto.Message) {
+func (pthis*ServerMgr)processMsg(tcpConn *tcp.TcpConnection, msgType msgpacket.MSG_TYPE, protoMsg proto.Message) {
 	if tcpConn.SrvID != 0 {
 		srv := pthis.getServer(tcpConn.SrvID)
 		if srv != nil {
@@ -254,7 +255,7 @@ func (pthis*ServerMgr)processMsg(tcpConn * TcpConnection, msgType msgpacket.MSG_
 	pthis.tcpMgr.TcpConnectSendProtoMsg(oldC.tcpConnID, msgType, protoMsg)
 }
 */
-func (pthis*ServerMgr)processSrvReport(tcpAccept * TcpConnection, srvID int64){
+func (pthis*ServerMgr)processSrvReport(tcpAccept *tcp.TcpConnection, srvID int64){
 	tcpAccept.SrvID = srvID
 
 	srv := pthis.getServer(srvID)
@@ -269,7 +270,7 @@ func (pthis*ServerMgr)processSrvReport(tcpAccept * TcpConnection, srvID int64){
 	}
 }
 
-func (pthis*ServerMgr)processDailConnect(tcpDial * TcpConnection){
+func (pthis*ServerMgr)processDailConnect(tcpDial *tcp.TcpConnection){
 	srvID := tcpDial.SrvID
 	srv := pthis.getServer(srvID)
 	if srv != nil {
@@ -285,7 +286,7 @@ func (pthis*ServerMgr)processDailConnect(tcpDial * TcpConnection){
 	tcpDial.TcpConnectSendBin(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_SRV_REPORT, msgR))
 }
 
-func (pthis*ServerMgr)processRPCReq(tcpConn * TcpConnection, msg *msgpacket.MSG_RPC) {
+func (pthis*ServerMgr)processRPCReq(tcpConn *tcp.TcpConnection, msg *msgpacket.MSG_RPC) {
 	msgRPC := msgpacket.ParseProtoMsg(msg.MsgBin, msg.MsgType)
 	lin_common.LogDebug(msgRPC)
 	if tcpConn.SrvID != 0 {
@@ -316,7 +317,7 @@ func (pthis*ServerMgr)processRPCReq(tcpConn * TcpConnection, msg *msgpacket.MSG_
 		}
 	}
 }
-func (pthis*ServerMgr)processRPCRes(tcpConn * TcpConnection, msgRPC *msgpacket.MSG_RPC_RES) {
+func (pthis*ServerMgr)processRPCRes(tcpConn *tcp.TcpConnection, msgRPC *msgpacket.MSG_RPC_RES) {
 	msgBody := msgpacket.ParseProtoMsg(msgRPC.MsgBin, msgRPC.MsgType)
 	if tcpConn.SrvID != 0 {
 		srv := pthis.getServer(tcpConn.SrvID)
@@ -345,9 +346,7 @@ func (pthis*ServerMgr)Dump(bDtail bool) string {
 
 	timestamp := float64(time.Now().UnixMilli())
 	var totalPacket int64 = 0
-	var totalRecv int64 = 0
-	var totalSend int64 = 0
-	var totalProc int64 = 0
+
 
 	func(){
 		pthis.ClientMapMgr.mapClientMutex.Lock()
@@ -380,43 +379,8 @@ func (pthis*ServerMgr)Dump(bDtail bool) string {
 		str += "\r\nserver count:" + strconv.Itoa(len(pthis.ServerMapMgr.mapServer))
 	}()
 
-	str += "\r\ntcp connect:\r\n"
-	func(){
-		pthis.tcpMgr.mapConnMutex.Lock()
-		defer pthis.tcpMgr.mapConnMutex.Unlock()
-		mapUnprocessd := make(map[TCP_CONNECTION_ID]int)
-		for _, val := range pthis.tcpMgr.mapConn {
-			if bDtail {
-				str += fmt.Sprintf(" \r\n connection:%v remote:[%v] local:[%v] IsAccept:%v SrvID:%v ClientID:%v"+
-					" recv:%v send:%v proc:%v",
-					val.TcpConnectionID(), val.netConn.RemoteAddr(), val.netConn.LocalAddr(), val.IsAccept, val.SrvID, val.ClientID,
-					val.ByteRecv, val.ByteSend, val.ByteProc)
-			}
-			totalRecv += val.ByteRecv
-			totalProc += val.ByteProc
-			totalSend += val.ByteSend
-			if val.ByteRecv != val.ByteProc {
-				mapUnprocessd[val.TcpConnectionID()] = int(val.ByteRecv - val.ByteProc)
-			}
-		}
-		str += "\r\ntcp conn count:" + strconv.Itoa(len(pthis.tcpMgr.mapConn))
-		str += fmt.Sprintf(" not process bytes:%v\r\n", mapUnprocessd)
-		str += fmt.Sprintf(" not process client:%v totalRecv:%v totalProc:%v totalSend:%v unprocess:%v",
-			len(mapUnprocessd), totalRecv, totalProc, totalSend, totalRecv - totalProc)
-	}()
-
-	str += "\r\ntcp dial data\r\n"
-	func(){
-		pthis.tcpMgr.TcpDialMgr.mapDialDataMutex.Lock()
-		pthis.tcpMgr.TcpDialMgr.mapDialDataMutex.Unlock()
-		for _, val := range pthis.tcpMgr.TcpDialMgr.mapDialData {
-			var connID TCP_CONNECTION_ID
-			if val.tcpConn != nil {
-				connID = val.tcpConn.TcpConnectionID()
-			}
-			str += fmt.Sprintf("\r\n srvID:%v connection:%v [%v:%v]", val.srvID, connID, val.ip, val.port)
-		}
-	}()
+	strTcp, totalRecv, totalSend, totalProc := pthis.tcpMgr.TcpMgrDump(bDtail)
+	str += strTcp
 
 	diffTotal := totalPacket - pthis.totalPacket
 	diffRecv := totalRecv - pthis.totalRecv

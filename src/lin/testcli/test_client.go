@@ -16,7 +16,7 @@ import (
 
 const MAX_PACK_LEN int = 65535
 const G_MTU int = 1536
-const PACK_HEAD_SIZE int = 4
+const PACK_HEAD_SIZE int = 6
 
 
 type INTER_MSG_TYPE int32
@@ -188,7 +188,7 @@ func (pthis *ClientTcpInfo)processSendMsgLoop(msg *interSendMsgLoop) {
 			msgTest.Str = fmt.Sprintf("%v_%v_%v", pthis.id, j, i)
 			seq++
 			msgTest.Seq = seq
-			lin_common.LogDebug("send test:", msgTest)
+			//lin_common.LogDebug("send test:", msgTest)
 			bin := pthis.FormatMsg(msgpacket.MSG_TYPE__MSG_TEST, msgTest)
 			pthis.ByteSend += len(bin)
 			pthis.con.Write(bin)
@@ -198,8 +198,7 @@ func (pthis *ClientTcpInfo)processSendMsgLoop(msg *interSendMsgLoop) {
 		for k := 0; k < 200; k ++ {
 			msgRes := <-pthis.msgChan
 			maxSeq = msgRes.msgdata.(*msgpacket.MSG_TEST_RES).Seq
-			//_ = <-pthis.msgChan
-			lin_common.LogDebug("recv res:", msgRes.msgdata)
+			//lin_common.LogDebug("recv res:", msgRes.msgdata)
 		}
 
 		if maxSeq < seq {
@@ -274,7 +273,7 @@ func (tcpInfo *ClientTcpInfo)GoClientTcpRead(){
 
 		READ_LOOP:
 		for ; recvBuf.Len() >= PACK_HEAD_SIZE; {
-			binHead := recvBuf.Bytes()[0:6]
+			binHead := recvBuf.Bytes()[0:PACK_HEAD_SIZE]
 
 			curHead.packLen = binary.LittleEndian.Uint32(binHead[0:4])
 			curHead.packType = binary.LittleEndian.Uint16(binHead[4:6])

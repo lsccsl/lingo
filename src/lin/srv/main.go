@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"lin/lin_common"
 	_ "lin/msgpacket"
+	"lin/tcp"
 	"net"
 	"net/http"
 	"os"
@@ -46,7 +47,7 @@ func main() {
 		lin_common.LogErr(err)
 		return
 	}
-	tcpMgr, err := StartTcpManager(tcpAddr.IP.String(), tcpAddr.Port, srvMgr, 600)
+	tcpMgr, err := tcp.StartTcpManager(tcpAddr.IP.String(), tcpAddr.Port, srvMgr, 600)
 	if err != nil {
 		lin_common.LogErr("addr:", tcpAddr, " err:", err)
 		return

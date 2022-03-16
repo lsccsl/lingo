@@ -4,15 +4,16 @@ import (
 	"github.com/golang/protobuf/proto"
 	"lin/lin_common"
 	msgpacket "lin/msgpacket"
+	"lin/tcp"
 	"sync/atomic"
 	"time"
 )
 
 type Server struct {
 	srvMgr *ServerMgr
-	srvID int64
-	connDialID TCP_CONNECTION_ID
-	connAcptID TCP_CONNECTION_ID
+	srvID         int64
+	connDialID    tcp.TCP_CONNECTION_ID
+	connAcptID    tcp.TCP_CONNECTION_ID
 	chSrvProtoMsg chan *interProtoMsg
 	chInterMsg chan interface{}
 	heartbeatIntervalSec int
@@ -22,10 +23,10 @@ type Server struct {
 }
 
 type interMsgSrvReport struct {
-	tcpAccept * TcpConnection
+	tcpAccept *tcp.TcpConnection
 }
 type interMsgConnDial struct {
-	tcpDial * TcpConnection
+	tcpDial *tcp.TcpConnection
 }
 
 func ConstructServer(srvMgr *ServerMgr, srvID int64, heartbeatIntervalSec int)*Server {
@@ -103,13 +104,13 @@ func (pthis*Server) ServerCloseAndDelDialData() {
 	pthis.ServerClose()
 }
 
-func (pthis*Server)processSrvReport(tcpAccept * TcpConnection){
+func (pthis*Server)processSrvReport(tcpAccept *tcp.TcpConnection){
 	pthis.connAcptID = tcpAccept.TcpConnectionID()
 
 	lin_common.LogDebug(pthis.srvID, " ", pthis)
 }
 
-func (pthis*Server)processDailConnect(tcpDial * TcpConnection){
+func (pthis*Server)processDailConnect(tcpDial *tcp.TcpConnection){
 	pthis.connDialID = tcpDial.TcpConnectionID()
 
 	lin_common.LogDebug(pthis.srvID, " ", pthis)
@@ -121,7 +122,7 @@ func (pthis*Server)PushInterMsg(msg interface{}){
 	}
 	pthis.chInterMsg <- msg
 }
-func (pthis*Server)PushProtoMsg(msgType msgpacket.MSG_TYPE, protoMsg proto.Message, tcpConnID TCP_CONNECTION_ID){
+func (pthis*Server)PushProtoMsg(msgType msgpacket.MSG_TYPE, protoMsg proto.Message, tcpConnID tcp.TCP_CONNECTION_ID){
 	if atomic.LoadInt32(&pthis.isStopProcess) == 1 {
 		return
 	}
@@ -132,7 +133,7 @@ func (pthis*Server)PushProtoMsg(msgType msgpacket.MSG_TYPE, protoMsg proto.Messa
 	}
 }
 
-func (pthis*Server)Go_ProcessRPC(tcpConn *TcpConnection, msg *msgpacket.MSG_RPC, msgBody proto.Message) {
+func (pthis*Server)Go_ProcessRPC(tcpConn *tcp.TcpConnection, msg *msgpacket.MSG_RPC, msgBody proto.Message) {
 	var msgRes proto.Message = nil
 	switch t:= msgBody.(type) {
 	case *msgpacket.MSG_TEST:
@@ -156,7 +157,7 @@ func (pthis*Server)Go_ProcessRPC(tcpConn *TcpConnection, msg *msgpacket.MSG_RPC,
 	}
 	tcpConn.TcpConnectSendBin(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_RPC_RES, msgRPCRes))
 }
-func (pthis*Server)processRPCRes(tcpConn * TcpConnection, msg *msgpacket.MSG_RPC_RES, msgBody proto.Message) {
+func (pthis*Server)processRPCRes(tcpConn *tcp.TcpConnection, msg *msgpacket.MSG_RPC_RES, msgBody proto.Message) {
 	defer func() {
 		err := recover()
 		if err != nil {
@@ -230,7 +231,7 @@ func (pthis*Server)processServerMsg (interMsg * interProtoMsg){
 	}
 }
 
-func (pthis*Server) process_MSG_HEARTBEAT (tcpConnID TCP_CONNECTION_ID, protoMsg * msgpacket.MSG_HEARTBEAT) {
+func (pthis*Server) process_MSG_HEARTBEAT (tcpConnID tcp.TCP_CONNECTION_ID, protoMsg * msgpacket.MSG_HEARTBEAT) {
 	lin_common.LogDebug(protoMsg)
 
 	msgRes := &msgpacket.MSG_HEARTBEAT_RES{}
