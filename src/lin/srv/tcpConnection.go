@@ -6,7 +6,6 @@ import (
 	"net"
 	"runtime"
 	"strconv"
-	"sync/atomic"
 	"time"
 )
 
@@ -45,15 +44,15 @@ type InterfaceConnManage interface {
 	CBDelTcpConn(id TCP_CONNECTION_ID)
 }
 
-type interMsgTcpWrite struct {
+/*type interMsgTcpWrite struct {
 	bin []byte
-}
+}*/
 
 type TcpConnection struct {
 	connectionID TCP_CONNECTION_ID
 	netConn net.Conn
 	cbTcpConnection InterfaceTcpConnection
-	chMsgWrite chan *interMsgTcpWrite
+	//chMsgWrite chan *interMsgTcpWrite
 	closeExpireSec int
 	connMgr InterfaceConnManage
 
@@ -82,7 +81,7 @@ func startTcpConnection(connMgr InterfaceConnManage, conn net.Conn, closeExpireS
 		closeExpireSec:closeExpireSec,
 		connMgr:connMgr,
 		canWrite:1,
-		chMsgWrite:make(chan*interMsgTcpWrite, 100),
+		//chMsgWrite:make(chan*interMsgTcpWrite, 100),
 		IsAccept:true,
 		ByteRecv:0,
 		ByteSend:0,
@@ -103,7 +102,7 @@ func startTcpConnection(connMgr InterfaceConnManage, conn net.Conn, closeExpireS
 		}()
 	}
 	go tcpConn.go_tcpConnRead()
-	go tcpConn.go_tcpConnWrite()
+	//go tcpConn.go_tcpConnWrite()
 
 	return tcpConn, nil
 }
@@ -124,7 +123,7 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 		closeExpireSec:closeExpireSec,
 		connMgr:connMgr,
 		canWrite:0,
-		chMsgWrite:make(chan*interMsgTcpWrite, 100),
+		//chMsgWrite:make(chan*interMsgTcpWrite, 100),
 		IsAccept:false,
 		ByteRecv:0,
 		ByteSend:0,
@@ -174,7 +173,7 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 				tcpConn.cbTcpConnection.CBConnectDial(tcpConn, nil)
 			}
 			go tcpConn.go_tcpConnRead()
-			go tcpConn.go_tcpConnWrite()
+			//go tcpConn.go_tcpConnWrite()
 		}()
 		return tcpConn, nil
 	} else {
@@ -194,8 +193,8 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 			lin_common.LogErr("fail ", err)
 /*			if tcpConn.cbTcpConnection != nil {
 				tcpConn.cbTcpConnection.CBConnectClose(tcpConn)
-			}
-*/			return nil, err
+			}*/
+			return nil, err
 		}
 
 		connMgr.CBAddTcpConn(tcpConn)
@@ -203,7 +202,7 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 			tcpConn.cbTcpConnection.CBConnectDial(tcpConn, nil)
 		}
 		go tcpConn.go_tcpConnRead()
-		go tcpConn.go_tcpConnWrite()
+		//go tcpConn.go_tcpConnWrite()
 
 		return tcpConn, nil
 	}
@@ -212,6 +211,10 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 }
 
 func (pthis * TcpConnection)go_tcpConnRead() {
+
+	if pthis.netConn == nil {
+		return
+	}
 
 	var TimerConnClose * time.Timer = nil
 	defer func() {
@@ -249,10 +252,7 @@ func (pthis * TcpConnection)go_tcpConnRead() {
 			TimerConnClose.Reset(expireInterval)
 		}
 
-/*		if recvBuf.Len() > 0 {
-			log.LogDebug("has data not process last loop len:", recvBuf.Len(), " recv:", pthis.ByteRecv, " proc:", pthis.ByteProc)
-		}
-*/		recvBuf.Write(TmpBuf[0:readSize])
+		recvBuf.Write(TmpBuf[0:readSize])
 
 		if pthis.cbTcpConnection == nil {
 			recvBuf.Next(readSize)
@@ -278,7 +278,9 @@ func (pthis * TcpConnection)go_tcpConnRead() {
 		}()
 	}
 
-	pthis.quitTcpWrite()
+	pthis.netConn.Close()
+
+	//pthis.quitTcpWrite()
 	if TimerConnClose != nil {
 		TimerConnClose.Stop()
 	}
@@ -288,7 +290,7 @@ func (pthis * TcpConnection)go_tcpConnRead() {
 	}
 }
 
-func (pthis * TcpConnection)go_tcpConnWrite() {
+/*func (pthis * TcpConnection)go_tcpConnWrite() {
 	defer func() {
 		err := recover()
 		if err != nil {
@@ -316,8 +318,9 @@ func (pthis * TcpConnection)go_tcpConnWrite() {
 
 	atomic.StoreInt32(&pthis.canWrite, 0)
 	close(pthis.chMsgWrite)
-}
+}*/
 
+/*
 func (pthis * TcpConnection)TcpConnectSendBin(bin []byte) {
 	if atomic.LoadInt32(&pthis.canWrite) == 0 {
 		return
@@ -330,10 +333,12 @@ func (pthis * TcpConnection)TcpConnectSendBin(bin []byte) {
 	pthis.chMsgWrite <- tcpW
 	//tcpW.bin = append(tcpW.bin, bin...)
 }
+*/
 
-func (pthis * TcpConnection)TcpConnectSendBinDirect(bin []byte) {
-	pthis.ByteSend += int64(len(bin))
-	pthis.netConn.Write(bin)
+func (pthis * TcpConnection)TcpConnectSendBin(bin []byte) (n int, err error) {
+	n, err = pthis.netConn.Write(bin)
+	pthis.ByteSend += int64(n)
+	return
 }
 
 
@@ -346,10 +351,10 @@ func (pthis * TcpConnection)TcpConnectClose() {
 	if pthis.netConn != nil {
 		pthis.netConn.Close()
 	}
-	pthis.quitTcpWrite()
+	//pthis.quitTcpWrite()
 }
 
-func (pthis * TcpConnection)quitTcpWrite() {
+/*func (pthis * TcpConnection)quitTcpWrite() {
 	defer func() {
 		err := recover()
 		if err != nil {
@@ -360,7 +365,7 @@ func (pthis * TcpConnection)quitTcpWrite() {
 	if atomic.LoadInt32(&pthis.canWrite) != 0 {
 		pthis.chMsgWrite <- nil
 	}
-}
+}*/
 
 func (pthis * TcpConnection)TcpConnectionID() TCP_CONNECTION_ID {
 	return pthis.connectionID

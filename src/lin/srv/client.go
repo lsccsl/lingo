@@ -7,6 +7,9 @@ import (
 	"sync/atomic"
 )
 
+type interClientMsgTcpWrite struct {
+	bin []byte
+}
 
 type MAP_CLIENT_STATIC map[msgpacket.MSG_TYPE]int64
 type Client struct {
@@ -15,8 +18,11 @@ type Client struct {
 	tcpConn *TcpConnection
 	clientID int64
 	chClientProtoMsg chan *interProtoMsg
+	chMsgWrite chan *interClientMsgTcpWrite
 	isStopProcess int32
 	mapStaticMsgRecv MAP_CLIENT_STATIC
+
+	goRoutineID uint64
 }
 
 func ConstructClient(srvMgr *ServerMgr, tcpConn *TcpConnection,clientID int64) *Client {
@@ -49,6 +55,8 @@ func (pthis*Client) go_clientProcess() {
 		}
 	}()
 
+	pthis.goRoutineID = lin_common.GetGID()
+
 	MSG_LOOP:
 	for {
 		select {
@@ -66,11 +74,28 @@ func (pthis*Client) go_clientProcess() {
 				}()
 				pthis.processClientMsg(ProtoMsg)
 			}()
+
+		case tcpW := <- pthis.chMsgWrite:
+			{
+				_, err := pthis.tcpConn.TcpConnectSendBin(tcpW.bin)
+				if err != nil {
+					pthis.tcpConn.TcpConnectSetCloseReason(TCP_CONNECTION_CLOSE_REASON_writeerr)
+					break MSG_LOOP
+				}
+			}
 		}
 	}
 
 	atomic.StoreInt32(&pthis.isStopProcess, 1)
-	close(pthis.chClientProtoMsg)
+	if pthis.tcpConn != nil {
+		pthis.tcpConn.TcpConnectClose()
+	}
+	if pthis.chClientProtoMsg != nil {
+		close(pthis.chClientProtoMsg)
+	}
+	if pthis.chMsgWrite != nil {
+		close(pthis.chMsgWrite)
+	}
 }
 
 func (pthis*Client) ClientGetConnectionID() TCP_CONNECTION_ID{
@@ -129,15 +154,14 @@ func (pthis*Client) process_MSG_HEARTBEAT (protoMsg * msgpacket.MSG_HEARTBEAT) {
 
 	msgRes := &msgpacket.MSG_HEARTBEAT_RES{}
 	msgRes.Id = protoMsg.Id
-	pthis.srvMgr.tcpMgr.TcpConnectSendProtoMsg(pthis.tcpConnID, msgpacket.MSG_TYPE__MSG_HEARTBEAT_RES, msgRes)
+	pthis.ClientSendProtoMsg(msgpacket.MSG_TYPE__MSG_HEARTBEAT_RES, msgRes)
 }
 
 func (pthis*Client) process_MSG_TEST (protoMsg * msgpacket.MSG_TEST) {
 	msgRes := &msgpacket.MSG_TEST_RES{}
 	msgRes.Id = protoMsg.Id
 	msgRes.Str = protoMsg.Str
-	pthis.tcpConn.TcpConnectSendBinDirect(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_TEST_RES, msgRes))
-	//pthis.srvMgr.tcpMgr.TcpConnectSendProtoMsg(pthis.tcpConnID, msgpacket.MSG_TYPE__MSG_TEST_RES, msgRes)
+	pthis.ClientSendProtoMsg(msgpacket.MSG_TYPE__MSG_TEST_RES, msgRes)
 }
 
 func (pthis*Client) process_MSG_TCP_STATIC(protoMsg * msgpacket.MSG_TCP_STATIC) {
@@ -152,5 +176,26 @@ func (pthis*Client) process_MSG_TCP_STATIC(protoMsg * msgpacket.MSG_TCP_STATIC) 
 	for key, val := range pthis.mapStaticMsgRecv {
 		msgRes.MapStaticMsgRecv[int32(key)] = val
 	}
-	pthis.srvMgr.tcpMgr.TcpConnectSendProtoMsg(pthis.tcpConnID, msgpacket.MSG_TYPE__MSG_TCP_STATIC_RES, msgRes)
+	pthis.ClientSendProtoMsg(msgpacket.MSG_TYPE__MSG_TCP_STATIC_RES, msgRes)
+	//pthis.srvMgr.tcpMgr.TcpConnectSendProtoMsg(pthis.tcpConnID, msgpacket.MSG_TYPE__MSG_TCP_STATIC_RES, msgRes)
+}
+
+func (pthis*Client) ClientSendProtoMsg(msgType msgpacket.MSG_TYPE, protoMsg proto.Message) {
+	if lin_common.GetGID() != pthis.goRoutineID {
+		lin_common.LogErr(" should call ClientSendProtoMsg in the client process coroutine:", msgType)
+		return
+	}
+	pthis.tcpConn.TcpConnectSendBin(msgpacket.ProtoPacketToBin(msgType, protoMsg))
+}
+
+func (pthis * Client)ClientSendProtoMsgSync(msgType msgpacket.MSG_TYPE, protoMsg proto.Message) {
+	if atomic.LoadInt32(&pthis.isStopProcess) != 0 {
+		return
+	}
+	bin := msgpacket.ProtoPacketToBin(msgType, protoMsg)
+	tcpW := &interClientMsgTcpWrite{
+		make([]byte,len(bin)),
+	}
+	copy(tcpW.bin, bin)
+	pthis.chMsgWrite <- tcpW
 }

@@ -246,14 +246,14 @@ func (pthis*ServerMgr)processMsg(tcpConn * TcpConnection, msgType msgpacket.MSG_
 
 
 
-func (pthis*ServerMgr)ClientWriteProtoMsg(clientID int64, msgType msgpacket.MSG_TYPE, protoMsg proto.Message) {
+/*func (pthis*ServerMgr)ClientWriteProtoMsg(clientID int64, msgType msgpacket.MSG_TYPE, protoMsg proto.Message) {
 	oldC := pthis.getClient(clientID)
 	if oldC == nil {
 		return
 	}
 	pthis.tcpMgr.TcpConnectSendProtoMsg(oldC.tcpConnID, msgType, protoMsg)
 }
-
+*/
 func (pthis*ServerMgr)processSrvReport(tcpAccept * TcpConnection, srvID int64){
 	tcpAccept.SrvID = srvID
 
@@ -294,7 +294,7 @@ func (pthis*ServerMgr)processRPCReq(tcpConn * TcpConnection, msg *msgpacket.MSG_
 			pthis.rpcPool.CorPoolAddJob(&cor_pool.CorPoolJobData{
 				JobType_ : EN_CORPOOL_JOBTYPE_Rpc_req,
 				JobCB_   : func(jd cor_pool.CorPoolJobData){
-					srv.Go_ProcessRPC(tcpConn.TcpConnectionID(), msg, msgRPC)
+					srv.Go_ProcessRPC(tcpConn, msg, msgRPC)
 				},
 			})
 		} else {

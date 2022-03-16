@@ -132,12 +132,12 @@ func (pthis*Server)PushProtoMsg(msgType msgpacket.MSG_TYPE, protoMsg proto.Messa
 	}
 }
 
-func (pthis*Server)Go_ProcessRPC(tcpConnID TCP_CONNECTION_ID, msg *msgpacket.MSG_RPC, msgBody proto.Message) {
+func (pthis*Server)Go_ProcessRPC(tcpConn *TcpConnection, msg *msgpacket.MSG_RPC, msgBody proto.Message) {
 	var msgRes proto.Message = nil
 	switch t:= msgBody.(type) {
 	case *msgpacket.MSG_TEST:
 		{
-			msgRes = pthis.processRPCTest(tcpConnID, t)
+			msgRes = pthis.processRPCTest(t)
 		}
 	}
 
@@ -154,7 +154,7 @@ func (pthis*Server)Go_ProcessRPC(tcpConnID TCP_CONNECTION_ID, msg *msgpacket.MSG
 			lin_common.LogErr(err)
 		}
 	}
-	pthis.srvMgr.tcpMgr.TcpConnectSendProtoMsg(tcpConnID, msgpacket.MSG_TYPE__MSG_RPC_RES, msgRPCRes)
+	tcpConn.TcpConnectSendBin(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_RPC_RES, msgRPCRes))
 }
 func (pthis*Server)processRPCRes(tcpConn * TcpConnection, msg *msgpacket.MSG_RPC_RES, msgBody proto.Message) {
 	defer func() {
@@ -175,7 +175,7 @@ func (pthis*Server)processRPCRes(tcpConn * TcpConnection, msg *msgpacket.MSG_RPC
 	}
 }
 
-func (pthis*Server)processRPCTest(tcpConnID TCP_CONNECTION_ID, msg *msgpacket.MSG_TEST) *msgpacket.MSG_TEST_RES {
+func (pthis*Server)processRPCTest(msg *msgpacket.MSG_TEST) *msgpacket.MSG_TEST_RES {
 	lin_common.LogDebug(msg)
 	return &msgpacket.MSG_TEST_RES{Id: msg.Id, Str:msg.Str}
 }
@@ -226,7 +226,7 @@ func (pthis*Server)processServerMsg (interMsg * interProtoMsg){
 	case *msgpacket.MSG_HEARTBEAT:
 		pthis.process_MSG_HEARTBEAT(interMsg.tcpConnID, t)
 	case *msgpacket.MSG_HEARTBEAT_RES:
-		pthis.process_MSG_HEARTBEAT_RES(interMsg.tcpConnID, t)
+		pthis.process_MSG_HEARTBEAT_RES(t)
 	}
 }
 
@@ -238,6 +238,6 @@ func (pthis*Server) process_MSG_HEARTBEAT (tcpConnID TCP_CONNECTION_ID, protoMsg
 	pthis.srvMgr.tcpMgr.TcpConnectSendProtoMsg(tcpConnID, msgpacket.MSG_TYPE__MSG_HEARTBEAT_RES, msgRes)
 }
 
-func (pthis*Server) process_MSG_HEARTBEAT_RES (tcpConnID TCP_CONNECTION_ID, protoMsg * msgpacket.MSG_HEARTBEAT_RES) {
+func (pthis*Server) process_MSG_HEARTBEAT_RES (protoMsg * msgpacket.MSG_HEARTBEAT_RES) {
 	lin_common.LogDebug(protoMsg)
 }

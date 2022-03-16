@@ -132,11 +132,10 @@ func (tcpInfo *ClientTcpInfo)GoClientTcpProcess() {
 		Global_wg.Done()
 	}()
 
-	chTimer := time.After(time.Second * time.Duration(10))
+	//chTimer := time.After(time.Second * time.Duration(10))
 
 	PROCESS_LOOP:
 	for {
-		//fmt.Println("begin wait msg", lin_common.GetGID(), count)
 		select {
 		case msg := <-tcpInfo.msgChan:
 			{
@@ -145,20 +144,18 @@ func (tcpInfo *ClientTcpInfo)GoClientTcpProcess() {
 				}
 				if (msg.msgtype == INTER_MSG_TYPE_sendmsg) {
 					count ++
-					//fmt.Println("write", count)
 				}
 				tcpInfo.processMsg(msg)
 			}
 
-		case <-chTimer:
+/*		case <-chTimer:
 			{
 				//fmt.Println("timeout")
 				msg := &msgpacket.MSG_HEARTBEAT{Id:tcpInfo.id}
 				go tcpInfo.TcpSend(msg)
 				chTimer = time.After(time.Second * time.Duration(10))
-			}
+			}*/
 		}
-		//fmt.Println("end wait msg", count)
 	}
 }
 
