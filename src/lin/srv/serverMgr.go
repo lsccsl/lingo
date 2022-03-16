@@ -57,7 +57,6 @@ type ServerMgr struct {
 func (pthis*ServerMgr)CBReadProcess(tcpConn *tcp.TcpConnection, recvBuf * bytes.Buffer) (bytesProcess int) {
 
 	packType, bytesProcess, protoMsg := msgpacket.ProtoUnPacketFromBin(recvBuf)
-	//log.LogDebug("packLen:", packLen, " packType:", packType, " protoMsg:", protoMsg)
 
 	if protoMsg == nil {
 		//log.LogErr("can't parse msg:", tcpConn.ByteRecv, " proc:", tcpConn.ByteProc)
@@ -92,7 +91,7 @@ func (pthis*ServerMgr)CBReadProcess(tcpConn *tcp.TcpConnection, recvBuf * bytes.
 		}
 
 	default:
-		pthis.processMsg(tcpConn, msgpacket.MSG_TYPE(packType), protoMsg)
+		pthis.processMsg(tcpConn, packType, protoMsg)
 	}
 
 	return
@@ -237,7 +236,6 @@ func (pthis*ServerMgr)processMsg(tcpConn *tcp.TcpConnection, msgType msgpacket.M
 		cli := tcpConn.ConnData.(*Client)
 		if cli != nil {
 			cli.PushProtoMsg(msgType, protoMsg)
-			//cli.ProcessProtoMsg(msgType, protoMsg)
 			return
 		}
 		pthis.tcpMgr.TcpMgrCloseConn(tcpConn.TcpConnectionID())
@@ -245,16 +243,6 @@ func (pthis*ServerMgr)processMsg(tcpConn *tcp.TcpConnection, msgType msgpacket.M
 	}
 }
 
-
-
-/*func (pthis*ServerMgr)ClientWriteProtoMsg(clientID int64, msgType msgpacket.MSG_TYPE, protoMsg proto.Message) {
-	oldC := pthis.getClient(clientID)
-	if oldC == nil {
-		return
-	}
-	pthis.tcpMgr.TcpConnectSendProtoMsg(oldC.tcpConnID, msgType, protoMsg)
-}
-*/
 func (pthis*ServerMgr)processSrvReport(tcpAccept *tcp.TcpConnection, srvID int64){
 	tcpAccept.SrvID = srvID
 
@@ -302,19 +290,6 @@ func (pthis*ServerMgr)processRPCReq(tcpConn *tcp.TcpConnection, msg *msgpacket.M
 			pthis.tcpMgr.TcpMgrCloseConn(tcpConn.TcpConnectionID())
 			return
 		}
-	} else {
-		cli := pthis.getClient(tcpConn.ClientID)
-		if cli != nil {
-			pthis.rpcPool.CorPoolAddJob(&cor_pool.CorPoolJobData{
-				JobType_ : EN_CORPOOL_JOBTYPE_client_Rpc_req,
-				JobCB_   : func(jd cor_pool.CorPoolJobData){
-					cli.Go_processRPC(tcpConn, msg, msgRPC)
-				},
-			})
-		} else {
-			pthis.tcpMgr.TcpMgrCloseConn(tcpConn.TcpConnectionID())
-			return
-		}
 	}
 }
 func (pthis*ServerMgr)processRPCRes(tcpConn *tcp.TcpConnection, msgRPC *msgpacket.MSG_RPC_RES) {
@@ -323,11 +298,6 @@ func (pthis*ServerMgr)processRPCRes(tcpConn *tcp.TcpConnection, msgRPC *msgpacke
 		srv := pthis.getServer(tcpConn.SrvID)
 		if srv != nil {
 			srv.processRPCRes(tcpConn, msgRPC, msgBody)
-		}
-	} else {
-		cli := pthis.getClient(tcpConn.ClientID)
-		if cli != nil {
-			cli.processRPCRes(tcpConn, msgRPC, msgBody)
 		}
 	}
 }
@@ -403,5 +373,3 @@ func (pthis*ServerMgr)Dump(bDtail bool) string {
 
 	return str
 }
-
-// todo static wrong

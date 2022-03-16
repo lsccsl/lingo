@@ -64,12 +64,20 @@ func CheckError(err error)bool{
 	if nil == err{
 		return true
 	}
-	fmt.Println("CheckError:", err)
+	lin_common.LogErr("CheckError:", err)
 	if err == io.EOF{
 		return false
 	}
 	netErr, ok := err.(net.Error)
 	if ok{
+		if netErr.Timeout() {
+			lin_common.LogDebug("time out")
+			return true
+		}
+		if netErr.Temporary() {
+			lin_common.LogDebug("temporary")
+			return true
+		}
 		netOpErr, ok := netErr.(*net.OpError)
 		if ok{
 			switch t := netOpErr.Err.(type){

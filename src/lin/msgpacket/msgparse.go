@@ -108,6 +108,11 @@ func InitMsgParseVirtualTable(){
 }
 
 func ParseProtoMsg(binMsg []byte, msgType int32) proto.Message {
+	msg := ProtoParseByName(binMsg, msgType)
+	if msg != nil {
+		return msg
+	}
+
 	if nil == mapVirtualTable {
 		fmt.Println("parse table not init")
 	}
@@ -115,7 +120,7 @@ func ParseProtoMsg(binMsg []byte, msgType int32) proto.Message {
 	if ok && parsor != nil {
 		return parsor(binMsg)
 	}
-	return ProtoParseByName(binMsg, msgType)
+	return nil
 }
 
 

@@ -17,13 +17,6 @@ type ServerOneCfg struct {
 }
 
 type ServerCfg struct {
-/*	Cluster string `yaml:"cluster"`
-	BindAddr string `yaml:"bind_addr"`
-	SrvID int64 `yaml:"srv_id"`
-	AliasName string `yaml:"alias_name"`
-	HttpAddr string `yaml:"http_addr"`
-	MapCluster map[int]string `yaml:"map_cluster"`
-*/
 	MapServer map[string]ServerOneCfg `yaml:"server"`
 }
 

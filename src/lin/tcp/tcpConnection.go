@@ -241,6 +241,7 @@ func (pthis *TcpConnection)go_tcpConnRead() {
 	for {
 		readSize, err := pthis.netConn.Read(TmpBuf)
 		if err != nil {
+			lin_common.LogDebug(err)
 			pthis.TcpConnectSetCloseReason(TCP_CONNECTION_CLOSE_REASON_readerr)
 			break READ_LOOP
 		}

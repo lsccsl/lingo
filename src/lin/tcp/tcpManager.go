@@ -68,7 +68,7 @@ func (pthis *TcpMgr)go_tcpAccept() {
 		if tcpConn != nil {
 			tcpConn.SetNoDelay(true)
 		}
-		//log.LogDebug(conn.LocalAddr(), conn.RemoteAddr())
+
 		_, err = startTcpConnection(pthis, conn, pthis.closeExpireSec)
 		if err != nil {
 			lin_common.LogErr("start accept tcp connect err", err)
