@@ -62,6 +62,7 @@ message MSG_TEST
     string str = 2;
     int64 seq = 3;
     int64 timestamp = 4;
+    int64 timestamp_arrive = 5;
 }
 message MSG_TEST_RES
 {
@@ -69,6 +70,8 @@ message MSG_TEST_RES
     string str = 2;
     int64 seq = 3;
     int64 timestamp = 4;
+    int64 timestamp_arrive = 5;
+    int64 timestamp_process = 6;
 }
 
 message MSG_LOGIN

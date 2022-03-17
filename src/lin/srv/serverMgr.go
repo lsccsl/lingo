@@ -235,6 +235,10 @@ func (pthis*ServerMgr)processMsg(tcpConn *tcp.TcpConnection, msgType msgpacket.M
 	} else {
 		cli := tcpConn.ConnData.(*Client)
 		if cli != nil {
+			if msgType == msgpacket.MSG_TYPE__MSG_TEST {
+				msgTest := protoMsg.(*msgpacket.MSG_TEST)
+				msgTest.TimestampArrive = time.Now().UnixMilli()
+			}
 			cli.PushProtoMsg(msgType, protoMsg)
 			return
 		}

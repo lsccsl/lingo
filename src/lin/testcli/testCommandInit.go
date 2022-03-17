@@ -116,6 +116,10 @@ func CommandDump(argStr []string) {
 	c := Global_cliMgr.ClientMgrGet(id)
 	if c != nil {
 		fmt.Println(c.ClientDump())
+	} else {
+		for _, val := range Global_cliMgr.mapClient {
+			fmt.Println(val.ClientDump())
+		}
 	}
 }
 

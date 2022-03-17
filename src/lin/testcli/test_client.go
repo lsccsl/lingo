@@ -207,6 +207,10 @@ func (tcpInfo *ClientTcpInfo)processSendMsg(msg *interSendMsg) {
 
 func (pthis *ClientTcpInfo)processSendMsgLoop(msg *interSendMsgLoop) {
 	pthis.testCount = 0
+	pthis.rttTotal = 0
+	pthis.rttAver = 0
+	pthis.rttMax = 0
+	pthis.rttMin = 0
 	var seq int64 = 0
 	for i := 0; i < msg.loopCount; i ++ {
 		for j := 0; j < 200; j ++ {
@@ -216,7 +220,7 @@ func (pthis *ClientTcpInfo)processSendMsgLoop(msg *interSendMsgLoop) {
 			seq++
 			msgTest.Seq = seq
 			msgTest.Timestamp = time.Now().UnixMilli()
-			//lin_common.LogDebug("send test:", msgTest)
+			lin_common.LogDebug("send test:", msgTest)
 			bin := pthis.FormatMsg(msgpacket.MSG_TYPE__MSG_TEST, msgTest)
 			pthis.ByteSend += len(bin)
 			pthis.con.Write(bin)
@@ -231,14 +235,14 @@ func (pthis *ClientTcpInfo)processSendMsgLoop(msg *interSendMsgLoop) {
 			pthis.rttTotal += diff
 			if pthis.rttMin == 0 {
 				pthis.rttMin = diff
-			} else if pthis.rttMin < diff {
+			} else if pthis.rttMin > diff {
 				pthis.rttMin = diff
 			}
 			if pthis.rttMax < diff {
 				pthis.rttMax = diff
 			}
 			pthis.testCount ++
-			//lin_common.LogDebug("recv res:", msgRes.msgdata)
+			lin_common.LogDebug("recv res:", msgRes.msgdata)
 		}
 
 		pthis.rttAver = pthis.rttTotal / pthis.testCount

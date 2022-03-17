@@ -23,7 +23,7 @@ func main() {
 	AddAllCmd()
 	msgpacket.InitMsgParseVirtualTable()
 
-	StartClient(1, Global_testCfg.addr)
+	//StartClient(1, Global_testCfg.addr)
 
 	ParseCmd()
 	Global_wg.Wait()
