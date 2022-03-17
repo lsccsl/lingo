@@ -241,7 +241,13 @@ func (pthis *TcpConnection)go_tcpConnRead() {
 	for {
 		readSize, err := pthis.netConn.Read(TmpBuf)
 		if err != nil {
-			lin_common.LogDebug(err)
+			netErr := err.(net.Error)
+			if netErr.Timeout() || netErr.Temporary(){
+				lin_common.LogDebug("time out or temporary ", err)
+				continue
+			} else {
+				lin_common.LogErr(err)
+			}
 			pthis.TcpConnectSetCloseReason(TCP_CONNECTION_CLOSE_REASON_readerr)
 			break READ_LOOP
 		}
