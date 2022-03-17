@@ -67,6 +67,8 @@ func (pthis *TcpMgr)go_tcpAccept() {
 		tcpConn := conn.(*net.TCPConn)
 		if tcpConn != nil {
 			tcpConn.SetNoDelay(true)
+			tcpConn.SetReadBuffer(65535)
+			tcpConn.SetWriteBuffer(65535)
 		}
 
 		_, err = startTcpConnection(pthis, conn, pthis.closeExpireSec)

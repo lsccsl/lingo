@@ -220,7 +220,7 @@ func (pthis *ClientTcpInfo)processSendMsgLoop(msg *interSendMsgLoop) {
 
 	var seq int64 = 0
 	for i := 0; i < msg.loopCount; i ++ {
-		for j := 0; j < 1; j ++ {
+		for j := 0; j < 50; j ++ {
 			msgTest := &msgpacket.MSG_TEST{}
 			msgTest.Id = pthis.id
 			msgTest.Str = fmt.Sprintf("%v_%v_%v", pthis.id, j, i)
@@ -234,7 +234,7 @@ func (pthis *ClientTcpInfo)processSendMsgLoop(msg *interSendMsgLoop) {
 		}
 
 		var maxSeq int64 = 0
-		for k := 0; k < 1; k ++ {
+		for k := 0; k < 50; k ++ {
 			msgRes := <-pthis.msgChan
 
 			tnow := time.Now().UnixMilli()
@@ -379,11 +379,11 @@ func (pthis *ClientTcpInfo)ClientDump() (str string) {
 		count = 1
 	}
 	str = fmt.Sprintf("aver:%v min:%v max:%v reconnect:%v" +
-		" diffArrive:%v diffProcess:%v diffBack:%v",
+		" diffArrive:%v diffProcess:%v count:%v",
 		pthis.rttAver, pthis.rttMin, pthis.rttMax, pthis.reconnectCount,
 		pthis.diffArrive / count,
 		pthis.diffProcess / count,
-		pthis.diffBack / count)
+		count)
 	return
 }
 
