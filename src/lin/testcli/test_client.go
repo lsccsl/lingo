@@ -43,12 +43,20 @@ const CHAN_BUF_LEN = 100
 
 type ClientTcpInfo struct{
 	id int64
+	addr string
 	con net.Conn
 	needDecrypt bool
 	msgChan chan *interMsg
 	ByteSend int
 	ByteRecv int
 	seq int64
+
+	rttTotal int64
+	rttAver int64
+	rttMax int64
+	rttMin int64
+	testCount int64
+	reconnectCount int64
 }
 var globalTcpInfo *ClientTcpInfo
 
@@ -64,56 +72,66 @@ func CheckError(err error)bool{
 	if nil == err{
 		return true
 	}
-	lin_common.LogErr("CheckError:", err)
+
+/*	switch t:=err.(type){
+	case net.Error:
+		lin_common.LogDebug(t)
+	case *net.OpError:
+		lin_common.LogDebug(t)
+	default:
+		lin_common.LogDebug(t)
+	}*/
+
+	//lin_common.LogErr("CheckError:", err)
 	if err == io.EOF{
+		lin_common.LogDebug("io eof")
 		return false
 	}
 	netErr, ok := err.(net.Error)
 	if ok{
 		if netErr.Timeout() {
-			lin_common.LogDebug("time out")
+			//lin_common.LogDebug("time out")
 			return true
 		}
 		if netErr.Temporary() {
-			lin_common.LogDebug("temporary")
+			//lin_common.LogDebug("temporary")
 			return true
 		}
 		netOpErr, ok := netErr.(*net.OpError)
 		if ok{
 			switch t := netOpErr.Err.(type){
 			case *net.DNSError:
-				fmt.Println("net.DNSError:", t)
+				//lin_common.LogDebug("net.DNSError:", t)
 				break
 			case *os.SyscallError:
 				if errno, ok := t.Err.(syscall.Errno); ok {
 					switch errno {
 					case syscall.ECONNREFUSED:
-						fmt.Println("connect refused")
+						//lin_common.LogDebug("connect refused")
 						break
 					case syscall.ETIMEDOUT:
-						fmt.Println("timeout")
+						//lin_common.LogDebug("timeout")
 						return true
 						break
 					case syscall.WSAECONNRESET:
-						fmt.Println("connection reset")
+						//lin_common.LogDebug("connection reset")
 						break
 					default:
-						fmt.Println("unknow err num", errno)
+						//lin_common.LogDebug("unknow err num:", errno)
 						break
-						//case syscall.E
 					}
 				}
 			case *net.UnknownNetworkError:
-				fmt.Println("net.UnknownNetworkError", t)
+				//lin_common.LogDebug("net.UnknownNetworkError", t)
 				break
 			case *os.LinkError:
-				fmt.Println("os.LinkError", t)
+				//lin_common.LogDebug("os.LinkError", t)
 				break
 			case *os.PathError:
-				fmt.Println("os.PathError", t)
+				//lin_common.LogDebug("os.PathError", t)
 				break
 			default:
-				fmt.Println("unknown err", t)
+				//lin_common.LogDebug("unknown err", t)
 				break
 			}
 		}
@@ -188,6 +206,7 @@ func (tcpInfo *ClientTcpInfo)processSendMsg(msg *interSendMsg) {
 }
 
 func (pthis *ClientTcpInfo)processSendMsgLoop(msg *interSendMsgLoop) {
+	pthis.testCount = 0
 	var seq int64 = 0
 	for i := 0; i < msg.loopCount; i ++ {
 		for j := 0; j < 200; j ++ {
@@ -196,6 +215,7 @@ func (pthis *ClientTcpInfo)processSendMsgLoop(msg *interSendMsgLoop) {
 			msgTest.Str = fmt.Sprintf("%v_%v_%v", pthis.id, j, i)
 			seq++
 			msgTest.Seq = seq
+			msgTest.Timestamp = time.Now().UnixMilli()
 			//lin_common.LogDebug("send test:", msgTest)
 			bin := pthis.FormatMsg(msgpacket.MSG_TYPE__MSG_TEST, msgTest)
 			pthis.ByteSend += len(bin)
@@ -205,17 +225,27 @@ func (pthis *ClientTcpInfo)processSendMsgLoop(msg *interSendMsgLoop) {
 		var maxSeq int64 = 0
 		for k := 0; k < 200; k ++ {
 			msgRes := <-pthis.msgChan
-			maxSeq = msgRes.msgdata.(*msgpacket.MSG_TEST_RES).Seq
+			msgTestRes := msgRes.msgdata.(*msgpacket.MSG_TEST_RES)
+			maxSeq = msgTestRes.Seq
+			diff := time.Now().UnixMilli() - msgTestRes.Timestamp
+			pthis.rttTotal += diff
+			if pthis.rttMin == 0 {
+				pthis.rttMin = diff
+			} else if pthis.rttMin < diff {
+				pthis.rttMin = diff
+			}
+			if pthis.rttMax < diff {
+				pthis.rttMax = diff
+			}
+			pthis.testCount ++
 			//lin_common.LogDebug("recv res:", msgRes.msgdata)
 		}
+
+		pthis.rttAver = pthis.rttTotal / pthis.testCount
 
 		if maxSeq < seq {
 			lin_common.LogErr("err seq:", maxSeq)
 		}
-
-/*		if i % 1000 == 0 {
-			lin_common.LogDebug(i)
-		}*/
 	}
 }
 
@@ -269,11 +299,17 @@ func (tcpInfo *ClientTcpInfo)GoClientTcpRead(){
 
 	curHead := PackHead{0,0}
 
-	Loop:
 	for{
 		readSize, err := tcpInfo.con.Read(TmpBuf)
 		if !CheckError(err){
-			break Loop
+			tcpInfo.reconnectCount ++
+			tcpInfo.con, _ = net.Dial("tcp", tcpInfo.addr)
+
+			msg := &msgpacket.MSG_LOGIN{}
+			msg.Id = tcpInfo.id
+			bin := tcpInfo.FormatMsg(msgpacket.MSG_TYPE__MSG_LOGIN, msg)
+			tcpInfo.con.Write(bin)
+			continue
 		}
 		tcpInfo.ByteRecv += readSize
 		recvBuf.Write(TmpBuf[0:readSize])
@@ -315,16 +351,28 @@ func (tcpInfo *ClientTcpInfo)GoClientTcpRead(){
 	fmt.Println("exit GoClientTcpRead", time.Now())
 }
 
+func (pthis *ClientTcpInfo)ClientDump() (str string) {
+	str = fmt.Sprintf("aver:%v min:%v max:%v reconnect:%v",
+		pthis.rttAver, pthis.rttMin, pthis.rttMax, pthis.reconnectCount)
+	return
+}
+
 func StartClient(id int64, addr string) *ClientTcpInfo {
 	conn, err := net.Dial("tcp", addr/*"192.168.2.129:2003"*/)
 	fmt.Println(conn, err)
 
 	tcpInfo := &ClientTcpInfo{
 		id:id,
+		addr:addr,
 		con : conn,
 		msgChan : make(chan * interMsg, CHAN_BUF_LEN),
 		ByteSend:0,
 		ByteRecv:0,
+		rttTotal:0,
+		rttAver:0,
+		rttMax:0,
+		rttMin:0,
+		reconnectCount:0,
 	}
 	globalTcpInfo = tcpInfo
 

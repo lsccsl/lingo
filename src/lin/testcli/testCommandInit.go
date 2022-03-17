@@ -88,7 +88,7 @@ func CommandStatic(argStr []string) {
 		id,_ = strconv.Atoi(argStr[0])
 	}
 
-	c := Global_cliMgr.ClientMgrAddGet(int64(id))
+	c := Global_cliMgr.ClientMgrGet(int64(id))
 	if c == nil {
 		return
 	}
@@ -108,6 +108,17 @@ func CommandLoopTest(argStr []string) {
 	}
 }
 
+func CommandDump(argStr []string) {
+	var id int64 = 1
+	if len(argStr) >= 1 {
+		id, _ = strconv.ParseInt(argStr[0], 10, 64)
+	}
+	c := Global_cliMgr.ClientMgrGet(id)
+	if c != nil {
+		fmt.Println(c.ClientDump())
+	}
+}
+
 func AddAllCmd(){
 	InitCmd()
 	AddCmd("test", "test",CommandTest)
@@ -116,4 +127,5 @@ func AddAllCmd(){
 	AddCmd("mlogin", "loginMult",CommandMultLogin)
 	AddCmd("static", "static",CommandStatic)
 	AddCmd("lt", "loop test",CommandLoopTest)
+	AddCmd("dump", "dump id",CommandDump)
 }
