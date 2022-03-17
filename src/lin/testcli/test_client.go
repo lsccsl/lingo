@@ -55,6 +55,9 @@ type ClientTcpInfo struct{
 	rttAver int64
 	rttMax int64
 	rttMin int64
+	diffArrive int64
+	diffProcess int64
+	diffBack int64
 	testCount int64
 	reconnectCount int64
 }
@@ -211,27 +214,42 @@ func (pthis *ClientTcpInfo)processSendMsgLoop(msg *interSendMsgLoop) {
 	pthis.rttAver = 0
 	pthis.rttMax = 0
 	pthis.rttMin = 0
+	pthis.diffArrive = 0
+	pthis.diffProcess = 0
+	pthis.diffBack = 0
+
 	var seq int64 = 0
 	for i := 0; i < msg.loopCount; i ++ {
-		for j := 0; j < 200; j ++ {
+		for j := 0; j < 1; j ++ {
 			msgTest := &msgpacket.MSG_TEST{}
 			msgTest.Id = pthis.id
 			msgTest.Str = fmt.Sprintf("%v_%v_%v", pthis.id, j, i)
 			seq++
 			msgTest.Seq = seq
 			msgTest.Timestamp = time.Now().UnixMilli()
-			lin_common.LogDebug("send test:", msgTest)
+			//lin_common.LogDebug("send test:", msgTest)
 			bin := pthis.FormatMsg(msgpacket.MSG_TYPE__MSG_TEST, msgTest)
 			pthis.ByteSend += len(bin)
 			pthis.con.Write(bin)
 		}
 
 		var maxSeq int64 = 0
-		for k := 0; k < 200; k ++ {
+		for k := 0; k < 1; k ++ {
 			msgRes := <-pthis.msgChan
+
+			tnow := time.Now().UnixMilli()
 			msgTestRes := msgRes.msgdata.(*msgpacket.MSG_TEST_RES)
 			maxSeq = msgTestRes.Seq
-			diff := time.Now().UnixMilli() - msgTestRes.Timestamp
+			diff := tnow - msgTestRes.Timestamp
+
+			diffArrive := msgTestRes.TimestampArrive - msgTestRes.Timestamp
+			diffProcess := msgTestRes.TimestampProcess - msgTestRes.TimestampArrive
+			diffBack := tnow - msgTestRes.TimestampProcess
+
+			pthis.diffArrive += diffArrive
+			pthis.diffProcess += diffProcess
+			pthis.diffBack += diffBack
+
 			pthis.rttTotal += diff
 			if pthis.rttMin == 0 {
 				pthis.rttMin = diff
@@ -242,7 +260,7 @@ func (pthis *ClientTcpInfo)processSendMsgLoop(msg *interSendMsgLoop) {
 				pthis.rttMax = diff
 			}
 			pthis.testCount ++
-			lin_common.LogDebug("recv res:", msgRes.msgdata)
+			//lin_common.LogDebug("recv res:", msgRes.msgdata)
 		}
 
 		pthis.rttAver = pthis.rttTotal / pthis.testCount
@@ -356,8 +374,16 @@ func (tcpInfo *ClientTcpInfo)GoClientTcpRead(){
 }
 
 func (pthis *ClientTcpInfo)ClientDump() (str string) {
-	str = fmt.Sprintf("aver:%v min:%v max:%v reconnect:%v",
-		pthis.rttAver, pthis.rttMin, pthis.rttMax, pthis.reconnectCount)
+	count := pthis.testCount
+	if count <= 0 {
+		count = 1
+	}
+	str = fmt.Sprintf("aver:%v min:%v max:%v reconnect:%v" +
+		" diffArrive:%v diffProcess:%v diffBack:%v",
+		pthis.rttAver, pthis.rttMin, pthis.rttMax, pthis.reconnectCount,
+		pthis.diffArrive / count,
+		pthis.diffProcess / count,
+		pthis.diffBack / count)
 	return
 }
 
@@ -376,6 +402,9 @@ func StartClient(id int64, addr string) *ClientTcpInfo {
 		rttAver:0,
 		rttMax:0,
 		rttMin:0,
+		diffArrive:0,
+		diffProcess:0,
+		diffBack:0,
 		reconnectCount:0,
 	}
 	globalTcpInfo = tcpInfo

@@ -143,7 +143,7 @@ func (pthis *TcpMgr) TcpMgrDump(bDtail bool) (str string, totalRecv int64, total
 			}
 		}
 		str += "\r\ntcp conn count:" + strconv.Itoa(len(pthis.mapConn))
-		str += fmt.Sprintf(" not process bytes:%v\r\n", mapUnprocessd)
+		//str += fmt.Sprintf(" not process bytes:%v\r\n", mapUnprocessd)
 		str += fmt.Sprintf(" not process client:%v totalRecv:%v totalProc:%v totalSend:%v unprocess:%v",
 			len(mapUnprocessd), totalRecv, totalProc, totalSend, totalRecv - totalProc)
 	}()

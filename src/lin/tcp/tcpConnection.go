@@ -248,7 +248,7 @@ func (pthis *TcpConnection)go_tcpConnRead() {
 						lin_common.LogDebug("time out or temporary ", t)
 						continue
 					} else {
-						lin_common.LogErr(err)
+						lin_common.LogDebug(err)
 					}
 				}
 			case *net.OpError:
@@ -355,7 +355,7 @@ func (pthis *TcpConnection)TcpGetConn() net.Conn {
 }
 
 func (pthis *TcpConnection)TcpConnectClose() {
-	lin_common.LogErr(" close:", pthis.TcpConnectionID())
+	lin_common.LogDebug(" close:", pthis.TcpConnectionID())
 	if pthis.netConn != nil {
 		pthis.netConn.Close()
 	}
