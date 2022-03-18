@@ -31,6 +31,7 @@ type interSendMsg struct {
 }
 type interSendMsgLoop struct {
 	loopCount int
+	loopSmall int
 }
 
 const (
@@ -60,6 +61,7 @@ type ClientTcpInfo struct{
 	diffBack int64
 	testCount int64
 	reconnectCount int64
+	testCountTotal int64
 }
 var globalTcpInfo *ClientTcpInfo
 
@@ -209,6 +211,13 @@ func (tcpInfo *ClientTcpInfo)processSendMsg(msg *interSendMsg) {
 }
 
 func (pthis *ClientTcpInfo)processSendMsgLoop(msg *interSendMsgLoop) {
+	defer func() {
+		err := recover()
+		if err != nil {
+			lin_common.LogDebug("recover get err:", err)
+		}
+	}()
+
 	pthis.testCount = 0
 	pthis.rttTotal = 0
 	pthis.rttAver = 0
@@ -219,8 +228,9 @@ func (pthis *ClientTcpInfo)processSendMsgLoop(msg *interSendMsgLoop) {
 	pthis.diffBack = 0
 
 	var seq int64 = 0
+	var maxSeq int64 = 0
 	for i := 0; i < msg.loopCount; i ++ {
-		for j := 0; j < 50; j ++ {
+		for j := 0; j < msg.loopSmall; j ++ {
 			msgTest := &msgpacket.MSG_TEST{}
 			msgTest.Id = pthis.id
 			msgTest.Str = fmt.Sprintf("%v_%v_%v", pthis.id, j, i)
@@ -233,40 +243,50 @@ func (pthis *ClientTcpInfo)processSendMsgLoop(msg *interSendMsgLoop) {
 			pthis.con.Write(bin)
 		}
 
-		var maxSeq int64 = 0
-		for k := 0; k < 50; k ++ {
-			msgRes := <-pthis.msgChan
+		READ_LOOP:
+		for k := 0; maxSeq < seq;  {
+			select {
+			case msgRes := <-pthis.msgChan:
+			{
+				tnow := time.Now().UnixMilli()
+				msgTestRes, ok := msgRes.msgdata.(*msgpacket.MSG_TEST_RES)
+				if !ok {
+					continue
+				}
+				k ++
+				maxSeq = msgTestRes.Seq
+				diff := tnow - msgTestRes.Timestamp
 
-			tnow := time.Now().UnixMilli()
-			msgTestRes := msgRes.msgdata.(*msgpacket.MSG_TEST_RES)
-			maxSeq = msgTestRes.Seq
-			diff := tnow - msgTestRes.Timestamp
+				diffArrive := msgTestRes.TimestampArrive - msgTestRes.Timestamp
+				diffProcess := msgTestRes.TimestampProcess - msgTestRes.TimestampArrive
+				diffBack := tnow - msgTestRes.TimestampProcess
 
-			diffArrive := msgTestRes.TimestampArrive - msgTestRes.Timestamp
-			diffProcess := msgTestRes.TimestampProcess - msgTestRes.TimestampArrive
-			diffBack := tnow - msgTestRes.TimestampProcess
+				pthis.diffArrive += diffArrive
+				pthis.diffProcess += diffProcess
+				pthis.diffBack += diffBack
 
-			pthis.diffArrive += diffArrive
-			pthis.diffProcess += diffProcess
-			pthis.diffBack += diffBack
-
-			pthis.rttTotal += diff
-			if pthis.rttMin == 0 {
-				pthis.rttMin = diff
-			} else if pthis.rttMin > diff {
-				pthis.rttMin = diff
+				pthis.rttTotal += diff
+				if pthis.rttMin == 0 {
+					pthis.rttMin = diff
+				} else if pthis.rttMin > diff {
+					pthis.rttMin = diff
+				}
+				if pthis.rttMax < diff {
+					pthis.rttMax = diff
+				}
+				pthis.testCount ++
+				pthis.testCountTotal ++
+				//lin_common.LogDebug("recv res:", msgRes.msgdata)
 			}
-			if pthis.rttMax < diff {
-				pthis.rttMax = diff
+			case <- time.After(time.Second * 60):
+				break READ_LOOP
 			}
-			pthis.testCount ++
-			//lin_common.LogDebug("recv res:", msgRes.msgdata)
 		}
 
 		pthis.rttAver = pthis.rttTotal / pthis.testCount
 
 		if maxSeq < seq {
-			lin_common.LogErr("err seq:", maxSeq)
+			lin_common.LogDebug("~~~~~~err seq:", maxSeq)
 		}
 	}
 }
@@ -295,10 +315,10 @@ func (tcpInfo *ClientTcpInfo)TcpSend(msg proto.Message) {
 	}
 }
 
-func (tcpInfo *ClientTcpInfo)TcpSendLoop(loopCount int) {
+func (tcpInfo *ClientTcpInfo)TcpSendLoop(loopCount int, loopSmall int) {
 	tcpInfo.msgChan <- &interMsg{
 		msgtype:INTER_MSG_TYPE_sendmsg_loop,
-		msgdata:&interSendMsgLoop{loopCount},
+		msgdata:&interSendMsgLoop{loopCount, loopSmall},
 	}
 }
 
@@ -383,7 +403,7 @@ func (pthis *ClientTcpInfo)ClientDump() (str string) {
 		pthis.rttAver, pthis.rttMin, pthis.rttMax, pthis.reconnectCount,
 		pthis.diffArrive / count,
 		pthis.diffProcess / count,
-		count)
+		pthis.testCountTotal)
 	return
 }
 
@@ -406,6 +426,7 @@ func StartClient(id int64, addr string) *ClientTcpInfo {
 		diffProcess:0,
 		diffBack:0,
 		reconnectCount:0,
+		testCountTotal:0,
 	}
 	globalTcpInfo = tcpInfo
 

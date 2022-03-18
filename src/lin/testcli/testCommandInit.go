@@ -103,8 +103,12 @@ func CommandLoopTest(argStr []string) {
 	if len(argStr) >= 1 {
 		count, _ = strconv.Atoi(argStr[0])
 	}
+	smallcount := 1
+	if len(argStr) >= 2 {
+		smallcount, _ = strconv.Atoi(argStr[1])
+	}
 	for _, val := range Global_cliMgr.mapClient {
-		val.TcpSendLoop(count)
+		val.TcpSendLoop(count, smallcount)
 	}
 }
 

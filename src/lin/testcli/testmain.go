@@ -29,4 +29,4 @@ func main() {
 	Global_wg.Wait()
 }
 
-// todo : del go chan put,
+// todo : del go chan put, set tcp read time out
