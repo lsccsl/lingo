@@ -51,7 +51,7 @@ type interMsgTcpWrite struct {
 
 type TcpConnection struct {
 	connectionID    TCP_CONNECTION_ID
-	netConn         net.Conn
+	netConn         *net.TCPConn
 	cbTcpConnection InterfaceTcpConnection
 	chMsgWrite      chan *interMsgTcpWrite
 	closeExpireSec  int
@@ -75,9 +75,14 @@ type TcpConnection struct {
 
 func startTcpConnection(connMgr InterfaceConnManage, conn net.Conn, closeExpireSec int) (*TcpConnection, error) {
 
+	tcpC, ok := conn.(*net.TCPConn)
+	if !ok {
+		return nil, lin_common.GenErr(lin_common.ERR_not_tcp_connection)
+	}
+
 	tcpConn := &TcpConnection{
 		connectionID:    connMgr.CBGenConnectionID(),
-		netConn:         conn,
+		netConn:         tcpC,
 		cbTcpConnection: connMgr.CBGetConnectionCB(),
 		closeExpireSec:  closeExpireSec,
 		connMgr:         connMgr,
@@ -88,6 +93,13 @@ func startTcpConnection(connMgr InterfaceConnManage, conn net.Conn, closeExpireS
 		ByteSend:        0,
 		ByteProc:        0,
 		clsRsn:          TCP_CONNECTION_CLOSE_REASON_none,
+	}
+
+	realTcpConn := conn.(*net.TCPConn)
+	if realTcpConn != nil {
+		realTcpConn.SetNoDelay(true)
+		realTcpConn.SetReadBuffer(65535)
+		realTcpConn.SetWriteBuffer(65535)
 	}
 
 	connMgr.CBAddTcpConn(tcpConn)
@@ -146,7 +158,8 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 			for i := 0; i < redialCount; i ++ {
 				tBegin := time.Now()
 				lin_common.LogDebug("begin dial:", addr)
-				tcpConn.netConn, err = net.DialTimeout("tcp", addr, time.Second * time.Duration(dialTimeoutSec))
+				conn, err := net.DialTimeout("tcp", addr, time.Second * time.Duration(dialTimeoutSec))
+				tcpConn.netConn = conn.(*net.TCPConn)
 				tEnd := time.Now()
 				if err != nil {
 					lin_common.LogErr("will retry ", i, " ", redialCount, " ", tcpConn.netConn, " ", err)
@@ -184,7 +197,8 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 			dialTimeoutSec = 1
 		}
 		for i:=0 ; i < redialCount; i ++ {
-			tcpConn.netConn, err = net.DialTimeout("tcp", addr, time.Second * time.Duration(dialTimeoutSec))
+			con, err := net.DialTimeout("tcp", addr, time.Second * time.Duration(dialTimeoutSec))
+			tcpConn.netConn = con.(*net.TCPConn)
 			if err != nil {
 				lin_common.LogErr("will retry ", i, " ", redialCount, " ", err)
 				continue
@@ -239,16 +253,20 @@ func (pthis *TcpConnection)go_tcpConnRead() {
 
 	READ_LOOP:
 	for {
+		pthis.netConn.SetReadDeadline(time.Now().Add(time.Second * 60))
 		readSize, err := pthis.netConn.Read(TmpBuf)
 		if err != nil {
 			switch t := err.(type) {
 			case net.Error:
 				{
-					if t.Timeout() || t.Temporary(){
-						lin_common.LogDebug("time out or temporary ", t)
+					if t.Timeout(){
+						lin_common.LogDebug("time out:", t)
+						continue
+					} else if t.Temporary() {
+						lin_common.LogDebug("temporary:", t)
 						continue
 					} else {
-						lin_common.LogDebug(err)
+						lin_common.LogDebug("other err:", t)
 					}
 				}
 			case *net.OpError:

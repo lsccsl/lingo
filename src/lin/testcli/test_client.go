@@ -45,7 +45,7 @@ const CHAN_BUF_LEN = 100
 type ClientTcpInfo struct{
 	id int64
 	addr string
-	con net.Conn
+	tcpCon *net.TCPConn
 	needDecrypt bool
 	msgChan chan *interMsg
 	ByteSend int
@@ -207,7 +207,7 @@ func (tcpInfo *ClientTcpInfo)processMsg(msg *interMsg) {
 func (tcpInfo *ClientTcpInfo)processSendMsg(msg *interSendMsg) {
 	bin := tcpInfo.FormatMsg(msg.msgtype, msg.msgproto)
 	tcpInfo.ByteSend += len(bin)
-	tcpInfo.con.Write(bin)
+	tcpInfo.tcpCon.Write(bin)
 }
 
 func (pthis *ClientTcpInfo)processSendMsgLoop(msg *interSendMsgLoop) {
@@ -240,7 +240,7 @@ func (pthis *ClientTcpInfo)processSendMsgLoop(msg *interSendMsgLoop) {
 			//lin_common.LogDebug("send test:", msgTest)
 			bin := pthis.FormatMsg(msgpacket.MSG_TYPE__MSG_TEST, msgTest)
 			pthis.ByteSend += len(bin)
-			pthis.con.Write(bin)
+			pthis.tcpCon.Write(bin)
 		}
 
 		READ_LOOP:
@@ -278,7 +278,7 @@ func (pthis *ClientTcpInfo)processSendMsgLoop(msg *interSendMsgLoop) {
 				pthis.testCountTotal ++
 				//lin_common.LogDebug("recv res:", msgRes.msgdata)
 			}
-			case <- time.After(time.Second * 60):
+			case <- time.After(time.Second * 15):
 				break READ_LOOP
 			}
 		}
@@ -342,15 +342,17 @@ func (tcpInfo *ClientTcpInfo)GoClientTcpRead(){
 	curHead := PackHead{0,0}
 
 	for{
-		readSize, err := tcpInfo.con.Read(TmpBuf)
+		tcpInfo.tcpCon.SetReadDeadline(time.Now().Add(time.Second * 600))
+		readSize, err := tcpInfo.tcpCon.Read(TmpBuf)
 		if !CheckError(err){
 			tcpInfo.reconnectCount ++
-			tcpInfo.con, _ = net.Dial("tcp", tcpInfo.addr)
+			con , _ := net.Dial("tcp", tcpInfo.addr)
+			tcpInfo.tcpCon = con.(*net.TCPConn)
 
 			msg := &msgpacket.MSG_LOGIN{}
 			msg.Id = tcpInfo.id
 			bin := tcpInfo.FormatMsg(msgpacket.MSG_TYPE__MSG_LOGIN, msg)
-			tcpInfo.con.Write(bin)
+			tcpInfo.tcpCon.Write(bin)
 			continue
 		}
 		tcpInfo.ByteRecv += readSize
@@ -414,7 +416,7 @@ func StartClient(id int64, addr string) *ClientTcpInfo {
 	tcpInfo := &ClientTcpInfo{
 		id:id,
 		addr:addr,
-		con : conn,
+		tcpCon : conn.(*net.TCPConn),
 		msgChan : make(chan * interMsg, CHAN_BUF_LEN),
 		ByteSend:0,
 		ByteRecv:0,

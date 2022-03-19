@@ -7,8 +7,9 @@ import (
 )
 
 const (
-	ERR_NONE = 0;
-	ERR_no_dialData = 1;
+	ERR_NONE = 0
+	ERR_no_dialData = 1
+	ERR_not_tcp_connection = 2
 )
 
 type MyError struct {
