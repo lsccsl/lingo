@@ -253,7 +253,7 @@ func (pthis *TcpConnection)go_tcpConnRead() {
 
 	READ_LOOP:
 	for {
-		pthis.netConn.SetReadDeadline(time.Now().Add(time.Second * 60))
+		pthis.netConn.SetReadDeadline(time.Now().Add(time.Second * 600))
 		readSize, err := pthis.netConn.Read(TmpBuf)
 		if err != nil {
 			switch t := err.(type) {
