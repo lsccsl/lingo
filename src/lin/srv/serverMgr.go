@@ -211,6 +211,7 @@ func (pthis*ServerMgr)processClientLogin(clientID int64, tcpConn *tcp.TcpConnect
 			pthis.delClient(clientID)
 
 			c := ConstructClient(pthis, tcpConn, clientID)
+			c.mapStaticMsgRecv = oldC.mapStaticMsgRecv
 			pthis.addClient(c)
 		}
 	} else {
