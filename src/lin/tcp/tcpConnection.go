@@ -19,7 +19,7 @@ const(
 	TCP_CONNECTION_CLOSE_REASON_timeout  TCP_CONNECTION_CLOSE_REASON = 1
 	TCP_CONNECTION_CLOSE_REASON_readerr  TCP_CONNECTION_CLOSE_REASON = 2
 	TCP_CONNECTION_CLOSE_REASON_dialfail TCP_CONNECTION_CLOSE_REASON = 3
-	TCP_CONNECTION_CLOSE_REASON_writeerr TCP_CONNECTION_CLOSE_REASON = 2
+	TCP_CONNECTION_CLOSE_REASON_writeerr TCP_CONNECTION_CLOSE_REASON = 4
 )
 
 type TCP_CONNECTIOON_TYPE int
@@ -260,7 +260,7 @@ func (pthis *TcpConnection)go_tcpConnRead() {
 			case net.Error:
 				{
 					if t.Timeout(){
-						lin_common.LogDebug("time out:", t)
+						lin_common.LogDebug("close read tcp, reason time out:", t)
 						//continue
 					} else if t.Temporary() {
 						lin_common.LogDebug("temporary:", t)
@@ -341,6 +341,7 @@ func (pthis *TcpConnection)go_tcpConnWrite() {
 			//todo: option wait for more data and combine write to tcp channel
 			writeSZ, err := pthis.netConn.Write(tcpW.bin)
 			if err != nil {
+				lin_common.LogDebug(" write tcp err:", err)
 				pthis.TcpConnectSetCloseReason(TCP_CONNECTION_CLOSE_REASON_writeerr)
 				pthis.netConn.Close()
 				break WRITE_LOOP
@@ -373,7 +374,7 @@ func (pthis *TcpConnection)TcpGetConn() net.Conn {
 }
 
 func (pthis *TcpConnection)TcpConnectClose() {
-	lin_common.LogDebug(" close:", pthis.TcpConnectionID())
+	lin_common.LogErr(" close:", pthis.TcpConnectionID())
 	if pthis.netConn != nil {
 		pthis.netConn.Close()
 	}
