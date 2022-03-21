@@ -104,7 +104,7 @@ func (pthis*ServerMgr)CBConnectAccept(tcpConn *tcp.TcpConnection, err error) {
 	if tcpConn == nil {
 		return
 	}
-	lin_common.LogDebug(tcpConn.TcpGetConn().LocalAddr(), tcpConn.TcpGetConn().RemoteAddr(), tcpConn.TcpConnectionID())
+	//lin_common.LogDebug(tcpConn.TcpGetConn().LocalAddr(), tcpConn.TcpGetConn().RemoteAddr(), tcpConn.TcpConnectionID())
 }
 func (pthis*ServerMgr)CBConnectDial(tcpConn *tcp.TcpConnection, err error) {
 	if err != nil {

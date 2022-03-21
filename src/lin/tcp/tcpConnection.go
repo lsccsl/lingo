@@ -273,7 +273,7 @@ func (pthis *TcpConnection)go_tcpConnRead() {
 			case *net.OpError:
 				lin_common.LogDebug(t)
 			default:
-				lin_common.LogDebug(t)
+				//lin_common.LogDebug(t)
 			}
 
 			pthis.TcpConnectSetCloseReason(TCP_CONNECTION_CLOSE_REASON_readerr)
@@ -375,7 +375,7 @@ func (pthis *TcpConnection)TcpGetConn() net.Conn {
 }
 
 func (pthis *TcpConnection)TcpConnectClose() {
-	lin_common.LogDebug(" close:", pthis.TcpConnectionID(), " client id:", pthis.ClientID, " srv id:", pthis.SrvID)
+	//lin_common.LogDebug(" close:", pthis.TcpConnectionID(), " client id:", pthis.ClientID, " srv id:", pthis.SrvID)
 	if pthis.netConn != nil {
 		pthis.netConn.Close()
 	}
