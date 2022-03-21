@@ -99,7 +99,7 @@ func CommandStatic(argStr []string) {
 }
 
 func CommandLoopTest(argStr []string) {
-	count := 1
+	count := 900000000
 	if len(argStr) >= 1 {
 		count, _ = strconv.Atoi(argStr[0])
 	}

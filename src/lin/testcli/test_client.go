@@ -165,9 +165,9 @@ func (tcpInfo *ClientTcpInfo)GoClientTcpProcess() {
 	defer func() {
 		err := recover()
 		if err != nil {
-			fmt.Println("recover get err:", err)
+			lin_common.LogDebug("recover get err:", err)
 		}
-		fmt.Println("call defer exit coroutine")
+		lin_common.LogDebug("call defer exit coroutine")
 		Global_wg.Done()
 	}()
 
@@ -340,9 +340,9 @@ func (tcpInfo *ClientTcpInfo)GoClientTcpRead(){
 	defer func() {
 		err := recover()
 		if err != nil {
-			fmt.Println("recover get err:", err)
+			lin_common.LogDebug("recover get err:", err)
 		}
-		fmt.Println("call defer exit coroutine")
+		lin_common.LogDebug("call defer exit coroutine")
 		Global_wg.Done()
 	}()
 
