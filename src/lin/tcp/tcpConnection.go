@@ -229,7 +229,7 @@ func (pthis *TcpConnection)go_tcpConnRead() {
 		return
 	}
 
-	var TimerConnClose * time.Timer = nil
+	/*var TimerConnClose * time.Timer = nil*/
 	defer func() {
 
 		err := recover()
@@ -241,7 +241,7 @@ func (pthis *TcpConnection)go_tcpConnRead() {
 	TmpBuf := make([]byte, G_MTU)
 	recvBuf := bytes.NewBuffer(make([]byte, 0, MAX_PACK_LEN))
 
-	expireInterval := time.Second * time.Duration(pthis.closeExpireSec)
+/*	expireInterval := time.Second * time.Duration(pthis.closeExpireSec)
 	if pthis.closeExpireSec > 0 {
 		TimerConnClose = time.AfterFunc(expireInterval, func() {
 			pthis.TcpConnectSetCloseReason(TCP_CONNECTION_CLOSE_REASON_timeout)
@@ -249,11 +249,11 @@ func (pthis *TcpConnection)go_tcpConnRead() {
 				" expire sec:", pthis.closeExpireSec)
 			pthis.TcpConnectClose()
 		})
-	}
+	}*/
 
 	READ_LOOP:
 	for {
-		pthis.netConn.SetReadDeadline(time.Now().Add(time.Second * 600))
+		pthis.netConn.SetReadDeadline(time.Now().Add(time.Second * time.Duration(pthis.closeExpireSec)))
 		readSize, err := pthis.netConn.Read(TmpBuf)
 		if err != nil {
 			switch t := err.(type) {
@@ -261,7 +261,7 @@ func (pthis *TcpConnection)go_tcpConnRead() {
 				{
 					if t.Timeout(){
 						lin_common.LogDebug("time out:", t)
-						continue
+						//continue
 					} else if t.Temporary() {
 						lin_common.LogDebug("temporary:", t)
 						continue
@@ -280,10 +280,10 @@ func (pthis *TcpConnection)go_tcpConnRead() {
 		}
 		pthis.ByteRecv += int64(readSize)
 
-		if TimerConnClose != nil {
+/*		if TimerConnClose != nil {
 			//log.LogDebug("reset close timeout:", pthis.connectionID, " srvid:", pthis.SrvID, " clientid:", pthis.ClientID, " expire:", pthis.closeExpireSec)
 			TimerConnClose.Reset(expireInterval)
-		}
+		}*/
 
 		recvBuf.Write(TmpBuf[0:readSize])
 
@@ -314,9 +314,9 @@ func (pthis *TcpConnection)go_tcpConnRead() {
 	pthis.netConn.Close()
 
 	pthis.quitTcpWrite()
-	if TimerConnClose != nil {
+/*	if TimerConnClose != nil {
 		TimerConnClose.Stop()
-	}
+	}*/
 	pthis.cbTcpConnection.CBConnectClose(pthis, pthis.clsRsn)
 	if pthis.connMgr != nil {
 		pthis.connMgr.CBDelTcpConn(pthis.connectionID)

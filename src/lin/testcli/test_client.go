@@ -82,14 +82,13 @@ func CheckError(err error)bool{
 	case net.Error:
 		{
 			if t.Timeout() {
-				lin_common.LogDebug(" time out")
+				//lin_common.LogDebug(" time out")
 			} else if t.Temporary() {
 				lin_common.LogDebug(" temporary")
 			} else {
 				lin_common.LogDebug(" other err:", t)
 			}
 		}
-		lin_common.LogDebug(t)
 /*	case *net.OpError:
 		lin_common.LogDebug(t)*/
 	default:
@@ -292,7 +291,9 @@ func (pthis *ClientTcpInfo)processSendMsgLoop(msg *interSendMsgLoop) {
 			}
 		}
 
-		pthis.rttAver = pthis.rttTotal / pthis.testCount
+		if pthis.testCount >= 1{
+			pthis.rttAver = pthis.rttTotal / pthis.testCount
+		}
 
 /*		if maxSeq < seq {
 			lin_common.LogDebug("~~~~~~err seq:", maxSeq)
@@ -351,7 +352,7 @@ func (tcpInfo *ClientTcpInfo)GoClientTcpRead(){
 	curHead := PackHead{0,0}
 
 	for{
-		tcpInfo.tcpCon.SetReadDeadline(time.Now().Add(time.Second * 60))
+		tcpInfo.tcpCon.SetReadDeadline(time.Now().Add(time.Second * 120))
 		readSize, err := tcpInfo.tcpCon.Read(TmpBuf)
 		if !CheckError(err){
 			tcpInfo.reconnectCount ++
