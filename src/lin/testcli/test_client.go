@@ -10,6 +10,7 @@ import (
 	"lin/msgpacket"
 	"net"
 	"os"
+	"strings"
 	"syscall"
 	"time"
 )
@@ -78,27 +79,39 @@ func CheckError(err error)bool{
 		return true
 	}
 
+	//lin_common.LogDebug(" err:", err)
+
 	switch t:=err.(type){
 	case net.Error:
 		{
 			if t.Timeout() {
 				//lin_common.LogDebug(" time out")
+				return true
 			} else if t.Temporary() {
-				lin_common.LogDebug(" temporary")
+				//lin_common.LogDebug(" temporary")
+				return true
 			} else {
-				lin_common.LogDebug(" other err:", t)
+				//lin_common.LogDebug(" other err:", t)
 				netOpErr, ok := t.(*net.OpError)
 				if ok {
-					lin_common.LogDebug(" net op err:", netOpErr)
+					//lin_common.LogDebug(" net op err:", netOpErr)
 					switch st := netOpErr.Err.(type){
 					case *os.SyscallError:
 						{
-							lin_common.LogDebug("syscall err", st)
+							//lin_common.LogDebug("syscall err", st)
 							switch sterr := st.Err.(type) {
 							case syscall.Errno:
-								lin_common.LogDebug("syscall errno:", sterr)
+								//lin_common.LogDebug("~~~~syscall errno:", sterr.Error(), int(sterr - syscall.APPLICATION_ERROR))
+								idx := strings.Index(sterr.Error(), "A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond")
+								if idx >= 0 {
+									//lin_common.LogDebug("~~~~syscall errno norepsonse:")
+									//return true
+								}else {
+									//lin_common.LogDebug("~-----syscall errno other:")
+								}
+
 							default:
-								lin_common.LogDebug("unknow sys call err:", sterr)
+								//lin_common.LogDebug("unknow sys call err:", sterr)
 							}
 						}
 					default:
@@ -112,7 +125,7 @@ func CheckError(err error)bool{
 /*	case *net.OpError:
 		lin_common.LogDebug(t)*/
 	default:
-		lin_common.LogDebug(t)
+		lin_common.LogDebug("other err:", t)
 	}
 
 	//lin_common.LogErr(err)
@@ -187,7 +200,7 @@ func (tcpInfo *ClientTcpInfo)GoClientTcpProcess() {
 		if err != nil {
 			lin_common.LogDebug("recover get err:", err)
 		}
-		lin_common.LogDebug("call defer exit coroutine")
+		lin_common.LogDebug("call defer exit process coroutine")
 		Global_wg.Done()
 	}()
 
@@ -216,6 +229,8 @@ func (tcpInfo *ClientTcpInfo)GoClientTcpProcess() {
 			}*/
 		}
 	}
+
+	close(tcpInfo.msgChan)
 }
 
 func (tcpInfo *ClientTcpInfo)processMsg(msg *interMsg) {
@@ -362,7 +377,7 @@ func (tcpInfo *ClientTcpInfo)GoClientTcpRead(){
 		if err != nil {
 			lin_common.LogDebug("recover get err:", err)
 		}
-		lin_common.LogDebug("call defer exit coroutine")
+		lin_common.LogDebug("call defer exit read coroutine")
 		Global_wg.Done()
 	}()
 
@@ -377,12 +392,15 @@ func (tcpInfo *ClientTcpInfo)GoClientTcpRead(){
 		if !CheckError(err){
 			tcpInfo.reconnectCount ++
 			con , _ := net.Dial("tcp", tcpInfo.addr)
-			tcpInfo.tcpCon = con.(*net.TCPConn)
-
-			msg := &msgpacket.MSG_LOGIN{}
-			msg.Id = tcpInfo.id
-			bin := tcpInfo.FormatMsg(msgpacket.MSG_TYPE__MSG_LOGIN, msg)
-			tcpInfo.tcpCon.Write(bin)
+			if con != nil {
+				tcpInfo.tcpCon = con.(*net.TCPConn)
+				msg := &msgpacket.MSG_LOGIN{}
+				msg.Id = tcpInfo.id
+				bin := tcpInfo.FormatMsg(msgpacket.MSG_TYPE__MSG_LOGIN, msg)
+				tcpInfo.tcpCon.Write(bin)
+			} else {
+				lin_common.LogDebug("connect to server err:", err)
+			}
 			continue
 		}
 		tcpInfo.ByteRecv += readSize
@@ -408,7 +426,7 @@ func (tcpInfo *ClientTcpInfo)GoClientTcpRead(){
 			case msgpacket.MSG_TYPE__MSG_HEARTBEAT_RES:
 			case msgpacket.MSG_TYPE__MSG_TEST_RES:
 			default:
-				lin_common.LogDebug(msgpacket.MSG_TYPE(curHead.packType), " proto msg:", protoMsg)
+				//lin_common.LogDebug(msgpacket.MSG_TYPE(curHead.packType), " proto msg:", protoMsg)
 			}
 
 			recvBuf.Next(int(curHead.packLen))
@@ -422,7 +440,10 @@ func (tcpInfo *ClientTcpInfo)GoClientTcpRead(){
 		}
 	}
 
-	fmt.Println("exit GoClientTcpRead", time.Now())
+	lin_common.LogDebug("exit GoClientTcpRead", time.Now())
+
+	tcpInfo.msgChan <- nil
+	Global_cliMgr.ClientMgrDel(tcpInfo.id)
 }
 
 func (pthis *ClientTcpInfo)ClientDump() (str string) {

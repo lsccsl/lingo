@@ -130,6 +130,7 @@ func CommandDump(argStr []string) {
 			fmt.Println(val.ClientDump())
 		}
 	}
+	fmt.Println(" client count:", len(Global_cliMgr.mapClient))
 }
 
 func AddAllCmd(){
