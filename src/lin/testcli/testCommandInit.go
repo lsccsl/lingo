@@ -77,6 +77,9 @@ func CommandMultLogin(argStr []string) {
 		idbase, _ = strconv.Atoi(argStr[1])
 	}
 
+	MultiLogin(count, idbase)
+}
+func MultiLogin(count int, idbase int) {
 	for i := 0; i < count; i ++ {
 		StartClient(int64(idbase + i),Global_testCfg.addr)
 	}
@@ -111,6 +114,8 @@ func CommandLoopTest(argStr []string) {
 		val.TcpSendLoop(count, smallcount)
 	}
 }
+
+
 
 func CommandDump(argStr []string) {
 	var id int64 = 1

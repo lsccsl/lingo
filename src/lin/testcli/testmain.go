@@ -2,6 +2,8 @@ package main
 
 import (
 	"lin/msgpacket"
+	"os"
+	"strconv"
 	"sync"
 )
 
@@ -23,7 +25,11 @@ func main() {
 	AddAllCmd()
 	msgpacket.InitMsgParseVirtualTable()
 
-	//StartClient(1, Global_testCfg.addr)
+	if len(os.Args) >= 2 {
+		count, _ := strconv.Atoi(os.Args[0])
+		idbase, _ := strconv.Atoi(os.Args[1])
+		MultiLogin(count, idbase)
+	}
 
 	ParseCmd()
 	Global_wg.Wait()
