@@ -267,7 +267,7 @@ func (pthis *TcpConnection)go_tcpConnRead() {
 						lin_common.LogDebug("temporary:", t)
 						continue
 					} else {
-						lin_common.LogDebug("other err:", t)
+						//lin_common.LogDebug("other err:", t)
 					}
 				}
 			case *net.OpError:
