@@ -87,6 +87,26 @@ func CheckError(err error)bool{
 				lin_common.LogDebug(" temporary")
 			} else {
 				lin_common.LogDebug(" other err:", t)
+				netOpErr, ok := t.(*net.OpError)
+				if ok {
+					lin_common.LogDebug(" net op err:", netOpErr)
+					switch st := netOpErr.Err.(type){
+					case *os.SyscallError:
+						{
+							lin_common.LogDebug("syscall err", st)
+							switch sterr := st.Err.(type) {
+							case syscall.Errno:
+								lin_common.LogDebug("syscall errno:", sterr)
+							default:
+								lin_common.LogDebug("unknow sys call err:", sterr)
+							}
+						}
+					default:
+						lin_common.LogDebug("unknow net op err", st)
+					}
+				} else {
+					lin_common.LogDebug(" unkonw other :", t)
+				}
 			}
 		}
 /*	case *net.OpError:
@@ -95,7 +115,7 @@ func CheckError(err error)bool{
 		lin_common.LogDebug(t)
 	}
 
-	//lin_common.LogErr("CheckError:", err)
+	//lin_common.LogErr(err)
 	if err == io.EOF{
 		lin_common.LogDebug("io eof")
 		return false
