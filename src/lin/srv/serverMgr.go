@@ -207,6 +207,7 @@ func (pthis*ServerMgr)processClientLogin(clientID int64, tcpConn *tcp.TcpConnect
 	oldC := pthis.getClient(clientID)
 	if oldC != nil {
 		if oldC.ClientGetConnectionID() != tcpConn.TcpConnectionID() {
+			oldC.tcpConn.TcpConnectSetCloseReason(tcp.TCP_CONNECTION_CLOSE_REASON_relogin)
 			pthis.delClient(clientID)
 
 			c := ConstructClient(pthis, tcpConn, clientID)

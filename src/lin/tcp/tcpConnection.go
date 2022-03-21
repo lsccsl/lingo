@@ -20,6 +20,7 @@ const(
 	TCP_CONNECTION_CLOSE_REASON_readerr  TCP_CONNECTION_CLOSE_REASON = 2
 	TCP_CONNECTION_CLOSE_REASON_dialfail TCP_CONNECTION_CLOSE_REASON = 3
 	TCP_CONNECTION_CLOSE_REASON_writeerr TCP_CONNECTION_CLOSE_REASON = 4
+	TCP_CONNECTION_CLOSE_REASON_relogin TCP_CONNECTION_CLOSE_REASON = 5
 )
 
 type TCP_CONNECTIOON_TYPE int
@@ -374,7 +375,7 @@ func (pthis *TcpConnection)TcpGetConn() net.Conn {
 }
 
 func (pthis *TcpConnection)TcpConnectClose() {
-	lin_common.LogErr(" close:", pthis.TcpConnectionID())
+	lin_common.LogErr(" close:", pthis.TcpConnectionID(), " client id:", pthis.ClientID, " srv id:", pthis.SrvID)
 	if pthis.netConn != nil {
 		pthis.netConn.Close()
 	}

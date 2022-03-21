@@ -1,6 +1,7 @@
 package main
 
 import (
+	"lin/lin_common"
 	"lin/msgpacket"
 	"os"
 	"strconv"
@@ -25,9 +26,10 @@ func main() {
 	AddAllCmd()
 	msgpacket.InitMsgParseVirtualTable()
 
-	if len(os.Args) >= 2 {
-		count, _ := strconv.Atoi(os.Args[0])
-		idbase, _ := strconv.Atoi(os.Args[1])
+	if len(os.Args) >= 3 {
+		count, _ := strconv.Atoi(os.Args[1])
+		idbase, _ := strconv.Atoi(os.Args[2])
+		lin_common.LogDebug("auto login:", count, " idbase:", idbase)
 		MultiLogin(count, idbase)
 	}
 
