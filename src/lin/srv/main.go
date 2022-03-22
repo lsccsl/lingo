@@ -15,6 +15,7 @@ var srvMgr *ServerMgr
 
 // --path="../cfg/cfg.yml" --id=1
 func main() {
+	lin_common.InitLog("./srv.log")
 	lin_common.ProfileInit()
 	fmt.Println(os.Args)
 

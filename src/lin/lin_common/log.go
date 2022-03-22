@@ -8,25 +8,54 @@ import (
 	"time"
 )
 
+type LogMsg struct {
+	strLog string
+}
+
+type LogMgr struct {
+	chLog chan *LogMsg
+	logFile string
+}
+var globalLogMgr = LogMgr{
+	chLog : make(chan *LogMsg, 1000),
+}
+
 func LogDebug(args ... interface{}) {
 	pc,filename, line, _ := runtime.Caller(1)
 	funcName := runtime.FuncForPC(pc).Name()
 
-	fmt.Println(fmt.Sprintf("%s[%s:%d] route:%d %s",
+	if len(globalLogMgr.chLog) >= 1000 {
+		return
+	}
+
+	l := &LogMsg{}
+	l.strLog = fmt.Sprintf(fmt.Sprintf("%s[%s:%d] route:%d %s\r\n",
 		time.Now().Format(time.RFC3339Nano), path.Base(filename), line, GetGID(), funcName),
 		fmt.Sprint(args...))
+
+	globalLogMgr.chLog <- l
 }
 
 func LogErr(args ... interface{}) {
 	pc,filename, line, _ := runtime.Caller(1)
 	funcName := runtime.FuncForPC(pc).Name()
 
-	fmt.Println(fmt.Sprintf("ERROR %s[%s:%d] route:%d %s",
+	l := &LogMsg{}
+	l.strLog = fmt.Sprintf(fmt.Sprintf("ERROR %s[%s:%d] route:%d %s\r\n%s\r\n",
 		time.Now().Format(time.RFC3339Nano), path.Base(filename), line, GetGID(), funcName),
-		fmt.Sprint(args...))
-	fmt.Println(string(debug.Stack()))
+		fmt.Sprint(args...),
+		fmt.Sprintf(string(debug.Stack())))
+
+	globalLogMgr.chLog <- l
 }
 
-func LogDumpStack() string {
-	return string(debug.Stack())
+func InitLog(str string) {
+	globalLogMgr.logFile = str
+	go go_logPrint()
+}
+
+func go_logPrint() {
+	for l := range globalLogMgr.chLog{
+		fmt.Println(l.strLog)
+	}
 }
