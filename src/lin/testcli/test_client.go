@@ -79,7 +79,7 @@ func CheckError(err error)bool{
 		return true
 	}
 
-	//lin_common.LogDebug(" err:", err)
+	lin_common.LogDebug(" err:", err)
 
 	switch t:=err.(type){
 	case net.Error:
@@ -330,9 +330,9 @@ func (pthis *ClientTcpInfo)processSendMsgLoop(msg *interSendMsgLoop) {
 			pthis.rttAver = pthis.rttTotal / pthis.testCount
 		}
 
-/*		if maxSeq < seq {
+		if maxSeq < seq {
 			lin_common.LogDebug("~~~~~~err seq:", maxSeq)
-		}*/
+		}
 	}
 }
 
