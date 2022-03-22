@@ -2,6 +2,7 @@ package lin_common
 
 import (
 	"fmt"
+	"os"
 	"path"
 	"runtime"
 	"runtime/debug"
@@ -24,14 +25,13 @@ func LogDebug(args ... interface{}) {
 	pc,filename, line, _ := runtime.Caller(1)
 	funcName := runtime.FuncForPC(pc).Name()
 
-	if len(globalLogMgr.chLog) >= 1000 {
+	if len(globalLogMgr.chLog) >= 999 {
 		return
 	}
 
 	l := &LogMsg{}
-	l.strLog = fmt.Sprintf(fmt.Sprintf("%s[%s:%d] route:%d %s\r\n",
-		time.Now().Format(time.RFC3339Nano), path.Base(filename), line, GetGID(), funcName),
-		fmt.Sprint(args...))
+	l.strLog = fmt.Sprintf("%s[%s:%d] route:%d %s %s\r\n",
+		time.Now().Format(time.RFC3339Nano), path.Base(filename), line, GetGID(), funcName, fmt.Sprint(args...))
 
 	globalLogMgr.chLog <- l
 }
@@ -41,10 +41,9 @@ func LogErr(args ... interface{}) {
 	funcName := runtime.FuncForPC(pc).Name()
 
 	l := &LogMsg{}
-	l.strLog = fmt.Sprintf(fmt.Sprintf("ERROR %s[%s:%d] route:%d %s\r\n%s\r\n",
-		time.Now().Format(time.RFC3339Nano), path.Base(filename), line, GetGID(), funcName),
-		fmt.Sprint(args...),
-		fmt.Sprintf(string(debug.Stack())))
+	l.strLog = fmt.Sprintf("ERROR %s[%s:%d] route:%d %s %s\r\n%s\r\n",
+		time.Now().Format(time.RFC3339Nano), path.Base(filename), line, GetGID(), funcName, fmt.Sprint(args...), fmt.Sprintf(string(debug.Stack())))
+
 
 	globalLogMgr.chLog <- l
 }
@@ -55,7 +54,24 @@ func InitLog(str string) {
 }
 
 func go_logPrint() {
+	defer func() {
+		err := recover()
+		if err != nil {
+			fmt.Println("log err:", err)
+		}
+	}()
+
+	filehandle, err := os.OpenFile(globalLogMgr.logFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		fmt.Println("log open file err:", err)
+		return
+	}
 	for l := range globalLogMgr.chLog{
-		fmt.Println(l.strLog)
+		if filehandle != nil {
+			_, err = filehandle.WriteString(l.strLog)
+		}
+		if err != nil {
+			filehandle, _ = os.OpenFile(globalLogMgr.logFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+		}
 	}
 }
