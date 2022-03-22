@@ -42,6 +42,13 @@ func main() {
 	httpSrv.HttpSrvAddCallback("/test", func(writer http.ResponseWriter, request *http.Request) {
 		fmt.Fprint(writer, request.URL.Path, " ", request.Form)
 	})
+	httpSrv.HttpSrvAddCallback("/cmd", func(writer http.ResponseWriter, request *http.Request) {
+		cmd , _ := request.Form["cmd"]
+		fmt.Println(cmd)
+		if cmd != nil {
+			DoCmd(cmd, len(cmd))
+		}
+	})
 
 	tcpAddr, err := net.ResolveTCPAddr("tcp", srvCfg.BindAddr)
 	if err != nil {
