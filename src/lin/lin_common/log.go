@@ -87,7 +87,7 @@ func go_logPrint() {
 			}
 		}
 		count ++
-		if count > 2 {
+		if count > 20000 {
 			err = filehandle.Sync()
 			if err != nil {
 				fmt.Println(err)
