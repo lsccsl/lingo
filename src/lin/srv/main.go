@@ -44,9 +44,8 @@ func main() {
 	})
 	httpSrv.HttpSrvAddCallback("/cmd", func(writer http.ResponseWriter, request *http.Request) {
 		cmd , _ := request.Form["cmd"]
-		fmt.Println(cmd)
 		if cmd != nil {
-			DoCmd(cmd, len(cmd))
+			fmt.Fprint(writer, DoCmd(cmd, len(cmd)))
 		}
 	})
 
@@ -83,13 +82,14 @@ func main() {
 		}
 	}
 
-	AddCmd("dump", "dump", func(argStr []string){
+	AddCmd("dump", "dump", func(argStr []string)string{
 		bDetail := false
 		if len(argStr) > 0 {
 			bDetail = true
 		}
 		str := srvMgr.Dump(bDetail)
 		lin_common.LogDebug(str)
+		return str
 	})
 	commandLineInit()
 

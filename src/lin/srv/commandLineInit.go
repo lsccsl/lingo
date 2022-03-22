@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-func testrpc(argStr []string){
+func testrpc(argStr []string)string{
 	var srvID int64 = 1
 	if len(argStr) >= 1 {
 		srvID, _ = strconv.ParseInt(argStr[0], 10, 64)
@@ -16,6 +16,7 @@ func testrpc(argStr []string){
 	msg := srvMgr.SendRPC_Async(srvID, msgpacket.MSG_TYPE__MSG_TEST, &msgpacket.MSG_TEST{Id:567}, 10 * 1000)
 
 	lin_common.LogDebug(msg)
+	return ""
 }
 
 func commandLineInit(){

@@ -8,7 +8,7 @@ import (
 )
 
 type CmdFuncInfo struct{
-	cmdFunc func(argStr []string)
+	cmdFunc func(argStr []string)string
 	cmdHelp string
 }
 
@@ -19,29 +19,30 @@ var _cmd_info = CmdInfo{
 	mapCmd:make(map[string]CmdFuncInfo),
 }
 
-func AddCmd(cmd_name string, cmd_help string, cmd_func func(argStr []string)){
+func AddCmd(cmd_name string, cmd_help string, cmd_func func(argStr []string)string){
 	_cmd_info.mapCmd[cmd_name] = CmdFuncInfo{cmd_func, cmd_help}
 }
 
-func DumpAllCmd(argStr []string){
+func DumpAllCmd(argStr []string)string{
 	for key, val := range _cmd_info.mapCmd{
 		fmt.Println(key, ":", val.cmdHelp)
 	}
+	return ""
 }
 
-func DoCmd(argStr []string, argCount int){
+func DoCmd(argStr []string, argCount int)string{
 	if len(argStr) < 1{
-		return
+		return ""
 	}
 
 	funcInfo, ok := _cmd_info.mapCmd[argStr[0]]
 	if !ok{
-		return
+		return ""
 	}
 	if len(argStr) >= 2{
-		funcInfo.cmdFunc(argStr[1:])
+		return funcInfo.cmdFunc(argStr[1:])
 	}else{
-		funcInfo.cmdFunc([]string{})
+		return funcInfo.cmdFunc([]string{})
 	}
 }
 
