@@ -262,6 +262,7 @@ func (pthis *TcpConnection)go_tcpConnRead() {
 				{
 					if t.Timeout(){
 						lin_common.LogDebug("close read tcp, reason time out:", t)
+						pthis.TcpConnectSetCloseReason(TCP_CONNECTION_CLOSE_REASON_timeout)
 						//continue
 					} else if t.Temporary() {
 						lin_common.LogDebug("temporary:", t)
