@@ -71,12 +71,32 @@ func go_logPrint() {
 		fmt.Println("log open file err:", err)
 		return
 	}
+	count := 0
 	for l := range globalLogMgr.chLog{
 		if filehandle != nil {
 			_, err = filehandle.WriteString(l.strLog)
 		}
 		if err != nil {
-			filehandle, _ = os.OpenFile(globalLogMgr.logFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+			fmt.Println(err)
+			if filehandle != nil {
+				filehandle.Close()
+			}
+			filehandle, err = os.OpenFile(globalLogMgr.logFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+		count ++
+		if count > 2 {
+			err = filehandle.Sync()
+			if err != nil {
+				fmt.Println(err)
+			}
+			count = 0
+			err = filehandle.Truncate(0)
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
 	}
 }

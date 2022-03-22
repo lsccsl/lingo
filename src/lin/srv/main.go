@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"lin/lin_common"
+	"lin/msgpacket"
 	_ "lin/msgpacket"
 	"lin/tcp"
 	"net"
@@ -16,6 +17,7 @@ var srvMgr *ServerMgr
 // --path="../cfg/cfg.yml" --id=1
 func main() {
 	lin_common.InitLog("./srv.log")
+	msgpacket.InitMsgParseVirtualTable()
 	lin_common.ProfileInit()
 	fmt.Println(os.Args)
 
