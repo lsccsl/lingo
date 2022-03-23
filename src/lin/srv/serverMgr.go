@@ -129,7 +129,6 @@ func (pthis*ServerMgr)CBConnectClose(tcpConn *tcp.TcpConnection, closeReason tcp
 			srv.PushInterMsg(&interMsgConnClose{tcpConn})
 		}
 		//pthis.delServer(tcpConn.SrvID)
-		pthis.tcpMgr.TcpDialMgrCheckReDial(tcpConn.SrvID)
 	} else {
 		if tcpConn.SrvID != 0 {
 			srv := pthis.getServer(tcpConn.SrvID)

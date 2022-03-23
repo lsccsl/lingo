@@ -138,6 +138,7 @@ func (pthis*Server)processConnClose(tcpConn *tcp.TcpConnection){
 	lin_common.LogDebug(pthis.srvID, " ", pthis)
 	pthis.connAcpt = nil
 	pthis.connDial = nil
+	pthis.srvMgr.tcpMgr.TcpDialMgrCheckReDial(tcpConn.SrvID)
 }
 
 func (pthis*Server)PushInterMsg(msg interface{}){
