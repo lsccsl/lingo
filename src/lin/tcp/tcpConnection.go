@@ -177,7 +177,7 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 			}
 
 			if err != nil || conn == nil{
-				lin_common.LogErr("fail ", err)
+				lin_common.LogDebug("fail ", err)
 				if tcpConn.cbTcpConnection != nil {
 					tcpConn.cbTcpConnection.CBConnectClose(tcpConn, TCP_CONNECTION_CLOSE_REASON_dialfail)
 				}
