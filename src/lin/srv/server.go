@@ -88,9 +88,9 @@ func (pthis*Server) go_serverProcess() {
 				chTimer = time.After(time.Second * time.Duration(pthis.heartbeatIntervalSec))
 				//send heartbeat
 				if pthis.connDial != nil {
-					msgTest := &msgpacket.MSG_HEARTBEAT{}
-					msgTest.Id = pthis.srvID
-					pthis.connDial.TcpConnectSendBin(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_HEARTBEAT, msgTest))
+					msgHeartBeat := &msgpacket.MSG_HEARTBEAT{}
+					msgHeartBeat.Id = pthis.srvMgr.srvID
+					pthis.connDial.TcpConnectSendBin(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_HEARTBEAT, msgHeartBeat))
 				}
 			}
 		}
