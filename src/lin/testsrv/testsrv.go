@@ -16,14 +16,25 @@ type TestSrv struct {
 	tcpDial net.Conn
 	tcpAcpt net.Conn
 	srvId int64
+	recvBuf *bytes.Buffer
+	TmpBuf []byte
+	seq int64
+
+	addrRemote string
+	addrLocal string
 }
 
 func ConstructTestSrv(addrLocal string, addrRemote string, srvId int64) *TestSrv {
 	s := &TestSrv{
 		srvId:srvId,
+		recvBuf : bytes.NewBuffer(make([]byte, 0, MAX_PACK_LEN)),
+		TmpBuf : make([]byte, G_MTU),
+		seq : 0,
+		addrRemote : addrRemote,
+		addrLocal : addrLocal,
 	}
 
-	var err error
+/*	var err error
 	lsn, err := net.Listen("tcp", addrLocal)
 	s.tcpAcpt, err = lsn.Accept()
 	if err != nil {
@@ -34,16 +45,16 @@ func ConstructTestSrv(addrLocal string, addrRemote string, srvId int64) *TestSrv
 	msgReport := msg.(*msgpacket.MSG_SRV_REPORT)
 	if msgReport == nil {
 		return nil
-	}
+	}*/
 
-	s.tcpDial, err = net.Dial("tcp", addrRemote)
+/*	s.tcpDial, err = net.Dial("tcp", addrRemote)
 	if err != nil {
 		lin_common.LogDebug(err)
 	}
 
 	msgReport = &msgpacket.MSG_SRV_REPORT{SrvId: srvId}
 	s.tcpDial.Write(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_SRV_REPORT, msgReport))
-
+*/
 	Global_wg.Add(2)
 
 	go s.go_tcpDial()
@@ -52,124 +63,163 @@ func ConstructTestSrv(addrLocal string, addrRemote string, srvId int64) *TestSrv
 	return s
 }
 
+func (pthis*TestSrv)TestSrvDial() (err interface{}) {
+	if pthis.tcpDial == nil {
+		return lin_common.GenErr(0, "no tcp dial conn")
+	}
+	defer func() {
+		err = recover()
+	}()
+	msgRPC := &msgpacket.MSG_RPC{
+		MsgId:lin_common.GenUUID64_V4(),
+		MsgType:int32(msgpacket.MSG_TYPE__MSG_TEST),
+	}
+	pthis.seq ++
+	msgTest := &msgpacket.MSG_TEST{
+		Id:pthis.srvId,
+		Seq:pthis.seq,
+	}
+	msgRPC.MsgBin, err = proto.Marshal(msgTest)
+	if err != nil {
+		return
+	}
+	_, err = pthis.tcpDial.Write(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_RPC, msgRPC))
+
+
+	readSize, err := pthis.tcpDial.Read(pthis.TmpBuf)
+	if nil != err {
+		return err
+	}
+	pthis.recvBuf.Write(pthis.TmpBuf[0:readSize])
+	//fmt.Println("tcp read:", readSize, err)
+
+	READ_LOOP:
+	for ; pthis.recvBuf.Len() >= PACK_HEAD_SIZE; {
+		binHead := pthis.recvBuf.Bytes()[0:PACK_HEAD_SIZE]
+
+		packLen := binary.LittleEndian.Uint32(binHead[0:4])
+		packType := binary.LittleEndian.Uint16(binHead[4:6])
+
+		if pthis.recvBuf.Len() < int(packLen){
+			break READ_LOOP
+		}
+
+		binBody := pthis.recvBuf.Bytes()[6:packLen]
+
+		protoMsg := msgpacket.ParseProtoMsg(binBody, int32(packType))
+		fmt.Println(protoMsg)
+
+		pthis.recvBuf.Next(int(packLen))
+	}
+	return nil
+}
+
 func (pthis*TestSrv)go_tcpDial() {
-	recvBuf := bytes.NewBuffer(make([]byte, 0, MAX_PACK_LEN))
-	TmpBuf := make([]byte, G_MTU)
 
-	var seq int64 = 0
-
-	Loop:
 	for{
-		msgRPC := &msgpacket.MSG_RPC{
-			MsgId:lin_common.GenUUID64_V4(),
-			MsgType:int32(msgpacket.MSG_TYPE__MSG_TEST),
-		}
-		seq ++
-		msgTest := &msgpacket.MSG_TEST{
-			Id:pthis.srvId,
-			Seq:seq,
-		}
-		var err error
-		msgRPC.MsgBin, err = proto.Marshal(msgTest)
-		if err != nil {
-			continue
-		}
-		pthis.tcpDial.Write(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_RPC, msgRPC))
-
-
-		readSize, err := pthis.tcpDial.Read(TmpBuf)
-		if nil != err {
-			break Loop
-		}
-		recvBuf.Write(TmpBuf[0:readSize])
-		//fmt.Println("tcp read:", readSize, err)
-
-		READ_LOOP:
-		for ; recvBuf.Len() >= PACK_HEAD_SIZE; {
-			binHead := recvBuf.Bytes()[0:PACK_HEAD_SIZE]
-
-			packLen := binary.LittleEndian.Uint32(binHead[0:4])
-			packType := binary.LittleEndian.Uint16(binHead[4:6])
-
-			if recvBuf.Len() < int(packLen){
-				break READ_LOOP
+		err := pthis.TestSrvDial()
+		if err != nil || pthis.tcpDial == nil{
+			pthis.tcpDial, err = net.Dial("tcp", pthis.addrRemote)
+			if err != nil {
+				continue
 			}
-
-			binBody := recvBuf.Bytes()[6:packLen]
-
-			protoMsg := msgpacket.ParseProtoMsg(binBody, int32(packType))
-			fmt.Println(protoMsg)
-
-			recvBuf.Next(int(packLen))
+			msgReport := &msgpacket.MSG_SRV_REPORT{SrvId: pthis.srvId}
+			pthis.tcpDial.Write(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_SRV_REPORT, msgReport))
 		}
 	}
 
 	Global_wg.Done()
 }
 
-func (pthis*TestSrv)go_tcpAcpt() {
-	recvBuf := bytes.NewBuffer(make([]byte, 0, MAX_PACK_LEN))
-	TmpBuf := make([]byte, G_MTU)
+func (pthis*TestSrv)TestSrvAcpt() (err interface{}) {
+	if pthis.tcpAcpt == nil {
+		return lin_common.GenErr(0, "no tcp acpt conn")
+	}
+	defer func() {
+		err = recover()
+	}()
+	readSize, err := pthis.tcpAcpt.Read(pthis.TmpBuf)
+	if nil != err {
+		return err
+	}
+	pthis.recvBuf.Write(pthis.TmpBuf[0:readSize])
+	//fmt.Println("tcp read:", readSize, err)
 
-	Loop:
-	for{
-		readSize, err := pthis.tcpAcpt.Read(TmpBuf)
-		if nil != err {
-			break Loop
+READ_LOOP:
+	for ; pthis.recvBuf.Len() >= PACK_HEAD_SIZE; {
+		binHead := pthis.recvBuf.Bytes()[0:PACK_HEAD_SIZE]
+
+		packLen := binary.LittleEndian.Uint32(binHead[0:4])
+		packType := binary.LittleEndian.Uint16(binHead[4:6])
+
+		if pthis.recvBuf.Len() < int(packLen){
+			break READ_LOOP
 		}
-		recvBuf.Write(TmpBuf[0:readSize])
-		//fmt.Println("tcp read:", readSize, err)
 
-		READ_LOOP:
-		for ; recvBuf.Len() >= PACK_HEAD_SIZE; {
-			binHead := recvBuf.Bytes()[0:PACK_HEAD_SIZE]
+		binBody := pthis.recvBuf.Bytes()[6:packLen]
 
-			packLen := binary.LittleEndian.Uint32(binHead[0:4])
-			packType := binary.LittleEndian.Uint16(binHead[4:6])
+		protoMsg := msgpacket.ParseProtoMsg(binBody, int32(packType))
+		pthis.recvBuf.Next(int(packLen))
 
-			if recvBuf.Len() < int(packLen){
-				break READ_LOOP
+		fmt.Println(protoMsg)
+		var msgTest *msgpacket.MSG_TEST
+		var msgRPC *msgpacket.MSG_RPC
+		{
+			msgRPC = protoMsg.(*msgpacket.MSG_RPC)
+			if msgRPC == nil {
+				continue
+			}
+			msgR := msgpacket.ParseProtoMsg(msgRPC.MsgBin, int32(msgRPC.MsgType))
+			if msgR == nil {
+				continue
+			}
+			msgTest = msgR.(*msgpacket.MSG_TEST)
+			if msgTest == nil {
+				continue
+			}
+		}
+
+		{
+			msgTestRes := &msgpacket.MSG_TEST_RES{
+				Id:msgTest.Id,
+				Seq:msgTest.Seq,
+			}
+			msgRPCRes := &msgpacket.MSG_RPC_RES{
+				MsgId:msgRPC.MsgId,
+				MsgType:int32(msgpacket.MSG_TYPE__MSG_TEST_RES),
+			}
+			msgRPCRes.MsgBin, err = proto.Marshal(msgTestRes)
+			if err != nil {
+				continue
+			}
+			pthis.tcpDial.Write(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_RPC_RES, msgRPCRes))
+		}
+	}
+
+	return nil
+}
+
+func (pthis*TestSrv)go_tcpAcpt() {
+
+	lsn, _ := net.Listen("tcp", pthis.addrLocal)
+
+	for{
+		err := pthis.TestSrvAcpt()
+		if err != nil || pthis.tcpAcpt == nil {
+			if pthis.tcpAcpt != nil {
+				pthis.tcpAcpt.Close()
+			}
+			pthis.tcpAcpt, err = lsn.Accept()
+			if err != nil {
+				lin_common.LogDebug(err)
+			}
+			msg := recvProtoMsg(pthis.tcpAcpt)
+			msgReport := msg.(*msgpacket.MSG_SRV_REPORT)
+			if msgReport == nil {
+				pthis.tcpAcpt = nil
 			}
 
-			binBody := recvBuf.Bytes()[6:packLen]
-
-			protoMsg := msgpacket.ParseProtoMsg(binBody, int32(packType))
-			recvBuf.Next(int(packLen))
-
-			fmt.Println(protoMsg)
-			var msgTest *msgpacket.MSG_TEST
-			var msgRPC *msgpacket.MSG_RPC
-			{
-				msgRPC = protoMsg.(*msgpacket.MSG_RPC)
-				if msgRPC == nil {
-					continue
-				}
-				msgR := msgpacket.ParseProtoMsg(msgRPC.MsgBin, int32(msgRPC.MsgType))
-				if msgR == nil {
-					continue
-				}
-				msgTest = msgR.(*msgpacket.MSG_TEST)
-				if msgTest == nil {
-					continue
-				}
-			}
-
-			{
-				msgTestRes := &msgpacket.MSG_TEST_RES{
-					Id:msgTest.Id,
-					Seq:msgTest.Seq,
-				}
-				msgRPCRes := &msgpacket.MSG_RPC_RES{
-					MsgId:msgRPC.MsgId,
-					MsgType:int32(msgpacket.MSG_TYPE__MSG_TEST_RES),
-				}
-				msgRPCRes.MsgBin, err = proto.Marshal(msgTestRes)
-				if err != nil {
-					continue
-				}
-				pthis.tcpDial.Write(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_RPC_RES, msgRPCRes))
-			}
-
+			lin_common.LogDebug(" suc recv srv report")
 		}
 	}
 

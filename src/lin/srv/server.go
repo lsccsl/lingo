@@ -132,6 +132,9 @@ func (pthis*Server)processDailConnect(tcpDial *tcp.TcpConnection){
 }
 
 func (pthis*Server)processConnClose(tcpConn *tcp.TcpConnection){
+	if tcpConn.TcpConnectionID() != pthis.connAcpt.TcpConnectionID() && tcpConn.TcpConnectionID() != pthis.connDial.TcpConnectionID(){
+		return
+	}
 	lin_common.LogDebug(pthis.srvID, " ", pthis)
 	pthis.connAcpt = nil
 	pthis.connDial = nil

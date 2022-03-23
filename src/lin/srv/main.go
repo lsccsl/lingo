@@ -103,4 +103,4 @@ func main() {
 	tcpMgr.TcpMgrWait()
 }
 
-// aoi path finding
+// todo aoi path finding, server tcp connection close process

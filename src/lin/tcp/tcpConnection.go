@@ -95,6 +95,7 @@ func startTcpConnection(connMgr InterfaceConnManage, conn net.Conn, closeExpireS
 		ByteProc:        0,
 		clsRsn:          TCP_CONNECTION_CLOSE_REASON_none,
 	}
+	runtime.SetFinalizer(tcpConn, (*TcpConnection).TcpConnectClose)
 
 	realTcpConn := conn.(*net.TCPConn)
 	if realTcpConn != nil {
@@ -144,6 +145,8 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 		ByteProc:        0,
 		clsRsn:          TCP_CONNECTION_CLOSE_REASON_none,
 	}
+	runtime.SetFinalizer(tcpConn, (*TcpConnection).TcpConnectClose)
+
 	addr := ip + ":" + strconv.Itoa(port)
 
 	if dialTimeoutSec > 0 {
@@ -377,6 +380,7 @@ func (pthis *TcpConnection)TcpGetConn() net.Conn {
 }
 
 func (pthis *TcpConnection)TcpConnectClose() {
+	runtime.SetFinalizer(pthis, nil)
 	//lin_common.LogDebug(" close:", pthis.TcpConnectionID(), " client id:", pthis.ClientID, " srv id:", pthis.SrvID)
 	if pthis.netConn != nil {
 		pthis.netConn.Close()
