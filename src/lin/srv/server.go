@@ -152,6 +152,12 @@ func (pthis*Server)processConnClose(tcpConn *tcp.TcpConnection){
 	}
 
 	lin_common.LogDebug(pthis.srvID, " ", pthis)
+	if pthis.connAcpt != nil {
+		pthis.connAcpt.TcpConnectClose()
+	}
+	if pthis.connDial != nil {
+		pthis.connDial.TcpConnectClose()
+	}
 	pthis.connAcpt = nil
 	pthis.connDial = nil
 	pthis.srvMgr.tcpMgr.TcpDialMgrCheckReDial(tcpConn.SrvID)
