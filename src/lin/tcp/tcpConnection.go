@@ -381,7 +381,7 @@ func (pthis *TcpConnection)TcpGetConn() net.Conn {
 
 func (pthis *TcpConnection)TcpConnectClose() {
 	if pthis.SrvID != 0 {
-		lin_common.LogDebug(" close:", pthis.TcpConnectionID(), " client id:", pthis.ClientID, " srv id:", pthis.SrvID)
+		lin_common.LogErr(" close:", pthis.TcpConnectionID(), " client id:", pthis.ClientID, " srv id:", pthis.SrvID)
 	}
 	runtime.SetFinalizer(pthis, nil)
 	//lin_common.LogDebug(" close:", pthis.TcpConnectionID(), " client id:", pthis.ClientID, " srv id:", pthis.SrvID)
