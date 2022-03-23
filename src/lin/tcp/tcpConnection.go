@@ -340,7 +340,7 @@ func (pthis *TcpConnection)go_tcpConnWrite() {
 			if tcpW == nil {
 				break WRITE_LOOP
 			}
-			//todo: option wait for more data and combine write to tcp channel
+			//todo: option get more data and combine write to tcp channel
 			writeSZ, err := pthis.netConn.Write(tcpW.bin)
 			if err != nil {
 				lin_common.LogDebug(" write tcp err:", err)

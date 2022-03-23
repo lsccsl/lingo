@@ -23,7 +23,7 @@ type MAP_SERVER map[int64/*server id*/]*Server
 type interProtoMsg struct {
 	msgType msgpacket.MSG_TYPE
 	protoMsg  proto.Message
-	tcpConnID tcp.TCP_CONNECTION_ID
+	tcpConn *tcp.TcpConnection
 }
 
 type ClientMapMgr struct {
@@ -119,13 +119,24 @@ func (pthis*ServerMgr)CBConnectDial(tcpConn *tcp.TcpConnection, err error) {
 }
 
 func (pthis*ServerMgr)CBConnectClose(tcpConn *tcp.TcpConnection, closeReason tcp.TCP_CONNECTION_CLOSE_REASON) {
-	lin_common.LogDebug("id:", tcpConn.TcpConnectionID(), " is accept:", tcpConn.IsAccept, " closeReason:", closeReason)
+	lin_common.LogDebug("id:", tcpConn.TcpConnectionID(),
+		" srvid:", tcpConn.SrvID, " clientid:", tcpConn.ClientID, " is accept:", tcpConn.IsAccept,
+		" closeReason:", closeReason)
+
 	if !tcpConn.IsAccept {
-		pthis.delServer(tcpConn.SrvID)
+		srv := pthis.getServer(tcpConn.SrvID)
+		if srv != nil {
+			srv.PushInterMsg(&interMsgConnClose{tcpConn})
+		}
+		//pthis.delServer(tcpConn.SrvID)
 		pthis.tcpMgr.TcpDialMgrCheckReDial(tcpConn.SrvID)
 	} else {
 		if tcpConn.SrvID != 0 {
-			pthis.delServer(tcpConn.SrvID)
+			srv := pthis.getServer(tcpConn.SrvID)
+			if srv != nil {
+				srv.PushInterMsg(&interMsgConnClose{tcpConn})
+			}
+			//pthis.delServer(tcpConn.SrvID)
 		} else if tcpConn.ClientID != 0 {
 			oldC := pthis.getClient(tcpConn.ClientID)
 			if oldC != nil {
@@ -229,7 +240,7 @@ func (pthis*ServerMgr)processMsg(tcpConn *tcp.TcpConnection, msgType msgpacket.M
 	if tcpConn.SrvID != 0 {
 		srv := pthis.getServer(tcpConn.SrvID)
 		if srv != nil {
-			srv.PushProtoMsg(msgType, protoMsg, tcpConn.TcpConnectionID())
+			srv.PushProtoMsg(msgType, protoMsg, tcpConn)
 			return
 		}
 		pthis.tcpMgr.TcpMgrCloseConn(tcpConn.TcpConnectionID())
@@ -316,6 +327,10 @@ func (pthis*ServerMgr)SendRPC_Async(srvID int64, msgType msgpacket.MSG_TYPE, pro
 	return srv.SendRPC_Async(msgType, protoMsg, timeoutMilliSec)
 }
 
+func TcpConnectSendProtoMsg(tcpConn *tcp.TcpConnection, msgType msgpacket.MSG_TYPE, protoMsg proto.Message) {
+	tcpConn.TcpConnectSendBin(msgpacket.ProtoPacketToBin(msgType, protoMsg))
+}
+
 func (pthis*ServerMgr)Dump(bDtail bool) string {
 	var str string
 	str += "\r\nclient:\r\n"
@@ -349,7 +364,7 @@ func (pthis*ServerMgr)Dump(bDtail bool) string {
 		defer pthis.ServerMapMgr.mapServerMutex.Unlock()
 		if bDtail {
 			for _, val := range pthis.ServerMapMgr.mapServer {
-				str += fmt.Sprintf("\r\n server id:%v acpt:%v dial:%v", val.srvID, val.connAcptID, val.connDialID)
+				str += fmt.Sprintf("\r\n server id:%v acpt:%v dial:%v", val.srvID, val.connAcpt.TcpConnectionID(), val.connDial.TcpConnectionID())
 			}
 		}
 		str += "\r\nserver count:" + strconv.Itoa(len(pthis.ServerMapMgr.mapServer))

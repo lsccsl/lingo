@@ -2,9 +2,7 @@ package tcp
 
 import (
 	"fmt"
-	"github.com/golang/protobuf/proto"
 	"lin/lin_common"
-	"lin/msgpacket"
 	"net"
 	"strconv"
 	"sync"
@@ -107,14 +105,6 @@ func (pthis *TcpMgr) TcpMgrCloseConn(id TCP_CONNECTION_ID) {
 		return
 	}
 	conn.TcpConnectClose()
-}
-
-func (pthis*TcpMgr)TcpConnectSendProtoMsg(tcpConnID TCP_CONNECTION_ID, msgType msgpacket.MSG_TYPE, protoMsg proto.Message) {
-	conn := pthis.GetTcpConnection(tcpConnID)
-	if conn == nil {
-		return
-	}
-	conn.TcpConnectSendBin(msgpacket.ProtoPacketToBin(msgType, protoMsg))
 }
 
 func (pthis *TcpMgr) TcpMgrDump(bDtail bool) (str string, totalRecv int64, totalSend int64, totalProc int64){

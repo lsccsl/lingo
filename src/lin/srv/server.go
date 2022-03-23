@@ -12,8 +12,8 @@ import (
 type Server struct {
 	srvMgr *ServerMgr
 	srvID         int64
-	connDialID    tcp.TCP_CONNECTION_ID
-	connAcptID    tcp.TCP_CONNECTION_ID
+	connDial    *tcp.TcpConnection
+	connAcpt    *tcp.TcpConnection
 	chSrvProtoMsg chan *interProtoMsg
 	chInterMsg chan interface{}
 	heartbeatIntervalSec int
@@ -28,11 +28,16 @@ type interMsgSrvReport struct {
 type interMsgConnDial struct {
 	tcpDial *tcp.TcpConnection
 }
+type interMsgConnClose struct {
+	tcpConn *tcp.TcpConnection
+}
 
 func ConstructServer(srvMgr *ServerMgr, srvID int64, heartbeatIntervalSec int)*Server {
 	s := &Server{
 		srvMgr:srvMgr,
 		srvID:srvID,
+		connDial:nil,
+		connAcpt:nil,
 		chSrvProtoMsg:make(chan *interProtoMsg, 100),
 		chInterMsg:make(chan interface{}, 100),
 		heartbeatIntervalSec:heartbeatIntervalSec,
@@ -72,6 +77,8 @@ func (pthis*Server) go_serverProcess() {
 					pthis.processSrvReport(t.tcpAccept)
 				case *interMsgConnDial:
 					pthis.processDailConnect(t.tcpDial)
+				case *interMsgConnClose:
+					pthis.processConnClose(t.tcpConn)
 				}
 			}
 
@@ -82,7 +89,7 @@ func (pthis*Server) go_serverProcess() {
 				//send heartbeat
 				msgTest := &msgpacket.MSG_HEARTBEAT{}
 				msgTest.Id = pthis.srvID
-				pthis.srvMgr.tcpMgr.TcpConnectSendProtoMsg(pthis.connDialID, msgpacket.MSG_TYPE__MSG_HEARTBEAT, msgTest)
+				pthis.connDial.TcpConnectSendBin(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_HEARTBEAT, msgTest))
 			}
 		}
 	}
@@ -93,8 +100,8 @@ func (pthis*Server) go_serverProcess() {
 }
 
 func (pthis*Server) ServerClose() {
-	pthis.srvMgr.tcpMgr.TcpMgrCloseConn(pthis.connAcptID)
-	pthis.srvMgr.tcpMgr.TcpMgrCloseConn(pthis.connDialID)
+	pthis.connAcpt.TcpConnectClose()
+	pthis.connDial.TcpConnectClose()
 
 	pthis.chSrvProtoMsg <- nil
 }
@@ -105,15 +112,19 @@ func (pthis*Server) ServerCloseAndDelDialData() {
 }
 
 func (pthis*Server)processSrvReport(tcpAccept *tcp.TcpConnection){
-	pthis.connAcptID = tcpAccept.TcpConnectionID()
-
 	lin_common.LogDebug(pthis.srvID, " ", pthis)
+	pthis.connAcpt = tcpAccept
 }
 
 func (pthis*Server)processDailConnect(tcpDial *tcp.TcpConnection){
-	pthis.connDialID = tcpDial.TcpConnectionID()
-
 	lin_common.LogDebug(pthis.srvID, " ", pthis)
+	pthis.connDial = tcpDial
+}
+
+func (pthis*Server)processConnClose(tcpConn *tcp.TcpConnection){
+	lin_common.LogDebug(pthis.srvID, " ", pthis)
+	pthis.connAcpt = nil
+	pthis.connDial = nil
 }
 
 func (pthis*Server)PushInterMsg(msg interface{}){
@@ -122,14 +133,14 @@ func (pthis*Server)PushInterMsg(msg interface{}){
 	}
 	pthis.chInterMsg <- msg
 }
-func (pthis*Server)PushProtoMsg(msgType msgpacket.MSG_TYPE, protoMsg proto.Message, tcpConnID tcp.TCP_CONNECTION_ID){
+func (pthis*Server)PushProtoMsg(msgType msgpacket.MSG_TYPE, protoMsg proto.Message, tcpConn *tcp.TcpConnection){
 	if atomic.LoadInt32(&pthis.isStopProcess) == 1 {
 		return
 	}
 	pthis.chSrvProtoMsg <- &interProtoMsg{
 		msgType:msgType,
 		protoMsg:protoMsg,
-		tcpConnID:tcpConnID,
+		tcpConn:tcpConn,
 	}
 }
 
@@ -208,7 +219,7 @@ func (pthis*Server)SendRPC_Async(msgType msgpacket.MSG_TYPE, protoMsg proto.Mess
 
 	rreq := pthis.rpcMgr.RPCManagerAddReq(msgRPC.MsgId)
 
-	pthis.srvMgr.tcpMgr.TcpConnectSendProtoMsg(pthis.connDialID, msgpacket.MSG_TYPE__MSG_RPC, msgRPC)
+	pthis.connDial.TcpConnectSendBin(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_RPC, msgRPC))
 
 	var res proto.Message = nil
 	select{
@@ -225,18 +236,18 @@ func (pthis*Server)SendRPC_Async(msgType msgpacket.MSG_TYPE, protoMsg proto.Mess
 func (pthis*Server)processServerMsg (interMsg * interProtoMsg){
 	switch t:=interMsg.protoMsg.(type){
 	case *msgpacket.MSG_HEARTBEAT:
-		pthis.process_MSG_HEARTBEAT(interMsg.tcpConnID, t)
+		pthis.process_MSG_HEARTBEAT(interMsg.tcpConn, t)
 	case *msgpacket.MSG_HEARTBEAT_RES:
 		pthis.process_MSG_HEARTBEAT_RES(t)
 	}
 }
 
-func (pthis*Server) process_MSG_HEARTBEAT (tcpConnID tcp.TCP_CONNECTION_ID, protoMsg * msgpacket.MSG_HEARTBEAT) {
+func (pthis*Server) process_MSG_HEARTBEAT (tcpConn *tcp.TcpConnection, protoMsg * msgpacket.MSG_HEARTBEAT) {
 	lin_common.LogDebug(protoMsg)
 
 	msgRes := &msgpacket.MSG_HEARTBEAT_RES{}
 	msgRes.Id = protoMsg.Id
-	pthis.srvMgr.tcpMgr.TcpConnectSendProtoMsg(tcpConnID, msgpacket.MSG_TYPE__MSG_HEARTBEAT_RES, msgRes)
+	TcpConnectSendProtoMsg(tcpConn, msgpacket.MSG_TYPE__MSG_HEARTBEAT_RES, msgRes)
 }
 
 func (pthis*Server) process_MSG_HEARTBEAT_RES (protoMsg * msgpacket.MSG_HEARTBEAT_RES) {
