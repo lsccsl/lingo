@@ -17,10 +17,12 @@ type LogMgr struct {
 	chLog chan *LogMsg
 	logFile string
 	enableLog bool
+	enableConsolePrint bool
 }
 var globalLogMgr = LogMgr{
 	chLog : make(chan *LogMsg, 1000),
 	enableLog : false,
+	enableConsolePrint : false,
 }
 
 func LogDebug(args ... interface{}) {
@@ -52,9 +54,10 @@ func LogErr(args ... interface{}) {
 	globalLogMgr.chLog <- l
 }
 
-func InitLog(str string) {
+func InitLog(str string, enableConsolePrint bool) {
 	globalLogMgr.logFile = str
 	globalLogMgr.enableLog = true
+	globalLogMgr.enableConsolePrint = enableConsolePrint
 	go go_logPrint()
 }
 
@@ -73,6 +76,9 @@ func go_logPrint() {
 	}
 	count := 0
 	for l := range globalLogMgr.chLog{
+		if globalLogMgr.enableConsolePrint {
+			fmt.Print(l.strLog)
+		}
 		if filehandle != nil {
 			_, err = filehandle.WriteString(l.strLog)
 		}

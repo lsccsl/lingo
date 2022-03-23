@@ -285,10 +285,6 @@ func (pthis*ServerMgr)processDailConnect(tcpDial *tcp.TcpConnection){
 		pthis.addServer(srv)
 		srv.PushInterMsg(&interMsgConnDial{tcpDial})
 	}
-
-	msgR := &msgpacket.MSG_SRV_REPORT{}
-	msgR.SrvId = pthis.srvID
-	tcpDial.TcpConnectSendBin(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_SRV_REPORT, msgR))
 }
 
 func (pthis*ServerMgr)processRPCReq(tcpConn *tcp.TcpConnection, msg *msgpacket.MSG_RPC) {
@@ -364,7 +360,15 @@ func (pthis*ServerMgr)Dump(bDtail bool) string {
 		defer pthis.ServerMapMgr.mapServerMutex.Unlock()
 		if bDtail {
 			for _, val := range pthis.ServerMapMgr.mapServer {
-				str += fmt.Sprintf("\r\n server id:%v acpt:%v dial:%v", val.srvID, val.connAcpt.TcpConnectionID(), val.connDial.TcpConnectionID())
+				var connAcptID tcp.TCP_CONNECTION_ID
+				var connDialID tcp.TCP_CONNECTION_ID
+				if val.connAcpt != nil {
+					connAcptID = val.connAcpt.TcpConnectionID()
+				}
+				if val.connDial != nil {
+					connDialID = val.connDial.TcpConnectionID()
+				}
+				str += fmt.Sprintf("\r\n server id:%v acpt:%v dial:%v", val.srvID, connAcptID, connDialID)
 			}
 		}
 		str += "\r\nserver count:" + strconv.Itoa(len(pthis.ServerMapMgr.mapServer))

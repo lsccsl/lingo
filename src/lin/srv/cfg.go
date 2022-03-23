@@ -14,6 +14,7 @@ type ServerOneCfg struct {
 	HttpAddr string `yaml:"http_addr"`
 	AliasName string `yaml:"alias_name"`
 	Cluster string `yaml:"cluster"`
+	LogEnableConsolePrint bool `yaml:"log_enable_console_print"`
 }
 
 type ServerCfg struct {

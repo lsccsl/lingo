@@ -16,9 +16,6 @@ var srvMgr *ServerMgr
 
 // --path="../cfg/cfg.yml" --id=1
 func main() {
-	lin_common.InitLog("./srv.log")
-	msgpacket.InitMsgParseVirtualTable()
-	lin_common.ProfileInit()
 	fmt.Println(os.Args)
 
 	var pathCfg string
@@ -28,6 +25,13 @@ func main() {
 	flag.Parse()
 	ReadCfg(pathCfg)
 	srvCfg := GetSrvCfgByID(id)
+	if srvCfg == nil {
+		fmt.Println("read cfg err", pathCfg)
+	}
+
+	lin_common.InitLog("./srv.log", srvCfg.LogEnableConsolePrint)
+	msgpacket.InitMsgParseVirtualTable()
+	lin_common.ProfileInit()
 
 	srvMgr = ConstructServerMgr(srvCfg.SrvID, 30, 10)
 
