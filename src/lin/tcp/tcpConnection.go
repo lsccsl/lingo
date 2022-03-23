@@ -156,14 +156,14 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 			}()
 
 			var err error
+			var conn net.Conn
 			for i := 0; i < redialCount; i ++ {
 				tBegin := time.Now()
 				lin_common.LogDebug("begin dial:", addr)
-				conn, err := net.DialTimeout("tcp", addr, time.Second * time.Duration(dialTimeoutSec))
-				tcpConn.netConn = conn.(*net.TCPConn)
+				conn, err = net.DialTimeout("tcp", addr, time.Second * time.Duration(dialTimeoutSec))
 				tEnd := time.Now()
-				if err != nil {
-					lin_common.LogErr("will retry ", i, " ", redialCount, " ", tcpConn.netConn, " ", err)
+				if err != nil || conn == nil {
+					lin_common.LogDebug("will retry ", i, " ", redialCount, " ", tcpConn.netConn, " ", err)
 					interval := int64(dialTimeoutSec) - (tEnd.Unix() - tBegin.Unix())
 					runtime.Gosched()
 					if interval <= 0 {
@@ -172,10 +172,11 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 					time.Sleep(time.Second * time.Duration(interval + 1))
 					continue
 				}
+				tcpConn.netConn = conn.(*net.TCPConn)
 				break
 			}
 
-			if err != nil {
+			if err != nil || conn == nil{
 				lin_common.LogErr("fail ", err)
 				if tcpConn.cbTcpConnection != nil {
 					tcpConn.cbTcpConnection.CBConnectClose(tcpConn, TCP_CONNECTION_CLOSE_REASON_dialfail)

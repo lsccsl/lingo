@@ -87,9 +87,11 @@ func (pthis*Server) go_serverProcess() {
 				//log.LogErr("send test from dial, srvid:", pthis.srvID, pthis.heartbeatIntervalSec)
 				chTimer = time.After(time.Second * time.Duration(pthis.heartbeatIntervalSec))
 				//send heartbeat
-				msgTest := &msgpacket.MSG_HEARTBEAT{}
-				msgTest.Id = pthis.srvID
-				pthis.connDial.TcpConnectSendBin(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_HEARTBEAT, msgTest))
+				if pthis.connDial != nil {
+					msgTest := &msgpacket.MSG_HEARTBEAT{}
+					msgTest.Id = pthis.srvID
+					pthis.connDial.TcpConnectSendBin(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_HEARTBEAT, msgTest))
+				}
 			}
 		}
 	}
@@ -100,8 +102,12 @@ func (pthis*Server) go_serverProcess() {
 }
 
 func (pthis*Server) ServerClose() {
-	pthis.connAcpt.TcpConnectClose()
-	pthis.connDial.TcpConnectClose()
+	if pthis.connAcpt != nil {
+		pthis.connAcpt.TcpConnectClose()
+	}
+	if pthis.connDial != nil {
+		pthis.connDial.TcpConnectClose()
+	}
 
 	pthis.chSrvProtoMsg <- nil
 }
