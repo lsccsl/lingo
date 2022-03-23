@@ -184,6 +184,9 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 				if tcpConn.cbTcpConnection != nil {
 					tcpConn.cbTcpConnection.CBConnectClose(tcpConn, TCP_CONNECTION_CLOSE_REASON_dialfail)
 				}
+				if tcpConn.netConn != nil {
+					tcpConn.TcpConnectClose()
+				}
 				return
 			}
 
