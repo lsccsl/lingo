@@ -83,7 +83,7 @@ func main() {
 				lin_common.LogErr(err)
 				return
 			}
-			tcpMgr.TcpDialMgrDial(val.SrvID, dialAddr.IP.String(), dialAddr.Port, 180, 15, true, 10)
+			tcpMgr.TcpDialMgrDial(val.SrvID, dialAddr.IP.String(), dialAddr.Port, 180, 15, true, 3)
 			lin_common.LogDebug(val)
 		}
 	}
