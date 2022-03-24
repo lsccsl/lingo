@@ -33,7 +33,7 @@ func main() {
 	msgpacket.InitMsgParseVirtualTable()
 	lin_common.ProfileInit()
 
-	srvMgr = ConstructServerMgr(srvCfg.SrvID, 30, 1000)
+	srvMgr = ConstructServerMgr(srvCfg.SrvID, 30, 10)
 
 	httpAddr, err := net.ResolveTCPAddr("tcp", srvCfg.HttpAddr)
 	if err != nil {
