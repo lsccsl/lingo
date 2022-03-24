@@ -161,7 +161,7 @@ func (pthis*Server)processConnClose(tcpConn *tcp.TcpConnection){
 		return
 	}
 
-	lin_common.LogDebug(pthis.srvID, " ", pthis)
+	lin_common.LogDebug(pthis.srvID, " will redial", pthis)
 	if pthis.connAcpt != nil {
 		pthis.connAcpt.TcpConnectClose()
 		pthis.connAcpt = nil

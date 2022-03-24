@@ -58,7 +58,7 @@ func ConstructTestSrv(addrLocal string, addrRemote string, srvId int64) *TestSrv
 	Global_wg.Add(2)
 
 	go s.go_tcpDial()
-	go s.go_tcpAcpt()
+	//go s.go_tcpAcpt()
 
 	return s
 }
