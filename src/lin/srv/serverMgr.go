@@ -246,7 +246,7 @@ func (pthis*ServerMgr)processMsg(tcpConn *tcp.TcpConnection, msgType msgpacket.M
 		}
 		pthis.tcpMgr.TcpMgrCloseConn(tcpConn.TcpConnectionID())
 		return
-	} else {
+	} else if tcpConn.ConnData != nil{
 		cli := tcpConn.ConnData.(*Client)
 		if cli != nil {
 			if msgType == msgpacket.MSG_TYPE__MSG_TEST {
@@ -263,7 +263,6 @@ func (pthis*ServerMgr)processMsg(tcpConn *tcp.TcpConnection, msgType msgpacket.M
 
 func (pthis*ServerMgr)processSrvReport(tcpAccept *tcp.TcpConnection, srvID int64){
 	tcpAccept.SrvID = srvID
-
 	srv := pthis.getServer(srvID)
 	if srv != nil {
 		srv.PushInterMsg(&interMsgSrvReport{tcpAccept})
