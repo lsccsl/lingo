@@ -128,7 +128,8 @@ func (pthis*ServerMgr)CBConnectClose(tcpConn *tcp.TcpConnection, closeReason tcp
 		if srv != nil {
 			srv.PushInterMsg(&interMsgConnClose{tcpConn})
 		} else {
-			lin_common.LogDebug("can't find srv id:", tcpConn.SrvID)
+			lin_common.LogDebug("will check redial, can't find srv id:", tcpConn.SrvID)
+			pthis.tcpMgr.TcpDialMgrCheckReDial(tcpConn.SrvID)
 		}
 		//pthis.delServer(tcpConn.SrvID)
 	} else {
