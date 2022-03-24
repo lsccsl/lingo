@@ -51,7 +51,7 @@ func main() {
 	httpSrv.HttpSrvAddCallback("/cmd", func(writer http.ResponseWriter, request *http.Request) {
 		cmd , _ := request.Form["cmd"]
 		if cmd != nil {
-			fmt.Fprint(writer, DoCmd(cmd, len(cmd)))
+			fmt.Fprint(writer, lin_common.DoCmd(cmd, len(cmd)))
 		}
 	})
 
@@ -88,7 +88,7 @@ func main() {
 		}
 	}
 
-	AddCmd("dump", "dump", func(argStr []string)string{
+	lin_common.AddCmd("dump", "dump", func(argStr []string)string{
 		bDetail := false
 		if len(argStr) > 0 {
 			bDetail = true
@@ -99,7 +99,7 @@ func main() {
 	})
 	commandLineInit()
 
-	ParseCmd()
+	lin_common.ParseCmd()
 	tcpMgr.TcpMgrWait()
 }
 

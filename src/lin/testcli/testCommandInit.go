@@ -5,6 +5,7 @@ import (
 	. "lin/msgpacket"
 	"strconv"
 	"sync"
+	"time"
 )
 
 // "github.com/golang/protobuf/proto"
@@ -118,7 +119,8 @@ func CommandLoopTest(argStr []string) {
 
 
 func CommandDump(argStr []string) {
-	var id int64 = 1
+	Global_cliMgr.total = 0
+	var id int64 = 0
 	if len(argStr) >= 1 {
 		id, _ = strconv.ParseInt(argStr[0], 10, 64)
 	}
@@ -128,9 +130,18 @@ func CommandDump(argStr []string) {
 	} else {
 		for _, val := range Global_cliMgr.mapClient {
 			fmt.Println(val.ClientDump())
+			Global_cliMgr.total += val.testCountTotal
 		}
 	}
-	fmt.Println(" client count:", len(Global_cliMgr.mapClient))
+
+	totalDiff := Global_cliMgr.total - Global_cliMgr.totalLast
+	tnow := float64(time.Now().UnixMilli())
+	tdiff := (tnow - Global_cliMgr.timestamp)/float64(1000)
+	aver := float64(totalDiff) / tdiff
+	fmt.Println(" client count:", len(Global_cliMgr.mapClient), " total:", Global_cliMgr.total, " last:", Global_cliMgr.totalLast,
+		" totalDiff:", totalDiff, " tdiff:", tdiff, " aver:", aver)
+	Global_cliMgr.timestamp = tnow
+	Global_cliMgr.totalLast = Global_cliMgr.total
 }
 
 func AddAllCmd(){

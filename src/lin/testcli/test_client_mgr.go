@@ -7,6 +7,10 @@ type MAP_CLIENT map[int64]*ClientTcpInfo
 type ClientMgr struct{
 	mapClientMutex sync.Mutex
 	mapClient MAP_CLIENT
+
+	timestamp float64
+	total int64
+	totalLast int64
 }
 
 func (pthis *ClientMgr)ClientMgrAdd(c *ClientTcpInfo) {

@@ -1,4 +1,4 @@
-package main
+package lin_common
 
 import (
 	"bufio"

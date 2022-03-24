@@ -11,6 +11,7 @@ import (
 var Global_wg sync.WaitGroup
 var Global_cliMgr *ClientMgr = &ClientMgr{
 	mapClient :make(MAP_CLIENT),
+
 }
 
 type TestCfg struct {
@@ -22,7 +23,7 @@ var Global_testCfg = &TestCfg {
 }
 
 func main() {
-	lin_common.InitLog("./testcli.log", false)
+	//lin_common.InitLog("./testcli.log", false)
 	//lin_common.ProfileInit()
 	AddAllCmd()
 	msgpacket.InitMsgParseVirtualTable()

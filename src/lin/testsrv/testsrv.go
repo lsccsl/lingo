@@ -22,6 +22,8 @@ type TestSrv struct {
 
 	addrRemote string
 	addrLocal string
+
+	totalRpcDial int64
 }
 
 func ConstructTestSrv(addrLocal string, addrRemote string, srvId int64) *TestSrv {
@@ -95,6 +97,7 @@ func (pthis*TestSrv)TestSrvDial() (err interface{}) {
 		switch t := msgRsp.(type) {
 		case *msgpacket.MSG_RPC_RES:
 			if t.MsgId == msgRPC.MsgId {
+				pthis.totalRpcDial ++
 				break RSP_LOOP
 			}
 		default:

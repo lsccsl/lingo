@@ -20,6 +20,6 @@ func testrpc(argStr []string)string{
 }
 
 func commandLineInit(){
-	AddCmd("help", "help", DumpAllCmd)
-	AddCmd("testrpc", "testrpc srvID", testrpc)
+	lin_common.AddCmd("help", "help", lin_common.DumpAllCmd)
+	lin_common.AddCmd("testrpc", "testrpc srvID", testrpc)
 }
