@@ -57,8 +57,8 @@ func ConstructTestSrv(addrLocal string, addrRemote string, srvId int64) *TestSrv
 */
 	Global_wg.Add(2)
 
+	go s.go_tcpAcpt()
 	go s.go_tcpDial()
-	//go s.go_tcpAcpt()
 
 	return s
 }
@@ -85,32 +85,23 @@ func (pthis*TestSrv)TestSrvDial() (err interface{}) {
 	}
 	_, err = pthis.tcpDial.Write(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_RPC, msgRPC))
 
-
-	readSize, err := pthis.tcpDial.Read(pthis.TmpBuf)
-	if nil != err {
-		return err
-	}
-	pthis.recvBuf.Write(pthis.TmpBuf[0:readSize])
-	//fmt.Println("tcp read:", readSize, err)
-
-	READ_LOOP:
-	for ; pthis.recvBuf.Len() >= PACK_HEAD_SIZE; {
-		binHead := pthis.recvBuf.Bytes()[0:PACK_HEAD_SIZE]
-
-		packLen := binary.LittleEndian.Uint32(binHead[0:4])
-		packType := binary.LittleEndian.Uint16(binHead[4:6])
-
-		if pthis.recvBuf.Len() < int(packLen){
-			break READ_LOOP
+	RSP_LOOP:
+	for {
+		msgRsp, err := recvProtoMsg(pthis.tcpDial)
+		if err != nil {
+			return err
 		}
 
-		binBody := pthis.recvBuf.Bytes()[6:packLen]
-
-		protoMsg := msgpacket.ParseProtoMsg(binBody, int32(packType))
-		fmt.Println(protoMsg)
-
-		pthis.recvBuf.Next(int(packLen))
+		switch t := msgRsp.(type) {
+		case *msgpacket.MSG_RPC_RES:
+			if t.MsgId == msgRPC.MsgId {
+				break RSP_LOOP
+			}
+		default:
+			fmt.Println(t)
+		}
 	}
+
 	return nil
 }
 
@@ -145,7 +136,7 @@ func (pthis*TestSrv)TestSrvAcpt() (err interface{}) {
 	pthis.recvBuf.Write(pthis.TmpBuf[0:readSize])
 	//fmt.Println("tcp read:", readSize, err)
 
-READ_LOOP:
+	READ_LOOP:
 	for ; pthis.recvBuf.Len() >= PACK_HEAD_SIZE; {
 		binHead := pthis.recvBuf.Bytes()[0:PACK_HEAD_SIZE]
 
@@ -160,6 +151,21 @@ READ_LOOP:
 
 		protoMsg := msgpacket.ParseProtoMsg(binBody, int32(packType))
 		pthis.recvBuf.Next(int(packLen))
+		switch t := protoMsg.(type) {
+		case *msgpacket.MSG_RPC:
+			{
+
+			}
+		case *msgpacket.MSG_HEARTBEAT:
+			{
+				lin_common.LogDebug("MSG_HEARTBEAT:", t.Id)
+				msgHBRsp := &msgpacket.MSG_HEARTBEAT_RES{Id:t.Id}
+				pthis.tcpAcpt.Write(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_HEARTBEAT_RES, msgHBRsp))
+				continue
+			}
+		default:
+			continue
+		}
 
 		fmt.Println(protoMsg)
 		var msgTest *msgpacket.MSG_TEST
@@ -192,7 +198,7 @@ READ_LOOP:
 			if err != nil {
 				continue
 			}
-			pthis.tcpDial.Write(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_RPC_RES, msgRPCRes))
+			pthis.tcpAcpt.Write(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_RPC_RES, msgRPCRes))
 		}
 	}
 
@@ -213,13 +219,19 @@ func (pthis*TestSrv)go_tcpAcpt() {
 			if err != nil {
 				lin_common.LogDebug(err)
 			}
-			msg := recvProtoMsg(pthis.tcpAcpt)
-			msgReport := msg.(*msgpacket.MSG_SRV_REPORT)
-			if msgReport == nil {
-				pthis.tcpAcpt = nil
+			REPORT_LOOP:
+			for {
+				msg, err := recvProtoMsg(pthis.tcpAcpt)
+				if err != nil {
+					break REPORT_LOOP
+				}
+				switch msg.(type) {
+				case *msgpacket.MSG_SRV_REPORT:
+					lin_common.LogDebug(" suc recv srv report")
+					break REPORT_LOOP
+				default:
+				}
 			}
-
-			lin_common.LogDebug(" suc recv srv report")
 		}
 	}
 

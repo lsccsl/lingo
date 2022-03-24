@@ -10,6 +10,7 @@ import (
 	"lin/tcp"
 	"strconv"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -34,7 +35,7 @@ type ServerMapMgr struct {
 	mapServerMutex sync.Mutex
 	mapServer MAP_SERVER
 }
-type ServerStatic struct {
+type ServerMgrStatic struct {
 	totalPacket int64
 	totalRecv int64
 	totalSend int64
@@ -51,7 +52,7 @@ type ServerMgr struct {
 
 	heartbeatIntervalSec int
 
-	ServerStatic
+	ServerMgrStatic
 }
 
 func (pthis*ServerMgr)CBReadProcess(tcpConn *tcp.TcpConnection, recvBuf * bytes.Buffer) (bytesProcess int) {
@@ -288,7 +289,7 @@ func (pthis*ServerMgr)processDailConnect(tcpDial *tcp.TcpConnection){
 
 func (pthis*ServerMgr)processRPCReq(tcpConn *tcp.TcpConnection, msg *msgpacket.MSG_RPC) {
 	msgRPC := msgpacket.ParseProtoMsg(msg.MsgBin, msg.MsgType)
-	lin_common.LogDebug(msgRPC)
+	//lin_common.LogDebug(msgRPC)
 	if tcpConn.SrvID != 0 {
 		srv := pthis.getServer(tcpConn.SrvID)
 		if srv != nil {
@@ -367,7 +368,13 @@ func (pthis*ServerMgr)Dump(bDtail bool) string {
 				if val.connDial != nil {
 					connDialID = val.connDial.TcpConnectionID()
 				}
-				str += fmt.Sprintf("\r\n server id:%v acpt:%v dial:%v", val.srvID, connAcptID, connDialID)
+				totalPacket = atomic.LoadInt64(&val.totalPacket)
+				tnow := float64(time.Now().UnixMilli())
+				aver := float64(totalPacket - val.totalPacketLast) / (tnow - val.timestamp)
+				str += fmt.Sprintf("\r\n server id:%v acpt:%v dial:%v totalPakcet:%v aver:%v",
+					val.srvID, connAcptID, connDialID, totalPacket, aver)
+				val.timestamp = tnow
+				val.totalPacketLast = totalPacket
 			}
 		}
 		str += "\r\nserver count:" + strconv.Itoa(len(pthis.ServerMapMgr.mapServer))

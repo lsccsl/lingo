@@ -9,6 +9,12 @@ import (
 	"time"
 )
 
+type ServerStatic struct {
+	totalPacket int64
+	totalPacketLast int64
+	timestamp float64
+}
+
 type Server struct {
 	srvMgr *ServerMgr
 	srvID         int64
@@ -20,6 +26,8 @@ type Server struct {
 	rpcMgr *RPCManager
 
 	isStopProcess int32
+
+	ServerStatic
 }
 
 type interMsgSrvReport struct {
@@ -199,6 +207,8 @@ func (pthis*Server)Go_ProcessRPC(tcpConn *tcp.TcpConnection, msg *msgpacket.MSG_
 		}
 	}
 
+	atomic.AddInt64(&pthis.totalPacket, 1)
+
 	msgRPCRes := &msgpacket.MSG_RPC_RES{
 		MsgId:msg.MsgId,
 		MsgType:msg.MsgType,
@@ -234,7 +244,7 @@ func (pthis*Server)processRPCRes(tcpConn *tcp.TcpConnection, msg *msgpacket.MSG_
 }
 
 func (pthis*Server)processRPCTest(msg *msgpacket.MSG_TEST) *msgpacket.MSG_TEST_RES {
-	lin_common.LogDebug(msg)
+	//lin_common.LogDebug(msg)
 	return &msgpacket.MSG_TEST_RES{Id: msg.Id, Str:msg.Str}
 }
 
