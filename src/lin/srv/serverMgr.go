@@ -368,14 +368,14 @@ func (pthis*ServerMgr)Dump(bDtail bool) string {
 				if val.connDial != nil {
 					connDialID = val.connDial.TcpConnectionID()
 				}
-				totalPacket = atomic.LoadInt64(&val.totalPacket)
+				totalRPCPacket := atomic.LoadInt64(&val.totalRPCPacket)
 				tnow := float64(time.Now().UnixMilli())
 				tdiff := (tnow - val.timestamp)/float64(1000)
-				aver := float64(totalPacket - val.totalPacketLast) / tdiff
+				aver := float64(totalRPCPacket - val.totalRPCPacketLast) / tdiff
 				str += fmt.Sprintf("\r\n server id:%v acpt:%v dial:%v totalPakcet:%v aver:%v tdiff:%v",
-					val.srvID, connAcptID, connDialID, totalPacket, aver, tdiff)
+					val.srvID, connAcptID, connDialID, totalRPCPacket, aver, tdiff)
 				val.timestamp = tnow
-				val.totalPacketLast = totalPacket
+				val.totalRPCPacketLast = totalRPCPacket
 			}
 		}
 		str += "\r\nserver count:" + strconv.Itoa(len(pthis.ServerMapMgr.mapServer))

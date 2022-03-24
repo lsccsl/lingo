@@ -10,8 +10,8 @@ import (
 )
 
 type ServerStatic struct {
-	totalPacket int64
-	totalPacketLast int64
+	totalRPCPacket int64
+	totalRPCPacketLast int64
 	timestamp float64
 }
 
@@ -207,7 +207,7 @@ func (pthis*Server)Go_ProcessRPC(tcpConn *tcp.TcpConnection, msg *msgpacket.MSG_
 		}
 	}
 
-	atomic.AddInt64(&pthis.totalPacket, 1)
+	atomic.AddInt64(&pthis.totalRPCPacket, 1)
 
 	msgRPCRes := &msgpacket.MSG_RPC_RES{
 		MsgId:msg.MsgId,
