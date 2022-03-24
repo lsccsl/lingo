@@ -6,24 +6,27 @@ import (
 	"runtime"
 )
 
+type ERR_NUM int
+
 const (
-	ERR_NONE = 0
-	ERR_no_dialData = 1
-	ERR_not_tcp_connection = 2
+	ERR_NONE ERR_NUM = 0
+	ERR_no_dialData ERR_NUM = 1
+	ERR_not_tcp_connection ERR_NUM = 2
+	ERR_need_not_dial ERR_NUM = 3
 )
 
 type MyError struct {
 	Errfile string
 	Errline int
 	ErrFunc string
-	ErrNo int
+	ErrNo ERR_NUM
 	ErrString string
 }
 
 func (pthis*MyError)Error() string {
 	return pthis.ErrString
 }
-func GenErr(errNo int, param... interface{})*MyError {
+func GenErr(errNo ERR_NUM, param... interface{})*MyError {
 	pc,filename, line, _ := runtime.Caller(1)
 	funcName := runtime.FuncForPC(pc).Name()
 

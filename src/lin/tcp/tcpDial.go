@@ -1,6 +1,7 @@
 package tcp
 
 import (
+	"lin/lin_common"
 	"sync"
 )
 
@@ -119,17 +120,17 @@ func (pthis *TcpDialMgr) TcpDialMgrDial(srvID int64, ip string, port int, closeE
 	return tcpConn, nil
 }
 
-func (pthis *TcpDialMgr) TcpDialMgrCheckReDial(srvID int64) {
+func (pthis *TcpDialMgr) TcpDialMgrCheckReDial(srvID int64) (*TcpConnection, error) {
 	dd := pthis.getDialData(srvID)
 	if dd == nil {
-		return
+		return nil, lin_common.GenErr(lin_common.ERR_no_dialData,"not dial data")
 	}
 	if !dd.needRedial {
 		pthis.delDialData(srvID)
-		return
+		return nil, lin_common.GenErr(lin_common.ERR_need_not_dial,"not dial data")
 	}
 
-	pthis.TcpDialMgrDial(dd.srvID, dd.ip, dd.port, dd.closeExpireSec, dd.dialTimeoutSec, dd.needRedial, dd.redialCount)
+	return pthis.TcpDialMgrDial(dd.srvID, dd.ip, dd.port, dd.closeExpireSec, dd.dialTimeoutSec, dd.needRedial, dd.redialCount)
 }
 
 func (pthis *TcpDialMgr) TcpDialDelDialData(srvID int64) {

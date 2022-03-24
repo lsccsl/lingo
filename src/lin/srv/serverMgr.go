@@ -127,6 +127,8 @@ func (pthis*ServerMgr)CBConnectClose(tcpConn *tcp.TcpConnection, closeReason tcp
 		srv := pthis.getServer(tcpConn.SrvID)
 		if srv != nil {
 			srv.PushInterMsg(&interMsgConnClose{tcpConn})
+		} else {
+			lin_common.LogDebug("can't find srv id:", tcpConn.SrvID)
 		}
 		//pthis.delServer(tcpConn.SrvID)
 	} else {
@@ -267,9 +269,8 @@ func (pthis*ServerMgr)processSrvReport(tcpAccept *tcp.TcpConnection, srvID int64
 		srv.PushInterMsg(&interMsgSrvReport{tcpAccept})
 		return
 	} else {
-		srv = ConstructServer(pthis, srvID, pthis.heartbeatIntervalSec)
+		srv = ConstructServer(pthis, nil, tcpAccept, srvID, pthis.heartbeatIntervalSec)
 		pthis.addServer(srv)
-		srv.PushInterMsg(&interMsgSrvReport{tcpAccept})
 		return
 	}
 }
@@ -280,9 +281,8 @@ func (pthis*ServerMgr)processDailConnect(tcpDial *tcp.TcpConnection){
 	if srv != nil {
 		srv.PushInterMsg(&interMsgConnDial{tcpDial})
 	} else {
-		srv = ConstructServer(pthis, srvID, pthis.heartbeatIntervalSec)
+		srv = ConstructServer(pthis, tcpDial, nil, srvID, pthis.heartbeatIntervalSec)
 		pthis.addServer(srv)
-		srv.PushInterMsg(&interMsgConnDial{tcpDial})
 	}
 }
 
@@ -357,7 +357,7 @@ func (pthis*ServerMgr)Dump(bDtail bool) string {
 	func(){
 		pthis.ServerMapMgr.mapServerMutex.Lock()
 		defer pthis.ServerMapMgr.mapServerMutex.Unlock()
-		if bDtail {
+		/*if bDtail*/ {
 			for _, val := range pthis.ServerMapMgr.mapServer {
 				var connAcptID tcp.TCP_CONNECTION_ID
 				var connDialID tcp.TCP_CONNECTION_ID

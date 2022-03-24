@@ -32,12 +32,12 @@ type interMsgConnClose struct {
 	tcpConn *tcp.TcpConnection
 }
 
-func ConstructServer(srvMgr *ServerMgr, srvID int64, heartbeatIntervalSec int)*Server {
+func ConstructServer(srvMgr *ServerMgr, connDial *tcp.TcpConnection, connAcpt *tcp.TcpConnection, srvID int64, heartbeatIntervalSec int)*Server {
 	s := &Server{
 		srvMgr:srvMgr,
 		srvID:srvID,
-		connDial:nil,
-		connAcpt:nil,
+		connDial:connDial,
+		connAcpt:connAcpt,
 		chSrvProtoMsg:make(chan *interProtoMsg, 100),
 		chInterMsg:make(chan interface{}, 100),
 		heartbeatIntervalSec:heartbeatIntervalSec,
@@ -148,6 +148,7 @@ func (pthis*Server)processConnClose(tcpConn *tcp.TcpConnection){
 		}
 	}
 	if !bRedial {
+		lin_common.LogErr("not redial:", pthis.connAcpt, pthis.connDial)
 		return
 	}
 
@@ -160,7 +161,7 @@ func (pthis*Server)processConnClose(tcpConn *tcp.TcpConnection){
 	}
 	pthis.connAcpt = nil
 	pthis.connDial = nil
-	pthis.srvMgr.tcpMgr.TcpDialMgrCheckReDial(tcpConn.SrvID)
+	pthis.connDial, _ = pthis.srvMgr.tcpMgr.TcpDialMgrCheckReDial(tcpConn.SrvID)
 }
 
 func (pthis*Server)PushInterMsg(msg interface{}){
