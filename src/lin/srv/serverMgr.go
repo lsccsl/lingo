@@ -370,11 +370,11 @@ func (pthis*ServerMgr)Dump(bDtail bool) string {
 				}
 				totalRPCPacket := atomic.LoadInt64(&val.totalRPCPacket)
 				tnow := float64(time.Now().UnixMilli())
-				tdiff := (tnow - val.timestamp)/float64(1000)
-				diffTotal := totalRPCPacket - val.totalRPCPacketLast
-				aver := float64(diffTotal) / tdiff
-				str += fmt.Sprintf("\r\n server id:%v acpt:%v dial:%v totalPakcet:%v diffTotal:%v aver:%v tdiff:%v",
-					val.srvID, connAcptID, connDialID, totalRPCPacket, diffTotal, aver, tdiff)
+				tRPCdiff := (tnow - val.timestamp)/float64(1000)
+				diffRPCTotal := totalRPCPacket - val.totalRPCPacketLast
+				aver := float64(diffRPCTotal) / tRPCdiff
+				str += fmt.Sprintf("\r\n server id:%v acpt:%v dial:%v totalPakcet:%v diffRPCTotal:%v aver:%v tdiff:%v",
+					val.srvID, connAcptID, connDialID, totalRPCPacket, diffRPCTotal, aver, tRPCdiff)
 				val.timestamp = tnow
 				val.totalRPCPacketLast = totalRPCPacket
 			}
