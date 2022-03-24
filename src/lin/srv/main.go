@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"lin/lin_common"
@@ -13,6 +14,12 @@ import (
 )
 
 var srvMgr *ServerMgr
+
+type ServerFromHttp struct {
+	SrvID int64
+	IP string
+	Port int
+}
 
 // --path="../cfg/cfg.yml" --id=1
 func main() {
@@ -40,20 +47,10 @@ func main() {
 		lin_common.LogErr(err)
 		return
 	}
-	httpSrv, err := StartHttpSrvMgr(httpAddr.IP.String(), httpAddr.Port)
+	httpSrv, err := lin_common.StartHttpSrvMgr(httpAddr.IP.String(), httpAddr.Port)
 	if err != nil {
 		lin_common.LogErr(err)
 	}
-
-	httpSrv.HttpSrvAddCallback("/test", func(writer http.ResponseWriter, request *http.Request) {
-		fmt.Fprint(writer, request.URL.Path, " ", request.Form)
-	})
-	httpSrv.HttpSrvAddCallback("/cmd", func(writer http.ResponseWriter, request *http.Request) {
-		cmd , _ := request.Form["cmd"]
-		if cmd != nil {
-			fmt.Fprint(writer, lin_common.DoCmd(cmd, len(cmd)))
-		}
-	})
 
 	tcpAddr, err := net.ResolveTCPAddr("tcp", srvCfg.BindAddr)
 	if err != nil {
@@ -98,6 +95,25 @@ func main() {
 		return str
 	})
 	commandLineInit()
+
+	httpSrv.HttpSrvAddCallback("/test", func(writer http.ResponseWriter, request *http.Request) {
+		fmt.Fprint(writer, request.URL.Path, " ", request.Form)
+	})
+	httpSrv.HttpSrvAddCallback("/cmd", func(writer http.ResponseWriter, request *http.Request) {
+		cmd , _ := request.Form["cmd"]
+		if cmd != nil {
+			fmt.Fprint(writer, lin_common.DoCmd(cmd, len(cmd)))
+		}
+	})
+	httpSrv.HttpSrvAddCallback("/addserver", func(writer http.ResponseWriter, request *http.Request) {
+		bin := make([]byte, request.ContentLength, request.ContentLength)
+		request.Body.Read(bin)
+		lin_common.LogDebug(string(bin), " ", bin, " len:", request.ContentLength)
+		sh := &ServerFromHttp{}
+		json.Unmarshal(bin, sh)
+		tcpMgr.TcpDialMgrDial(sh.SrvID, sh.IP, sh.Port, 180, 15, true, 3)
+		writer.Write(bin)
+	})
 
 	lin_common.ParseCmd()
 	tcpMgr.TcpMgrWait()

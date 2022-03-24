@@ -35,32 +35,14 @@ func ConstructTestSrv(addrLocal string, addrRemote string, srvId int64) *TestSrv
 		addrRemote : addrRemote,
 		addrLocal : addrLocal,
 	}
+	Global_TestSrvMgr.TestSrvMgrAdd(s)
 
-/*	var err error
-	lsn, err := net.Listen("tcp", addrLocal)
-	s.tcpAcpt, err = lsn.Accept()
-	if err != nil {
-		lin_common.LogDebug(err)
-	}
-
-	msg := recvProtoMsg(s.tcpAcpt)
-	msgReport := msg.(*msgpacket.MSG_SRV_REPORT)
-	if msgReport == nil {
-		return nil
-	}*/
-
-/*	s.tcpDial, err = net.Dial("tcp", addrRemote)
-	if err != nil {
-		lin_common.LogDebug(err)
-	}
-
-	msgReport = &msgpacket.MSG_SRV_REPORT{SrvId: srvId}
-	s.tcpDial.Write(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_SRV_REPORT, msgReport))
-*/
 	Global_wg.Add(2)
-
 	go s.go_tcpAcpt()
-	go s.go_tcpDial()
+
+	if len(addrLocal) > 0 {
+		go s.go_tcpDial()
+	}
 
 	return s
 }

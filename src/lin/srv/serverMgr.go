@@ -47,7 +47,7 @@ type ServerMgr struct {
 	ClientMapMgr
 	ServerMapMgr
 	tcpMgr *tcp.TcpMgr
-	httpSrv *HttpSrvMgr
+	httpSrv *lin_common.HttpSrvMgr
 	rpcPool *cor_pool.CorPool
 
 	heartbeatIntervalSec int

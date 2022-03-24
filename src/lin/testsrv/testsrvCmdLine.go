@@ -3,8 +3,28 @@ package main
 import (
 	"fmt"
 	"lin/lin_common"
+	"strconv"
 	"time"
 )
+
+func MultiSrv(count int, idbase int) {
+	for i := 0; i < count; i ++ {
+		ConstructTestSrv("", Global_testCfg.addr, int64(idbase + i))
+	}
+}
+func CommandNewSrv(argStr []string) string {
+	count := 10
+	if len(argStr) >= 1 {
+		count, _ = strconv.Atoi(argStr[0])
+	}
+	idbase := 10
+	if len(argStr) >= 2 {
+		idbase, _ = strconv.Atoi(argStr[1])
+	}
+
+	MultiSrv(count, idbase)
+	return ""
+}
 
 func CommandDump(argStr []string) string {
 	Global_TestSrvMgr.total = 0
@@ -26,4 +46,5 @@ func CommandDump(argStr []string) string {
 func commandLineInit(){
 	lin_common.AddCmd("dump", "dump id",CommandDump)
 	lin_common.AddCmd("help", "help", lin_common.DumpAllCmd)
+	lin_common.AddCmd("ns", "new server", CommandNewSrv)
 }
