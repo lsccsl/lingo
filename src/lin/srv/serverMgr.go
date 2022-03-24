@@ -265,24 +265,24 @@ func (pthis*ServerMgr)processMsg(tcpConn *tcp.TcpConnection, msgType msgpacket.M
 func (pthis*ServerMgr)processSrvReport(tcpAccept *tcp.TcpConnection, srvID int64){
 	tcpAccept.SrvID = srvID
 	srv := pthis.getServer(srvID)
-	if srv != nil {
-		srv.PushInterMsg(&interMsgSrvReport{tcpAccept})
-		return
-	} else {
+	if srv == nil {
 		srv = ConstructServer(pthis, nil, tcpAccept, srvID, pthis.heartbeatIntervalSec)
 		pthis.addServer(srv)
-		return
+	}
+	if srv != nil {
+		srv.PushInterMsg(&interMsgSrvReport{tcpAccept})
 	}
 }
 
 func (pthis*ServerMgr)processDailConnect(tcpDial *tcp.TcpConnection){
 	srvID := tcpDial.SrvID
 	srv := pthis.getServer(srvID)
-	if srv != nil {
-		srv.PushInterMsg(&interMsgConnDial{tcpDial})
-	} else {
+	if srv == nil {
 		srv = ConstructServer(pthis, tcpDial, nil, srvID, pthis.heartbeatIntervalSec)
 		pthis.addServer(srv)
+	}
+	if srv != nil {
+		srv.PushInterMsg(&interMsgConnDial{tcpDial})
 	}
 }
 

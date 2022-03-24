@@ -44,6 +44,9 @@ func ConstructServer(srvMgr *ServerMgr, connDial *tcp.TcpConnection, connAcpt *t
 		rpcMgr:ConstructRPCManager(),
 		isStopProcess:0,
 	}
+	if s.connDial == nil && s.connAcpt == nil {
+		lin_common.LogErr("connDial and connAcpt is nil:", srvID)
+	}
 	go s.go_serverProcess()
 	return s
 }
@@ -136,6 +139,9 @@ func (pthis*Server)processConnClose(tcpConn *tcp.TcpConnection){
 		return
 	}
 
+	if pthis.connDial == nil && pthis.connAcpt == nil {
+		lin_common.LogErr("connDial and connAcpt is nil:", pthis.srvID, " connection id:", tcpConn.TcpConnectionID())
+	}
 	bRedial := false
 	if pthis.connAcpt != nil {
 		if tcpConn.TcpConnectionID() == pthis.connAcpt.TcpConnectionID() {
