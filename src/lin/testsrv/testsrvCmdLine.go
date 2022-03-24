@@ -9,15 +9,22 @@ import (
 
 func MultiSrv(count int, idbase int) {
 	for i := 0; i < count; i ++ {
-		ConstructTestSrv("", Global_testCfg.addr, int64(idbase + i))
+		srvid := int64(idbase + i)
+		port := Global_testCfg.local_port_start + i
+		httpAddDial(&ServerFromHttp{
+			SrvID: srvid,
+			IP: Global_testCfg.local_ip,
+			Port: port,
+		})
+		ConstructTestSrv(Global_testCfg.local_ip + ":" + strconv.Itoa(port), Global_testCfg.ip + ":" + strconv.Itoa(Global_testCfg.port), int64(idbase + i))
 	}
 }
-func CommandNewSrv(argStr []string) string {
-	count := 10
+func CommandMultiSrv(argStr []string) string {
+	count := 1
 	if len(argStr) >= 1 {
 		count, _ = strconv.Atoi(argStr[0])
 	}
-	idbase := 10
+	idbase := 100
 	if len(argStr) >= 2 {
 		idbase, _ = strconv.Atoi(argStr[1])
 	}
@@ -46,5 +53,5 @@ func CommandDump(argStr []string) string {
 func commandLineInit(){
 	lin_common.AddCmd("dump", "dump id",CommandDump)
 	lin_common.AddCmd("help", "help", lin_common.DumpAllCmd)
-	lin_common.AddCmd("ns", "new server", CommandNewSrv)
+	lin_common.AddCmd("ms", "multi server", CommandMultiSrv)
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"lin/lin_common"
 	"net/http"
 	"net/url"
 	"strings"
@@ -12,6 +13,12 @@ type ServerFromHttp struct {
 	SrvID int64
 	IP string
 	Port int
+}
+
+func httpAddDial(sh*ServerFromHttp) {
+	jBin, _ := json.Marshal(sh)
+	res, err := http.Post(Global_testCfg.httpAddr, "application/text", strings.NewReader(string(jBin)))
+	lin_common.LogDebug(err, res)
 }
 
 func testhttp() {
