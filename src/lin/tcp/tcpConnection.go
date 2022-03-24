@@ -162,11 +162,11 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 			var conn net.Conn
 			for i := 0; i < redialCount; i ++ {
 				tBegin := time.Now()
-				lin_common.LogDebug("begin dial:", addr)
+				lin_common.LogDebug(tcpConn.connectionID, "begin dial:", addr)
 				conn, err = net.DialTimeout("tcp", addr, time.Second * time.Duration(dialTimeoutSec))
 				tEnd := time.Now()
 				if err != nil || conn == nil {
-					lin_common.LogDebug("will retry ", i, " ", redialCount, " ", tcpConn.netConn, " ", err)
+					lin_common.LogDebug(tcpConn.connectionID, " will retry ", i, " ", redialCount, " ", tcpConn.netConn, " ", err)
 					interval := int64(dialTimeoutSec) - (tEnd.Unix() - tBegin.Unix())
 					runtime.Gosched()
 					if interval <= 0 {
