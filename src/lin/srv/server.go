@@ -148,25 +148,28 @@ func (pthis*Server)processConnClose(tcpConn *tcp.TcpConnection){
 			bRedial = true
 		}
 	}
-	if pthis.connDial != nil {
+	if pthis.connDial == nil {
+		bRedial = true
+	} else {
 		if tcpConn.TcpConnectionID() == pthis.connDial.TcpConnectionID() {
 			bRedial = true
 		}
 	}
+
 	if !bRedial {
-		lin_common.LogErr("not redial:", pthis.connAcpt, pthis.connDial)
+		lin_common.LogErr("not redial:", pthis.connAcpt, " connDial:", pthis.connDial, " tcpConn:", tcpConn)
 		return
 	}
 
 	lin_common.LogDebug(pthis.srvID, " ", pthis)
 	if pthis.connAcpt != nil {
 		pthis.connAcpt.TcpConnectClose()
+		pthis.connAcpt = nil
 	}
 	if pthis.connDial != nil {
 		pthis.connDial.TcpConnectClose()
+		pthis.connDial = nil
 	}
-	pthis.connAcpt = nil
-	pthis.connDial = nil
 	pthis.connDial, _ = pthis.srvMgr.tcpMgr.TcpDialMgrCheckReDial(tcpConn.SrvID)
 }
 
