@@ -370,9 +370,10 @@ func (pthis*ServerMgr)Dump(bDtail bool) string {
 				}
 				totalPacket = atomic.LoadInt64(&val.totalPacket)
 				tnow := float64(time.Now().UnixMilli())
-				aver := float64(totalPacket - val.totalPacketLast) / ((tnow - val.timestamp))/(float64(1000))
-				str += fmt.Sprintf("\r\n server id:%v acpt:%v dial:%v totalPakcet:%v aver:%v",
-					val.srvID, connAcptID, connDialID, totalPacket, aver)
+				tdiff := (tnow - val.timestamp)/float64(1000)
+				aver := float64(totalPacket - val.totalPacketLast) / tdiff
+				str += fmt.Sprintf("\r\n server id:%v acpt:%v dial:%v totalPakcet:%v aver:%v tdiff:%v",
+					val.srvID, connAcptID, connDialID, totalPacket, aver, tdiff)
 				val.timestamp = tnow
 				val.totalPacketLast = totalPacket
 			}
