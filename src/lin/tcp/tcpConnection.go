@@ -264,13 +264,12 @@ func (pthis *TcpConnection)go_tcpConnRead() {
 		pthis.netConn.SetReadDeadline(time.Now().Add(time.Second * time.Duration(pthis.closeExpireSec)))
 		readSize, err := pthis.netConn.Read(TmpBuf)
 		if err != nil {
+			lin_common.LogDebug(pthis.connectionID, " clientid:", pthis.ClientID, " srvid:", pthis.SrvID, " err:", err)
 			switch t := err.(type) {
 			case net.Error:
 				{
 					if t.Timeout(){
-						lin_common.LogDebug("close read tcp, reason time out:", t)
 						pthis.TcpConnectSetCloseReason(TCP_CONNECTION_CLOSE_REASON_timeout)
-						//continue
 					} else if t.Temporary() {
 						lin_common.LogDebug("temporary:", t)
 						continue
