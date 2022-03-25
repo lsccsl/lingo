@@ -190,15 +190,19 @@ func (pthis *CorPool) corPoolAddFreeWorker(worker *_corPoolWorker) {
 	pthis.lockPool_.Lock()
 	defer pthis.lockPool_.Unlock()
 
+	bNeedTriggerSignal := false
 	if pthis.corCount_ >= pthis.maxCorCount_ && pthis.WorkerFree_.Len() == 0 {
+		bNeedTriggerSignal = true
+	}
+	pthis.WorkerFree_.PushFront(worker)
+
+	if (bNeedTriggerSignal) {
 		pthis.condPool_.L.Lock()
 		//("signal")
 		pthis.condPoolTrigger = true
 		pthis.condPool_.Signal()
 		pthis.condPool_.L.Unlock()
 	}
-
-	pthis.WorkerFree_.PushFront(worker)
 }
 
 // add a job to coroutine pool

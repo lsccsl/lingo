@@ -293,7 +293,6 @@ func (pthis*ServerMgr)processRPCReq(tcpConn *tcp.TcpConnection, msg *msgpacket.M
 	if tcpConn.SrvID != 0 {
 		srv := pthis.getServer(tcpConn.SrvID)
 		if srv != nil {
-			//srv.Go_ProcessRPC(tcpConn, msg, msgRPC)
 			err := pthis.rpcPool.CorPoolAddJob(&cor_pool.CorPoolJobData{
 				JobType_ : EN_CORPOOL_JOBTYPE_Rpc_req,
 				JobCB_   : func(jd cor_pool.CorPoolJobData){
