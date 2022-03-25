@@ -145,11 +145,12 @@ func (pthis *CorPool) CorPoolAddJob(jobR *CorPoolJobData /* ready only */) error
 		lin_common.LogDebug("no worker, wait for free worker ~~~~~~~~~~~~~~~~~~~ cor:",
 			pthis.corCount_, " free:", pthis.WorkerFree_.Len(), " condPoolTrigger:", pthis.condPoolTrigger)
 
-		if !pthis.condPoolTrigger {
+		pthis.condPool_.Wait()
+/*		if !pthis.condPoolTrigger {
 			pthis.condPoolTrigger = false
 			//println("wait signal")
 			pthis.condPool_.Wait()
-		}
+		}*/
 	}
 
 	if pthis.corCount_ >= pthis.maxCorCount_ && pthis.WorkerFree_.Len() == 0 {
