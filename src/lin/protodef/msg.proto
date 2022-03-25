@@ -46,6 +46,7 @@ message MSG_RPC_RES
 message MSG_SRV_REPORT
 {
     int64 srv_id = 1;
+    int64 tcp_conn_id = 2;
 }
 message MSG_SRV_REPORT_RES
 {

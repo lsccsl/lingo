@@ -1,30 +1,76 @@
 package main
 
 import (
+	"bytes"
 	"encoding/binary"
 	"github.com/golang/protobuf/proto"
+	"lin/lin_common"
 	"lin/msgpacket"
 	"net"
+	"time"
 )
 
 const PACK_HEAD_SIZE int = 6
 
-func recvProtoMsg(tcpConn net.Conn) (proto.Message, error) {
-	binHead := make([]byte, PACK_HEAD_SIZE)
-	_, err := tcpConn.Read(binHead)
-	if err != nil {
-		return nil, err
+func recvProtoMsg(tcpConn *net.TCPConn, timeOutSend int, retryCount int) (proto.Message, error) {
+	defer func() {
+		tcpConn.SetReadDeadline(time.Time{})
+	}()
+
+	recvBuf := bytes.NewBuffer(make([]byte, 0, MAX_PACK_LEN))
+
+	readSize := 0
+	for i := 0; i < retryCount && readSize < PACK_HEAD_SIZE; i ++ {
+		bin := make([]byte, PACK_HEAD_SIZE - readSize)
+		tcpConn.SetReadDeadline(time.Now().Add(time.Second * time.Duration(timeOutSend)))
+		rz, err := tcpConn.Read(bin)
+		if err != nil {
+			lin_common.LogDebug(err)
+			continue
+		}
+		readSize += rz
+		recvBuf.Write(bin)
+		if readSize >= PACK_HEAD_SIZE {
+			break
+		}
 	}
 
-	packLen := binary.LittleEndian.Uint32(binHead[0:4])
+	if readSize < PACK_HEAD_SIZE {
+		lin_common.LogDebug("read msg head err:", readSize)
+		return nil, lin_common.GenErr(lin_common.ERR_NONE, "")
+	}
+
+	binHead := recvBuf.Bytes()[0:PACK_HEAD_SIZE]
+	packLen := int(binary.LittleEndian.Uint32(binHead[0:4]))
 	packType := binary.LittleEndian.Uint16(binHead[4:6])
+	recvBuf.Next(PACK_HEAD_SIZE)
 
-	binBody:= make([]byte, packLen)
-	_, err = tcpConn.Read(binBody)
-	if err != nil {
-		return nil, err
+	packLen = packLen - PACK_HEAD_SIZE
+	if packLen > 0 {
+		readSize = 0
+		for j := 0; j < retryCount && readSize < packLen; j ++ {
+			bin:= make([]byte, packLen - readSize)
+			tcpConn.SetReadDeadline(time.Now().Add(time.Second * time.Duration(timeOutSend)))
+			rz, err := tcpConn.Read(bin)
+			if err != nil {
+				lin_common.LogDebug(err)
+				continue
+			}
+			readSize += rz
+			recvBuf.Write(bin)
+			if readSize >= packLen {
+				break
+			}
+		}
+		if readSize < packLen {
+			lin_common.LogDebug("read msg body err:", readSize)
+			return nil, lin_common.GenErr(lin_common.ERR_NONE, "")
+		}
+	} else {
+		packLen = 0
 	}
 
+	binBody := recvBuf.Bytes()[0:packLen]
 	msg := msgpacket.ParseProtoMsg(binBody, int32(packType))
 	return msg, nil
 }

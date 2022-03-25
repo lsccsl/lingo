@@ -146,6 +146,7 @@ func (pthis*Server)processDailConnect(tcpDial *tcp.TcpConnection){
 
 	msgR := &msgpacket.MSG_SRV_REPORT{}
 	msgR.SrvId = pthis.srvMgr.srvID
+	msgR.TcpConnId = int64(tcpDial.TcpConnectionID())
 	tcpDial.TcpConnectSendBin(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_SRV_REPORT, msgR))
 }
 
