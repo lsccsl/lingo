@@ -11,6 +11,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"strconv"
 )
 
 var srvMgr *ServerMgr
@@ -87,11 +88,19 @@ func main() {
 
 	lin_common.AddCmd("dump", "dump", func(argStr []string)string{
 		bDetail := false
-		if len(argStr) > 0 {
-			bDetail = true
+		bLog := true
+		if len(argStr) >= 1 {
+			detail, _ := strconv.Atoi(argStr[0])
+			bDetail = (detail != 0)
+		}
+		if len(argStr) >= 2 {
+			needLog, _ := strconv.Atoi(argStr[1])
+			bLog = (needLog != 0)
 		}
 		str := srvMgr.Dump(bDetail)
-		lin_common.LogDebug(str)
+		if bLog {
+			lin_common.LogDebug(str)
+		}
 		return str
 	})
 	commandLineInit()
