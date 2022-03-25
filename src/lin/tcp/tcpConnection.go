@@ -357,6 +357,9 @@ func (pthis *TcpConnection)go_tcpConnWrite() {
 				pthis.netConn.Close()
 				break WRITE_LOOP
 			}
+			if writeSZ < len(tcpW.bin) {
+				lin_common.LogErr("write sz wrong:", writeSZ)
+			}
 			pthis.ByteSend += int64(writeSZ)
 			pthis.SendCount ++
 		}
