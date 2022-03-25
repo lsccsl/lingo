@@ -121,22 +121,15 @@ func (worker *_corPoolWorker) _corWorkerQuit() {
 
 
 func (pthis *CorPool) corPoolAddFreeWorker(worker *_corPoolWorker) {
-	bNeedTriggerSignal := false
 
 	pthis.condPool_.L.Lock()
 	if pthis.corCount_ >= pthis.maxCorCount_ && pthis.WorkerFree_.Len() == 0 {
-		bNeedTriggerSignal = true
-	}
-	pthis.WorkerFree_.PushFront(worker)
-	if (bNeedTriggerSignal) {
-		//lin_common.LogDebug("trigger signal")
 		pthis.condPoolTrigger = true
 	}
+	pthis.WorkerFree_.PushFront(worker)
 	pthis.condPool_.L.Unlock()
 
-	if (bNeedTriggerSignal) {
-		pthis.condPool_.Signal()
-	}
+	pthis.condPool_.Signal()
 }
 
 
