@@ -63,8 +63,6 @@ type _corPoolWorker struct {
 
 // coroutine pool define
 type CorPool struct {
-	lockPool_ sync.Mutex
-
 	condPool_       *sync.Cond
 	condPoolTrigger bool
 
@@ -123,20 +121,20 @@ func (worker *_corPoolWorker) _corWorkerQuit() {
 
 
 func (pthis *CorPool) corPoolAddFreeWorker(worker *_corPoolWorker) {
-	pthis.lockPool_.Lock()
-	defer pthis.lockPool_.Unlock()
-
 	bNeedTriggerSignal := false
+
+	pthis.condPool_.L.Lock()
 	if pthis.corCount_ >= pthis.maxCorCount_ && pthis.WorkerFree_.Len() == 0 {
 		bNeedTriggerSignal = true
 	}
 	pthis.WorkerFree_.PushFront(worker)
-
 	if (bNeedTriggerSignal) {
 		//lin_common.LogDebug("trigger signal")
-		pthis.condPool_.L.Lock()
 		pthis.condPoolTrigger = true
-		pthis.condPool_.L.Unlock()
+	}
+	pthis.condPool_.L.Unlock()
+
+	if (bNeedTriggerSignal) {
 		pthis.condPool_.Signal()
 	}
 }
@@ -147,58 +145,46 @@ func (worker *_corPoolWorker) _corWorkerAddJob(job *CorPoolJobData) {
 }
 // add a job to coroutine pool
 func (pthis *CorPool) CorPoolAddJob(jobR *CorPoolJobData /* ready only */) error {
-	{
-		pthis.lockPool_.Lock()
+	pthis.condPool_.L.Lock()
+	defer pthis.condPool_.L.Unlock()
 
-		if pthis.corCount_ >= pthis.maxCorCount_ && pthis.WorkerFree_.Len() == 0 {
-			pthis.lockPool_.Unlock()
-			lin_common.LogDebug("no worker, wait for free worker ~~~~~~~~~~~~~~~~~~~ cor:",
-				pthis.corCount_, " free:", pthis.WorkerFree_.Len(), " condPoolTrigger:", pthis.condPoolTrigger)
+	if pthis.corCount_ >= pthis.maxCorCount_ && pthis.WorkerFree_.Len() == 0 {
+		lin_common.LogDebug("no worker, wait for free worker ~~~~~~~~~~~~~~~~~~~ cor:",
+			pthis.corCount_, " free:", pthis.WorkerFree_.Len(), " condPoolTrigger:", pthis.condPoolTrigger)
 
-			pthis.condPool_.L.Lock()
-			if !pthis.condPoolTrigger {
-				pthis.condPoolTrigger = false
-				//println("wait signal")
-				pthis.condPool_.Wait()
-			}
-			pthis.condPool_.L.Unlock()
+		if !pthis.condPoolTrigger {
+			pthis.condPoolTrigger = false
+			//println("wait signal")
+			pthis.condPool_.Wait()
+		}
+	}
 
-			pthis.lockPool_.Lock()
+	if pthis.corCount_ >= pthis.maxCorCount_ && pthis.WorkerFree_.Len() == 0 {
+		return genCorpErr(EN_CORPOOL_ERR_no_free_worker, "no free work, cor:", pthis.corCount_, " free_len:", pthis.WorkerFree_.Len())
+	}
+
+	if pthis.WorkerFree_.Len() == 0 {
+		newWorker := &_corPoolWorker{
+			corPool_: pthis,
+			jobChan_: make(chan CorPoolJobData, 100),
 		}
 
-		defer func() {
-			pthis.lockPool_.Unlock()
-			//println("unlock")
-		}()
+		pthis.mapJobAll_[pthis.corCount_] = newWorker
+		newWorker.workerID_ = pthis.corCount_
+		pthis.corCount_++
 
-		if pthis.corCount_ >= pthis.maxCorCount_ && pthis.WorkerFree_.Len() == 0 {
-			return genCorpErr(EN_CORPOOL_ERR_no_free_worker, "no free work, cor:", pthis.corCount_, " free_len:", pthis.WorkerFree_.Len())
-		}
-
-		if pthis.WorkerFree_.Len() == 0 {
-
-			newWorker := &_corPoolWorker{
-				corPool_: pthis,
-				jobChan_: make(chan CorPoolJobData, 100),
+		go newWorker._go_CorWorker()
+		newWorker._corWorkerAddJob(jobR)
+	} else {
+		ele := pthis.WorkerFree_.Front() // put front, if the worker has worked once, it will work next time
+		if ele != nil {
+			pthis.WorkerFree_.Remove(ele)
+			worker, ok := ele.Value.(*_corPoolWorker)
+			if ok {
+				worker._corWorkerAddJob(jobR)
 			}
-
-			pthis.mapJobAll_[pthis.corCount_] = newWorker
-			newWorker.workerID_ = pthis.corCount_
-			pthis.corCount_++
-
-			go newWorker._go_CorWorker()
-			newWorker._corWorkerAddJob(jobR)
 		} else {
-			ele := pthis.WorkerFree_.Front() // put front, if the worker has worked once, it will work next time
-			if ele != nil {
-				pthis.WorkerFree_.Remove(ele)
-				worker, ok := ele.Value.(*_corPoolWorker)
-				if ok {
-					worker._corWorkerAddJob(jobR)
-				}
-			} else {
-				return genCorpErr(EN_CORPOOL_ERR_empty_lst, "list element is nil")
-			}
+			return genCorpErr(EN_CORPOOL_ERR_empty_lst, "list element is nil")
 		}
 	}
 
@@ -222,8 +208,8 @@ func CorPoolInit(maxWorkerCount int) *CorPool {
 }
 
 func (pthis *CorPool) corPoolUnitInter() {
-	pthis.lockPool_.Lock()
-	defer pthis.lockPool_.Unlock()
+	pthis.condPool_.L.Lock()
+	defer pthis.condPool_.L.Unlock()
 
 	// quit all worker
 	for _, val := range pthis.mapJobAll_ {
