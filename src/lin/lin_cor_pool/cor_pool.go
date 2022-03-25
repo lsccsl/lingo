@@ -64,7 +64,7 @@ type _corPoolWorker struct {
 // coroutine pool define
 type CorPool struct {
 	condPool_       *sync.Cond
-	condPoolTrigger bool
+	//condPoolTrigger bool
 
 	WorkerFree_    list.List // *_corPoolWorker
 	mapJobAll_     map[int]*_corPoolWorker
@@ -123,7 +123,7 @@ func (worker *_corPoolWorker) _corWorkerQuit() {
 func (pthis *CorPool) corPoolAddFreeWorker(worker *_corPoolWorker) {
 
 	pthis.condPool_.L.Lock()
-	pthis.condPoolTrigger = true
+	//pthis.condPoolTrigger = true
 /*	if pthis.corCount_ >= pthis.maxCorCount_ && pthis.WorkerFree_.Len() == 0 {
 	}
 */	pthis.WorkerFree_.PushFront(worker)
@@ -142,9 +142,9 @@ func (pthis *CorPool) CorPoolAddJob(jobR *CorPoolJobData /* ready only */) error
 	defer pthis.condPool_.L.Unlock()
 
 	if pthis.corCount_ >= pthis.maxCorCount_ && pthis.WorkerFree_.Len() == 0 {
-		lin_common.LogDebug("no worker, wait for free worker ~~~~~~~~~~~~~~~~~~~ cor:",
+/*		lin_common.LogDebug("no worker, wait for free worker ~~~~~~~~~~~~~~~~~~~ cor:",
 			pthis.corCount_, " free:", pthis.WorkerFree_.Len(), " condPoolTrigger:", pthis.condPoolTrigger)
-
+*/
 		pthis.condPool_.Wait()
 /*		if !pthis.condPoolTrigger {
 			pthis.condPoolTrigger = false
