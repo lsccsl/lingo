@@ -123,10 +123,10 @@ func (worker *_corPoolWorker) _corWorkerQuit() {
 func (pthis *CorPool) corPoolAddFreeWorker(worker *_corPoolWorker) {
 
 	pthis.condPool_.L.Lock()
-	if pthis.corCount_ >= pthis.maxCorCount_ && pthis.WorkerFree_.Len() == 0 {
-		pthis.condPoolTrigger = true
+	pthis.condPoolTrigger = true
+/*	if pthis.corCount_ >= pthis.maxCorCount_ && pthis.WorkerFree_.Len() == 0 {
 	}
-	pthis.WorkerFree_.PushFront(worker)
+*/	pthis.WorkerFree_.PushFront(worker)
 	pthis.condPool_.L.Unlock()
 
 	pthis.condPool_.Signal()
