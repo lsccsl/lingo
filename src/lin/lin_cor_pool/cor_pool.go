@@ -80,7 +80,7 @@ func (worker *_corPoolWorker) _corWorkerDoJob(job *CorPoolJobData) {
 	defer func() {
 		err := recover()
 		if err != nil {
-			println("recover get err:", err)
+			lin_common.LogErr("recover get err:", err)
 		}
 	}()
 
@@ -94,7 +94,7 @@ func (worker *_corPoolWorker) _go_CorWorker() {
 	worker.corPool_.wg_.Add(1)
 	defer worker.corPool_.wg_.Done()
 
-COROUTINE_LOOP:
+	COROUTINE_LOOP:
 	for {
 		//println("chan msg count", len(worker.jobChan_))
 		jobData := <-worker.jobChan_
@@ -114,77 +114,13 @@ func (worker *_corPoolWorker) _corWorkerDestroy() {
 	close(worker.jobChan_)
 }
 
-func (worker *_corPoolWorker) _corWorkerAddJob(job *CorPoolJobData) {
-	worker.jobChan_ <- *job
-}
-
 func (worker *_corPoolWorker) _corWorkerQuit() {
 	worker.jobChan_ <- CorPoolJobData{
 		JobType_: EN_CORPOOL_JOBTYPE_quit,
 	}
 }
 
-// get a coroutine pool
-func CorPoolInit(maxWorkerCount int) *CorPool {
-	cp := &CorPool{
-		condPool_:      sync.NewCond(&sync.Mutex{}),
-		maxCorCount_:   maxWorkerCount,
-		checkCorCount_: (maxWorkerCount/2 + 1),
-		corCount_:      0,
-		mapJobAll_:     make(map[int]*_corPoolWorker),
-	}
-	cp.WorkerFree_.Init()
 
-	return cp
-}
-
-/*
-func (pthis*CorPool) go_corPoolCheck() {
-	for {
-
-		time.Sleep(5 * time.Second)
-
-		{
-			pthis.lockPool_.Lock()
-
-			for pthis.WorkerFree_.Len() > pthis.checkCorCount_ {
-				ele := pthis.WorkerFree_.Front()
-				pthis.WorkerFree_.Remove(ele)
-				if ele != nil {
-					worker, ok := ele.Value.(*_corPoolWorker)
-					if ok {
-						worker._corWorkerQuit()
-					}
-				}
-			}
-
-			pthis.lockPool_.Unlock()
-		}
-	}
-}
-*/
-
-func (pthis *CorPool) corPoolUnitInter() {
-	pthis.lockPool_.Lock()
-	defer pthis.lockPool_.Unlock()
-
-	// quit all worker
-	for _, val := range pthis.mapJobAll_ {
-		val._corWorkerQuit()
-		//println("end worker", val.workerID_)
-	}
-
-	pthis.mapJobAll_ = make(map[int]*_corPoolWorker)
-
-}
-func (pthis *CorPool) CorPoolUnit() {
-
-	pthis.corPoolUnitInter()
-
-	pthis.wg_.Wait()
-
-	println("all worker quit")
-}
 
 func (pthis *CorPool) corPoolAddFreeWorker(worker *_corPoolWorker) {
 	pthis.lockPool_.Lock()
@@ -197,14 +133,18 @@ func (pthis *CorPool) corPoolAddFreeWorker(worker *_corPoolWorker) {
 	pthis.WorkerFree_.PushFront(worker)
 
 	if (bNeedTriggerSignal) {
+		lin_common.LogDebug("trigger signal")
 		pthis.condPool_.L.Lock()
-		//("signal")
 		pthis.condPoolTrigger = true
 		pthis.condPool_.Signal()
 		pthis.condPool_.L.Unlock()
 	}
 }
 
+
+func (worker *_corPoolWorker) _corWorkerAddJob(job *CorPoolJobData) {
+	worker.jobChan_ <- *job
+}
 // add a job to coroutine pool
 func (pthis *CorPool) CorPoolAddJob(jobR *CorPoolJobData /* ready only */) error {
 	{
@@ -212,7 +152,7 @@ func (pthis *CorPool) CorPoolAddJob(jobR *CorPoolJobData /* ready only */) error
 
 		if pthis.corCount_ >= pthis.maxCorCount_ && pthis.WorkerFree_.Len() == 0 {
 			pthis.lockPool_.Unlock()
-			//println(time.Now().Unix(), "no worker, wait for free worker ~~~~~~~~~~~~~~~~~~~")
+			lin_common.LogDebug("no worker, wait for free worker ~~~~~~~~~~~~~~~~~~~")
 
 			pthis.condPool_.L.Lock()
 			if !pthis.condPoolTrigger {
@@ -230,7 +170,7 @@ func (pthis *CorPool) CorPoolAddJob(jobR *CorPoolJobData /* ready only */) error
 			//println("unlock")
 		}()
 
-		if pthis.WorkerFree_.Len() == 0 && pthis.corCount_ >= pthis.maxCorCount_ {
+		if pthis.corCount_ >= pthis.maxCorCount_ && pthis.WorkerFree_.Len() == 0 {
 			return genCorpErr(EN_CORPOOL_ERR_no_free_worker, "no free work")
 		}
 
@@ -259,11 +199,42 @@ func (pthis *CorPool) CorPoolAddJob(jobR *CorPoolJobData /* ready only */) error
 				return genCorpErr(EN_CORPOOL_ERR_empty_lst, "list element is nil")
 			}
 		}
-
-		//println("end add job")
 	}
 
-	//println("end CorPoolAddJob")
-
 	return nil
+}
+
+
+// get a coroutine pool
+func CorPoolInit(maxWorkerCount int) *CorPool {
+	cp := &CorPool{
+		condPool_:      sync.NewCond(&sync.Mutex{}),
+		maxCorCount_:   maxWorkerCount,
+		checkCorCount_: (maxWorkerCount/2 + 1),
+		corCount_:      0,
+		mapJobAll_:     make(map[int]*_corPoolWorker),
+	}
+	cp.WorkerFree_.Init()
+
+	return cp
+}
+
+func (pthis *CorPool) corPoolUnitInter() {
+	pthis.lockPool_.Lock()
+	defer pthis.lockPool_.Unlock()
+
+	// quit all worker
+	for _, val := range pthis.mapJobAll_ {
+		val._corWorkerQuit()
+	}
+
+	pthis.mapJobAll_ = make(map[int]*_corPoolWorker)
+}
+func (pthis *CorPool) CorPoolUnit() {
+
+	pthis.corPoolUnitInter()
+
+	pthis.wg_.Wait()
+
+	println("all worker quit")
 }
