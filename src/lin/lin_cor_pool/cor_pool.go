@@ -152,7 +152,7 @@ func (pthis *CorPool) CorPoolAddJob(jobR *CorPoolJobData /* ready only */) error
 
 		if pthis.corCount_ >= pthis.maxCorCount_ && pthis.WorkerFree_.Len() == 0 {
 			pthis.lockPool_.Unlock()
-			lin_common.LogDebug("no worker, wait for free worker ~~~~~~~~~~~~~~~~~~~")
+			lin_common.LogDebug("no worker, wait for free worker ~~~~~~~~~~~~~~~~~~~ cor:", pthis.corCount_, " free:", pthis.WorkerFree_.Len())
 
 			pthis.condPool_.L.Lock()
 			if !pthis.condPoolTrigger {
@@ -171,7 +171,7 @@ func (pthis *CorPool) CorPoolAddJob(jobR *CorPoolJobData /* ready only */) error
 		}()
 
 		if pthis.corCount_ >= pthis.maxCorCount_ && pthis.WorkerFree_.Len() == 0 {
-			return genCorpErr(EN_CORPOOL_ERR_no_free_worker, "no free work")
+			return genCorpErr(EN_CORPOOL_ERR_no_free_worker, "no free work, cor:", pthis.corCount_, " free_len:", pthis.WorkerFree_.Len())
 		}
 
 		if pthis.WorkerFree_.Len() == 0 {
