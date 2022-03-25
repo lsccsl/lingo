@@ -107,7 +107,7 @@ func (pthis*TestSrv)go_tcpDial() {
 
 			REPORT_RES_LOOP:
 			for {
-				msg, err := recvProtoMsg(pthis.tcpAcpt)
+				msg, err := recvProtoMsg(pthis.tcpDial)
 				if err != nil {
 					break REPORT_RES_LOOP
 				}

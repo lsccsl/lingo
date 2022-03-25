@@ -300,18 +300,21 @@ func (pthis*Server)processServerMsg (interMsg * interProtoMsg){
 	case *msgpacket.MSG_HEARTBEAT:
 		pthis.process_MSG_HEARTBEAT(interMsg.tcpConn, t)
 	case *msgpacket.MSG_HEARTBEAT_RES:
-		pthis.process_MSG_HEARTBEAT_RES(t)
+		pthis.process_MSG_HEARTBEAT_RES(interMsg.tcpConn, t)
 	}
 }
 
 func (pthis*Server) process_MSG_HEARTBEAT (tcpConn *tcp.TcpConnection, protoMsg * msgpacket.MSG_HEARTBEAT) {
 	lin_common.LogDebug(protoMsg)
-
-	msgRes := &msgpacket.MSG_HEARTBEAT_RES{}
-	msgRes.Id = protoMsg.Id
-	TcpConnectSendProtoMsg(tcpConn, msgpacket.MSG_TYPE__MSG_HEARTBEAT_RES, msgRes)
+	if tcpConn != nil {
+		msgRes := &msgpacket.MSG_HEARTBEAT_RES{}
+		msgRes.Id = protoMsg.Id
+		TcpConnectSendProtoMsg(tcpConn, msgpacket.MSG_TYPE__MSG_HEARTBEAT_RES, msgRes)
+	}
 }
 
-func (pthis*Server) process_MSG_HEARTBEAT_RES (protoMsg * msgpacket.MSG_HEARTBEAT_RES) {
-	lin_common.LogDebug(protoMsg)
+func (pthis*Server) process_MSG_HEARTBEAT_RES (tcpConn *tcp.TcpConnection, protoMsg * msgpacket.MSG_HEARTBEAT_RES) {
+	if tcpConn != nil {
+		lin_common.LogDebug(tcpConn.TcpConnectionID(), " msg:", protoMsg)
+	}
 }
