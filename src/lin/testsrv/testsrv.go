@@ -75,6 +75,7 @@ func (pthis*TestSrv)TestSrvDial() (err interface{}) {
 	pthis.totalWriteRpc ++
 	_, err = pthis.tcpDial.Write(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_RPC, msgRPC))
 	if err != nil {
+		lin_common.LogErr("write tcp err:", pthis.DialConnectionID)
 		return err
 	}
 	//lin_common.LogDebug(" write", msgRPC, err)

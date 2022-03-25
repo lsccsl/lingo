@@ -133,7 +133,7 @@ func (pthis *CorPool) corPoolAddFreeWorker(worker *_corPoolWorker) {
 	pthis.WorkerFree_.PushFront(worker)
 
 	if (bNeedTriggerSignal) {
-		lin_common.LogDebug("trigger signal")
+		//lin_common.LogDebug("trigger signal")
 		pthis.condPool_.L.Lock()
 		pthis.condPoolTrigger = true
 		pthis.condPool_.Signal()
@@ -215,6 +215,7 @@ func CorPoolInit(maxWorkerCount int) *CorPool {
 		mapJobAll_:     make(map[int]*_corPoolWorker),
 	}
 	cp.WorkerFree_.Init()
+	lin_common.LogDebug("max worker count:", maxWorkerCount)
 
 	return cp
 }
