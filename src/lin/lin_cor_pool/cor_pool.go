@@ -136,8 +136,8 @@ func (pthis *CorPool) corPoolAddFreeWorker(worker *_corPoolWorker) {
 		//lin_common.LogDebug("trigger signal")
 		pthis.condPool_.L.Lock()
 		pthis.condPoolTrigger = true
-		pthis.condPool_.Signal()
 		pthis.condPool_.L.Unlock()
+		pthis.condPool_.Signal()
 	}
 }
 
@@ -157,10 +157,10 @@ func (pthis *CorPool) CorPoolAddJob(jobR *CorPoolJobData /* ready only */) error
 
 			pthis.condPool_.L.Lock()
 			if !pthis.condPoolTrigger {
+				pthis.condPoolTrigger = false
 				//println("wait signal")
 				pthis.condPool_.Wait()
 			}
-			pthis.condPoolTrigger = false
 			pthis.condPool_.L.Unlock()
 
 			pthis.lockPool_.Lock()
