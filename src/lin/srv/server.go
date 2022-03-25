@@ -95,10 +95,10 @@ func (pthis*Server) go_serverProcess() {
 
 		case <-chTimer:
 			{
-				//log.LogErr("send test from dial, srvid:", pthis.srvID, pthis.heartbeatIntervalSec)
 				chTimer = time.After(time.Second * time.Duration(pthis.heartbeatIntervalSec))
 				//send heartbeat
 				if pthis.connDial != nil {
+					lin_common.LogDebug("send heartbeat from dial, srvid:", pthis.srvID, pthis.heartbeatIntervalSec)
 					msgHeartBeat := &msgpacket.MSG_HEARTBEAT{}
 					msgHeartBeat.Id = pthis.srvMgr.srvID
 					pthis.connDial.TcpConnectSendBin(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_HEARTBEAT, msgHeartBeat))

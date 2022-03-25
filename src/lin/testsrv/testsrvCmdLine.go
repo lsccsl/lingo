@@ -36,7 +36,7 @@ func CommandMultiSrv(argStr []string) string {
 func CommandDump(argStr []string) string {
 	Global_TestSrvMgr.total = 0
 	for _, val := range Global_TestSrvMgr.mapSrv {
-		fmt.Println("id:", val.connectionID, " total:", val.totalRpcDial)
+		fmt.Println("id:", val.connectionID, " total:", val.totalRpcDial, " total write:", val.totalWriteRpc)
 		Global_TestSrvMgr.total += val.totalRpcDial
 	}
 

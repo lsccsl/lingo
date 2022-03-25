@@ -29,6 +29,7 @@ var Global_testCfg = &TestCfg {
 }
 var Global_wg sync.WaitGroup
 func main() {
+	lin_common.ProfileInit()
 	//testhttp()
 	commandLineInit()
 	lin_common.InitLog("./testsrv.log", true)
