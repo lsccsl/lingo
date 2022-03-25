@@ -7,6 +7,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"lin/lin_common"
 	"lin/msgpacket"
+	"lin/tcp"
 	"net"
 )
 const MAX_PACK_LEN int = 65535
@@ -19,6 +20,8 @@ type TestSrv struct {
 	recvBuf *bytes.Buffer
 	TmpBuf []byte
 	seq int64
+
+	connectionID tcp.TCP_CONNECTION_ID
 
 	addrRemote string
 	addrLocal string
@@ -101,6 +104,21 @@ func (pthis*TestSrv)go_tcpDial() {
 			}
 			msgReport := &msgpacket.MSG_SRV_REPORT{SrvId: pthis.srvId}
 			pthis.tcpDial.Write(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_SRV_REPORT, msgReport))
+
+			REPORT_RES_LOOP:
+			for {
+				msg, err := recvProtoMsg(pthis.tcpAcpt)
+				if err != nil {
+					break REPORT_RES_LOOP
+				}
+				switch t := msg.(type) {
+				case *msgpacket.MSG_SRV_REPORT_RES:
+					pthis.connectionID = tcp.TCP_CONNECTION_ID(t.TcpConnId)
+					lin_common.LogDebug(" suc recv srv report")
+					break REPORT_RES_LOOP
+				default:
+				}
+			}
 		}
 	}
 

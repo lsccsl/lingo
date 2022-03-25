@@ -131,6 +131,12 @@ func (pthis*Server) ServerCloseAndDelDialData() {
 func (pthis*Server)processSrvReport(tcpAccept *tcp.TcpConnection){
 	pthis.connAcpt = tcpAccept
 	lin_common.LogDebug(pthis.srvID, " ", pthis)
+
+	msgRes := &msgpacket.MSG_SRV_REPORT_RES{
+		SrvId:pthis.srvID,
+		TcpConnId:int64(tcpAccept.TcpConnectionID()),
+	}
+	TcpConnectSendProtoMsg(tcpAccept, msgpacket.MSG_TYPE__MSG_SRV_REPORT_RES, msgRes)
 }
 
 func (pthis*Server)processDailConnect(tcpDial *tcp.TcpConnection){

@@ -43,12 +43,12 @@ func (pthis *HttpSrvMgr) ServeHTTP (w http.ResponseWriter, r *http.Request) {
 		LogDebug("parse form err")
 		return
 	}
-	LogDebug("request ", r.URL.Path, r.PostForm)
+	//LogDebug("request ", r.URL.Path, r.PostForm)
 
 	//find method from self.mapCallBack
 	fn, ok := pthis.mapCallBack[r.URL.Path]
 	if !ok {
-		LogDebug("no func for", r.URL.Path)
+		//LogDebug("no func for", r.URL.Path)
 		return
 	}
 	func(){
