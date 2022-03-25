@@ -61,6 +61,7 @@ func ConstructServer(srvMgr *ServerMgr, connDial *tcp.TcpConnection, connAcpt *t
 
 func (pthis*Server) go_serverProcess() {
 	defer func() {
+		lin_common.LogDebug("srvid:", pthis.srvID, " exit process")
 		atomic.StoreInt32(&pthis.isStopProcess, 1)
 		err := recover()
 		if err != nil {
@@ -213,8 +214,6 @@ func (pthis*Server)Go_ProcessRPC(tcpConn *tcp.TcpConnection, msg *msgpacket.MSG_
 		}
 	}
 
-	atomic.AddInt64(&pthis.totalRPCPacket, 1)
-
 	msgRPCRes := &msgpacket.MSG_RPC_RES{
 		MsgId:msg.MsgId,
 		MsgType:msg.MsgType,
@@ -228,6 +227,8 @@ func (pthis*Server)Go_ProcessRPC(tcpConn *tcp.TcpConnection, msg *msgpacket.MSG_
 			lin_common.LogErr(err)
 		}
 	}
+
+	atomic.AddInt64(&pthis.totalRPCPacket, 1)
 	tcpConn.TcpConnectSendBin(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_RPC_RES, msgRPCRes))
 }
 func (pthis*Server)processRPCRes(tcpConn *tcp.TcpConnection, msg *msgpacket.MSG_RPC_RES, msgBody proto.Message) {

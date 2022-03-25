@@ -70,6 +70,7 @@ type TcpConnection struct {
 	// stats
 	ByteRecv int64
 	ByteSend int64
+	SendCount int64
 	ByteProc int64
 	clsRsn   TCP_CONNECTION_CLOSE_REASON
 }
@@ -92,6 +93,7 @@ func startTcpConnection(connMgr InterfaceConnManage, conn net.Conn, closeExpireS
 		IsAccept:        true,
 		ByteRecv:        0,
 		ByteSend:        0,
+		SendCount:       0,
 		ByteProc:        0,
 		clsRsn:          TCP_CONNECTION_CLOSE_REASON_none,
 	}
@@ -142,6 +144,7 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 		IsAccept:        false,
 		ByteRecv:        0,
 		ByteSend:        0,
+		SendCount:       0,
 		ByteProc:        0,
 		clsRsn:          TCP_CONNECTION_CLOSE_REASON_none,
 	}
@@ -355,6 +358,7 @@ func (pthis *TcpConnection)go_tcpConnWrite() {
 				break WRITE_LOOP
 			}
 			pthis.ByteSend += int64(writeSZ)
+			pthis.SendCount ++
 		}
 	}
 

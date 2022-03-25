@@ -116,9 +116,9 @@ func (pthis *TcpMgr) TcpMgrDump(bDtail bool) (str string, totalRecv int64, total
 		for _, val := range pthis.mapConn {
 			if bDtail {
 				str += fmt.Sprintf(" \r\n connection:%v remote:[%v] local:[%v] IsAccept:%v SrvID:%v ClientID:%v"+
-					" recv:%v send:%v proc:%v",
+					" recv:%v send:%v proc:%v SendCount:%v",
 					val.TcpConnectionID(), val.netConn.RemoteAddr(), val.netConn.LocalAddr(), val.IsAccept, val.SrvID, val.ClientID,
-					val.ByteRecv, val.ByteSend, val.ByteProc)
+					val.ByteRecv, val.ByteSend, val.ByteProc, val.SendCount)
 			}
 			totalRecv += val.ByteRecv
 			totalProc += val.ByteProc
