@@ -124,12 +124,12 @@ func (pthis *CorPool) corPoolAddFreeWorker(worker *_corPoolWorker) {
 
 	pthis.condPool_.L.Lock()
 	//pthis.condPoolTrigger = true
-/*	if pthis.corCount_ >= pthis.maxCorCount_ && pthis.WorkerFree_.Len() == 0 {
+	if pthis.corCount_ >= pthis.maxCorCount_ && pthis.WorkerFree_.Len() == 0 {
+		pthis.condPool_.Signal()
 	}
-*/	pthis.WorkerFree_.PushFront(worker)
+	pthis.WorkerFree_.PushFront(worker)
 	pthis.condPool_.L.Unlock()
 
-	pthis.condPool_.Signal()
 }
 
 
