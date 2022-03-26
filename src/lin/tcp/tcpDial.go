@@ -1,6 +1,7 @@
 package tcp
 
 import (
+	"context"
 	"lin/lin_common"
 	"sync"
 )
@@ -12,6 +13,8 @@ type dialData struct {
 	srvID int64
 	ip string
 	port int
+
+	DialCancelFunc context.CancelFunc
 
 	needRedial bool
 	redialCount int
@@ -101,7 +104,15 @@ func (pthis *TcpDialMgr) TcpDialMgrDial(srvID int64, ip string, port int, closeE
 	dialTimeoutSec int,
 	needRedial bool, redialCount int) (*TcpConnection, error) {
 
-	tcpConn, err := startTcpDial(pthis.connMgr, srvID, ip, port, closeExpireSec, dialTimeoutSec, redialCount)
+	oldDial := pthis.getDialData(srvID)
+	if oldDial != nil {
+		if oldDial.DialCancelFunc != nil {
+			oldDial.DialCancelFunc()
+		}
+	}
+
+	ctx, canelfun := context.WithCancel(context.Background())
+	tcpConn, err := startTcpDial(pthis.connMgr, srvID, ip, port, closeExpireSec, dialTimeoutSec, redialCount, ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -115,7 +126,8 @@ func (pthis *TcpDialMgr) TcpDialMgrDial(srvID int64, ip string, port int, closeE
 			port:port,
 			srvID:srvID,
 			needRedial:needRedial,
-			redialCount:redialCount})
+			redialCount:redialCount,
+			DialCancelFunc:canelfun})
 
 	return tcpConn, nil
 }

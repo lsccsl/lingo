@@ -2,10 +2,12 @@ package tcp
 
 import (
 	"bytes"
+	"context"
 	"lin/lin_common"
 	"net"
 	"runtime"
 	"strconv"
+	"strings"
 	"sync/atomic"
 	"time"
 )
@@ -124,7 +126,9 @@ func startTcpConnection(connMgr InterfaceConnManage, conn net.Conn, closeExpireS
 	return tcpConn, nil
 }
 
-func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int, closeExpireSec int, dialTimeoutSec int, redialCount int) (*TcpConnection, error) {
+func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
+	closeExpireSec int, dialTimeoutSec int, redialCount int,
+	ctx context.Context) (*TcpConnection, error) {
 	defer func() {
 		err := recover()
 		if err != nil {
@@ -163,13 +167,21 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 
 			var err error
 			var conn net.Conn
+			DIAL_LOOP:
 			for i := 0; i < redialCount; i ++ {
 				tBegin := time.Now()
 				lin_common.LogDebug(tcpConn.connectionID, "begin dial:", addr)
-				conn, err = net.DialTimeout("tcp", addr, time.Second * time.Duration(dialTimeoutSec))
+
+				d := net.Dialer{Timeout: time.Second * time.Duration(dialTimeoutSec)}
+				conn, err := d.DialContext(ctx, "tcp", addr)
+				//conn, err = net.DialTimeout("tcp", addr, time.Second * time.Duration(dialTimeoutSec))
+
 				tEnd := time.Now()
 				if err != nil || conn == nil {
 					lin_common.LogDebug(tcpConn.connectionID, " will retry ", i, " ", redialCount, " ", tcpConn.netConn, " ", err)
+					if strings.Index(err.Error(), "operation was canceled") >= 0 {
+						break DIAL_LOOP
+					}
 					interval := int64(dialTimeoutSec) - (tEnd.Unix() - tBegin.Unix())
 					runtime.Gosched()
 					if interval <= 0 {
