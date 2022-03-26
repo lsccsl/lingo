@@ -142,9 +142,9 @@ func (pthis *CorPool) CorPoolAddJob(jobR *CorPoolJobData /* ready only */) error
 	defer pthis.condPool_.L.Unlock()
 
 	if pthis.corCount_ >= pthis.maxCorCount_ && pthis.WorkerFree_.Len() == 0 {
-/*		lin_common.LogDebug("no worker, wait for free worker ~~~~~~~~~~~~~~~~~~~ cor:",
-			pthis.corCount_, " free:", pthis.WorkerFree_.Len(), " condPoolTrigger:", pthis.condPoolTrigger)
-*/
+		lin_common.LogDebug("no worker, wait for free worker ~~~~~~~~~~~~~~~~~~~ cor:",
+			pthis.corCount_, " free:", pthis.WorkerFree_.Len()/*, " condPoolTrigger:", pthis.condPoolTrigger*/)
+
 		pthis.condPool_.Wait()
 /*		if !pthis.condPoolTrigger {
 			pthis.condPoolTrigger = false
