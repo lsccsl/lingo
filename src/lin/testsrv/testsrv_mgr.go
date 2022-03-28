@@ -11,6 +11,9 @@ type TestSrvMgr struct{
 	timestamp float64
 	total int64
 	totalLast int64
+
+	totalReqRecv int64
+	totalReqRecvLast int64
 }
 
 func (pthis *TestSrvMgr)TestSrvMgrAdd(s *TestSrv) {

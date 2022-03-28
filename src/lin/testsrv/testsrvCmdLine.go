@@ -36,7 +36,7 @@ func CommandMultiSrv(argStr []string) string {
 }
 
 func CommandTestRPC(argStr []string) string {
-	count := 1
+	count := 100000000
 	if len(argStr) >= 1 {
 		count, _ = strconv.Atoi(argStr[0])
 	}
@@ -52,19 +52,24 @@ func CommandTestRPC(argStr []string) string {
 
 func CommandDump(argStr []string) string {
 	Global_TestSrvMgr.total = 0
+	Global_TestSrvMgr.totalReqRecv = 0
 	for _, val := range Global_TestSrvMgr.mapSrv {
 		fmt.Println("dial id:", val.DialConnectionID, " acpt id", val.AcptConnectionID, " total:", val.totalRpcDial, " total write:", val.totalWriteRpc)
 		Global_TestSrvMgr.total += val.totalRpcDial
+		Global_TestSrvMgr.totalReqRecv += val.totalRpcRecv
 	}
 
 	totalDiff := Global_TestSrvMgr.total - Global_TestSrvMgr.totalLast
+	totalReqDiff := Global_TestSrvMgr.totalReqRecv - Global_TestSrvMgr.totalReqRecvLast
 	tnow := float64(time.Now().UnixMilli())
 	tdiff := (tnow - Global_TestSrvMgr.timestamp)/float64(1000)
 	aver := float64(totalDiff) / tdiff
+	reqAver := float64(totalReqDiff) / tdiff
 	fmt.Println(" client count:", len(Global_TestSrvMgr.mapSrv), " total:", Global_TestSrvMgr.total, " last:", Global_TestSrvMgr.totalLast,
-		" totalDiff:", totalDiff, " tdiff:", tdiff, " aver:", aver)
+		" totalDiff:", totalDiff, " tdiff:", tdiff, " aver:", aver, " req aver:", reqAver)
 	Global_TestSrvMgr.timestamp = tnow
 	Global_TestSrvMgr.totalLast = Global_TestSrvMgr.total
+	Global_TestSrvMgr.totalReqRecvLast = Global_TestSrvMgr.totalReqRecv
 
 	return ""
 }

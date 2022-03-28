@@ -18,11 +18,11 @@ type TestCfg struct {
 	local_port_start int
 }
 var Global_testCfg = &TestCfg {
-/*	ip : "192.168.2.129",port : 2003,
+	ip : "192.168.2.129",port : 2003,
 	httpAddr : "http://192.168.2.129:8803/addserver",
-*/
-	ip : "10.0.14.48",	port : 2002,
-	httpAddr : "http://10.0.14.48:8802/addserver",
+
+/*	ip : "10.0.14.48",	port : 2002,
+	httpAddr : "http://10.0.14.48:8802/addserver",*/
 
 	local_ip : "10.0.14.48",
 	local_port_start : 3100,

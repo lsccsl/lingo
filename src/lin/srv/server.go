@@ -12,6 +12,11 @@ import (
 type ServerStatic struct {
 	totalRPCPacket int64
 	totalRPCPacketLast int64
+
+	totalRPCReq int64
+	totalRPCReqLast int64
+	totalRPCReqFail int64
+
 	timestamp float64
 }
 
@@ -246,6 +251,7 @@ func (pthis*Server)processRPCRes(tcpConn *tcp.TcpConnection, msg *msgpacket.MSG_
 	}
 	rreq := pthis.rpcMgr.RPCManagerFindReq(msg.MsgId)
 	if rreq == nil {
+		lin_common.LogErr("fail find rpc:", msg.MsgId, " srv:%d", pthis.srvID)
 		return
 	}
 	if rreq.chNtf != nil {
@@ -282,6 +288,7 @@ func (pthis*Server)SendRPC_Async(msgType msgpacket.MSG_TYPE, protoMsg proto.Mess
 
 	rreq := pthis.rpcMgr.RPCManagerAddReq(msgRPC.MsgId)
 
+	atomic.AddInt64(&pthis.totalRPCReq, 1)
 	pthis.connDial.TcpConnectSendBin(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_RPC, msgRPC))
 
 	var res proto.Message = nil
@@ -290,6 +297,7 @@ func (pthis*Server)SendRPC_Async(msgType msgpacket.MSG_TYPE, protoMsg proto.Mess
 		res, _ = resCh.(proto.Message)
 	case <-time.After(time.Millisecond * time.Duration(timeoutMilliSec)):
 		lin_common.LogErr("rpc timeout:", pthis.srvID)
+		atomic.AddInt64(&pthis.totalRPCReqFail, 1)
 	}
 
 	pthis.rpcMgr.RPCManagerDelReq(msgRPC.MsgId)

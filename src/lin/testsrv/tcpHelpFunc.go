@@ -25,7 +25,7 @@ func recvProtoMsg(tcpConn *net.TCPConn, timeOutSend int, retryCount int) (proto.
 		tcpConn.SetReadDeadline(time.Now().Add(time.Second * time.Duration(timeOutSend)))
 		rz, err := tcpConn.Read(bin)
 		if err != nil {
-			lin_common.LogDebug(err)
+			//lin_common.LogDebug(err)
 			continue
 		}
 		readSize += rz

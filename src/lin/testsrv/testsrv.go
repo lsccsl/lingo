@@ -29,6 +29,8 @@ type TestSrv struct {
 
 	totalWriteRpc int64
 	totalRpcDial int64
+
+	totalRpcRecv int64
 }
 
 func ConstructTestSrv(addrLocal string, addrRemote string, srvId int64) *TestSrv {
@@ -163,6 +165,7 @@ func (pthis*TestSrv)TestSrvAcpt() (err interface{}) {
 	if nil != err {
 		return err
 	}
+	pthis.totalRpcRecv ++
 	_, err = pthis.recvBuf.Write(pthis.TmpBuf[0:readSize])
 	if err != nil {
 		return err
@@ -190,7 +193,7 @@ func (pthis*TestSrv)TestSrvAcpt() (err interface{}) {
 			}
 		case *msgpacket.MSG_HEARTBEAT:
 			{
-				lin_common.LogDebug("MSG_HEARTBEAT:", t.Id)
+				//lin_common.LogDebug("MSG_HEARTBEAT:", t.Id)
 				msgHBRsp := &msgpacket.MSG_HEARTBEAT_RES{Id:t.Id}
 				pthis.tcpAcpt.Write(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_HEARTBEAT_RES, msgHBRsp))
 				continue
@@ -221,8 +224,8 @@ func (pthis*TestSrv)TestSrvAcpt() (err interface{}) {
 			msgTestRes := &msgpacket.MSG_TEST_RES{
 				Id:msgTest.Id,
 				Seq:msgTest.Seq,
-				//Str:"msgTest.Str!!!!",
-				Str:msgTest.Str,
+				Str:"````msgTest.Str!!!!",
+				//Str:msgTest.Str,
 			}
 			msgRPCRes := &msgpacket.MSG_RPC_RES{
 				MsgId:msgRPC.MsgId,
