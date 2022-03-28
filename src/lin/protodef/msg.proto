@@ -20,6 +20,8 @@ enum MSG_TYPE
     _MSG_TEST_RES = 102;
     _MSG_LOGIN = 103;
     _MSG_LOGIN_RES = 104;
+    _MSG_TEST_RPC = 105;
+    _MSG_TEST_RPC_RES = 106;
 }
 
 enum RESPONSE_CODE
@@ -79,6 +81,14 @@ message MSG_TEST_RES
     int64 timestamp = 4;
     int64 timestamp_arrive = 5;
     int64 timestamp_process = 6;
+}
+
+message MSG_TEST_RPC
+{
+    int64 rpc_count = 1;
+}
+message MSG_TEST_RPC_RES
+{
 }
 
 message MSG_LOGIN

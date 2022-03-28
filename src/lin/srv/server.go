@@ -208,14 +208,15 @@ func (pthis*Server)PushProtoMsg(msgType msgpacket.MSG_TYPE, protoMsg proto.Messa
 }
 
 func (pthis*Server)Go_ProcessRPC(tcpConn *tcp.TcpConnection, msg *msgpacket.MSG_RPC, msgBody proto.Message) {
-	var msgRes proto.Message = nil
+	msgRes := pthis.ServerProcessRPC(tcpConn, msgBody)
+/*	var msgRes proto.Message = nil
 	switch t:= msgBody.(type) {
 	case *msgpacket.MSG_TEST:
 		{
 			msgRes = pthis.processRPCTest(t)
 		}
 	}
-
+*/
 	msgRPCRes := &msgpacket.MSG_RPC_RES{
 		MsgId:msg.MsgId,
 		MsgType:msg.MsgType,
@@ -252,10 +253,7 @@ func (pthis*Server)processRPCRes(tcpConn *tcp.TcpConnection, msg *msgpacket.MSG_
 	}
 }
 
-func (pthis*Server)processRPCTest(msg *msgpacket.MSG_TEST) *msgpacket.MSG_TEST_RES {
-	//lin_common.LogDebug(msg)
-	return &msgpacket.MSG_TEST_RES{Id: msg.Id, Str:msg.Str, Seq: msg.Seq}
-}
+
 
 // SendRPC_Async @brief will block timeoutMilliSec
 func (pthis*Server)SendRPC_Async(msgType msgpacket.MSG_TYPE, protoMsg proto.Message, timeoutMilliSec int) proto.Message {
@@ -291,6 +289,7 @@ func (pthis*Server)SendRPC_Async(msgType msgpacket.MSG_TYPE, protoMsg proto.Mess
 	case resCh := <-rreq.chNtf:
 		res, _ = resCh.(proto.Message)
 	case <-time.After(time.Millisecond * time.Duration(timeoutMilliSec)):
+		lin_common.LogErr("rpc timeout:", pthis.srvID)
 	}
 
 	pthis.rpcMgr.RPCManagerDelReq(msgRPC.MsgId)
@@ -304,6 +303,8 @@ func (pthis*Server)processServerMsg (interMsg * interProtoMsg){
 		pthis.process_MSG_HEARTBEAT(interMsg.tcpConn, t)
 	case *msgpacket.MSG_HEARTBEAT_RES:
 		pthis.process_MSG_HEARTBEAT_RES(interMsg.tcpConn, t)
+	default:
+		pthis.processOtherServerMsg(interMsg)
 	}
 }
 

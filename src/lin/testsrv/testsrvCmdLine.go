@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"lin/lin_common"
+	"lin/msgpacket"
 	"strconv"
 	"time"
 )
@@ -19,6 +20,7 @@ func MultiSrv(count int, idbase int) {
 		ConstructTestSrv(Global_testCfg.local_ip + ":" + strconv.Itoa(port), Global_testCfg.ip + ":" + strconv.Itoa(Global_testCfg.port), int64(idbase + i))
 	}
 }
+
 func CommandMultiSrv(argStr []string) string {
 	count := 1
 	if len(argStr) >= 1 {
@@ -30,6 +32,21 @@ func CommandMultiSrv(argStr []string) string {
 	}
 
 	MultiSrv(count, idbase)
+	return ""
+}
+
+func CommandTestRPC(argStr []string) string {
+	count := 1
+	if len(argStr) >= 1 {
+		count, _ = strconv.Atoi(argStr[0])
+	}
+	msg := &msgpacket.MSG_TEST_RPC{
+		RpcCount: int64(count),
+	}
+	for _, val := range Global_TestSrvMgr.mapSrv {
+		val.tcpAcpt.Write(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_TEST_RPC, msg))
+	}
+
 	return ""
 }
 
@@ -51,8 +68,11 @@ func CommandDump(argStr []string) string {
 
 	return ""
 }
+
+
 func commandLineInit(){
 	lin_common.AddCmd("dump", "dump id",CommandDump)
 	lin_common.AddCmd("help", "help", lin_common.DumpAllCmd)
 	lin_common.AddCmd("ms", "multi server", CommandMultiSrv)
+	lin_common.AddCmd("tr", "test rpc", CommandTestRPC)
 }

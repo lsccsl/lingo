@@ -199,7 +199,7 @@ func (pthis*TestSrv)TestSrvAcpt() (err interface{}) {
 			continue
 		}
 
-		fmt.Println(protoMsg)
+		//fmt.Println(protoMsg)
 		var msgTest *msgpacket.MSG_TEST
 		var msgRPC *msgpacket.MSG_RPC
 		{
@@ -221,6 +221,8 @@ func (pthis*TestSrv)TestSrvAcpt() (err interface{}) {
 			msgTestRes := &msgpacket.MSG_TEST_RES{
 				Id:msgTest.Id,
 				Seq:msgTest.Seq,
+				//Str:"msgTest.Str!!!!",
+				Str:msgTest.Str,
 			}
 			msgRPCRes := &msgpacket.MSG_RPC_RES{
 				MsgId:msgRPC.MsgId,
