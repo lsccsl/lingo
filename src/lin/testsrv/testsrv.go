@@ -246,7 +246,8 @@ func (pthis*TestSrv)go_tcpAcpt() {
 		}
 	}()
 
-	lsn, _ := net.Listen("tcp", pthis.addrLocal)
+	lsn, err := net.Listen("tcp", pthis.addrLocal)
+	fmt.Println(err)
 
 	for{
 		err := pthis.TestSrvAcpt()

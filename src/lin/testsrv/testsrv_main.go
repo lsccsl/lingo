@@ -1,15 +1,9 @@
 package main
 
 import (
-	"context"
-	"fmt"
 	"lin/lin_common"
 	"lin/msgpacket"
-	"net"
-	"os"
-	"reflect"
 	"sync"
-	"time"
 )
 
 var Global_TestSrvMgr = &TestSrvMgr{
@@ -24,11 +18,11 @@ type TestCfg struct {
 	local_port_start int
 }
 var Global_testCfg = &TestCfg {
-	//ip : "192.168.2.129",port : 2003,
-	ip : "10.0.14.48",	port : 2002,
+	ip : "192.168.2.129",port : 2003,
+	//ip : "10.0.14.48",	port : 2002,
 
-	//httpAddr : "http://192.168.2.129:8803/addserver",
-	httpAddr : "http://10.0.14.48:8802/addserver",
+	httpAddr : "http://192.168.2.129:8803/addserver",
+	//httpAddr : "http://10.0.14.48:8802/addserver",
 
 	local_ip : "10.0.14.48",
 	local_port_start : 3000,
@@ -36,7 +30,7 @@ var Global_testCfg = &TestCfg {
 var Global_wg sync.WaitGroup
 func main() {
 	lin_common.InitLog("./testsrv.log", true)
-	d := net.Dialer{Timeout: time.Second * time.Duration(30)}
+/*	d := net.Dialer{Timeout: time.Second * time.Duration(30)}
 	ctx, canelfun := context.WithCancel(context.Background())
 	go func() {
 		_, err := d.DialContext(ctx, "tcp", "192.168.2.129:2005")
@@ -57,7 +51,7 @@ func main() {
 	}()
 
 	fmt.Println(canelfun)
-	canelfun()
+	canelfun()*/
 
 
 	lin_common.ProfileInit()

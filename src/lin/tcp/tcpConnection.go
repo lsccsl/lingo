@@ -170,11 +170,11 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 			DIAL_LOOP:
 			for i := 0; i < redialCount; i ++ {
 				tBegin := time.Now()
-				lin_common.LogDebug(tcpConn.connectionID, " begin dial:", addr)
+				lin_common.LogDebug(tcpConn.connectionID, " begin dial:", addr, " connection id:", tcpConn.connectionID)
 
 				d := net.Dialer{Timeout: time.Second * time.Duration(dialTimeoutSec)}
-				conn, err := d.DialContext(ctx, "tcp", addr)
-				lin_common.LogDebug(tcpConn.connectionID, " end dial err:", err, " conn:", conn)
+				conn, err = d.DialContext(ctx, "tcp", addr)
+				lin_common.LogDebug(tcpConn.connectionID, " end dial err:", err, " connection id:", tcpConn.connectionID)
 				//conn, err = net.DialTimeout("tcp", addr, time.Second * time.Duration(dialTimeoutSec))
 
 				tEnd := time.Now()
@@ -196,7 +196,7 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 			}
 
 			if err != nil || conn == nil{
-				lin_common.LogDebug("fail ", err, conn)
+				lin_common.LogDebug("fail ", err, conn, " connection id:", tcpConn.connectionID)
 				if tcpConn.cbTcpConnection != nil {
 					tcpConn.cbTcpConnection.CBConnectClose(tcpConn, TCP_CONNECTION_CLOSE_REASON_dialfail)
 				}

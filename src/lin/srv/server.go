@@ -174,7 +174,7 @@ func (pthis*Server)processConnClose(tcpConn *tcp.TcpConnection){
 	}
 
 	if !bRedial {
-		lin_common.LogErr("not redial:", pthis.connAcpt, " connDial:", pthis.connDial, " tcpConn:", tcpConn)
+		lin_common.LogDebug("not redial:", pthis.connAcpt, " connDial:", pthis.connDial, " tcpConn:", tcpConn)
 		return
 	}
 
