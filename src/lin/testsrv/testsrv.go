@@ -9,6 +9,7 @@ import (
 	"lin/msgpacket"
 	"lin/tcp"
 	"net"
+	"os"
 )
 const MAX_PACK_LEN int = 65535
 const G_MTU int = 1536
@@ -46,9 +47,12 @@ func ConstructTestSrv(addrLocal string, addrRemote string, srvId int64) *TestSrv
 
 	Global_wg.Add(2)
 	go s.go_tcpAcpt()
-	go s.go_tcpDial()
 
 	return s
+}
+
+func (pthis*TestSrv)TestSrvBeginDial(){
+	go pthis.go_tcpDial()
 }
 
 func (pthis*TestSrv)TestSrvDial() (err interface{}) {
@@ -85,10 +89,10 @@ func (pthis*TestSrv)TestSrvDial() (err interface{}) {
 	RSP_LOOP:
 	for {
 		var msgRsp proto.Message
-		msgRsp, err = recvProtoMsg(pthis.tcpDial, 3, 3)
+		msgRsp, err = recvProtoMsg(pthis.tcpDial, 3, 10)
 		//lin_common.LogDebug(msgRsp, err)
 		if err != nil {
-			lin_common.LogDebug(" err:", err, " fail count:", pthis.totalWriteRpc - pthis.totalRpcDial, " total rpc:", pthis.totalWriteRpc)
+			//lin_common.LogDebug(" err:", err, " fail count:", pthis.totalWriteRpc - pthis.totalRpcDial, " total rpc:", pthis.totalWriteRpc)
 			return err
 		}
 
@@ -132,7 +136,7 @@ func (pthis*TestSrv)go_tcpDial() {
 
 			REPORT_RES_LOOP:
 			for {
-				msg, err := recvProtoMsg(pthis.tcpDial, 3, 3)
+				msg, err := recvProtoMsg(pthis.tcpDial, 3, 10)
 				if err != nil {
 					break REPORT_RES_LOOP
 				}
@@ -252,7 +256,10 @@ func (pthis*TestSrv)go_tcpAcpt() {
 	}()
 
 	lsn, err := net.Listen("tcp", pthis.addrLocal)
-	fmt.Println(err)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(0)
+	}
 
 	for{
 		err := pthis.TestSrvAcpt()
@@ -270,7 +277,7 @@ func (pthis*TestSrv)go_tcpAcpt() {
 			pthis.tcpAcpt = conn.(*net.TCPConn)
 			REPORT_LOOP:
 			for {
-				msg, err := recvProtoMsg(pthis.tcpAcpt, 3, 3)
+				msg, err := recvProtoMsg(pthis.tcpAcpt, 3, 10)
 				if err != nil {
 					break REPORT_LOOP
 				}

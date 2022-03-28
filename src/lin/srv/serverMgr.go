@@ -365,7 +365,9 @@ func (pthis*ServerMgr)Dump(bDtail bool) string {
 		var totalAver float64 = 0
 		var totalReqAver float64 = 0
 		var totalRPCReqFail int64 = 0
-		/*if bDtail*/ {
+		var noRpcRecv int64 = 0
+		var noRpcReq int64 = 0
+		{
 			for _, val := range pthis.ServerMapMgr.mapServer {
 				var connAcptID tcp.TCP_CONNECTION_ID
 				var connDialID tcp.TCP_CONNECTION_ID
@@ -379,14 +381,22 @@ func (pthis*ServerMgr)Dump(bDtail bool) string {
 				tnow := float64(time.Now().UnixMilli())
 				tRPCdiff := (tnow - val.timestamp)/float64(1000)
 				diffRPCTotal := totalRPCPacket - val.totalRPCPacketLast
+				if diffRPCTotal <= 0 {
+					noRpcRecv ++
+				}
 				aver := float64(diffRPCTotal) / tRPCdiff
 
 				totalRPCReq := atomic.LoadInt64(&val.totalRPCReq)
 				diffReq := totalRPCReq - val.totalRPCReqLast
+				if diffReq <= 0 {
+					noRpcReq ++
+				}
 				reqAver := float64(diffReq) / tRPCdiff
 
-				str += fmt.Sprintf("\r\n server id:%v acpt:%v dial:%v totalPakcet:%v totalReq:%v diffRPCTotal:%v diffReq:%v tdiff:%v, aver:%v reqAver:%v",
-					val.srvID, connAcptID, connDialID, totalRPCPacket, totalRPCReq, diffRPCTotal, diffReq, tRPCdiff, aver, reqAver)
+				if bDtail {
+					str += fmt.Sprintf("\r\n server id:%v acpt:%v dial:%v totalPakcet:%v totalReq:%v diffRPCTotal:%v diffReq:%v tdiff:%v, aver:%v reqAver:%v",
+						val.srvID, connAcptID, connDialID, totalRPCPacket, totalRPCReq, diffRPCTotal, diffReq, tRPCdiff, aver, reqAver)
+				}
 				val.timestamp = tnow
 				val.totalRPCPacketLast = totalRPCPacket
 				val.totalRPCReqLast = totalRPCReq
@@ -396,6 +406,8 @@ func (pthis*ServerMgr)Dump(bDtail bool) string {
 			}
 		}
 		str += "\r\nserver count:" + strconv.Itoa(len(pthis.ServerMapMgr.mapServer)) +
+			" noRpcReq:" + strconv.Itoa(int(noRpcReq)) +
+			" noRpcRecv:" + strconv.Itoa(int(noRpcRecv)) +
 			" total aver:" + strconv.FormatFloat(totalAver, 'f', 2,64) +
 			" total req aver:" + strconv.FormatFloat(totalReqAver, 'f', 2,64) +
 			" total rpc fail:" + strconv.FormatInt(totalRPCReqFail, 10)

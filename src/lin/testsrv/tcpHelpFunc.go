@@ -20,11 +20,13 @@ func recvProtoMsg(tcpConn *net.TCPConn, timeOutSend int, retryCount int) (proto.
 	recvBuf := bytes.NewBuffer(make([]byte, 0, MAX_PACK_LEN))
 
 	readSize := 0
+	var errR error
 	for i := 0; i < retryCount && readSize < PACK_HEAD_SIZE; i ++ {
 		bin := make([]byte, PACK_HEAD_SIZE - readSize)
 		tcpConn.SetReadDeadline(time.Now().Add(time.Second * time.Duration(timeOutSend)))
-		rz, err := tcpConn.Read(bin)
-		if err != nil {
+		var rz int = 0
+		rz, errR = tcpConn.Read(bin)
+		if errR != nil {
 			//lin_common.LogDebug(err)
 			continue
 		}
@@ -36,8 +38,8 @@ func recvProtoMsg(tcpConn *net.TCPConn, timeOutSend int, retryCount int) (proto.
 	}
 
 	if readSize < PACK_HEAD_SIZE {
-		lin_common.LogDebug("read msg head err:", readSize)
-		return nil, lin_common.GenErr(lin_common.ERR_NONE, "")
+		//lin_common.LogDebug("read msg head err:", readSize, " err:", errR)
+		return nil, lin_common.GenErr(lin_common.ERR_NONE, " err:", errR.Error())
 	}
 
 	binHead := recvBuf.Bytes()[0:PACK_HEAD_SIZE]
@@ -51,9 +53,10 @@ func recvProtoMsg(tcpConn *net.TCPConn, timeOutSend int, retryCount int) (proto.
 		for j := 0; j < retryCount && readSize < packLen; j ++ {
 			bin:= make([]byte, packLen - readSize)
 			tcpConn.SetReadDeadline(time.Now().Add(time.Second * time.Duration(timeOutSend)))
-			rz, err := tcpConn.Read(bin)
-			if err != nil {
-				lin_common.LogDebug(err)
+			var rz int = 0
+			rz, errR = tcpConn.Read(bin)
+			if errR != nil {
+				//lin_common.LogDebug(errR)
 				continue
 			}
 			readSize += rz
@@ -63,8 +66,8 @@ func recvProtoMsg(tcpConn *net.TCPConn, timeOutSend int, retryCount int) (proto.
 			}
 		}
 		if readSize < packLen {
-			lin_common.LogDebug("read msg body err:", readSize)
-			return nil, lin_common.GenErr(lin_common.ERR_NONE, "")
+			lin_common.LogDebug("read msg body err:", readSize, " err:", errR)
+			return nil, lin_common.GenErr(lin_common.ERR_NONE, " err:", errR.Error())
 		}
 	} else {
 		packLen = 0

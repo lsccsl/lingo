@@ -142,8 +142,11 @@ func (pthis *TcpMgr) TcpMgrDump(bDtail bool) (str string, totalRecv int64, total
 			if val.tcpConn != nil {
 				connID = val.tcpConn.TcpConnectionID()
 			}
-			str += fmt.Sprintf("\r\n srvID:%v connection:%v [%v:%v]", val.srvID, connID, val.ip, val.port)
+			if bDtail {
+				str += fmt.Sprintf("\r\n srvID:%v connection:%v [%v:%v]", val.srvID, connID, val.ip, val.port)
+			}
 		}
+		str += fmt.Sprintf("\r\n dial count:%v \r\n", len(pthis.TcpDialMgr.mapDialData))
 	}()
 
 	return

@@ -104,8 +104,8 @@ func (pthis*Server) go_serverProcess() {
 				chTimer = time.After(time.Second * time.Duration(pthis.heartbeatIntervalSec))
 				//send heartbeat
 				if pthis.connDial != nil {
-					lin_common.LogDebug("send heartbeat from dial, srvid:", pthis.srvID, pthis.heartbeatIntervalSec,
-						" connection id:", pthis.connDial.TcpConnectionID())
+/*					lin_common.LogDebug("send heartbeat from dial, srvid:", pthis.srvID, pthis.heartbeatIntervalSec,
+						" connection id:", pthis.connDial.TcpConnectionID())*/
 					msgHeartBeat := &msgpacket.MSG_HEARTBEAT{}
 					msgHeartBeat.Id = pthis.srvMgr.srvID
 					pthis.connDial.TcpConnectSendBin(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_HEARTBEAT, msgHeartBeat))
@@ -214,18 +214,11 @@ func (pthis*Server)PushProtoMsg(msgType msgpacket.MSG_TYPE, protoMsg proto.Messa
 
 func (pthis*Server)Go_ProcessRPC(tcpConn *tcp.TcpConnection, msg *msgpacket.MSG_RPC, msgBody proto.Message) {
 	msgRes := pthis.ServerProcessRPC(tcpConn, msgBody)
-/*	var msgRes proto.Message = nil
-	switch t:= msgBody.(type) {
-	case *msgpacket.MSG_TEST:
-		{
-			msgRes = pthis.processRPCTest(t)
-		}
-	}
-*/
+
 	msgRPCRes := &msgpacket.MSG_RPC_RES{
 		MsgId:msg.MsgId,
 		MsgType:msg.MsgType,
-		ResCode:msgpacket.RESPONSE_CODE_RESPONSE_CODE_NONE,
+		ResCode:msgpacket.RESPONSE_CODE_RESPONSE_CODE_OK,
 	}
 
 	if msgRes != nil {
@@ -326,7 +319,7 @@ func (pthis*Server) process_MSG_HEARTBEAT (tcpConn *tcp.TcpConnection, protoMsg 
 }
 
 func (pthis*Server) process_MSG_HEARTBEAT_RES (tcpConn *tcp.TcpConnection, protoMsg * msgpacket.MSG_HEARTBEAT_RES) {
-	if tcpConn != nil {
+/*	if tcpConn != nil {
 		lin_common.LogDebug(tcpConn.TcpConnectionID(), " msg:", protoMsg)
-	}
+	}*/
 }

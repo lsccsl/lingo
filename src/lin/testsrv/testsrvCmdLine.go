@@ -19,6 +19,10 @@ func MultiSrv(count int, idbase int) {
 		})
 		ConstructTestSrv(Global_testCfg.local_ip + ":" + strconv.Itoa(port), Global_testCfg.ip + ":" + strconv.Itoa(Global_testCfg.port), int64(idbase + i))
 	}
+
+	for _, val := range Global_TestSrvMgr.mapSrv {
+		val.TestSrvBeginDial()
+	}
 }
 
 func CommandMultiSrv(argStr []string) string {

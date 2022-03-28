@@ -22,13 +22,18 @@ enum MSG_TYPE
     _MSG_LOGIN_RES = 104;
     _MSG_TEST_RPC = 105;
     _MSG_TEST_RPC_RES = 106;
+    _MSG_SERVER_MAX = 1000;
+
+    _MSG_CLIENT_ENTER = 1001;
+    _MSG_CLIENT_ENTER_RES = 1002;
 }
 
 enum RESPONSE_CODE
 {
-    RESPONSE_CODE_NONE = 0;
-    RESPONSE_CODE_Fail = 1;
+    RESPONSE_CODE_Fail = 0;
+    RESPONSE_CODE_OK = 1;
     RESPONSE_CODE_Rpc_not_accept = 2;
+    RESPONSE_CODE_redirect = 3;
 }
 
 message MSG_RPC
@@ -113,4 +118,16 @@ message MSG_TCP_STATIC_RES
     int64 byte_proc = 3;
     int64 byte_send = 4;
     map<int32, int64> map_static_msg_recv = 5;
+}
+
+message MSG_CLIENT_ENTER
+{
+    int64 client_id = 1;
+}
+message MSG_CLIENT_ENTER_RES
+{
+    int64 client_id = 1;
+    RESPONSE_CODE res = 2;
+    string redirect_ip = 4; // redirect to other server
+    int32 redirect_port = 5;
 }
