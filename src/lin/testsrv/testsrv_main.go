@@ -10,15 +10,15 @@ var Global_TestSrvMgr = &TestSrvMgr{
 	mapSrv : make(MAP_TEST_SERVER),
 }
 type TestCfg struct {
-	ip string
-	port int
+	remote_ip string
+	remote_port int
 	httpAddr string
 
 	local_ip string
 	local_port_start int
 }
 var Global_testCfg = &TestCfg {
-	ip : "192.168.2.129",port : 2003,
+	remote_ip : "192.168.2.129",remote_port : 2003,
 	httpAddr : "http://192.168.2.129:8803/addserver",
 
 /*	ip : "10.0.14.48",	port : 2002,

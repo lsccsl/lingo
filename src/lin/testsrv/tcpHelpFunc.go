@@ -39,7 +39,7 @@ func recvProtoMsg(tcpConn *net.TCPConn, timeOutSend int, retryCount int) (proto.
 
 	if readSize < PACK_HEAD_SIZE {
 		//lin_common.LogDebug("read msg head err:", readSize, " err:", errR)
-		return nil, lin_common.GenErr(lin_common.ERR_NONE, " err:", errR.Error())
+		return nil, lin_common.GenErr(lin_common.ERR_NONE, " err:", errR.Error(), " read head size:", readSize)
 	}
 
 	binHead := recvBuf.Bytes()[0:PACK_HEAD_SIZE]
@@ -66,8 +66,8 @@ func recvProtoMsg(tcpConn *net.TCPConn, timeOutSend int, retryCount int) (proto.
 			}
 		}
 		if readSize < packLen {
-			lin_common.LogDebug("read msg body err:", readSize, " err:", errR)
-			return nil, lin_common.GenErr(lin_common.ERR_NONE, " err:", errR.Error())
+			//lin_common.LogDebug("read msg body err:", readSize, " err:", errR)
+			return nil, lin_common.GenErr(lin_common.ERR_NONE, " err:", errR.Error(), " read body size:", readSize)
 		}
 	} else {
 		packLen = 0

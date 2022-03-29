@@ -27,14 +27,18 @@ type TestSrv struct {
 
 	addrRemote string
 	addrLocal string
+	local_port int
 
 	totalWriteRpc int64
 	totalRpcDial int64
 
 	totalRpcRecv int64
+
+	totalRedial int64
+	totalReAcpt int64
 }
 
-func ConstructTestSrv(addrLocal string, addrRemote string, srvId int64) *TestSrv {
+func ConstructTestSrv(addrLocal string, local_port int, addrRemote string, srvId int64) *TestSrv {
 	s := &TestSrv{
 		srvId:srvId,
 		recvBuf : bytes.NewBuffer(make([]byte, 0, MAX_PACK_LEN)),
@@ -42,6 +46,7 @@ func ConstructTestSrv(addrLocal string, addrRemote string, srvId int64) *TestSrv
 		seq : 0,
 		addrRemote : addrRemote,
 		addrLocal : addrLocal,
+		local_port : local_port,
 	}
 	Global_TestSrvMgr.TestSrvMgrAdd(s)
 
@@ -126,6 +131,7 @@ func (pthis*TestSrv)go_tcpDial() {
 		if err != nil || pthis.tcpDial == nil{
 			lin_common.LogDebug("rpc err:", err)
 			conn, err := net.Dial("tcp", pthis.addrRemote)
+			pthis.totalRedial ++
 			if err != nil || conn == nil{
 				lin_common.LogDebug("dial err:", err)
 				continue
@@ -264,11 +270,19 @@ func (pthis*TestSrv)go_tcpAcpt() {
 	for{
 		err := pthis.TestSrvAcpt()
 		if err != nil || pthis.tcpAcpt == nil {
+
+			httpAddDial(&ServerFromHttp{
+				SrvID: pthis.srvId,
+				IP: Global_testCfg.local_ip,
+				Port: pthis.local_port,
+			})
+
 			lin_common.LogDebug("acpt read err:", err)
 			if pthis.tcpAcpt != nil {
 				pthis.tcpAcpt.Close()
 			}
 			conn, err := lsn.Accept()
+			pthis.totalReAcpt ++
 			if err != nil || conn == nil{
 				lin_common.LogDebug("acpt err:", err)
 				lin_common.LogDebug(err)

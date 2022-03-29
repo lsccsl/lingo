@@ -12,12 +12,8 @@ func MultiSrv(count int, idbase int) {
 	for i := 0; i < count; i ++ {
 		srvid := int64(idbase + i)
 		port := Global_testCfg.local_port_start + i
-		httpAddDial(&ServerFromHttp{
-			SrvID: srvid,
-			IP: Global_testCfg.local_ip,
-			Port: port,
-		})
-		ConstructTestSrv(Global_testCfg.local_ip + ":" + strconv.Itoa(port), Global_testCfg.ip + ":" + strconv.Itoa(Global_testCfg.port), int64(idbase + i))
+		ConstructTestSrv(Global_testCfg.local_ip + ":" + strconv.Itoa(port), port, Global_testCfg.remote_ip + ":" + strconv.Itoa(Global_testCfg.remote_port),
+			srvid)
 	}
 
 	for _, val := range Global_TestSrvMgr.mapSrv {
@@ -57,10 +53,16 @@ func CommandTestRPC(argStr []string) string {
 func CommandDump(argStr []string) string {
 	Global_TestSrvMgr.total = 0
 	Global_TestSrvMgr.totalReqRecv = 0
+	var totalRedial int64 = 0
+	var totalReAcpt int64 = 0
 	for _, val := range Global_TestSrvMgr.mapSrv {
-		fmt.Println("dial id:", val.DialConnectionID, " acpt id", val.AcptConnectionID, " total:", val.totalRpcDial, " total write:", val.totalWriteRpc)
+		fmt.Println("dial id:", val.DialConnectionID, " acpt id", val.AcptConnectionID, " total:", val.totalRpcDial, " total write:", val.totalWriteRpc,
+			" redial:", val.totalRedial, " reAcpt:", val.totalReAcpt)
 		Global_TestSrvMgr.total += val.totalRpcDial
 		Global_TestSrvMgr.totalReqRecv += val.totalRpcRecv
+
+		totalRedial += val.totalRedial
+		totalReAcpt += val.totalReAcpt
 	}
 
 	totalDiff := Global_TestSrvMgr.total - Global_TestSrvMgr.totalLast
@@ -70,7 +72,8 @@ func CommandDump(argStr []string) string {
 	aver := float64(totalDiff) / tdiff
 	reqAver := float64(totalReqDiff) / tdiff
 	fmt.Println(" client count:", len(Global_TestSrvMgr.mapSrv), " total:", Global_TestSrvMgr.total, " last:", Global_TestSrvMgr.totalLast,
-		" totalDiff:", totalDiff, " tdiff:", tdiff, " aver:", aver, " req aver:", reqAver)
+		" totalDiff:", totalDiff, " tdiff:", tdiff, "\n aver:", aver, " req aver:", reqAver,
+		" totalRedial:", totalRedial, " totalReAcpt:", totalReAcpt)
 	Global_TestSrvMgr.timestamp = tnow
 	Global_TestSrvMgr.totalLast = Global_TestSrvMgr.total
 	Global_TestSrvMgr.totalReqRecvLast = Global_TestSrvMgr.totalReqRecv
