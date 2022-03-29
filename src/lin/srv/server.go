@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"github.com/golang/protobuf/proto"
 	"lin/lin_common"
 	msgpacket "lin/msgpacket"
@@ -10,16 +11,27 @@ import (
 )
 
 type ServerStatic struct {
-	totalRPCPacket int64
-	totalRPCPacketLast int64
+	totalRPCIn int64
+	totalRPCInLast int64
 
-	totalRPCReq int64
-	totalRPCReqLast int64
-	totalRPCReqFail int64
+	totalRPCOut int64
+	totalRPCOutLast int64
+	totalRPCOutFail int64
 
 	timestamp float64
 }
+type ServerDialData struct {
+	dialTimeoutSec int
+	closeExpireSec int
+	ip string
+	port int
+	needRedial bool
+	redialCount int
 
+	tcpConnIDCurDial tcp.TCP_CONNECTION_ID
+
+	DialCancelFunc context.CancelFunc
+}
 type Server struct {
 	srvMgr *ServerMgr
 	srvID         int64
@@ -32,6 +44,7 @@ type Server struct {
 
 	isStopProcess int32
 
+	ServerDialData
 	ServerStatic
 }
 
@@ -45,23 +58,50 @@ type interMsgConnClose struct {
 	tcpConn *tcp.TcpConnection
 }
 
-func ConstructServer(srvMgr *ServerMgr, connDial *tcp.TcpConnection, connAcpt *tcp.TcpConnection, srvID int64, heartbeatIntervalSec int)*Server {
+func ConstructServer(srvMgr *ServerMgr, srvID int64, heartbeatIntervalSec int)*Server {
 	s := &Server{
 		srvMgr:srvMgr,
 		srvID:srvID,
-		connDial:connDial,
-		connAcpt:connAcpt,
+		connDial:nil,
+		connAcpt:nil,
 		chSrvProtoMsg:make(chan *interProtoMsg, 100),
 		chInterMsg:make(chan interface{}, 100),
 		heartbeatIntervalSec:heartbeatIntervalSec,
 		rpcMgr:ConstructRPCManager(),
 		isStopProcess:0,
 	}
-	if s.connDial == nil && s.connAcpt == nil {
-		lin_common.LogErr("connDial and connAcpt is nil:", srvID)
-	}
+	srvMgr.addServer(s)
 	go s.go_serverProcess()
+
 	return s
+}
+
+func (pthis*Server) ServerSetDialData(ip string, port int, closeExpireSec int,
+	dialTimeoutSec int,
+	needRedial bool, redialCount int) {
+
+	lin_common.LogDebug("srv:", pthis.srvID, ip, ":", port, " ", pthis.ip, ":", pthis.port)
+
+	bRedial := false
+	if pthis.ip != ip || pthis.port != port {
+		bRedial = true
+	}
+
+	pthis.dialTimeoutSec = dialTimeoutSec
+	pthis.closeExpireSec = closeExpireSec
+	pthis.ip = ip
+	pthis.port = port
+	pthis.needRedial = needRedial
+	pthis.redialCount = redialCount
+
+	if bRedial {
+		if pthis.connDial != nil {
+			pthis.connDial.TcpConnectClose()
+		}
+		pthis.connDial, _ = srvMgr.tcpMgr.TcpDialMgrDial(pthis.srvID, ip, port, closeExpireSec,
+			dialTimeoutSec,
+			needRedial, redialCount)
+	}
 }
 
 func (pthis*Server) go_serverProcess() {
@@ -130,14 +170,14 @@ func (pthis*Server) ServerClose() {
 	pthis.chSrvProtoMsg <- nil
 }
 
-func (pthis*Server) ServerCloseAndDelDialData() {
+/*func (pthis*Server) ServerCloseAndDelDialData() {
 	pthis.srvMgr.tcpMgr.TcpDialDelDialData(pthis.srvID)
 	pthis.ServerClose()
-}
+}*/
 
 func (pthis*Server)processSrvReport(tcpAccept *tcp.TcpConnection){
 	pthis.connAcpt = tcpAccept
-	lin_common.LogDebug(pthis.srvID, " ", pthis)
+	lin_common.LogDebug("srv:", pthis.srvID, " conn:", tcpAccept.TcpConnectionID())
 
 	msgRes := &msgpacket.MSG_SRV_REPORT_RES{
 		SrvId:pthis.srvID,
@@ -148,7 +188,7 @@ func (pthis*Server)processSrvReport(tcpAccept *tcp.TcpConnection){
 
 func (pthis*Server)processDailConnect(tcpDial *tcp.TcpConnection){
 	pthis.connDial = tcpDial
-	lin_common.LogDebug(pthis.srvID, " ", pthis)
+	lin_common.LogDebug(" srvid:", pthis.srvID, " conn:", tcpDial.TcpConnectionID())
 
 	msgR := &msgpacket.MSG_SRV_REPORT{}
 	msgR.SrvId = pthis.srvMgr.srvID
@@ -161,15 +201,7 @@ func (pthis*Server)processConnClose(tcpConn *tcp.TcpConnection){
 		return
 	}
 
-	if pthis.connDial == nil && pthis.connAcpt == nil {
-		lin_common.LogErr("connDial and connAcpt is nil:", pthis.srvID, " connection id:", tcpConn.TcpConnectionID())
-	}
 	bRedial := false
-	if pthis.connAcpt != nil {
-		if tcpConn.TcpConnectionID() == pthis.connAcpt.TcpConnectionID() {
-			bRedial = true
-		}
-	}
 	if pthis.connDial == nil {
 		bRedial = true
 	} else {
@@ -184,15 +216,10 @@ func (pthis*Server)processConnClose(tcpConn *tcp.TcpConnection){
 	}
 
 	lin_common.LogDebug(pthis.srvID, " will redial", pthis)
-	if pthis.connAcpt != nil {
-		pthis.connAcpt.TcpConnectClose()
-		pthis.connAcpt = nil
-	}
 	if pthis.connDial != nil {
 		pthis.connDial.TcpConnectClose()
-		pthis.connDial = nil
 	}
-	pthis.connDial, _ = pthis.srvMgr.tcpMgr.TcpDialMgrCheckReDial(tcpConn.SrvID)
+	pthis.connDial, _ = pthis.srvMgr.tcpMgr.TcpDialMgrDial(pthis.srvID, pthis.ip, pthis.port, pthis.closeExpireSec, pthis.dialTimeoutSec, pthis.needRedial, pthis.redialCount)
 }
 
 func (pthis*Server)PushInterMsg(msg interface{}){
@@ -229,7 +256,7 @@ func (pthis*Server)Go_ProcessRPC(tcpConn *tcp.TcpConnection, msg *msgpacket.MSG_
 		}
 	}
 
-	atomic.AddInt64(&pthis.totalRPCPacket, 1)
+	atomic.AddInt64(&pthis.totalRPCIn, 1)
 	tcpConn.TcpConnectSendBin(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_RPC_RES, msgRPCRes))
 }
 func (pthis*Server)processRPCRes(tcpConn *tcp.TcpConnection, msg *msgpacket.MSG_RPC_RES, msgBody proto.Message) {
@@ -255,7 +282,7 @@ func (pthis*Server)processRPCRes(tcpConn *tcp.TcpConnection, msg *msgpacket.MSG_
 
 
 // SendRPC_Async @brief will block timeoutMilliSec
-func (pthis*Server)SendRPC_Async(msgType msgpacket.MSG_TYPE, protoMsg proto.Message, timeoutMilliSec int) proto.Message {
+func (pthis*Server)SendRPC_Async(msgType msgpacket.MSG_TYPE, protoMsg proto.Message, timeoutMilliSec int) (proto.Message, error) {
 
 	defer func() {
 		err := recover()
@@ -265,7 +292,7 @@ func (pthis*Server)SendRPC_Async(msgType msgpacket.MSG_TYPE, protoMsg proto.Mess
 	}()
 
 	if pthis.rpcMgr == nil{
-		return nil
+		return nil, lin_common.GenErr(lin_common.ERR_sys, "no rpc mgr")
 	}
 
 	msgRPC := &msgpacket.MSG_RPC{
@@ -276,12 +303,12 @@ func (pthis*Server)SendRPC_Async(msgType msgpacket.MSG_TYPE, protoMsg proto.Mess
 	msgRPC.MsgBin, err = proto.Marshal(protoMsg)
 	if err != nil {
 		lin_common.LogErr(err)
-		return nil
+		return nil, lin_common.GenErr(lin_common.ERR_sys, "packet err")
 	}
 
 	rreq := pthis.rpcMgr.RPCManagerAddReq(msgRPC.MsgId)
 
-	atomic.AddInt64(&pthis.totalRPCReq, 1)
+	atomic.AddInt64(&pthis.totalRPCOut, 1)
 	pthis.connDial.TcpConnectSendBin(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_RPC, msgRPC))
 
 	var res proto.Message = nil
@@ -289,13 +316,20 @@ func (pthis*Server)SendRPC_Async(msgType msgpacket.MSG_TYPE, protoMsg proto.Mess
 	case resCh := <-rreq.chNtf:
 		res, _ = resCh.(proto.Message)
 	case <-time.After(time.Millisecond * time.Duration(timeoutMilliSec)):
-		lin_common.LogErr("rpc timeout:", pthis.srvID)
-		atomic.AddInt64(&pthis.totalRPCReqFail, 1)
+		atomic.AddInt64(&pthis.totalRPCOutFail, 1)
+		err = lin_common.GenErr(lin_common.ERR_rpc_timeout, " rpc time out srvid:", pthis.srvID, " rpcid:", msgRPC.MsgId)
 	}
 
 	pthis.rpcMgr.RPCManagerDelReq(msgRPC.MsgId)
 
-	return res
+	if err != nil {
+		return nil, err
+	}
+	if res == nil {
+		return nil, lin_common.GenErr(lin_common.ERR_sys, "msg is nil")
+	}
+
+	return res, nil
 }
 
 func (pthis*Server)processServerMsg (interMsg * interProtoMsg){

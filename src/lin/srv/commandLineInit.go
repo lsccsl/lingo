@@ -13,7 +13,7 @@ func testrpc(argStr []string)string{
 	}
 
 	lin_common.LogDebug(srvID)
-	msg := srvMgr.SendRPC_Async(srvID, msgpacket.MSG_TYPE__MSG_TEST, &msgpacket.MSG_TEST{Id:567}, 10 * 1000)
+	msg, _ := srvMgr.SendRPC_Async(srvID, msgpacket.MSG_TYPE__MSG_TEST, &msgpacket.MSG_TEST{Id:567}, 10 * 1000)
 
 	lin_common.LogDebug(msg)
 	return ""

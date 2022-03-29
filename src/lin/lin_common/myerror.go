@@ -9,10 +9,13 @@ import (
 type ERR_NUM int
 
 const (
-	ERR_NONE ERR_NUM = 0
-	ERR_no_dialData ERR_NUM = 1
-	ERR_not_tcp_connection ERR_NUM = 2
-	ERR_need_not_dial ERR_NUM = 3
+	ERR_NONE               ERR_NUM = 0
+	ERR_sys                ERR_NUM = 1
+	ERR_no_dialData        ERR_NUM = 2
+	ERR_not_tcp_connection ERR_NUM = 3
+	ERR_need_not_dial      ERR_NUM = 4
+	ERR_rpc_timeout        ERR_NUM = 5
+	ERR_no_srv             ERR_NUM = 6
 )
 
 type MyError struct {

@@ -14,13 +14,18 @@ func (pthis*Server)processOtherServerMsg (interMsg * interProtoMsg){
 
 func (pthis*Server)processTestRPC(msg *msgpacket.MSG_TEST_RPC){
 	lin_common.LogDebug("test rpc, srvid:", pthis.srvID, " count:", msg.RpcCount)
+
 	go func() {
 		for i := 0; i < int(msg.RpcCount); i ++ {
 			uuid := lin_common.GenGUID()
-			msgRes := srvMgr.SendRPC_Async(pthis.srvID,
+			msgRes, err := srvMgr.SendRPC_Async(pthis.srvID,
 				msgpacket.MSG_TYPE__MSG_TEST,
 				&msgpacket.MSG_TEST{Id:uuid,Seq:int64(i)},
-				10 * 1000)
+				60 * 1000)
+			if err != nil {
+				lin_common.LogDebug("rpc err, uuid:", uuid, " srvid:", pthis.srvID, " err:", err)
+				continue
+			}
 			switch t := msgRes.(type) {
 			case *msgpacket.MSG_TEST_RES:
 				if t.Id != uuid {

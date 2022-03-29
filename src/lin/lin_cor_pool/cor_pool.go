@@ -161,7 +161,7 @@ func (pthis *CorPool) CorPoolAddJob(jobR *CorPoolJobData /* ready only */) error
 	}
 
 	tWaitEnd := time.Now().UnixMilli()
-	if (tWaitEnd - tWaitBegin) > 30 * 1000 {
+	if (tWaitEnd - tWaitBegin) > 50 * 1000 {
 		lin_common.LogErr("wait too long:", tWaitEnd - tWaitBegin, " job data:", jobR.JobData_, " waitCount:", waitCount)
 	}
 

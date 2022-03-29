@@ -170,16 +170,16 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 			DIAL_LOOP:
 			for i := 0; i < redialCount; i ++ {
 				tBegin := time.Now()
-				lin_common.LogDebug(tcpConn.connectionID, " begin dial:", addr, " connection id:", tcpConn.connectionID)
+				lin_common.LogDebug("srv:", SrvID, " conn:", tcpConn.connectionID, " begin dial:", addr, " connection id:", tcpConn.connectionID)
 
 				d := net.Dialer{Timeout: time.Second * time.Duration(dialTimeoutSec)}
 				conn, err = d.DialContext(ctx, "tcp", addr)
-				lin_common.LogDebug(tcpConn.connectionID, " end dial err:", err, " connection id:", tcpConn.connectionID)
+				lin_common.LogDebug("srv:", SrvID, " conn:", tcpConn.connectionID, " end dial err:", err, " connection id:", tcpConn.connectionID)
 				//conn, err = net.DialTimeout("tcp", addr, time.Second * time.Duration(dialTimeoutSec))
 
 				tEnd := time.Now()
 				if err != nil || conn == nil {
-					lin_common.LogDebug(tcpConn.connectionID, " will retry ", i, " ", redialCount, " ", tcpConn.netConn, " ", err)
+					lin_common.LogDebug("srv:", SrvID, " conn:", tcpConn.connectionID, " will retry ", i, " ", redialCount, " ", tcpConn.netConn, " ", err)
 					if strings.Index(err.Error(), "operation was canceled") >= 0 {
 						break DIAL_LOOP
 					}
@@ -196,7 +196,7 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 			}
 
 			if err != nil || conn == nil{
-				lin_common.LogDebug("fail ", err, conn, " connection id:", tcpConn.connectionID)
+				lin_common.LogDebug("srv:", SrvID, " fail ", err, conn, " connection id:", tcpConn.connectionID)
 				if tcpConn.cbTcpConnection != nil {
 					tcpConn.cbTcpConnection.CBConnectClose(tcpConn, TCP_CONNECTION_CLOSE_REASON_dialfail)
 				}
@@ -230,16 +230,10 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 		}
 		if err != nil {
 			lin_common.LogErr("fail ", err)
-/*			if tcpConn.cbTcpConnection != nil {
-				tcpConn.cbTcpConnection.CBConnectClose(tcpConn)
-			}*/
 			return nil, err
 		}
 
 		connMgr.CBAddTcpConn(tcpConn)
-		if tcpConn.cbTcpConnection != nil {
-			tcpConn.cbTcpConnection.CBConnectDial(tcpConn, nil)
-		}
 		go tcpConn.go_tcpConnRead()
 		go tcpConn.go_tcpConnWrite()
 

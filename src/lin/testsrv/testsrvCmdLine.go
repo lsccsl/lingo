@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"lin/lin_common"
 	"lin/msgpacket"
+	"math"
 	"strconv"
 	"time"
 )
@@ -51,10 +52,24 @@ func CommandTestRPC(argStr []string) string {
 }
 
 func CommandDump(argStr []string) string {
+
+	if len(argStr) >= 1{
+		srvID, _ := strconv.ParseInt(argStr[0], 10, 64)
+		val := Global_TestSrvMgr.mapSrv[srvID]
+		if val != nil {
+			fmt.Println("dial id:", val.DialConnectionID, " acpt id", val.AcptConnectionID, " total:", val.totalRpcDial, " total write:", val.totalWriteRpc,
+				" redial:", val.totalRedial, " reAcpt:", val.totalReAcpt)
+			return ""
+		}
+	}
+
 	Global_TestSrvMgr.total = 0
 	Global_TestSrvMgr.totalReqRecv = 0
 	var totalRedial int64 = 0
 	var totalReAcpt int64 = 0
+	minRTT := int64(math.MaxInt64)
+	maxRTT := int64(0)
+	totalRTT := int64(0)
 	for _, val := range Global_TestSrvMgr.mapSrv {
 		fmt.Println("dial id:", val.DialConnectionID, " acpt id", val.AcptConnectionID, " total:", val.totalRpcDial, " total write:", val.totalWriteRpc,
 			" redial:", val.totalRedial, " reAcpt:", val.totalReAcpt)
@@ -63,6 +78,14 @@ func CommandDump(argStr []string) string {
 
 		totalRedial += val.totalRedial
 		totalReAcpt += val.totalReAcpt
+
+		if minRTT > val.minRTTDialRpc {
+			minRTT = val.minRTTDialRpc
+		}
+		if maxRTT < val.maxRTTDialRpc {
+			maxRTT = val.maxRTTDialRpc
+		}
+		totalRTT += val.totalRTTRpc
 	}
 
 	totalDiff := Global_TestSrvMgr.total - Global_TestSrvMgr.totalLast
@@ -71,9 +94,11 @@ func CommandDump(argStr []string) string {
 	tdiff := (tnow - Global_TestSrvMgr.timestamp)/float64(1000)
 	aver := float64(totalDiff) / tdiff
 	reqAver := float64(totalReqDiff) / tdiff
+	averRTT := totalRTT / Global_TestSrvMgr.total
 	fmt.Println(" client count:", len(Global_TestSrvMgr.mapSrv), " total:", Global_TestSrvMgr.total, " last:", Global_TestSrvMgr.totalLast,
 		" totalDiff:", totalDiff, " tdiff:", tdiff, "\n aver:", aver, " req aver:", reqAver,
-		" totalRedial:", totalRedial, " totalReAcpt:", totalReAcpt)
+		" totalRedial:", totalRedial, " totalReAcpt:", totalReAcpt,
+		" \n minRTT:", minRTT, " maxRTT:", maxRTT, " averRTT:", averRTT)
 	Global_TestSrvMgr.timestamp = tnow
 	Global_TestSrvMgr.totalLast = Global_TestSrvMgr.total
 	Global_TestSrvMgr.totalReqRecvLast = Global_TestSrvMgr.totalReqRecv

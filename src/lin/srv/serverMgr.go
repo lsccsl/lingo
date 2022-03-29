@@ -114,7 +114,7 @@ func (pthis*ServerMgr)CBConnectDial(tcpConn *tcp.TcpConnection, err error) {
 	if tcpConn == nil {
 		return
 	}
-	lin_common.LogDebug(tcpConn.TcpGetConn().LocalAddr(), tcpConn.TcpGetConn().RemoteAddr(), tcpConn.TcpConnectionID())
+	lin_common.LogDebug(tcpConn.TcpGetConn().LocalAddr(), tcpConn.TcpGetConn().RemoteAddr(), tcpConn.TcpConnectionID(), " srvid:", tcpConn.SrvID)
 
 	pthis.processDailConnect(tcpConn)
 }
@@ -130,16 +130,13 @@ func (pthis*ServerMgr)CBConnectClose(tcpConn *tcp.TcpConnection, closeReason tcp
 			srv.PushInterMsg(&interMsgConnClose{tcpConn})
 		} else {
 			lin_common.LogDebug("will check redial, can't find srv id:", tcpConn.SrvID)
-			pthis.tcpMgr.TcpDialMgrCheckReDial(tcpConn.SrvID)
 		}
-		//pthis.delServer(tcpConn.SrvID)
 	} else {
 		if tcpConn.SrvID != 0 {
 			srv := pthis.getServer(tcpConn.SrvID)
 			if srv != nil {
 				srv.PushInterMsg(&interMsgConnClose{tcpConn})
 			}
-			//pthis.delServer(tcpConn.SrvID)
 		} else if tcpConn.ClientID != 0 {
 			oldC := pthis.getClient(tcpConn.ClientID)
 			if oldC != nil {
@@ -267,8 +264,7 @@ func (pthis*ServerMgr)processSrvReport(tcpAccept *tcp.TcpConnection, srvID int64
 	tcpAccept.SrvID = srvID
 	srv := pthis.getServer(srvID)
 	if srv == nil {
-		srv = ConstructServer(pthis, nil, tcpAccept, srvID, pthis.heartbeatIntervalSec)
-		pthis.addServer(srv)
+		srv = ConstructServer(pthis, srvID, pthis.heartbeatIntervalSec)
 	}
 	if srv != nil {
 		srv.PushInterMsg(&interMsgSrvReport{tcpAccept})
@@ -278,10 +274,6 @@ func (pthis*ServerMgr)processSrvReport(tcpAccept *tcp.TcpConnection, srvID int64
 func (pthis*ServerMgr)processDailConnect(tcpDial *tcp.TcpConnection){
 	srvID := tcpDial.SrvID
 	srv := pthis.getServer(srvID)
-	if srv == nil {
-		srv = ConstructServer(pthis, tcpDial, nil, srvID, pthis.heartbeatIntervalSec)
-		pthis.addServer(srv)
-	}
 	if srv != nil {
 		srv.PushInterMsg(&interMsgConnDial{tcpDial})
 	}
@@ -320,12 +312,26 @@ func (pthis*ServerMgr)processRPCRes(tcpConn *tcp.TcpConnection, msgRPC *msgpacke
 	}
 }
 
-func (pthis*ServerMgr)SendRPC_Async(srvID int64, msgType msgpacket.MSG_TYPE, protoMsg proto.Message, timeoutMilliSec int) proto.Message {
+func (pthis*ServerMgr)SendRPC_Async(srvID int64, msgType msgpacket.MSG_TYPE, protoMsg proto.Message, timeoutMilliSec int) (proto.Message, error) {
 	srv := pthis.getServer(srvID)
 	if srv == nil {
-		return nil
+		return nil, lin_common.GenErr(lin_common.ERR_no_srv, " no srvid:", srvID)
 	}
 	return srv.SendRPC_Async(msgType, protoMsg, timeoutMilliSec)
+}
+
+func (pthis*ServerMgr)AddRemoteServer(srvID int64, ip string, port int, closeExpireSec int,
+	dialTimeoutSec int,
+	needRedial bool, redialCount int) {
+	srv := pthis.getServer(srvID)
+	if srv == nil {
+		lin_common.LogDebug("srv already not exist:", srvID)
+		srv = ConstructServer(pthis, srvID, pthis.heartbeatIntervalSec)
+		srv.ServerSetDialData(ip, port, closeExpireSec, dialTimeoutSec, needRedial, redialCount)
+	} else {
+		lin_common.LogDebug("srv already exist:", srvID)
+		srv.ServerSetDialData(ip, port, closeExpireSec, dialTimeoutSec, needRedial, redialCount)
+	}
 }
 
 func TcpConnectSendProtoMsg(tcpConn *tcp.TcpConnection, msgType msgpacket.MSG_TYPE, protoMsg proto.Message) {
@@ -365,9 +371,9 @@ func (pthis*ServerMgr)Dump(bDtail bool) string {
 		defer pthis.ServerMapMgr.mapServerMutex.Unlock()
 		var totalAver float64 = 0
 		var totalReqAver float64 = 0
-		var totalRPCReqFail int64 = 0
-		var noRpcRecv int64 = 0
-		var noRpcReq int64 = 0
+		var totalRPCOutFail int64 = 0
+		var noRpcIn int64 = 0
+		var noRpcOut int64 = 0
 		{
 			for _, val := range pthis.ServerMapMgr.mapServer {
 				var connAcptID tcp.TCP_CONNECTION_ID
@@ -378,40 +384,40 @@ func (pthis*ServerMgr)Dump(bDtail bool) string {
 				if val.connDial != nil {
 					connDialID = val.connDial.TcpConnectionID()
 				}
-				totalRPCPacket := atomic.LoadInt64(&val.totalRPCPacket)
+				totalRPCIn := atomic.LoadInt64(&val.totalRPCIn)
 				tnow := float64(time.Now().UnixMilli())
 				tRPCdiff := (tnow - val.timestamp)/float64(1000)
-				diffRPCTotal := totalRPCPacket - val.totalRPCPacketLast
+				diffRPCTotal := totalRPCIn - val.totalRPCInLast
 				if diffRPCTotal <= 0 {
-					noRpcRecv ++
+					noRpcIn ++
 				}
 				aver := float64(diffRPCTotal) / tRPCdiff
 
-				totalRPCReq := atomic.LoadInt64(&val.totalRPCReq)
-				diffReq := totalRPCReq - val.totalRPCReqLast
+				totalRPCOut := atomic.LoadInt64(&val.totalRPCOut)
+				diffReq := totalRPCOut - val.totalRPCOutLast
 				if diffReq <= 0 {
-					noRpcReq ++
+					noRpcOut ++
 				}
 				reqAver := float64(diffReq) / tRPCdiff
 
 				if bDtail {
 					str += fmt.Sprintf("\r\n server id:%v acpt:%v dial:%v totalPakcet:%v totalReq:%v diffRPCTotal:%v diffReq:%v tdiff:%v, aver:%v reqAver:%v",
-						val.srvID, connAcptID, connDialID, totalRPCPacket, totalRPCReq, diffRPCTotal, diffReq, tRPCdiff, aver, reqAver)
+						val.srvID, connAcptID, connDialID, totalRPCIn, totalRPCOut, diffRPCTotal, diffReq, tRPCdiff, aver, reqAver)
 				}
 				val.timestamp = tnow
-				val.totalRPCPacketLast = totalRPCPacket
-				val.totalRPCReqLast = totalRPCReq
+				val.totalRPCInLast = totalRPCIn
+				val.totalRPCOutLast = totalRPCOut
 				totalAver += aver
 				totalReqAver += reqAver
-				totalRPCReqFail += val.totalRPCReqFail
+				totalRPCOutFail += val.totalRPCOutFail
 			}
 		}
 		str += "\r\nserver count:" + strconv.Itoa(len(pthis.ServerMapMgr.mapServer)) +
-			" noRpcReq:" + strconv.Itoa(int(noRpcReq)) +
-			" noRpcRecv:" + strconv.Itoa(int(noRpcRecv)) +
+			" noRpcOut:" + strconv.Itoa(int(noRpcOut)) +
+			" noRpcIn:" + strconv.Itoa(int(noRpcIn)) +
 			" total aver:" + strconv.FormatFloat(totalAver, 'f', 2,64) +
 			" total req aver:" + strconv.FormatFloat(totalReqAver, 'f', 2,64) +
-			" total rpc fail:" + strconv.FormatInt(totalRPCReqFail, 10)
+			" total rpc fail:" + strconv.FormatInt(totalRPCOutFail, 10)
 
 	}()
 
@@ -439,3 +445,5 @@ func (pthis*ServerMgr)Dump(bDtail bool) string {
 
 	return str
 }
+
+

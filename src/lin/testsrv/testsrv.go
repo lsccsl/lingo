@@ -8,11 +8,27 @@ import (
 	"lin/lin_common"
 	"lin/msgpacket"
 	"lin/tcp"
+	"math"
 	"net"
 	"os"
+	"time"
 )
 const MAX_PACK_LEN int = 65535
 const G_MTU int = 1536
+
+type TestSrvStatic struct {
+	totalWriteRpc int64
+	totalRpcDial int64
+
+	totalRpcRecv int64
+
+	totalRedial int64
+	totalReAcpt int64
+
+	minRTTDialRpc int64
+	maxRTTDialRpc int64
+	totalRTTRpc int64
+}
 
 type TestSrv struct {
 	tcpDial *net.TCPConn
@@ -29,13 +45,7 @@ type TestSrv struct {
 	addrLocal string
 	local_port int
 
-	totalWriteRpc int64
-	totalRpcDial int64
-
-	totalRpcRecv int64
-
-	totalRedial int64
-	totalReAcpt int64
+	TestSrvStatic
 }
 
 func ConstructTestSrv(addrLocal string, local_port int, addrRemote string, srvId int64) *TestSrv {
@@ -48,6 +58,9 @@ func ConstructTestSrv(addrLocal string, local_port int, addrRemote string, srvId
 		addrLocal : addrLocal,
 		local_port : local_port,
 	}
+	s.minRTTDialRpc = math.MaxInt64
+	s.maxRTTDialRpc = 0
+
 	Global_TestSrvMgr.TestSrvMgrAdd(s)
 
 	Global_wg.Add(2)
@@ -84,6 +97,7 @@ func (pthis*TestSrv)TestSrvDial() (err interface{}) {
 		return
 	}
 	pthis.totalWriteRpc ++
+	tBeginTime := time.Now().UnixMilli()
 	_, err = pthis.tcpDial.Write(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_RPC, msgRPC))
 	if err != nil {
 		lin_common.LogErr("write tcp err:", pthis.DialConnectionID)
@@ -105,6 +119,15 @@ func (pthis*TestSrv)TestSrvDial() (err interface{}) {
 		case *msgpacket.MSG_RPC_RES:
 			if t.MsgId == msgRPC.MsgId {
 				pthis.totalRpcDial ++
+				tEndTime := time.Now().UnixMilli()
+				tDiff := tEndTime - tBeginTime
+				if tDiff < pthis.minRTTDialRpc {
+					pthis.minRTTDialRpc = tDiff
+				}
+				if tDiff > pthis.maxRTTDialRpc {
+					pthis.maxRTTDialRpc = tDiff
+				}
+				pthis.totalRTTRpc += tDiff
 				break RSP_LOOP
 			} else {
 				lin_common.LogDebug(" other id:", msgRPC.MsgId)
@@ -142,7 +165,7 @@ func (pthis*TestSrv)go_tcpDial() {
 
 			REPORT_RES_LOOP:
 			for {
-				msg, err := recvProtoMsg(pthis.tcpDial, 3, 10)
+				msg, err := recvProtoMsg(pthis.tcpDial, 6, 10)
 				if err != nil {
 					break REPORT_RES_LOOP
 				}

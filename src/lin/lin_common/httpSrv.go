@@ -3,6 +3,7 @@ package lin_common
 import (
 	"net/http"
 	"strconv"
+	"time"
 )
 type FUNC_HTTP_CALLBACK func(http.ResponseWriter, *http.Request)
 type MAP_HTTP_CALLBACK map[string]FUNC_HTTP_CALLBACK
@@ -20,6 +21,7 @@ func StartHttpSrvMgr(ip string, port int) (*HttpSrvMgr, error) {
 		mapCallBack:make(MAP_HTTP_CALLBACK),
 	}
 	srv.httpSrv = &http.Server{Addr: ip + ":" + strconv.Itoa(port), Handler: srv}
+	srv.httpSrv.ReadTimeout = time.Second * 30
 	go func() {
 		err := srv.httpSrv.ListenAndServe()
 		if err != nil {

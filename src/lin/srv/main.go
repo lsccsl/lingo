@@ -81,7 +81,7 @@ func main() {
 				lin_common.LogErr(err)
 				return
 			}
-			tcpMgr.TcpDialMgrDial(val.SrvID, dialAddr.IP.String(), dialAddr.Port, 180, 15, true, 3)
+			srvMgr.AddRemoteServer(val.SrvID, dialAddr.IP.String(), dialAddr.Port, 180, 15, true, 3)
 			lin_common.LogDebug(val)
 		}
 	}
@@ -117,10 +117,10 @@ func main() {
 	httpSrv.HttpSrvAddCallback("/addserver", func(writer http.ResponseWriter, request *http.Request) {
 		bin := make([]byte, request.ContentLength, request.ContentLength)
 		request.Body.Read(bin)
-		lin_common.LogDebug(string(bin), " ", bin, " len:", request.ContentLength)
+		lin_common.LogDebug(string(bin), " len:", request.ContentLength)
 		sh := &ServerFromHttp{}
 		json.Unmarshal(bin, sh)
-		tcpMgr.TcpDialMgrDial(sh.SrvID, sh.IP, sh.Port, 180, 15, true, 3)
+		srvMgr.AddRemoteServer(sh.SrvID, sh.IP, sh.Port, 180, 15, true, 3)
 		writer.Write(bin)
 	})
 
