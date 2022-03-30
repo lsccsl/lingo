@@ -248,7 +248,6 @@ func (pthis *TcpConnection)go_tcpConnRead() {
 		return
 	}
 
-	/*var TimerConnClose * time.Timer = nil*/
 	defer func() {
 		if pthis.connMgr != nil {
 			pthis.connMgr.CBDelTcpConn(pthis.connectionID)
@@ -262,13 +261,14 @@ func (pthis *TcpConnection)go_tcpConnRead() {
 	TmpBuf := make([]byte, G_MTU)
 	recvBuf := bytes.NewBuffer(make([]byte, 0, MAX_PACK_LEN))
 
-/*	expireInterval := time.Second * time.Duration(pthis.closeExpireSec)
+/*	var TimerConnClose * time.Timer = nil
+	expireInterval := time.Second * time.Duration(pthis.closeExpireSec)
 	if pthis.closeExpireSec > 0 {
 		TimerConnClose = time.AfterFunc(expireInterval, func() {
 			pthis.TcpConnectSetCloseReason(TCP_CONNECTION_CLOSE_REASON_timeout)
-			lin_common.LogDebug("time out close tcp connection:", pthis.connectionID, " srvid:", pthis.SrvID, " clientid:", pthis.ClientID,
+			lin_common.LogDebug("time out close tcp connection:", pthis.connectionID, " srv:", pthis.SrvID, " clientid:", pthis.ClientID,
 				" expire sec:", pthis.closeExpireSec)
-			pthis.TcpConnectClose()
+			pthis.netConn.Close()
 		})
 	}*/
 
@@ -285,13 +285,13 @@ func (pthis *TcpConnection)go_tcpConnRead() {
 						pthis.TcpConnectSetCloseReason(TCP_CONNECTION_CLOSE_REASON_timeout)
 					} else if t.Temporary() {
 						lin_common.LogDebug("temporary:", t)
-						continue
+						continue READ_LOOP
 					} else {
 						//lin_common.LogDebug("other err:", t)
 					}
 				}
 			case *net.OpError:
-				lin_common.LogDebug(t)
+				//lin_common.LogDebug(t)
 			default:
 				//lin_common.LogDebug(t)
 			}
@@ -302,7 +302,6 @@ func (pthis *TcpConnection)go_tcpConnRead() {
 		pthis.ByteRecv += int64(readSize)
 
 /*		if TimerConnClose != nil {
-			//log.LogDebug("reset close timeout:", pthis.connectionID, " srvid:", pthis.SrvID, " clientid:", pthis.ClientID, " expire:", pthis.closeExpireSec)
 			TimerConnClose.Reset(expireInterval)
 		}*/
 
@@ -332,7 +331,9 @@ func (pthis *TcpConnection)go_tcpConnRead() {
 		}()
 	}
 
-	pthis.netConn.Close()
+	if pthis.netConn != nil {
+		pthis.netConn.Close()
+	}
 
 	pthis.quitTcpWrite()
 /*	if TimerConnClose != nil {

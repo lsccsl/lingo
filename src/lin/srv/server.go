@@ -186,13 +186,13 @@ func (pthis*Server)processSrvReport(tcpAccept *tcp.TcpConnection){
 		}
 	}
 	pthis.connAcpt = tcpAccept
-	lin_common.LogDebug("srv:", pthis.srvID, " conn:", tcpAccept.TcpConnectionID())
+	lin_common.LogDebug("srv:", pthis.srvID, " conn:", pthis.connAcpt.TcpConnectionID())
 
 	msgRes := &msgpacket.MSG_SRV_REPORT_RES{
 		SrvId:pthis.srvID,
-		TcpConnId:int64(tcpAccept.TcpConnectionID()),
+		TcpConnId:int64(pthis.connAcpt.TcpConnectionID()),
 	}
-	TcpConnectSendProtoMsg(tcpAccept, msgpacket.MSG_TYPE__MSG_SRV_REPORT_RES, msgRes)
+	TcpConnectSendProtoMsg(pthis.connAcpt, msgpacket.MSG_TYPE__MSG_SRV_REPORT_RES, msgRes)
 }
 
 func (pthis*Server)processDailConnect(tcpDial *tcp.TcpConnection){
@@ -206,13 +206,14 @@ func (pthis*Server)processDailConnect(tcpDial *tcp.TcpConnection){
 		}
 	}
 	pthis.connDial = tcpDial
-	lin_common.LogDebug(" srv:", pthis.srvID, " conn:", tcpDial.TcpConnectionID())
+
+	lin_common.LogDebug(" srv:", pthis.srvID, " conn:", pthis.connDial.TcpConnectionID())
 	pthis.srvMgr.tcpMgr.TcpDialDelDialData(pthis.srvID)
 
 	msgR := &msgpacket.MSG_SRV_REPORT{}
 	msgR.SrvId = pthis.srvMgr.srvID
-	msgR.TcpConnId = int64(tcpDial.TcpConnectionID())
-	tcpDial.TcpConnectSendBin(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_SRV_REPORT, msgR))
+	msgR.TcpConnId = int64(pthis.connDial.TcpConnectionID())
+	pthis.connDial.TcpConnectSendBin(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_SRV_REPORT, msgR))
 }
 
 func (pthis*Server)processConnClose(tcpConn *tcp.TcpConnection){
@@ -225,18 +226,10 @@ func (pthis*Server)processConnClose(tcpConn *tcp.TcpConnection){
 		return
 	}
 
-	bRedial := false
-	if pthis.connDial == nil {
-		bRedial = true
-	} else {
-		if tcpConn.TcpConnectionID() == pthis.connDial.TcpConnectionID() {
-			bRedial = true
+	if pthis.connDial != nil {
+		if tcpConn.TcpConnectionID() != pthis.connDial.TcpConnectionID() {
+			return
 		}
-	}
-
-	if !bRedial {
-		lin_common.LogDebug("not redial:", "srv:", pthis.srvID, " tcpConn:", tcpConn.TcpConnectionID())
-		return
 	}
 
 	lin_common.LogDebug("srv:", pthis.srvID, " will redial", " tcpConn:", tcpConn.TcpConnectionID())
