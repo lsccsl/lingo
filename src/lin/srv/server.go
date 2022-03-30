@@ -98,7 +98,7 @@ func (pthis*Server) ServerSetDialData(ip string, port int, closeExpireSec int,
 		if pthis.connDial != nil {
 			pthis.connDial.TcpConnectClose()
 		}
-		pthis.connDial, _ = srvMgr.tcpMgr.TcpDialMgrDial(pthis.srvID, ip, port, closeExpireSec,
+		srvMgr.tcpMgr.TcpDialMgrDial(pthis.srvID, ip, port, closeExpireSec,
 			dialTimeoutSec,
 			needRedial, redialCount)
 	}
@@ -106,7 +106,7 @@ func (pthis*Server) ServerSetDialData(ip string, port int, closeExpireSec int,
 
 func (pthis*Server) go_serverProcess() {
 	defer func() {
-		lin_common.LogDebug("srvid:", pthis.srvID, " exit process")
+		lin_common.LogDebug("srv:", pthis.srvID, " exit process")
 		atomic.StoreInt32(&pthis.isStopProcess, 1)
 		err := recover()
 		if err != nil {
@@ -176,6 +176,15 @@ func (pthis*Server) ServerClose() {
 }*/
 
 func (pthis*Server)processSrvReport(tcpAccept *tcp.TcpConnection){
+	if tcpAccept == nil {
+		return
+	}
+	if pthis.connAcpt != nil {
+		if pthis.connAcpt.TcpConnectionID() != tcpAccept.TcpConnectionID() {
+			pthis.connAcpt.TcpConnectSetCloseReason(tcp.TCP_CONNECTION_CLOSE_REASON_new_conn)
+			pthis.connAcpt.TcpConnectClose()
+		}
+	}
 	pthis.connAcpt = tcpAccept
 	lin_common.LogDebug("srv:", pthis.srvID, " conn:", tcpAccept.TcpConnectionID())
 
@@ -187,8 +196,18 @@ func (pthis*Server)processSrvReport(tcpAccept *tcp.TcpConnection){
 }
 
 func (pthis*Server)processDailConnect(tcpDial *tcp.TcpConnection){
+	if tcpDial == nil {
+		return
+	}
+	if pthis.connDial != nil {
+		if pthis.connDial.TcpConnectionID() != tcpDial.TcpConnectionID() {
+			pthis.connDial.TcpConnectSetCloseReason(tcp.TCP_CONNECTION_CLOSE_REASON_new_conn)
+			pthis.connDial.TcpConnectClose()
+		}
+	}
 	pthis.connDial = tcpDial
-	lin_common.LogDebug(" srvid:", pthis.srvID, " conn:", tcpDial.TcpConnectionID())
+	lin_common.LogDebug(" srv:", pthis.srvID, " conn:", tcpDial.TcpConnectionID())
+	pthis.srvMgr.tcpMgr.TcpDialDelDialData(pthis.srvID)
 
 	msgR := &msgpacket.MSG_SRV_REPORT{}
 	msgR.SrvId = pthis.srvMgr.srvID
@@ -198,6 +217,11 @@ func (pthis*Server)processDailConnect(tcpDial *tcp.TcpConnection){
 
 func (pthis*Server)processConnClose(tcpConn *tcp.TcpConnection){
 	if tcpConn == nil {
+		return
+	}
+
+	if tcpConn.IsAccept {
+		pthis.connAcpt = nil
 		return
 	}
 
@@ -211,15 +235,13 @@ func (pthis*Server)processConnClose(tcpConn *tcp.TcpConnection){
 	}
 
 	if !bRedial {
-		lin_common.LogDebug("not redial:", pthis.connAcpt, " connDial:", pthis.connDial, " tcpConn:", tcpConn)
+		lin_common.LogDebug("not redial:", "srv:", pthis.srvID, " tcpConn:", tcpConn.TcpConnectionID())
 		return
 	}
 
-	lin_common.LogDebug(pthis.srvID, " will redial", pthis)
-	if pthis.connDial != nil {
-		pthis.connDial.TcpConnectClose()
-	}
-	pthis.connDial, _ = pthis.srvMgr.tcpMgr.TcpDialMgrDial(pthis.srvID, pthis.ip, pthis.port, pthis.closeExpireSec, pthis.dialTimeoutSec, pthis.needRedial, pthis.redialCount)
+	lin_common.LogDebug("srv:", pthis.srvID, " will redial", " tcpConn:", tcpConn.TcpConnectionID())
+	pthis.connDial = nil
+	pthis.srvMgr.tcpMgr.TcpDialMgrDial(pthis.srvID, pthis.ip, pthis.port, pthis.closeExpireSec, pthis.dialTimeoutSec, pthis.needRedial, pthis.redialCount)
 }
 
 func (pthis*Server)PushInterMsg(msg interface{}){
@@ -246,6 +268,15 @@ func (pthis*Server)Go_ProcessRPC(tcpConn *tcp.TcpConnection, msg *msgpacket.MSG_
 		MsgId:msg.MsgId,
 		MsgType:msg.MsgType,
 		ResCode:msgpacket.RESPONSE_CODE_RESPONSE_CODE_OK,
+		Timestamp:msg.Timestamp,
+		TimestampArrive: msg.TimestampArrive,
+		TimestampProcess: time.Now().UnixMilli(),
+	}
+
+	tDiff := msgRPCRes.TimestampProcess - msgRPCRes.TimestampArrive
+	if tDiff > msg.TimeoutWait {
+		lin_common.LogErr("rpc timeout, tDiff:", tDiff, " timeout wait:", msg.TimeoutWait,
+			" srv:", tcpConn.SrvID, " conn:", tcpConn.TcpConnectionID())
 	}
 
 	if msgRes != nil {
@@ -317,7 +348,7 @@ func (pthis*Server)SendRPC_Async(msgType msgpacket.MSG_TYPE, protoMsg proto.Mess
 		res, _ = resCh.(proto.Message)
 	case <-time.After(time.Millisecond * time.Duration(timeoutMilliSec)):
 		atomic.AddInt64(&pthis.totalRPCOutFail, 1)
-		err = lin_common.GenErr(lin_common.ERR_rpc_timeout, " rpc time out srvid:", pthis.srvID, " rpcid:", msgRPC.MsgId)
+		err = lin_common.GenErr(lin_common.ERR_rpc_timeout, " rpc time out srv:", pthis.srvID, " rpcid:", msgRPC.MsgId)
 	}
 
 	pthis.rpcMgr.RPCManagerDelReq(msgRPC.MsgId)

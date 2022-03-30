@@ -99,6 +99,6 @@ func (pthis *TcpDialMgr) TcpDialMgrDial(srvID int64, ip string, port int, closeE
 	return tcpConn, nil
 }
 
-/*func (pthis *TcpDialMgr) TcpDialDelDialData(srvID int64) {
+func (pthis *TcpDialMgr) TcpDialDelDialData(srvID int64) {
 	pthis.delDialData(srvID)
-}*/
+}

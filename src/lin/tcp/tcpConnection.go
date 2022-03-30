@@ -22,7 +22,8 @@ const(
 	TCP_CONNECTION_CLOSE_REASON_readerr  TCP_CONNECTION_CLOSE_REASON = 2
 	TCP_CONNECTION_CLOSE_REASON_dialfail TCP_CONNECTION_CLOSE_REASON = 3
 	TCP_CONNECTION_CLOSE_REASON_writeerr TCP_CONNECTION_CLOSE_REASON = 4
-	TCP_CONNECTION_CLOSE_REASON_relogin TCP_CONNECTION_CLOSE_REASON = 5
+	TCP_CONNECTION_CLOSE_REASON_relogin  TCP_CONNECTION_CLOSE_REASON = 5
+	TCP_CONNECTION_CLOSE_REASON_new_conn TCP_CONNECTION_CLOSE_REASON = 6
 )
 
 type TCP_CONNECTIOON_TYPE int
@@ -179,11 +180,11 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 
 				tEnd := time.Now()
 				if err != nil || conn == nil {
-					lin_common.LogDebug("srv:", SrvID, " conn:", tcpConn.connectionID, " will retry ", i, " ", redialCount, " ", tcpConn.netConn, " ", err)
+					interval := int64(dialTimeoutSec) - (tEnd.Unix() - tBegin.Unix())
+					lin_common.LogDebug("srv:",  SrvID, " interval:", tEnd.Unix() - tBegin.Unix(), " conn:", tcpConn.connectionID, " will retry ", i, " ", redialCount, " ", tcpConn.netConn, " ", err)
 					if strings.Index(err.Error(), "operation was canceled") >= 0 {
 						break DIAL_LOOP
 					}
-					interval := int64(dialTimeoutSec) - (tEnd.Unix() - tBegin.Unix())
 					runtime.Gosched()
 					if interval <= 0 {
 						interval = 0
@@ -249,7 +250,9 @@ func (pthis *TcpConnection)go_tcpConnRead() {
 
 	/*var TimerConnClose * time.Timer = nil*/
 	defer func() {
-
+		if pthis.connMgr != nil {
+			pthis.connMgr.CBDelTcpConn(pthis.connectionID)
+		}
 		err := recover()
 		if err != nil {
 			lin_common.LogErr(err)
@@ -336,9 +339,6 @@ func (pthis *TcpConnection)go_tcpConnRead() {
 		TimerConnClose.Stop()
 	}*/
 	pthis.cbTcpConnection.CBConnectClose(pthis, pthis.clsRsn)
-	if pthis.connMgr != nil {
-		pthis.connMgr.CBDelTcpConn(pthis.connectionID)
-	}
 }
 
 func (pthis *TcpConnection)go_tcpConnWrite() {

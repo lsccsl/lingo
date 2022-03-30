@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"lin/lin_common"
 	"net/http"
 	"net/url"
 	"strings"
@@ -17,9 +16,9 @@ type ServerFromHttp struct {
 
 func httpAddDial(sh*ServerFromHttp) {
 	jBin, _ := json.Marshal(sh)
-	res, err := http.Post(Global_testCfg.httpAddr, "application/text", strings.NewReader(string(jBin)))
-	lin_common.LogDebug(err, res)
-	http.DefaultClient.CloseIdleConnections()
+	http.Post(Global_testCfg.httpAddr, "application/text", strings.NewReader(string(jBin)))
+	//lin_common.LogDebug(err, res)
+	//http.DefaultClient.CloseIdleConnections()
 }
 
 func testhttp() {

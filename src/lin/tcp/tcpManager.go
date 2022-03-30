@@ -123,7 +123,7 @@ func (pthis *TcpMgr) TcpMgrDump(bDtail bool) (str string, totalRecv int64, total
 				if val.netConn != nil {
 					localAddr = val.netConn.LocalAddr().String()
 				}
-				str += fmt.Sprintf(" \r\n connection:%v remote:[%v] local:[%v] IsAccept:%v SrvID:%v ClientID:%v"+
+				str += fmt.Sprintf(" \r\n connection:%v remote:[%v] local:[%v] IsAccept:%v srv:%v ClientID:%v"+
 					" recv:%v send:%v proc:%v SendCount:%v",
 					val.TcpConnectionID(), remoteAddr, localAddr, val.IsAccept, val.SrvID, val.ClientID,
 					val.ByteRecv, val.ByteSend, val.ByteProc, val.SendCount)
@@ -147,7 +147,7 @@ func (pthis *TcpMgr) TcpMgrDump(bDtail bool) (str string, totalRecv int64, total
 		pthis.TcpDialMgr.mapDialDataMutex.Unlock()
 		for _, val := range pthis.TcpDialMgr.mapDialData {
 			if bDtail {
-				str += fmt.Sprintf("\r\n srvID:%v connection:%v [%v:%v]", val.srvID, val.tcpConnID, val.ip, val.port)
+				str += fmt.Sprintf("\r\n srv:%v connection:%v [%v:%v]", val.srvID, val.tcpConnID, val.ip, val.port)
 			}
 		}
 		str += fmt.Sprintf("\r\n dial count:%v \r\n", len(pthis.TcpDialMgr.mapDialData))

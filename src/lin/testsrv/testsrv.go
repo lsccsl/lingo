@@ -73,6 +73,9 @@ func (pthis*TestSrv)TestSrvBeginDial(){
 	go pthis.go_tcpDial()
 }
 
+const RPC_RETRY_COUNT = 6
+const RPC_READ_TIMEOUT = 10
+
 func (pthis*TestSrv)TestSrvDial() (err interface{}) {
 	if pthis.tcpDial == nil {
 		return lin_common.GenErr(0, "no tcp dial conn")
@@ -86,6 +89,8 @@ func (pthis*TestSrv)TestSrvDial() (err interface{}) {
 	msgRPC := &msgpacket.MSG_RPC{
 		MsgId:lin_common.GenUUID64_V4(),
 		MsgType:int32(msgpacket.MSG_TYPE__MSG_TEST),
+		Timestamp:time.Now().UnixMilli(),
+		TimeoutWait: RPC_RETRY_COUNT * RPC_READ_TIMEOUT * 1000,
 	}
 	pthis.seq ++
 	msgTest := &msgpacket.MSG_TEST{
@@ -100,7 +105,7 @@ func (pthis*TestSrv)TestSrvDial() (err interface{}) {
 	tBeginTime := time.Now().UnixMilli()
 	_, err = pthis.tcpDial.Write(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_RPC, msgRPC))
 	if err != nil {
-		lin_common.LogErr("write tcp err:", pthis.DialConnectionID)
+		lin_common.LogErr("write tcp err:", pthis.DialConnectionID, " srv:", pthis.srvId)
 		return err
 	}
 	//lin_common.LogDebug(" write", msgRPC, err)
@@ -108,7 +113,7 @@ func (pthis*TestSrv)TestSrvDial() (err interface{}) {
 	RSP_LOOP:
 	for {
 		var msgRsp proto.Message
-		msgRsp, err = recvProtoMsg(pthis.tcpDial, 3, 10)
+		msgRsp, err = recvProtoMsg(pthis.tcpDial, RPC_RETRY_COUNT, RPC_READ_TIMEOUT)
 		//lin_common.LogDebug(msgRsp, err)
 		if err != nil {
 			//lin_common.LogDebug(" err:", err, " fail count:", pthis.totalWriteRpc - pthis.totalRpcDial, " total rpc:", pthis.totalWriteRpc)
@@ -130,10 +135,10 @@ func (pthis*TestSrv)TestSrvDial() (err interface{}) {
 				pthis.totalRTTRpc += tDiff
 				break RSP_LOOP
 			} else {
-				lin_common.LogDebug(" other id:", msgRPC.MsgId)
+				lin_common.LogDebug(" other id:", msgRPC.MsgId, " conn:", pthis.DialConnectionID, " srv:", pthis.srvId)
 			}
 		default:
-			lin_common.LogDebug(t, " err:", err)
+			lin_common.LogDebug(t, " err:", err, " conn:", pthis.DialConnectionID, " srv:", pthis.srvId)
 		}
 	}
 
@@ -152,11 +157,11 @@ func (pthis*TestSrv)go_tcpDial() {
 	for{
 		err := pthis.TestSrvDial()
 		if err != nil || pthis.tcpDial == nil{
-			lin_common.LogDebug("rpc err:", err)
+			lin_common.LogDebug("rpc err:", err, " conn:", pthis.DialConnectionID, " srv:", pthis.srvId)
 			conn, err := net.Dial("tcp", pthis.addrRemote)
 			pthis.totalRedial ++
 			if err != nil || conn == nil{
-				lin_common.LogDebug("dial err:", err)
+				lin_common.LogDebug("dial err:", err, " conn:", pthis.DialConnectionID, " srv:", pthis.srvId)
 				continue
 			}
 			pthis.tcpDial = conn.(*net.TCPConn)
@@ -165,14 +170,14 @@ func (pthis*TestSrv)go_tcpDial() {
 
 			REPORT_RES_LOOP:
 			for {
-				msg, err := recvProtoMsg(pthis.tcpDial, 6, 10)
+				msg, err := recvProtoMsg(pthis.tcpDial, 3, 10)
 				if err != nil {
 					break REPORT_RES_LOOP
 				}
 				switch t := msg.(type) {
 				case *msgpacket.MSG_SRV_REPORT_RES:
 					pthis.DialConnectionID = tcp.TCP_CONNECTION_ID(t.TcpConnId)
-					lin_common.LogDebug(" suc recv srv report:", pthis.DialConnectionID)
+					//lin_common.LogDebug(" suc recv srv report", " conn:", pthis.DialConnectionID, " srv:", pthis.srvId)
 					break REPORT_RES_LOOP
 				default:
 				}
@@ -291,27 +296,20 @@ func (pthis*TestSrv)go_tcpAcpt() {
 	}
 
 	for{
-		err := pthis.TestSrvAcpt()
-		if err != nil || pthis.tcpAcpt == nil {
+		var err interface{}
+		conn, err := lsn.Accept()
+		if pthis.tcpAcpt != nil {
+			pthis.tcpAcpt.Close()
+		}
+		pthis.totalReAcpt ++
+		if err != nil || conn == nil{
+			lin_common.LogDebug("acpt err:", err, " conn:", pthis.AcptConnectionID, " srv:", pthis.srvId)
+			continue
+		}
 
-			httpAddDial(&ServerFromHttp{
-				SrvID: pthis.srvId,
-				IP: Global_testCfg.local_ip,
-				Port: pthis.local_port,
-			})
+		pthis.tcpAcpt = conn.(*net.TCPConn)
 
-			lin_common.LogDebug("acpt read err:", err)
-			if pthis.tcpAcpt != nil {
-				pthis.tcpAcpt.Close()
-			}
-			conn, err := lsn.Accept()
-			pthis.totalReAcpt ++
-			if err != nil || conn == nil{
-				lin_common.LogDebug("acpt err:", err)
-				lin_common.LogDebug(err)
-				continue
-			}
-			pthis.tcpAcpt = conn.(*net.TCPConn)
+		go func() {
 			REPORT_LOOP:
 			for {
 				msg, err := recvProtoMsg(pthis.tcpAcpt, 3, 10)
@@ -321,12 +319,19 @@ func (pthis*TestSrv)go_tcpAcpt() {
 				switch t := msg.(type) {
 				case *msgpacket.MSG_SRV_REPORT:
 					pthis.AcptConnectionID = tcp.TCP_CONNECTION_ID(t.TcpConnId)
-					lin_common.LogDebug(" suc recv srv report")
+					lin_common.LogDebug(" suc recv srv report", " conn:", pthis.AcptConnectionID, " srv:", pthis.srvId)
 					break REPORT_LOOP
 				default:
 				}
 			}
-		}
+			for {
+				err = pthis.TestSrvAcpt()
+				if err != nil{
+					lin_common.LogDebug("acpt read err:", err, " conn:", pthis.AcptConnectionID, " srv:", pthis.srvId)
+					return
+				}
+			}
+		}()
 	}
 
 	Global_wg.Done()

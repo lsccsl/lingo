@@ -114,14 +114,14 @@ func (pthis*ServerMgr)CBConnectDial(tcpConn *tcp.TcpConnection, err error) {
 	if tcpConn == nil {
 		return
 	}
-	lin_common.LogDebug(tcpConn.TcpGetConn().LocalAddr(), tcpConn.TcpGetConn().RemoteAddr(), tcpConn.TcpConnectionID(), " srvid:", tcpConn.SrvID)
+	lin_common.LogDebug(tcpConn.TcpGetConn().LocalAddr(), tcpConn.TcpGetConn().RemoteAddr(), tcpConn.TcpConnectionID(), " srv:", tcpConn.SrvID)
 
 	pthis.processDailConnect(tcpConn)
 }
 
 func (pthis*ServerMgr)CBConnectClose(tcpConn *tcp.TcpConnection, closeReason tcp.TCP_CONNECTION_CLOSE_REASON) {
 	lin_common.LogDebug("id:", tcpConn.TcpConnectionID(),
-		" srvid:", tcpConn.SrvID, " clientid:", tcpConn.ClientID, " is accept:", tcpConn.IsAccept,
+		" srv:", tcpConn.SrvID, " clientid:", tcpConn.ClientID, " is accept:", tcpConn.IsAccept,
 		" closeReason:", closeReason)
 
 	if !tcpConn.IsAccept {
@@ -280,8 +280,9 @@ func (pthis*ServerMgr)processDailConnect(tcpDial *tcp.TcpConnection){
 }
 
 func (pthis*ServerMgr)processRPCReq(tcpConn *tcp.TcpConnection, msg *msgpacket.MSG_RPC) {
-	msgRPC := msgpacket.ParseProtoMsg(msg.MsgBin, msg.MsgType)
-	//lin_common.LogDebug(msgRPC)
+	msgRPCBody := msgpacket.ParseProtoMsg(msg.MsgBin, msg.MsgType)
+	msg.TimestampArrive = time.Now().UnixMilli()
+
 	if tcpConn.SrvID != 0 {
 		srv := pthis.getServer(tcpConn.SrvID)
 		if srv != nil {
@@ -289,11 +290,11 @@ func (pthis*ServerMgr)processRPCReq(tcpConn *tcp.TcpConnection, msg *msgpacket.M
 				JobType_ : EN_CORPOOL_JOBTYPE_Rpc_req,
 				JobData_: tcpConn.SrvID,
 				JobCB_   : func(jd cor_pool.CorPoolJobData){
-					srv.Go_ProcessRPC(tcpConn, msg, msgRPC)
+					srv.Go_ProcessRPC(tcpConn, msg, msgRPCBody)
 				},
 			})
 			if err != nil {
-				lin_common.LogErr("put job err:", err, " srvid:", tcpConn.SrvID)
+				lin_common.LogErr("put job err:", err, " srv:", tcpConn.SrvID)
 			}
 		} else {
 			lin_common.LogErr("can't find srv", tcpConn.SrvID)
@@ -315,7 +316,7 @@ func (pthis*ServerMgr)processRPCRes(tcpConn *tcp.TcpConnection, msgRPC *msgpacke
 func (pthis*ServerMgr)SendRPC_Async(srvID int64, msgType msgpacket.MSG_TYPE, protoMsg proto.Message, timeoutMilliSec int) (proto.Message, error) {
 	srv := pthis.getServer(srvID)
 	if srv == nil {
-		return nil, lin_common.GenErr(lin_common.ERR_no_srv, " no srvid:", srvID)
+		return nil, lin_common.GenErr(lin_common.ERR_no_srv, " no srv:", srvID)
 	}
 	return srv.SendRPC_Async(msgType, protoMsg, timeoutMilliSec)
 }
@@ -401,7 +402,7 @@ func (pthis*ServerMgr)Dump(bDtail bool) string {
 				reqAver := float64(diffReq) / tRPCdiff
 
 				if bDtail {
-					str += fmt.Sprintf("\r\n server id:%v acpt:%v dial:%v totalPakcet:%v totalReq:%v diffRPCTotal:%v diffReq:%v tdiff:%v, aver:%v reqAver:%v",
+					str += fmt.Sprintf("\r\n srv:%v acpt:%v dial:%v totalPakcet:%v totalReq:%v diffRPCTotal:%v diffReq:%v tdiff:%v, aver:%v reqAver:%v",
 						val.srvID, connAcptID, connDialID, totalRPCIn, totalRPCOut, diffRPCTotal, diffReq, tRPCdiff, aver, reqAver)
 				}
 				val.timestamp = tnow

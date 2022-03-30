@@ -13,6 +13,12 @@ func MultiSrv(count int, idbase int) {
 	for i := 0; i < count; i ++ {
 		srvid := int64(idbase + i)
 		port := Global_testCfg.local_port_start + i
+
+		httpAddDial(&ServerFromHttp{
+			SrvID: srvid,
+			IP: Global_testCfg.local_ip,
+			Port: port,
+		})
 		ConstructTestSrv(Global_testCfg.local_ip + ":" + strconv.Itoa(port), port, Global_testCfg.remote_ip + ":" + strconv.Itoa(Global_testCfg.remote_port),
 			srvid)
 	}
@@ -57,7 +63,7 @@ func CommandDump(argStr []string) string {
 		srvID, _ := strconv.ParseInt(argStr[0], 10, 64)
 		val := Global_TestSrvMgr.mapSrv[srvID]
 		if val != nil {
-			fmt.Println("dial id:", val.DialConnectionID, " acpt id", val.AcptConnectionID, " total:", val.totalRpcDial, " total write:", val.totalWriteRpc,
+			fmt.Println("srv:", val.srvId, "dial id:", val.DialConnectionID, " acpt id", val.AcptConnectionID, " total:", val.totalRpcDial, " total write:", val.totalWriteRpc,
 				" redial:", val.totalRedial, " reAcpt:", val.totalReAcpt)
 			return ""
 		}
@@ -71,7 +77,7 @@ func CommandDump(argStr []string) string {
 	maxRTT := int64(0)
 	totalRTT := int64(0)
 	for _, val := range Global_TestSrvMgr.mapSrv {
-		fmt.Println("dial id:", val.DialConnectionID, " acpt id", val.AcptConnectionID, " total:", val.totalRpcDial, " total write:", val.totalWriteRpc,
+		fmt.Println("srv:", val.srvId, "dial id:", val.DialConnectionID, " acpt id", val.AcptConnectionID, " total:", val.totalRpcDial, " total write:", val.totalWriteRpc,
 			" redial:", val.totalRedial, " reAcpt:", val.totalReAcpt)
 		Global_TestSrvMgr.total += val.totalRpcDial
 		Global_TestSrvMgr.totalReqRecv += val.totalRpcRecv

@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"lin/lin_common"
 	"sync"
-	"time"
 )
 
 type CALLBACK_FUNC_WORK func(CorPoolJobData)
@@ -146,24 +145,24 @@ func (pthis *CorPool) CorPoolAddJob(jobR *CorPoolJobData /* ready only */) error
 	pthis.condPool_.L.Lock()
 	defer pthis.condPool_.L.Unlock()
 
-	waitCount := 0
-	tWaitBegin := time.Now().UnixMilli()
+/*	waitCount := 0
+	tWaitBegin := time.Now().UnixMilli()*/
 
 	for {
 		if pthis.corCount_ >= pthis.maxCorCount_ && pthis.WorkerFree_.Len() == 0 {
 /*			lin_common.LogDebug("no worker, wait for free worker cor:",
 				pthis.corCount_, " free:", pthis.WorkerFree_.Len())*/
-			waitCount ++
+			/*waitCount ++*/
 			pthis.condPool_.Wait()
 		} else {
 			break
 		}
 	}
 
-	tWaitEnd := time.Now().UnixMilli()
+/*	tWaitEnd := time.Now().UnixMilli()
 	if (tWaitEnd - tWaitBegin) > 50 * 1000 {
 		lin_common.LogErr("wait too long:", tWaitEnd - tWaitBegin, " job data:", jobR.JobData_, " waitCount:", waitCount)
-	}
+	}*/
 
 	if pthis.corCount_ >= pthis.maxCorCount_ && pthis.WorkerFree_.Len() == 0 {
 		return genCorpErr(EN_CORPOOL_ERR_no_free_worker, "~~~~~~~~~no free work, cor:", pthis.corCount_, " free_len:", pthis.WorkerFree_.Len())
