@@ -76,6 +76,8 @@ func CommandDump(argStr []string) string {
 	minRTT := int64(math.MaxInt64)
 	maxRTT := int64(0)
 	totalRTT := int64(0)
+	noAcpt := 0
+	noDail := 0
 	for _, val := range Global_TestSrvMgr.mapSrv {
 		fmt.Println("srv:", val.srvId, "dial id:", val.DialConnectionID, " acpt id", val.AcptConnectionID, " total:", val.totalRpcDial, " total write:", val.totalWriteRpc,
 			" redial:", val.totalRedial, " reAcpt:", val.totalReAcpt)
@@ -92,6 +94,13 @@ func CommandDump(argStr []string) string {
 			maxRTT = val.maxRTTDialRpc
 		}
 		totalRTT += val.totalRTTRpc
+
+		if val.DialConnectionID == 0{
+			noDail ++
+		}
+		if val.AcptConnectionID == 0{
+			noAcpt ++
+		}
 	}
 
 	totalDiff := Global_TestSrvMgr.total - Global_TestSrvMgr.totalLast
@@ -104,7 +113,8 @@ func CommandDump(argStr []string) string {
 	fmt.Println(" client count:", len(Global_TestSrvMgr.mapSrv), " total:", Global_TestSrvMgr.total, " last:", Global_TestSrvMgr.totalLast,
 		" totalDiff:", totalDiff, " tdiff:", tdiff, "\n aver:", aver, " req aver:", reqAver,
 		" totalRedial:", totalRedial, " totalReAcpt:", totalReAcpt,
-		" \n minRTT:", minRTT, " maxRTT:", maxRTT, " averRTT:", averRTT)
+		" \n minRTT:", minRTT, " maxRTT:", maxRTT, " averRTT:", averRTT,
+		" \n noDail:", noDail, " noAcpt:", noAcpt)
 	Global_TestSrvMgr.timestamp = tnow
 	Global_TestSrvMgr.totalLast = Global_TestSrvMgr.total
 	Global_TestSrvMgr.totalReqRecvLast = Global_TestSrvMgr.totalReqRecv

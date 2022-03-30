@@ -130,10 +130,9 @@ func (pthis *CorPool) corPoolAddFreeWorker(worker *_corPoolWorker) {
 	}
 	pthis.WorkerFree_.PushFront(worker)
 	if bNeedSignal {
-		pthis.condPool_.Signal()
+		pthis.condPool_.Broadcast()
 	}
 	pthis.condPool_.L.Unlock()
-
 }
 
 
