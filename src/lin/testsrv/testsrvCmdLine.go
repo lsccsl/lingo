@@ -14,13 +14,21 @@ func MultiSrv(count int, idbase int) {
 		srvid := int64(idbase + i)
 		port := Global_testCfg.local_port_start + i
 
+		ConstructTestSrv(Global_testCfg.local_ip + ":" + strconv.Itoa(port), port, Global_testCfg.remote_ip + ":" + strconv.Itoa(Global_testCfg.remote_port),
+			srvid)
+	}
+
+	for i := 0; i < count; i ++ {
+		srvid := int64(idbase + i)
+		port := Global_testCfg.local_port_start + i
+		if srvid == 599 {
+			lin_common.LogDebug("srv:", srvid, " send http")
+		}
 		httpAddDial(&ServerFromHttp{
 			SrvID: srvid,
 			IP: Global_testCfg.local_ip,
 			Port: port,
 		})
-		ConstructTestSrv(Global_testCfg.local_ip + ":" + strconv.Itoa(port), port, Global_testCfg.remote_ip + ":" + strconv.Itoa(Global_testCfg.remote_port),
-			srvid)
 	}
 
 	for _, val := range Global_TestSrvMgr.mapSrv {
@@ -109,7 +117,10 @@ func CommandDump(argStr []string) string {
 	tdiff := (tnow - Global_TestSrvMgr.timestamp)/float64(1000)
 	aver := float64(totalDiff) / tdiff
 	reqAver := float64(totalReqDiff) / tdiff
-	averRTT := totalRTT / Global_TestSrvMgr.total
+	var averRTT int64 = 0
+	if Global_TestSrvMgr.total >= 1 {
+		averRTT = totalRTT / Global_TestSrvMgr.total
+	}
 	fmt.Println(" client count:", len(Global_TestSrvMgr.mapSrv), " total:", Global_TestSrvMgr.total, " last:", Global_TestSrvMgr.totalLast,
 		" totalDiff:", totalDiff, " tdiff:", tdiff, "\n aver:", aver, " req aver:", reqAver,
 		" totalRedial:", totalRedial, " totalReAcpt:", totalReAcpt,

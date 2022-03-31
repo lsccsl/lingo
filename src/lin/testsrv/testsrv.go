@@ -183,6 +183,7 @@ func (pthis*TestSrv)go_tcpDial() {
 				default:
 				}
 			}
+			//time.Sleep(time.Second * 1000)
 		}
 	}
 
@@ -290,6 +291,10 @@ func (pthis*TestSrv)go_tcpAcpt() {
 		}
 	}()
 
+	if pthis.srvId == 599 {
+		lin_common.LogDebug("srv:", pthis.srvId, " begin listen:", pthis.addrLocal)
+	}
+
 	lsn, err := net.Listen("tcp", pthis.addrLocal)
 	if err != nil {
 		fmt.Println(err)
@@ -298,7 +303,17 @@ func (pthis*TestSrv)go_tcpAcpt() {
 
 	for{
 		var err interface{}
+
+		if pthis.srvId == 599 {
+			lin_common.LogDebug("srv:", pthis.srvId, " begin accept")
+		}
+
 		conn, err := lsn.Accept()
+
+		if pthis.srvId == 599 {
+			lin_common.LogDebug("srv:", pthis.srvId, " accept err:", err)
+		}
+
 		if pthis.tcpAcpt != nil {
 			pthis.tcpAcpt.Close()
 		}
@@ -310,7 +325,7 @@ func (pthis*TestSrv)go_tcpAcpt() {
 
 		pthis.tcpAcpt = conn.(*net.TCPConn)
 
-		{
+		go func(){
 			REPORT_LOOP:
 			for {
 				msg, err := recvProtoMsg(pthis.tcpAcpt, 3, 10)
@@ -333,7 +348,7 @@ func (pthis*TestSrv)go_tcpAcpt() {
 				}
 			}
 			pthis.AcptConnectionID = 0
-		}
+		}()
 	}
 
 	Global_wg.Done()

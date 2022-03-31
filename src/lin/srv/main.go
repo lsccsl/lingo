@@ -41,7 +41,7 @@ func main() {
 	msgpacket.InitMsgParseVirtualTable()
 	lin_common.ProfileInit()
 
-	srvMgr = ConstructServerMgr(srvCfg.SrvID, 30, 5)
+	srvMgr = ConstructServerMgr(srvCfg.SrvID, 30, 100)
 
 	httpAddr, err := net.ResolveTCPAddr("tcp", srvCfg.HttpAddr)
 	if err != nil {
@@ -117,9 +117,10 @@ func main() {
 	httpSrv.HttpSrvAddCallback("/addserver", func(writer http.ResponseWriter, request *http.Request) {
 		bin := make([]byte, request.ContentLength, request.ContentLength)
 		request.Body.Read(bin)
-		lin_common.LogDebug(string(bin), " len:", request.ContentLength)
+		//lin_common.LogDebug(string(bin), " len:", request.ContentLength)
 		sh := &ServerFromHttp{}
 		json.Unmarshal(bin, sh)
+		lin_common.LogDebug("add srv:", sh.SrvID, " addr:", sh.IP, ":", sh.Port)
 		srvMgr.AddRemoteServer(sh.SrvID, sh.IP, sh.Port, 180, 15, true, 3)
 		writer.Write(bin)
 	})

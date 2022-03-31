@@ -173,10 +173,10 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 				tBegin := time.Now()
 				lin_common.LogDebug("srv:", SrvID, " conn:", tcpConn.connectionID, " begin dial:", addr, " connection id:", tcpConn.connectionID)
 
-				d := net.Dialer{Timeout: time.Second * time.Duration(dialTimeoutSec)}
-				conn, err = d.DialContext(ctx, "tcp", addr)
+				//d := net.Dialer{Timeout: time.Second * time.Duration(dialTimeoutSec)}
+				//conn, err = d.DialContext(ctx, "tcp", addr)
+				conn, err = net.DialTimeout("tcp", addr, time.Second * time.Duration(dialTimeoutSec))
 				lin_common.LogDebug("srv:", SrvID, " conn:", tcpConn.connectionID, " end dial err:", err, " connection id:", tcpConn.connectionID)
-				//conn, err = net.DialTimeout("tcp", addr, time.Second * time.Duration(dialTimeoutSec))
 
 				tEnd := time.Now()
 				if err != nil || conn == nil {

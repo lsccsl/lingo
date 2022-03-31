@@ -25,12 +25,12 @@ var Global_testCfg = &TestCfg {
 	httpAddr : "http://10.0.14.48:8802/addserver",*/
 
 	local_ip : "10.0.14.48",
-	local_port_start : 20000,
+	local_port_start : 10000,
 }
 var Global_wg sync.WaitGroup
 func main() {
 	lin_common.InitLog("./testsrv.log", true)
-	lin_common.ProfileInit()
+	//lin_common.ProfileInit()
 
 	commandLineInit()
 
