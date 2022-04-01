@@ -23,7 +23,8 @@ const(
 	TCP_CONNECTION_CLOSE_REASON_dialfail TCP_CONNECTION_CLOSE_REASON = 3
 	TCP_CONNECTION_CLOSE_REASON_writeerr TCP_CONNECTION_CLOSE_REASON = 4
 	TCP_CONNECTION_CLOSE_REASON_relogin  TCP_CONNECTION_CLOSE_REASON = 5
-	TCP_CONNECTION_CLOSE_REASON_new_conn TCP_CONNECTION_CLOSE_REASON = 6
+	TCP_CONNECTION_CLOSE_REASON_new_dial TCP_CONNECTION_CLOSE_REASON = 6
+	TCP_CONNECTION_CLOSE_REASON_new_acpt TCP_CONNECTION_CLOSE_REASON = 7
 )
 
 type TCP_CONNECTIOON_TYPE int
@@ -173,9 +174,9 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 				tBegin := time.Now()
 				lin_common.LogDebug("srv:", SrvID, " conn:", tcpConn.connectionID, " begin dial:", addr, " connection id:", tcpConn.connectionID)
 
-				//d := net.Dialer{Timeout: time.Second * time.Duration(dialTimeoutSec)}
-				//conn, err = d.DialContext(ctx, "tcp", addr)
-				conn, err = net.DialTimeout("tcp", addr, time.Second * time.Duration(dialTimeoutSec))
+				d := net.Dialer{Timeout: time.Second * time.Duration(dialTimeoutSec)}
+				conn, err = d.DialContext(ctx, "tcp", addr)
+				//conn, err = net.DialTimeout("tcp", addr, time.Second * time.Duration(dialTimeoutSec))
 				lin_common.LogDebug("srv:", SrvID, " conn:", tcpConn.connectionID, " end dial err:", err, " connection id:", tcpConn.connectionID)
 
 				tEnd := time.Now()
@@ -332,6 +333,7 @@ func (pthis *TcpConnection)go_tcpConnRead() {
 	}
 
 	if pthis.netConn != nil {
+		//lin_common.LogErr(" end read loop:", pthis.TcpConnectionID(), " client id:", pthis.ClientID, " srv:", pthis.SrvID)
 		pthis.netConn.Close()
 	}
 
@@ -360,8 +362,8 @@ func (pthis *TcpConnection)go_tcpConnWrite() {
 			//todo: option get more data and combine write to tcp channel
 			writeSZ, err := pthis.netConn.Write(tcpW.bin)
 			if err != nil {
-				lin_common.LogDebug(" write tcp err:", err)
 				pthis.TcpConnectSetCloseReason(TCP_CONNECTION_CLOSE_REASON_writeerr)
+				//lin_common.LogErr(" write err:", pthis.TcpConnectionID(), " client id:", pthis.ClientID, " srv:", pthis.SrvID)
 				pthis.netConn.Close()
 				break WRITE_LOOP
 			}
@@ -398,8 +400,8 @@ func (pthis *TcpConnection)TcpGetConn() net.Conn {
 
 func (pthis *TcpConnection)TcpConnectClose() {
 	runtime.SetFinalizer(pthis, nil)
-	//lin_common.LogDebug(" close:", pthis.TcpConnectionID(), " client id:", pthis.ClientID, " srv id:", pthis.SrvID)
 	if pthis.netConn != nil {
+		//lin_common.LogErr(" close:", pthis.TcpConnectionID(), " client id:", pthis.ClientID, " srv:", pthis.SrvID)
 		pthis.netConn.Close()
 	}
 	pthis.quitTcpWrite()

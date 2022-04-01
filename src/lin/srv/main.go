@@ -23,6 +23,7 @@ type ServerFromHttp struct {
 }
 
 // --path="../cfg/cfg.yml" --id=1
+// nohup ./srv --path="../cfg/cfg.yml" --id=3 >> srv.out 2>&1 &
 func main() {
 	fmt.Println(os.Args)
 

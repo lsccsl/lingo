@@ -73,7 +73,7 @@ func (pthis*TestSrv)TestSrvBeginDial(){
 	go pthis.go_tcpDial()
 }
 
-const RPC_RETRY_COUNT = 6
+const RPC_RETRY_COUNT = 18
 const RPC_READ_TIMEOUT = 10
 
 func (pthis*TestSrv)TestSrvDial() (err interface{}) {
@@ -157,7 +157,14 @@ func (pthis*TestSrv)go_tcpDial() {
 	for{
 		err := pthis.TestSrvDial()
 		if err != nil || pthis.tcpDial == nil{
-			//lin_common.LogDebug("rpc err:", err, " conn:", pthis.DialConnectionID, " srv:", pthis.srvId)
+			lin_common.LogDebug("rpc err:", err, " conn:", pthis.DialConnectionID, " srv:", pthis.srvId)
+
+			httpAddDial(&ServerFromHttp{
+				SrvID: pthis.srvId,
+				IP: Global_testCfg.local_ip,
+				Port: pthis.local_port,
+			})
+
 			pthis.DialConnectionID = 0
 			conn, err := net.Dial("tcp", pthis.addrRemote)
 			pthis.totalRedial ++

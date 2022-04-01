@@ -326,7 +326,7 @@ func (pthis*ServerMgr)AddRemoteServer(srvID int64, ip string, port int, closeExp
 	needRedial bool, redialCount int) {
 	srv := pthis.getServer(srvID)
 	if srv == nil {
-		lin_common.LogDebug("srv already not exist:", srvID)
+		lin_common.LogDebug("srv not exist:", srvID)
 		srv = ConstructServer(pthis, srvID, pthis.heartbeatIntervalSec)
 		srv.ServerSetDialData(ip, port, closeExpireSec, dialTimeoutSec, needRedial, redialCount)
 	} else {

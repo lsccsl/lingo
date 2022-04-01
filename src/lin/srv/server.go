@@ -80,12 +80,11 @@ func (pthis*Server) ServerSetDialData(ip string, port int, closeExpireSec int,
 	dialTimeoutSec int,
 	needRedial bool, redialCount int) {
 
-	lin_common.LogDebug("srv:", pthis.srvID, ip, ":", port, " ", pthis.ip, ":", pthis.port)
-
 	bRedial := false
 	if pthis.ip != ip || pthis.port != port {
 		bRedial = true
 	}
+	lin_common.LogDebug("srv:", pthis.srvID, " ", ip, ":", port, " ", pthis.ip, ":", pthis.port, " bRedial:", bRedial)
 
 	pthis.dialTimeoutSec = dialTimeoutSec
 	pthis.closeExpireSec = closeExpireSec
@@ -181,7 +180,7 @@ func (pthis*Server)processSrvReport(tcpAccept *tcp.TcpConnection){
 	}
 	if pthis.connAcpt != nil {
 		if pthis.connAcpt.TcpConnectionID() != tcpAccept.TcpConnectionID() {
-			pthis.connAcpt.TcpConnectSetCloseReason(tcp.TCP_CONNECTION_CLOSE_REASON_new_conn)
+			pthis.connAcpt.TcpConnectSetCloseReason(tcp.TCP_CONNECTION_CLOSE_REASON_new_acpt)
 			pthis.connAcpt.TcpConnectClose()
 		}
 	}
@@ -201,7 +200,7 @@ func (pthis*Server)processDailConnect(tcpDial *tcp.TcpConnection){
 	}
 	if pthis.connDial != nil {
 		if pthis.connDial.TcpConnectionID() != tcpDial.TcpConnectionID() {
-			pthis.connDial.TcpConnectSetCloseReason(tcp.TCP_CONNECTION_CLOSE_REASON_new_conn)
+			pthis.connDial.TcpConnectSetCloseReason(tcp.TCP_CONNECTION_CLOSE_REASON_new_dial)
 			pthis.connDial.TcpConnectClose()
 		}
 	}

@@ -18,7 +18,7 @@ func MultiSrv(count int, idbase int) {
 			srvid)
 	}
 
-	for i := 0; i < count; i ++ {
+/*	for i := 0; i < count; i ++ {
 		srvid := int64(idbase + i)
 		port := Global_testCfg.local_port_start + i
 		if srvid == 599 {
@@ -29,7 +29,7 @@ func MultiSrv(count int, idbase int) {
 			IP: Global_testCfg.local_ip,
 			Port: port,
 		})
-	}
+	}*/
 
 	for _, val := range Global_TestSrvMgr.mapSrv {
 		val.TestSrvBeginDial()
