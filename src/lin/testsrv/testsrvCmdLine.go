@@ -9,16 +9,16 @@ import (
 	"time"
 )
 
-func MultiSrv(count int, idbase int) {
+func MultiSrv(count int, idbase int, port_start int) {
 	for i := 0; i < count; i ++ {
 		srvid := int64(idbase + i)
-		port := Global_testCfg.local_port_start + i
+		port := port_start + i
 
 		ConstructTestSrv(Global_testCfg.local_ip + ":" + strconv.Itoa(port), port, Global_testCfg.remote_ip + ":" + strconv.Itoa(Global_testCfg.remote_port),
 			srvid)
 	}
 
-/*	for i := 0; i < count; i ++ {
+	for i := 0; i < count; i ++ {
 		srvid := int64(idbase + i)
 		port := Global_testCfg.local_port_start + i
 		if srvid == 599 {
@@ -29,11 +29,8 @@ func MultiSrv(count int, idbase int) {
 			IP: Global_testCfg.local_ip,
 			Port: port,
 		})
-	}*/
-
-	for _, val := range Global_TestSrvMgr.mapSrv {
-		val.TestSrvBeginDial()
 	}
+
 }
 
 func CommandMultiSrv(argStr []string) string {
@@ -45,12 +42,20 @@ func CommandMultiSrv(argStr []string) string {
 	if len(argStr) >= 2 {
 		idbase, _ = strconv.Atoi(argStr[1])
 	}
+	port_start := Global_testCfg.local_port_start
+	if len(argStr) >= 3 {
+		port_start, _ = strconv.Atoi(argStr[2])
+	}
 
-	MultiSrv(count, idbase)
+	MultiSrv(count, idbase, port_start)
 	return ""
 }
 
 func CommandTestRPC(argStr []string) string {
+/*	for _, val := range Global_TestSrvMgr.mapSrv {
+		val.TestSrvBeginDial()
+	}*/
+
 	count := 100000000
 	if len(argStr) >= 1 {
 		count, _ = strconv.Atoi(argStr[0])

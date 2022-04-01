@@ -144,7 +144,7 @@ func (pthis *TcpMgr) TcpMgrDump(bDtail bool) (str string, totalRecv int64, total
 	str += "\r\ntcp dial data\r\n"
 	func(){
 		pthis.TcpDialMgr.mapDialDataMutex.Lock()
-		pthis.TcpDialMgr.mapDialDataMutex.Unlock()
+		defer pthis.TcpDialMgr.mapDialDataMutex.Unlock()
 		for _, val := range pthis.TcpDialMgr.mapDialData {
 			if bDtail {
 				str += fmt.Sprintf("\r\n srv:%v connection:%v [%v:%v]", val.srvID, val.tcpConnID, val.ip, val.port)

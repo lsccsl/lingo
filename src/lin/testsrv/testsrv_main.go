@@ -41,7 +41,7 @@ func main() {
 	Global_wg.Wait()
 }
 
-// todo : server call rpc test
+// todo : server call rpc test / http接口替换 / tcp.dial限制数据
 
 
 /*	d := net.Dialer{Timeout: time.Second * time.Duration(30)}

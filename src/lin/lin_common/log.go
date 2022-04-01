@@ -93,16 +93,16 @@ func go_logPrint() {
 			}
 		}
 		count ++
-		if count > 200000 {
-/*			err = filehandle.Sync()
-			if err != nil {
-				fmt.Println(err)
-			}*/
-			count = 0
-/*			err = filehandle.Truncate(0)
+		if count > 20000 {
+			err = filehandle.Sync()
 			if err != nil {
 				fmt.Println(err)
 			}
-*/		}
+			count = 0
+			err = filehandle.Truncate(0)
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
 	}
 }

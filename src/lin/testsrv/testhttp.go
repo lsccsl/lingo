@@ -18,7 +18,7 @@ func httpAddDial(sh*ServerFromHttp) {
 	jBin, _ := json.Marshal(sh)
 	http.Post(Global_testCfg.httpAddr, "application/text", strings.NewReader(string(jBin)))
 	//lin_common.LogDebug(err, res)
-	//http.DefaultClient.CloseIdleConnections()
+	http.DefaultClient.CloseIdleConnections()
 }
 
 func testhttp() {
