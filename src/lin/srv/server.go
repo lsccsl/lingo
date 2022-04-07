@@ -239,7 +239,7 @@ func (pthis*Server)processRedial(dialMsg *interMsgBeginRedial){
 	if pthis.ip != dialMsg.ip || pthis.port != dialMsg.port {
 		bRedial = true
 	}
-	lin_common.LogDebug("srv:", pthis.srvID, " ", dialMsg.ip, ":", dialMsg.port, " ", pthis.ip, ":", pthis.port, " bRedial:")
+	lin_common.LogDebug("srv:", pthis.srvID, " ", dialMsg.ip, ":", dialMsg.port, " ", pthis.ip, ":", pthis.port, " bRedial:", bRedial)
 
 	pthis.dialTimeoutSec = dialMsg.dialTimeoutSec
 	pthis.closeExpireSec = dialMsg.closeExpireSec

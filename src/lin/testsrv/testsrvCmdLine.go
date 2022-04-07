@@ -20,7 +20,7 @@ func MultiSrv(count int, idbase int, port_start int) {
 
 	for i := 0; i < count; i ++ {
 		srvid := int64(idbase + i)
-		port := Global_testCfg.local_port_start + i
+		port := port_start + i
 		if srvid == 599 {
 			lin_common.LogDebug("srv:", srvid, " send http")
 		}
@@ -52,9 +52,9 @@ func CommandMultiSrv(argStr []string) string {
 }
 
 func CommandTestRPC(argStr []string) string {
-/*	for _, val := range Global_TestSrvMgr.mapSrv {
+	for _, val := range Global_TestSrvMgr.mapSrv {
 		val.TestSrvBeginDial()
-	}*/
+	}
 
 	count := 100000000
 	if len(argStr) >= 1 {

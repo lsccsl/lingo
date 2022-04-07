@@ -106,7 +106,6 @@ func (pthis*ServerMgr)CBConnectAccept(tcpConn *tcp.TcpConnection, err error) {
 	if tcpConn == nil {
 		return
 	}
-	//lin_common.LogDebug(tcpConn.TcpGetConn().LocalAddr(), tcpConn.TcpGetConn().RemoteAddr(), tcpConn.TcpConnectionID())
 }
 func (pthis*ServerMgr)CBConnectDial(tcpConn *tcp.TcpConnection, err error) {
 	if err != nil {
@@ -117,7 +116,11 @@ func (pthis*ServerMgr)CBConnectDial(tcpConn *tcp.TcpConnection, err error) {
 	}
 	lin_common.LogDebug(tcpConn.TcpGetConn().LocalAddr(), tcpConn.TcpGetConn().RemoteAddr(), tcpConn.TcpConnectionID(), " srv:", tcpConn.SrvID)
 
-	pthis.processDailConnect(tcpConn)
+	srvID := tcpConn.SrvID
+	srv := pthis.getServer(srvID)
+	if srv != nil {
+		srv.PushInterMsg(&interMsgConnDial{tcpConn})
+	}
 }
 
 func (pthis*ServerMgr)CBConnectClose(tcpConn *tcp.TcpConnection, closeReason tcp.TCP_CONNECTION_CLOSE_REASON) {
@@ -270,14 +273,6 @@ func (pthis*ServerMgr)processSrvReport(tcpAccept *tcp.TcpConnection, srvID int64
 	}
 	if srv != nil {
 		srv.PushInterMsg(&interMsgSrvReport{tcpAccept})
-	}
-}
-
-func (pthis*ServerMgr)processDailConnect(tcpDial *tcp.TcpConnection){
-	srvID := tcpDial.SrvID
-	srv := pthis.getServer(srvID)
-	if srv != nil {
-		srv.PushInterMsg(&interMsgConnDial{tcpDial})
 	}
 }
 

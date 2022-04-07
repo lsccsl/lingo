@@ -222,9 +222,9 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 			go tcpConn.go_tcpConnWrite()
 		}
 
-		if rpcPool == nil {
+/*		if rpcPool == nil {*/
 			go tempFunc()
-		} else {
+/*		} else {
 			rpcPool.CorPoolAddJob(&cor_pool.CorPoolJobData{
 				JobType_ : cor_pool.EN_CORPOOL_JOBTYPE_user,
 				JobData_: tcpConn.SrvID,
@@ -232,7 +232,7 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 					tempFunc()
 				},
 			})
-		}
+		}*/
 
 		return tcpConn, nil
 	} else {
@@ -294,7 +294,9 @@ func (pthis *TcpConnection)go_tcpConnRead() {
 
 	READ_LOOP:
 	for {
-		pthis.netConn.SetReadDeadline(time.Now().Add(time.Second * time.Duration(pthis.closeExpireSec)))
+		if pthis.closeExpireSec > 0 {
+			pthis.netConn.SetReadDeadline(time.Now().Add(time.Second * time.Duration(pthis.closeExpireSec)))
+		}
 		readSize, err := pthis.netConn.Read(TmpBuf)
 		if err != nil {
 			lin_common.LogDebug(pthis.connectionID, " clientid:", pthis.ClientID, " srvid:", pthis.SrvID, " err:", err)
@@ -302,6 +304,9 @@ func (pthis *TcpConnection)go_tcpConnRead() {
 			case net.Error:
 				{
 					if t.Timeout(){
+						if pthis.closeExpireSec <= 0 {
+							continue READ_LOOP
+						}
 						pthis.TcpConnectSetCloseReason(TCP_CONNECTION_CLOSE_REASON_timeout)
 					} else if t.Temporary() {
 						lin_common.LogDebug("temporary:", t)
