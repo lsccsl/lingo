@@ -71,7 +71,7 @@ func (pthis *TcpMgr)go_tcpAccept() {
 	pthis.wg.Done()
 }
 
-func StartTcpManager(ip string, port int, CBConnection InterfaceTcpConnection,  closeExpireSec int) (*TcpMgr, error) {
+func ConstructTcpManager(ip string, port int, CBConnection InterfaceTcpConnection,  closeExpireSec int) (*TcpMgr, error) {
 	t := &TcpMgr{}
 
 	addr := ip + ":" + strconv.Itoa(port)

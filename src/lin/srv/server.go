@@ -57,6 +57,14 @@ type interMsgConnDial struct {
 type interMsgConnClose struct {
 	tcpConn *tcp.TcpConnection
 }
+type interMsgBeginRedial struct {
+	ip string
+	port int
+	closeExpireSec int
+	dialTimeoutSec int
+	needRedial bool
+	redialCount int
+}
 
 func ConstructServer(srvMgr *ServerMgr, srvID int64, heartbeatIntervalSec int)*Server {
 	s := &Server{
@@ -79,27 +87,13 @@ func ConstructServer(srvMgr *ServerMgr, srvID int64, heartbeatIntervalSec int)*S
 func (pthis*Server) ServerSetDialData(ip string, port int, closeExpireSec int,
 	dialTimeoutSec int,
 	needRedial bool, redialCount int) {
-
-	bRedial := false
-	if pthis.ip != ip || pthis.port != port {
-		bRedial = true
-	}
-	lin_common.LogDebug("srv:", pthis.srvID, " ", ip, ":", port, " ", pthis.ip, ":", pthis.port, " bRedial:", bRedial)
-
-	pthis.dialTimeoutSec = dialTimeoutSec
-	pthis.closeExpireSec = closeExpireSec
-	pthis.ip = ip
-	pthis.port = port
-	pthis.needRedial = needRedial
-	pthis.redialCount = redialCount
-
-	if bRedial {
-		if pthis.connDial != nil {
-			pthis.connDial.TcpConnectClose()
-		}
-		srvMgr.tcpMgr.TcpDialMgrDial(pthis.srvID, ip, port, closeExpireSec,
-			dialTimeoutSec,
-			needRedial, redialCount)
+	pthis.chInterMsg <- &interMsgBeginRedial{
+		ip:ip,
+		port:port,
+		closeExpireSec:closeExpireSec,
+		dialTimeoutSec:dialTimeoutSec,
+		needRedial:needRedial,
+		redialCount:redialCount,
 	}
 }
 
@@ -135,6 +129,8 @@ func (pthis*Server) go_serverProcess() {
 					pthis.processDailConnect(t.tcpDial)
 				case *interMsgConnClose:
 					pthis.processConnClose(t.tcpConn)
+				case *interMsgBeginRedial:
+					pthis.processRedial(t)
 				}
 			}
 
@@ -233,7 +229,34 @@ func (pthis*Server)processConnClose(tcpConn *tcp.TcpConnection){
 
 	lin_common.LogDebug("srv:", pthis.srvID, " will redial", " tcpConn:", tcpConn.TcpConnectionID())
 	pthis.connDial = nil
-	pthis.srvMgr.tcpMgr.TcpDialMgrDial(pthis.srvID, pthis.ip, pthis.port, pthis.closeExpireSec, pthis.dialTimeoutSec, pthis.needRedial, pthis.redialCount)
+	pthis.srvMgr.tcpMgr.TcpDialMgrDial(pthis.srvID, pthis.ip, pthis.port,
+		pthis.closeExpireSec, pthis.dialTimeoutSec, pthis.needRedial, pthis.redialCount,
+		pthis.srvMgr.dialPool)
+}
+
+func (pthis*Server)processRedial(dialMsg *interMsgBeginRedial){
+	bRedial := false
+	if pthis.ip != dialMsg.ip || pthis.port != dialMsg.port {
+		bRedial = true
+	}
+	lin_common.LogDebug("srv:", pthis.srvID, " ", dialMsg.ip, ":", dialMsg.port, " ", pthis.ip, ":", pthis.port, " bRedial:")
+
+	pthis.dialTimeoutSec = dialMsg.dialTimeoutSec
+	pthis.closeExpireSec = dialMsg.closeExpireSec
+	pthis.ip = dialMsg.ip
+	pthis.port = dialMsg.port
+	pthis.needRedial = dialMsg.needRedial
+	pthis.redialCount = dialMsg.redialCount
+
+	if bRedial {
+		if pthis.connDial != nil {
+			pthis.connDial.TcpConnectClose()
+		}
+		srvMgr.tcpMgr.TcpDialMgrDial(pthis.srvID, pthis.ip, pthis.port, pthis.closeExpireSec,
+			pthis.dialTimeoutSec,
+			pthis.needRedial, pthis.redialCount,
+			pthis.srvMgr.dialPool)
+	}
 }
 
 func (pthis*Server)PushInterMsg(msg interface{}){
@@ -294,7 +317,7 @@ func (pthis*Server)processRPCRes(tcpConn *tcp.TcpConnection, msg *msgpacket.MSG_
 	}
 	rreq := pthis.rpcMgr.RPCManagerFindReq(msg.MsgId)
 	if rreq == nil {
-		lin_common.LogErr("fail find rpc:", msg.MsgId, " srv:%d", pthis.srvID)
+		lin_common.LogErr("fail find rpc:", msg.MsgId, " srv:", pthis.srvID)
 		return
 	}
 	if rreq.chNtf != nil {

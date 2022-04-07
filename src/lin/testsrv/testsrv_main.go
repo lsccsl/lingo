@@ -3,6 +3,7 @@ package main
 import (
 	"lin/lin_common"
 	"lin/msgpacket"
+	"os"
 	"sync"
 )
 
@@ -31,6 +32,11 @@ var Global_wg sync.WaitGroup
 func main() {
 	lin_common.InitLog("./testsrv.log", true)
 	//lin_common.ProfileInit()
+
+	if len(os.Args) >= 2 {
+		Global_testCfg.local_ip = os.Args[1]
+	}
+	lin_common.LogDebug("local ip:", Global_testCfg.local_ip)
 
 	commandLineInit()
 

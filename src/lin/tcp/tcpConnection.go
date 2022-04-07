@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"lin/lin_common"
+	cor_pool "lin/lin_cor_pool"
 	"net"
 	"runtime"
 	"strconv"
@@ -130,7 +131,7 @@ func startTcpConnection(connMgr InterfaceConnManage, conn net.Conn, closeExpireS
 
 func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 	closeExpireSec int, dialTimeoutSec int, redialCount int,
-	ctx context.Context) (*TcpConnection, error) {
+	ctx context.Context, rpcPool *cor_pool.CorPool) (*TcpConnection, error) {
 	defer func() {
 		err := recover()
 		if err != nil {
@@ -159,7 +160,7 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 	addr := ip + ":" + strconv.Itoa(port)
 
 	if dialTimeoutSec > 0 {
-		go func() {
+		tempFunc := func() {
 			defer func() {
 				err := recover()
 				if err != nil {
@@ -177,21 +178,26 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 				d := net.Dialer{Timeout: time.Second * time.Duration(dialTimeoutSec)}
 				conn, err = d.DialContext(ctx, "tcp", addr)
 				//conn, err = net.DialTimeout("tcp", addr, time.Second * time.Duration(dialTimeoutSec))
-				lin_common.LogDebug("srv:", SrvID, " conn:", tcpConn.connectionID, " end dial err:", err, " connection id:", tcpConn.connectionID)
 
 				tEnd := time.Now()
 				if err != nil || conn == nil {
-					interval := int64(dialTimeoutSec) - (tEnd.Unix() - tBegin.Unix())
+					intervalMills := int64(dialTimeoutSec * 1000) - (tEnd.UnixMilli() - tBegin.UnixMilli())
 					lin_common.LogDebug("srv:",  SrvID, " interval:", tEnd.Unix() - tBegin.Unix(), " conn:", tcpConn.connectionID, " will retry ", i, " ", redialCount, " ", tcpConn.netConn, " ", err)
 					if strings.Index(err.Error(), "operation was canceled") >= 0 {
 						break DIAL_LOOP
 					}
-					runtime.Gosched()
-					if interval <= 0 {
-						interval = 0
+					//runtime.Gosched()
+					if intervalMills <= 0 {
+						intervalMills = 1
 					}
-					time.Sleep(time.Second * time.Duration(interval + 1))
+					if conn != nil {
+						lin_common.LogDebug("srv:",  SrvID, " dial err:", err, " net conn:", conn)
+						conn.Close()
+					}
+					time.Sleep(time.Millisecond * time.Duration(intervalMills + 1))
 					continue
+				} else {
+					lin_common.LogDebug("srv:", SrvID, " conn:", tcpConn.connectionID, " end dial ", " connection id:", tcpConn.connectionID)
 				}
 				tcpConn.netConn = conn.(*net.TCPConn)
 				break
@@ -214,7 +220,20 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 			}
 			go tcpConn.go_tcpConnRead()
 			go tcpConn.go_tcpConnWrite()
-		}()
+		}
+
+		if rpcPool == nil {
+			go tempFunc()
+		} else {
+			rpcPool.CorPoolAddJob(&cor_pool.CorPoolJobData{
+				JobType_ : cor_pool.EN_CORPOOL_JOBTYPE_user,
+				JobData_: tcpConn.SrvID,
+				JobCB_   : func(jd cor_pool.CorPoolJobData){
+					tempFunc()
+				},
+			})
+		}
+
 		return tcpConn, nil
 	} else {
 		var err error

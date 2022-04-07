@@ -15,8 +15,8 @@ import (
 )
 
 const(
-	EN_CORPOOL_JOBTYPE_Rpc_req = cor_pool.EN_CORPOOL_JOBTYPE_user + 1
-	EN_CORPOOL_JOBTYPE_client_Rpc_req = cor_pool.EN_CORPOOL_JOBTYPE_user + 2
+	EN_CORPOOL_JOBTYPE_Rpc_req = cor_pool.EN_CORPOOL_JOBTYPE_user + 100
+	EN_CORPOOL_JOBTYPE_client_Rpc_req
 )
 
 type MAP_CLIENT map[int64/*client id*/]*Client
@@ -49,6 +49,7 @@ type ServerMgr struct {
 	tcpMgr *tcp.TcpMgr
 	httpSrv *lin_common.HttpSrvMgr
 	rpcPool *cor_pool.CorPool
+	dialPool *cor_pool.CorPool
 
 	heartbeatIntervalSec int
 
@@ -154,6 +155,7 @@ func ConstructServerMgr(srvID int64, heartbeatIntervalSec int, rpcPoolCount int)
 	srvMgr.mapServer = make(MAP_SERVER)
 	srvMgr.heartbeatIntervalSec = heartbeatIntervalSec
 	srvMgr.rpcPool = cor_pool.CorPoolInit(rpcPoolCount)
+	srvMgr.dialPool = cor_pool.CorPoolInit(100)
 
 	return srvMgr
 }

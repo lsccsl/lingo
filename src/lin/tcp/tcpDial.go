@@ -2,7 +2,9 @@ package tcp
 
 import (
 	"context"
+	cor_pool "lin/lin_cor_pool"
 	"sync"
+	"time"
 )
 
 type dialData struct {
@@ -17,6 +19,8 @@ type dialData struct {
 
 	needRedial bool
 	redialCount int
+
+	dialBeginTimeMills int64
 }
 type MAP_DIALDATA map[int64/* srvID */]*dialData
 
@@ -70,7 +74,7 @@ func (pthis *TcpDialMgr) delDialData(srvID int64) {
 
 func (pthis *TcpDialMgr) TcpDialMgrDial(srvID int64, ip string, port int, closeExpireSec int,
 	dialTimeoutSec int,
-	needRedial bool, redialCount int) (*TcpConnection, error) {
+	needRedial bool, redialCount int, rpcPool *cor_pool.CorPool) (*TcpConnection, error) {
 
 	oldDial := pthis.getDialData(srvID)
 	if oldDial != nil {
@@ -88,9 +92,10 @@ func (pthis *TcpDialMgr) TcpDialMgrDial(srvID int64, ip string, port int, closeE
 			srvID:srvID,
 			needRedial:needRedial,
 			redialCount:redialCount,
-			DialCancelFunc:canelfun})
+			DialCancelFunc:canelfun,
+			dialBeginTimeMills:time.Now().UnixMilli()})
 
-	tcpConn, err := startTcpDial(pthis.connMgr, srvID, ip, port, closeExpireSec, dialTimeoutSec, redialCount, ctx)
+	tcpConn, err := startTcpDial(pthis.connMgr, srvID, ip, port, closeExpireSec, dialTimeoutSec, redialCount, ctx, rpcPool)
 	if err != nil {
 		return nil, err
 	}
