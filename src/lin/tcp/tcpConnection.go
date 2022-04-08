@@ -173,7 +173,7 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 			DIAL_LOOP:
 			for i := 0; i < redialCount; i ++ {
 				tBegin := time.Now()
-				lin_common.LogDebug("srv:", SrvID, " conn:", tcpConn.connectionID, " begin dial:", addr, " connection id:", tcpConn.connectionID)
+				//lin_common.LogDebug("srv:", SrvID, " conn:", tcpConn.connectionID, " begin dial:", addr, " connection id:", tcpConn.connectionID)
 
 				d := net.Dialer{Timeout: time.Second * time.Duration(dialTimeoutSec)}
 				conn, err = d.DialContext(ctx, "tcp", addr)
@@ -182,7 +182,7 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 				tEnd := time.Now()
 				if err != nil || conn == nil {
 					intervalMills := int64(dialTimeoutSec * 1000) - (tEnd.UnixMilli() - tBegin.UnixMilli())
-					lin_common.LogDebug("srv:",  SrvID, " interval:", tEnd.Unix() - tBegin.Unix(), " conn:", tcpConn.connectionID, " will retry ", i, " ", redialCount, " ", tcpConn.netConn, " ", err)
+					//lin_common.LogDebug("srv:",  SrvID, " interval:", tEnd.Unix() - tBegin.Unix(), " conn:", tcpConn.connectionID, " will retry ", i, " ", redialCount, " ", tcpConn.netConn, " ", err)
 					if strings.Index(err.Error(), "operation was canceled") >= 0 {
 						break DIAL_LOOP
 					}
@@ -197,19 +197,19 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 					time.Sleep(time.Millisecond * time.Duration(intervalMills + 1))
 					continue
 				} else {
-					lin_common.LogDebug("srv:", SrvID, " conn:", tcpConn.connectionID, " end dial ", " connection id:", tcpConn.connectionID)
+					lin_common.LogDebug("srv:", SrvID, " conn:", tcpConn.connectionID, " end dial suc", " connection id:", tcpConn.connectionID)
+					tcpConn.netConn = conn.(*net.TCPConn)
 				}
-				tcpConn.netConn = conn.(*net.TCPConn)
 				break
 			}
 
 			if err != nil || conn == nil{
-				lin_common.LogDebug("srv:", SrvID, " fail ", err, conn, " connection id:", tcpConn.connectionID)
+				//lin_common.LogDebug("srv:", SrvID, " fail ", err, conn, " connection id:", tcpConn.connectionID)
 				if tcpConn.cbTcpConnection != nil {
 					tcpConn.cbTcpConnection.CBConnectClose(tcpConn, TCP_CONNECTION_CLOSE_REASON_dialfail)
 				}
-				if tcpConn.netConn != nil {
-					tcpConn.TcpConnectClose()
+				if conn != nil {
+					conn.Close()
 				}
 				return
 			}
@@ -299,7 +299,8 @@ func (pthis *TcpConnection)go_tcpConnRead() {
 		}
 		readSize, err := pthis.netConn.Read(TmpBuf)
 		if err != nil {
-			lin_common.LogDebug(pthis.connectionID, " clientid:", pthis.ClientID, " srvid:", pthis.SrvID, " err:", err)
+			lin_common.LogDebug(pthis.connectionID, " tcp connection read err clientid:", pthis.ClientID, " srv:", pthis.SrvID,
+				" closeReason:", pthis.clsRsn, " err:", err, " readSize:", readSize)
 			switch t := err.(type) {
 			case net.Error:
 				{

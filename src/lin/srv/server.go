@@ -19,6 +19,9 @@ type ServerStatic struct {
 	totalRPCOutFail int64
 
 	timestamp float64
+
+	timestampLastHeartbeat int64
+	timestampReport int64
 }
 type ServerDialData struct {
 	dialTimeoutSec int
@@ -139,7 +142,7 @@ func (pthis*Server) go_serverProcess() {
 				chTimer = time.After(time.Second * time.Duration(pthis.heartbeatIntervalSec))
 				//send heartbeat
 				if pthis.connDial != nil {
-/*					lin_common.LogDebug("send heartbeat from dial, srvid:", pthis.srvID, pthis.heartbeatIntervalSec,
+/*					lin_common.LogDebug("send heartbeat from dial, srv:", pthis.srvID, pthis.heartbeatIntervalSec,
 						" connection id:", pthis.connDial.TcpConnectionID())*/
 					msgHeartBeat := &msgpacket.MSG_HEARTBEAT{}
 					msgHeartBeat.Id = pthis.srvMgr.srvID
@@ -181,7 +184,9 @@ func (pthis*Server)processSrvReport(tcpAccept *tcp.TcpConnection){
 		}
 	}
 	pthis.connAcpt = tcpAccept
+
 	lin_common.LogDebug("srv:", pthis.srvID, " conn:", pthis.connAcpt.TcpConnectionID())
+	pthis.timestampReport = time.Now().Unix()
 
 	msgRes := &msgpacket.MSG_SRV_REPORT_RES{
 		SrvId:pthis.srvID,
@@ -390,16 +395,16 @@ func (pthis*Server)processServerMsg (interMsg * interProtoMsg){
 }
 
 func (pthis*Server) process_MSG_HEARTBEAT (tcpConn *tcp.TcpConnection, protoMsg * msgpacket.MSG_HEARTBEAT) {
-	lin_common.LogDebug(protoMsg)
+	lin_common.LogDebug(" srv:", pthis.srvID, " conn", tcpConn.TcpConnectionID(), " from srv:", protoMsg.Id)
 	if tcpConn != nil {
 		msgRes := &msgpacket.MSG_HEARTBEAT_RES{}
 		msgRes.Id = protoMsg.Id
 		TcpConnectSendProtoMsg(tcpConn, msgpacket.MSG_TYPE__MSG_HEARTBEAT_RES, msgRes)
 	}
+	pthis.timestampLastHeartbeat = time.Now().Unix()
 }
 
 func (pthis*Server) process_MSG_HEARTBEAT_RES (tcpConn *tcp.TcpConnection, protoMsg * msgpacket.MSG_HEARTBEAT_RES) {
-/*	if tcpConn != nil {
-		lin_common.LogDebug(tcpConn.TcpConnectionID(), " msg:", protoMsg)
-	}*/
+	lin_common.LogDebug(" srv:", pthis.srvID, " conn", tcpConn.TcpConnectionID(), " from srv:", protoMsg.Id)
+	pthis.timestampLastHeartbeat = time.Now().Unix()
 }

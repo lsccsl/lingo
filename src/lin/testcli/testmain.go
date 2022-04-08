@@ -22,6 +22,7 @@ var Global_testCfg = &TestCfg {
 	//addr : "10.0.14.48:2001",
 }
 
+// testcli 500 100 | lt
 func main() {
 	//lin_common.InitLog("./testcli.log", false)
 	//lin_common.ProfileInit()

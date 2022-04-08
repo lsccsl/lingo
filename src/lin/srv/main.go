@@ -22,6 +22,7 @@ type ServerFromHttp struct {
 	Port int
 }
 
+const TCP_READ_CLOSE_EXPIRE = 600
 // --path="../cfg/cfg.yml" --id=1
 // nohup ./srv --path="../cfg/cfg.yml" --id=3 >> srv.out 2>&1 &
 func main() {
@@ -59,7 +60,7 @@ func main() {
 		lin_common.LogErr(err)
 		return
 	}
-	tcpMgr, err := tcp.ConstructTcpManager(tcpAddr.IP.String(), tcpAddr.Port, srvMgr, 600)
+	tcpMgr, err := tcp.ConstructTcpManager(tcpAddr.IP.String(), tcpAddr.Port, srvMgr, TCP_READ_CLOSE_EXPIRE)
 	if err != nil {
 		lin_common.LogErr("addr:", tcpAddr, " err:", err)
 		return
@@ -82,7 +83,7 @@ func main() {
 				lin_common.LogErr(err)
 				return
 			}
-			srvMgr.AddRemoteServer(val.SrvID, dialAddr.IP.String(), dialAddr.Port, 180, 15, true, 3)
+			srvMgr.AddRemoteServer(val.SrvID, dialAddr.IP.String(), dialAddr.Port, TCP_READ_CLOSE_EXPIRE, 60, true, 3)
 			lin_common.LogDebug(val)
 		}
 	}
@@ -122,7 +123,7 @@ func main() {
 		sh := &ServerFromHttp{}
 		json.Unmarshal(bin, sh)
 		lin_common.LogDebug("add srv:", sh.SrvID, " addr:", sh.IP, ":", sh.Port)
-		srvMgr.AddRemoteServer(sh.SrvID, sh.IP, sh.Port, 180, 15, true, 3)
+		srvMgr.AddRemoteServer(sh.SrvID, sh.IP, sh.Port, TCP_READ_CLOSE_EXPIRE, 15, true, 3)
 		writer.Write(bin)
 	})
 

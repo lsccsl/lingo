@@ -57,6 +57,9 @@ type ServerMgr struct {
 }
 
 func (pthis*ServerMgr)CBReadProcess(tcpConn *tcp.TcpConnection, recvBuf * bytes.Buffer) (bytesProcess int) {
+	if tcpConn == nil || recvBuf == nil{
+		return
+	}
 
 	packType, bytesProcess, protoMsg := msgpacket.ProtoUnPacketFromBin(recvBuf)
 
@@ -77,6 +80,9 @@ func (pthis*ServerMgr)CBReadProcess(tcpConn *tcp.TcpConnection, recvBuf * bytes.
 		if ok && t != nil {
 			if tcpConn.IsAccept {
 				pthis.processSrvReport(tcpConn, t.SrvId)
+			} else {
+				lin_common.LogDebug("no accept connection recv srv report, from srv:", t.SrvId, " to srv:", tcpConn.SrvID,
+					" conn:", tcpConn.TcpConnectionID())
 			}
 		}
 
@@ -114,7 +120,7 @@ func (pthis*ServerMgr)CBConnectDial(tcpConn *tcp.TcpConnection, err error) {
 	if tcpConn == nil {
 		return
 	}
-	lin_common.LogDebug(tcpConn.TcpGetConn().LocalAddr(), tcpConn.TcpGetConn().RemoteAddr(), tcpConn.TcpConnectionID(), " srv:", tcpConn.SrvID)
+	lin_common.LogDebug(" local addr:", tcpConn.TcpGetConn().LocalAddr(), " remote addr:", tcpConn.TcpGetConn().RemoteAddr(), tcpConn.TcpConnectionID(), " srv:", tcpConn.SrvID)
 
 	srvID := tcpConn.SrvID
 	srv := pthis.getServer(srvID)
@@ -367,11 +373,13 @@ func (pthis*ServerMgr)Dump(bDtail bool) string {
 	func(){
 		pthis.ServerMapMgr.mapServerMutex.Lock()
 		defer pthis.ServerMapMgr.mapServerMutex.Unlock()
-		var totalAver float64 = 0
-		var totalReqAver float64 = 0
+		var totalInAver float64 = 0
+		var totalOutAver float64 = 0
 		var totalRPCOutFail int64 = 0
 		var noRpcIn int64 = 0
 		var noRpcOut int64 = 0
+		var noDial = 0
+		var noAcpt = 0
 		{
 			for _, val := range pthis.ServerMapMgr.mapServer {
 				var connAcptID tcp.TCP_CONNECTION_ID
@@ -399,24 +407,32 @@ func (pthis*ServerMgr)Dump(bDtail bool) string {
 				reqAver := float64(diffReq) / tRPCdiff
 
 				if bDtail {
-					str += fmt.Sprintf("\r\n srv:%v acpt:%v dial:%v totalPakcet:%v totalReq:%v diffRPCTotal:%v diffReq:%v tdiff:%v, aver:%v reqAver:%v",
-						val.srvID, connAcptID, connDialID, totalRPCIn, totalRPCOut, diffRPCTotal, diffReq, tRPCdiff, aver, reqAver)
+					str += fmt.Sprintf("\r\n srv:%v acpt:%v dial:%v totalRPCIn:%v totalRPCOut:%v diffRPCTotal:%v diffReq:%v tdiff:%v, aver:%v reqAver:%v report:%v hb:%v",
+						val.srvID, connAcptID, connDialID, totalRPCIn, totalRPCOut, diffRPCTotal, diffReq, tRPCdiff, aver, reqAver, val.timestampReport, val.timestampLastHeartbeat)
 				}
 				val.timestamp = tnow
 				val.totalRPCInLast = totalRPCIn
 				val.totalRPCOutLast = totalRPCOut
-				totalAver += aver
-				totalReqAver += reqAver
+				totalInAver += aver
+				totalOutAver += reqAver
 				totalRPCOutFail += val.totalRPCOutFail
+
+				if connDialID == 0 {
+					noDial ++
+				}
+				if connAcptID == 0{
+					noAcpt ++
+				}
 			}
 		}
 		str += "\r\nserver count:" + strconv.Itoa(len(pthis.ServerMapMgr.mapServer)) +
+			" noDial:" + strconv.Itoa(noDial) +
+			" noAcpt:" + strconv.Itoa(noAcpt) +
 			" noRpcOut:" + strconv.Itoa(int(noRpcOut)) +
 			" noRpcIn:" + strconv.Itoa(int(noRpcIn)) +
-			" total aver:" + strconv.FormatFloat(totalAver, 'f', 2,64) +
-			" total req aver:" + strconv.FormatFloat(totalReqAver, 'f', 2,64) +
+			" total in aver:" + strconv.FormatFloat(totalInAver, 'f', 2,64) +
+			" total out aver:" + strconv.FormatFloat(totalOutAver, 'f', 2,64) +
 			" total rpc fail:" + strconv.FormatInt(totalRPCOutFail, 10)
-
 	}()
 
 	strTcp, totalRecv, totalSend, totalProc := pthis.tcpMgr.TcpMgrDump(bDtail)
