@@ -184,6 +184,7 @@ func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 					intervalMills := int64(dialTimeoutSec * 1000) - (tEnd.UnixMilli() - tBegin.UnixMilli())
 					//lin_common.LogDebug("srv:",  SrvID, " interval:", tEnd.Unix() - tBegin.Unix(), " conn:", tcpConn.connectionID, " will retry ", i, " ", redialCount, " ", tcpConn.netConn, " ", err)
 					if strings.Index(err.Error(), "operation was canceled") >= 0 {
+						lin_common.LogDebug("srv:",  SrvID, " conn:", tcpConn.connectionID, " cancel dial", err)
 						break DIAL_LOOP
 					}
 					//runtime.Gosched()
@@ -388,7 +389,8 @@ func (pthis *TcpConnection)go_tcpConnWrite() {
 			writeSZ, err := pthis.netConn.Write(tcpW.bin)
 			if err != nil {
 				pthis.TcpConnectSetCloseReason(TCP_CONNECTION_CLOSE_REASON_writeerr)
-				//lin_common.LogErr(" write err:", pthis.TcpConnectionID(), " client id:", pthis.ClientID, " srv:", pthis.SrvID)
+				lin_common.LogDebug(" tcp connection write err, conn:", pthis.TcpConnectionID(),
+					" client id:", pthis.ClientID, " srv:", pthis.SrvID, " err:", err)
 				pthis.netConn.Close()
 				break WRITE_LOOP
 			}

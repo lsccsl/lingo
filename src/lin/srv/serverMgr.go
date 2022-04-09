@@ -78,12 +78,7 @@ func (pthis*ServerMgr)CBReadProcess(tcpConn *tcp.TcpConnection, recvBuf * bytes.
 	case msgpacket.MSG_TYPE__MSG_SRV_REPORT:
 		t, ok := protoMsg.(*msgpacket.MSG_SRV_REPORT)
 		if ok && t != nil {
-			if tcpConn.IsAccept {
-				pthis.processSrvReport(tcpConn, t.SrvId)
-			} else {
-				lin_common.LogDebug("no accept connection recv srv report, from srv:", t.SrvId, " to srv:", tcpConn.SrvID,
-					" conn:", tcpConn.TcpConnectionID())
-			}
+			pthis.processSrvReport(tcpConn, t.SrvId)
 		}
 
 	case msgpacket.MSG_TYPE__MSG_RPC:
@@ -272,13 +267,19 @@ func (pthis*ServerMgr)processMsg(tcpConn *tcp.TcpConnection, msgType msgpacket.M
 }
 
 func (pthis*ServerMgr)processSrvReport(tcpAccept *tcp.TcpConnection, srvID int64){
-	tcpAccept.SrvID = srvID
-	srv := pthis.getServer(srvID)
-	if srv == nil {
-		srv = ConstructServer(pthis, srvID, pthis.heartbeatIntervalSec)
-	}
-	if srv != nil {
-		srv.PushInterMsg(&interMsgSrvReport{tcpAccept})
+	if tcpAccept.IsAccept {
+		tcpAccept.SrvID = srvID
+		srv := pthis.getServer(srvID)
+		if srv == nil {
+			srv = ConstructServer(pthis, srvID, pthis.heartbeatIntervalSec)
+		}
+		if srv != nil {
+			srv.PushInterMsg(&interMsgSrvReport{tcpAccept})
+		}
+	} else {
+		lin_common.LogDebug("no accept connection receive srv report, will close, from srv:", srvID, " to srv:", tcpAccept.SrvID,
+			" conn:", tcpAccept.TcpConnectionID())
+		tcpAccept.TcpConnectClose()
 	}
 }
 

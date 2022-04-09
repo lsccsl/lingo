@@ -126,9 +126,18 @@ func main() {
 		srvMgr.AddRemoteServer(sh.SrvID, sh.IP, sh.Port, TCP_READ_CLOSE_EXPIRE, 15, true, 3)
 		writer.Write(bin)
 	})
+	httpSrv.HttpSrvAddCallback("/delserver", func(writer http.ResponseWriter, request *http.Request) {
+		strSrv, _ := request.Form["srv"]
+		if len(strSrv) >= 1 {
+			srvID, _ := strconv.ParseInt(strSrv[0], 10, 64)
+			srvMgr.delServer(srvID)
+		}
+	})
 
 	lin_common.ParseCmd()
 	tcpMgr.TcpMgrWait()
 }
 
 // todo aoi path finding, server tcp connection close process
+// https://github.com/panjf2000/gnet
+// https://github.com/golang/sys

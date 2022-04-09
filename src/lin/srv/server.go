@@ -232,7 +232,7 @@ func (pthis*Server)processConnClose(tcpConn *tcp.TcpConnection){
 		}
 	}
 
-	lin_common.LogDebug("srv:", pthis.srvID, " will redial", " tcpConn:", tcpConn.TcpConnectionID())
+	lin_common.LogDebug("srv:", pthis.srvID, " will redial", " tcpConn:", tcpConn.TcpConnectionID(), " addr:", pthis.ip, ":", pthis.port)
 	pthis.connDial = nil
 	pthis.srvMgr.tcpMgr.TcpDialMgrDial(pthis.srvID, pthis.ip, pthis.port,
 		pthis.closeExpireSec, pthis.dialTimeoutSec, pthis.needRedial, pthis.redialCount,
