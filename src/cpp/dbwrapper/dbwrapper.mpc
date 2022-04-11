@@ -1,0 +1,23 @@
+project(dbwrapper){
+                includes += "./"
+                includes += "/usr/local/include/mysql"
+                includes += "../../lib/common_cpplib"
+                includes += "/usr/local/freetds/include/"
+
+                //libpaths += /usr/lib/mysql
+                //lit_libs += mysqlclient
+                //pure_libs=/root/ist/sqlite/sqlite/libxxxx.a
+
+                //exename=dispatch
+                staticname=dbwrapper
+                sharedname=
+                //install=./
+                //libout=./
+
+                verbatim(make,local) {
+                        CPPFLAGS += -Wno-deprecated -g -D_FILE_OFFSET_BITS=64
+                }
+                Source_Files {
+                ./*.cpp
+                }
+}
