@@ -18,11 +18,13 @@ type LogMgr struct {
 	logFile string
 	enableLog bool
 	enableConsolePrint bool
+	enableFilePrint bool
 }
 var globalLogMgr = LogMgr{
 	chLog : make(chan *LogMsg, 1000),
 	enableLog : false,
 	enableConsolePrint : false,
+	enableFilePrint : true,
 }
 
 func LogDebug(args ... interface{}) {
@@ -54,10 +56,11 @@ func LogErr(args ... interface{}) {
 	globalLogMgr.chLog <- l
 }
 
-func InitLog(str string, enableConsolePrint bool) {
+func InitLog(str string, enableConsolePrint bool, enableFilePrint bool) {
 	globalLogMgr.logFile = str
 	globalLogMgr.enableLog = true
 	globalLogMgr.enableConsolePrint = enableConsolePrint
+	globalLogMgr.enableFilePrint = enableFilePrint
 	go go_logPrint()
 }
 
@@ -69,32 +72,36 @@ func go_logPrint() {
 		}
 	}()
 
-	filehandle, err := os.OpenFile(globalLogMgr.logFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		fmt.Println("log open file err:", err)
-		return
+	var filehandle *os.File = nil
+	var errOpen error
+	if globalLogMgr.enableFilePrint {
+		filehandle, errOpen = os.OpenFile(globalLogMgr.logFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+		if errOpen != nil {
+			fmt.Println("log open file err:", errOpen)
+			return
+		}
 	}
 	count := 0
 	for l := range globalLogMgr.chLog{
 		if globalLogMgr.enableConsolePrint {
 			fmt.Print(l.strLog)
 		}
-		if filehandle != nil {
-			_, err = filehandle.WriteString(l.strLog)
-		}
-		if err != nil {
-			fmt.Println(err)
-			if filehandle != nil {
-				filehandle.Close()
-			}
-			filehandle, err = os.OpenFile(globalLogMgr.logFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+		if filehandle != nil && globalLogMgr.enableFilePrint{
+			_, err := filehandle.WriteString(l.strLog)
 			if err != nil {
 				fmt.Println(err)
+				if filehandle != nil {
+					filehandle.Close()
+				}
+				filehandle, err = os.OpenFile(globalLogMgr.logFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+				if err != nil {
+					fmt.Println(err)
+				}
 			}
 		}
 		count ++
 		if count > 20000 {
-			err = filehandle.Sync()
+			err := filehandle.Sync()
 			if err != nil {
 				fmt.Println(err)
 			}

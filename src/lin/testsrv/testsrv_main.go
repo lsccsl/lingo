@@ -30,7 +30,7 @@ var Global_testCfg = &TestCfg {
 }
 var Global_wg sync.WaitGroup
 func main() {
-	lin_common.InitLog("./testsrv.log", true)
+	lin_common.InitLog("./testsrv.log", true, false)
 	//lin_common.ProfileInit()
 
 	if len(os.Args) >= 2 {

@@ -39,7 +39,7 @@ func main() {
 		fmt.Println("read cfg err", pathCfg)
 	}
 
-	lin_common.InitLog("./srv.log", srvCfg.LogEnableConsolePrint)
+	lin_common.InitLog("./srv.log", srvCfg.LogEnableConsolePrint, true)
 	msgpacket.InitMsgParseVirtualTable()
 	lin_common.ProfileInit()
 
