@@ -1,0 +1,128 @@
+#----------------------------------------------------------------------------
+#       Macros
+#----------------------------------------------------------------------------
+CXX           = g++
+LD            = $(CXX) $(CCFLAGS) $(CPPFLAGS)
+AR            = ar
+PICFLAGS      = -fPIC
+CPPFLAGS      = $(PICFLAGS) $(GENFLAGS) -D_REENTRANT -I"./" -I"../raphsody/include/"
+OBJEXT        = .o
+OUTPUT_OPTION = -o "$@"
+COMPILE.cc    = $(CXX) $(CCFLAGS) $(CPPFLAGS) -c
+LDFLAGS       = -L"."
+CCC           = $(CXX)
+MAKEFILE      = Makefile.common_cpplib
+DEPENDENCIES  = .depend.$(MAKEFILE)
+LTARGETDIR    = ./
+CAT           = cat
+MV            = mv -f
+RM            = rm -rf
+CP            = cp -p
+NUL           = /dev/null
+MKDIR         = mkdir -p
+EXEEXT        = 
+LIBPREFIX     = lib
+LIBSUFFIX     = 
+GENFLAGS      = -O
+LDLIBS        = -ldl -lpthread $(subst lib,-l,$(sort $(basename $(notdir $(wildcard /usr/lib/librt.so /lib/librt.so)))))
+OBJS          = ./AutoLock$(OBJEXT) ./channel$(OBJEXT) ./CMySocket$(OBJEXT) ./crc32$(OBJEXT) ./Md5$(OBJEXT) ./myautomutex$(OBJEXT) ./myepoll$(OBJEXT) ./mylogex$(OBJEXT) ./mylsnwrapper$(OBJEXT) ./myos_cpp$(OBJEXT) ./myrdp$(OBJEXT) ./mytea$(OBJEXT) ./mythrdpoll$(OBJEXT) ./mythreadpool$(OBJEXT) ./osfile_cpp$(OBJEXT) ./OsInet$(OBJEXT) ./PacketBase$(OBJEXT) ./runtime_view$(OBJEXT) ./stringOp$(OBJEXT) ./tcpclient_pool$(OBJEXT)
+AREXT         = .a
+LIB           = $(LTARGETDIR)$(LIBPREFIX)common_cpplib$(LIBSUFFIX)$(AREXT)
+SRC           = ./AutoLock.cpp ./channel.cpp ./CMySocket.cpp ./crc32.cpp ./Md5.cpp ./myautomutex.cpp ./myepoll.cpp ./mylogex.cpp ./mylsnwrapper.cpp ./myos_cpp.cpp ./myrdp.cpp ./mytea.cpp ./mythrdpoll.cpp ./mythreadpool.cpp ./osfile_cpp.cpp ./OsInet.cpp ./PacketBase.cpp ./runtime_view.cpp ./stringOp.cpp ./tcpclient_pool.cpp
+LINK.cc       = $(LD) $(LDFLAGS)
+EXPORTFLAGS   = $(STATICFLAGS)
+
+#----------------------------------------------------------------------------
+#       Local targets
+#----------------------------------------------------------------------------
+
+all: $(LIB)
+
+$(LTARGETDIR):
+	@$(MKDIR) "$@"
+
+$(LIB): $(LTARGETDIR) $(OBJS)
+	$(AR) $(ARFLAGS) $(LIB) $(OBJS)
+
+generated: $(GENERATED_DIRTY)
+	@-:
+
+./AutoLock$(OBJEXT): ./AutoLock.cpp
+	$(COMPILE.cc) $(EXPORTFLAGS) $(OUTPUT_OPTION) ./AutoLock.cpp
+
+./channel$(OBJEXT): ./channel.cpp
+	$(COMPILE.cc) $(EXPORTFLAGS) $(OUTPUT_OPTION) ./channel.cpp
+
+./CMySocket$(OBJEXT): ./CMySocket.cpp
+	$(COMPILE.cc) $(EXPORTFLAGS) $(OUTPUT_OPTION) ./CMySocket.cpp
+
+./crc32$(OBJEXT): ./crc32.cpp
+	$(COMPILE.cc) $(EXPORTFLAGS) $(OUTPUT_OPTION) ./crc32.cpp
+
+./Md5$(OBJEXT): ./Md5.cpp
+	$(COMPILE.cc) $(EXPORTFLAGS) $(OUTPUT_OPTION) ./Md5.cpp
+
+./myautomutex$(OBJEXT): ./myautomutex.cpp
+	$(COMPILE.cc) $(EXPORTFLAGS) $(OUTPUT_OPTION) ./myautomutex.cpp
+
+./myepoll$(OBJEXT): ./myepoll.cpp
+	$(COMPILE.cc) $(EXPORTFLAGS) $(OUTPUT_OPTION) ./myepoll.cpp
+
+./mylogex$(OBJEXT): ./mylogex.cpp
+	$(COMPILE.cc) $(EXPORTFLAGS) $(OUTPUT_OPTION) ./mylogex.cpp
+
+./mylsnwrapper$(OBJEXT): ./mylsnwrapper.cpp
+	$(COMPILE.cc) $(EXPORTFLAGS) $(OUTPUT_OPTION) ./mylsnwrapper.cpp
+
+./myos_cpp$(OBJEXT): ./myos_cpp.cpp
+	$(COMPILE.cc) $(EXPORTFLAGS) $(OUTPUT_OPTION) ./myos_cpp.cpp
+
+./myrdp$(OBJEXT): ./myrdp.cpp
+	$(COMPILE.cc) $(EXPORTFLAGS) $(OUTPUT_OPTION) ./myrdp.cpp
+
+./mytea$(OBJEXT): ./mytea.cpp
+	$(COMPILE.cc) $(EXPORTFLAGS) $(OUTPUT_OPTION) ./mytea.cpp
+
+./mythrdpoll$(OBJEXT): ./mythrdpoll.cpp
+	$(COMPILE.cc) $(EXPORTFLAGS) $(OUTPUT_OPTION) ./mythrdpoll.cpp
+
+./mythreadpool$(OBJEXT): ./mythreadpool.cpp
+	$(COMPILE.cc) $(EXPORTFLAGS) $(OUTPUT_OPTION) ./mythreadpool.cpp
+
+./osfile_cpp$(OBJEXT): ./osfile_cpp.cpp
+	$(COMPILE.cc) $(EXPORTFLAGS) $(OUTPUT_OPTION) ./osfile_cpp.cpp
+
+./OsInet$(OBJEXT): ./OsInet.cpp
+	$(COMPILE.cc) $(EXPORTFLAGS) $(OUTPUT_OPTION) ./OsInet.cpp
+
+./PacketBase$(OBJEXT): ./PacketBase.cpp
+	$(COMPILE.cc) $(EXPORTFLAGS) $(OUTPUT_OPTION) ./PacketBase.cpp
+
+./runtime_view$(OBJEXT): ./runtime_view.cpp
+	$(COMPILE.cc) $(EXPORTFLAGS) $(OUTPUT_OPTION) ./runtime_view.cpp
+
+./stringOp$(OBJEXT): ./stringOp.cpp
+	$(COMPILE.cc) $(EXPORTFLAGS) $(OUTPUT_OPTION) ./stringOp.cpp
+
+./tcpclient_pool$(OBJEXT): ./tcpclient_pool.cpp
+	$(COMPILE.cc) $(EXPORTFLAGS) $(OUTPUT_OPTION) ./tcpclient_pool.cpp
+
+clean:
+	-$(RM) $(OBJS)
+
+realclean: clean
+	-$(RM) $(SHLIB) $(LIB)
+
+CPPFLAGS += -Wno-deprecated -g -D_FILE_OFFSET_BITS=64
+
+#----------------------------------------------------------------------------
+#       Dependencies
+#----------------------------------------------------------------------------
+
+$(DEPENDENCIES):
+	@touch $(DEPENDENCIES)
+
+depend:
+	-makedepend -Y $(CFLAGS) $(CCFLAGS) $(CPPFLAGS) -f $(DEPENDENCIES) $(SRC) 2> $(NUL)
+
+include $(DEPENDENCIES)

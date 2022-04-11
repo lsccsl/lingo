@@ -1,0 +1,85 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: common_cpplib - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\SHAOCH~1.LIN\LOCALS~1\Temp\RSP10AE.tmp" with contents
+[
+/nologo /MTd /W3 /Gm /GX /ZI /Od /I "..\..\Rhapsody-0.2.0\Rhapsody-0.2.0\include" /I "..\..\pthreads.1" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /Fp"Debug/common_cpplib.pch" /YX /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\work\svn\eFax\common_cpplib\AutoLock.cpp"
+"D:\work\svn\eFax\common_cpplib\myepoll.cpp"
+"D:\work\svn\eFax\common_cpplib\mythrdpoll.cpp"
+"D:\work\svn\eFax\common_cpplib\stringOp.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\SHAOCH~1.LIN\LOCALS~1\Temp\RSP10AE.tmp" 
+Creating temporary file "C:\DOCUME~1\SHAOCH~1.LIN\LOCALS~1\Temp\RSP10AF.tmp" with contents
+[
+/nologo /MTd /W3 /Gm /GX /ZI /Od /I "..\..\Rhapsody-0.2.0\Rhapsody-0.2.0\include" /I "..\..\pthreads.1" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\work\svn\eFax\common_cpplib\CfgFile.cpp"
+"D:\work\svn\eFax\common_cpplib\channel.cpp"
+"D:\work\svn\eFax\common_cpplib\CMySocket.cpp"
+"D:\work\svn\eFax\common_cpplib\crc32.cpp"
+"D:\work\svn\eFax\common_cpplib\Md5.cpp"
+"D:\work\svn\eFax\common_cpplib\mylogex.cpp"
+"D:\work\svn\eFax\common_cpplib\myos_cpp.cpp"
+"D:\work\svn\eFax\common_cpplib\osfile_cpp.cpp"
+"D:\work\svn\eFax\common_cpplib\OsInet.cpp"
+"D:\work\svn\eFax\common_cpplib\PacketBase.cpp"
+"D:\work\svn\eFax\common_cpplib\runtime_view.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\SHAOCH~1.LIN\LOCALS~1\Temp\RSP10AF.tmp" 
+Creating temporary file "C:\DOCUME~1\SHAOCH~1.LIN\LOCALS~1\Temp\RSP10B0.tmp" with contents
+[
+/nologo /out:"Debug\common_cpplib.lib" 
+.\Debug\AutoLock.obj
+.\Debug\CfgFile.obj
+.\Debug\channel.obj
+.\Debug\CMySocket.obj
+.\Debug\crc32.obj
+.\Debug\Md5.obj
+.\Debug\myepoll.obj
+.\Debug\mylogex.obj
+.\Debug\myos_cpp.obj
+.\Debug\mythrdpoll.obj
+.\Debug\osfile_cpp.obj
+.\Debug\OsInet.obj
+.\Debug\PacketBase.obj
+.\Debug\runtime_view.obj
+.\Debug\stringOp.obj
+]
+Creating command line "link.exe -lib @C:\DOCUME~1\SHAOCH~1.LIN\LOCALS~1\Temp\RSP10B0.tmp"
+<h3>Output Window</h3>
+Compiling...
+AutoLock.cpp
+myepoll.cpp
+mythrdpoll.cpp
+stringOp.cpp
+Compiling...
+CfgFile.cpp
+channel.cpp
+CMySocket.cpp
+crc32.cpp
+Md5.cpp
+mylogex.cpp
+d:\work\svn\efax\common_cpplib\mylogex.cpp(198) : note C6311: d:\work\svn\efax\common_cpplib\mylogex.cpp(174) : see previous definition of 'WRITE_FILE'
+d:\work\svn\efax\common_cpplib\mylogex.cpp(200) : note C6311: d:\work\svn\efax\common_cpplib\mylogex.cpp(185) : see previous definition of 'WRITE_FILE_BIN'
+myos_cpp.cpp
+d:\work\svn\efax\common_cpplib\myos_cpp.cpp(36) : warning C4101: 'n' : unreferenced local variable
+d:\work\svn\efax\common_cpplib\myos_cpp.cpp(70) : warning C4101: 'n' : unreferenced local variable
+osfile_cpp.cpp
+OsInet.cpp
+PacketBase.cpp
+runtime_view.cpp
+Generating Code...
+Creating library...
+
+
+
+<h3>Results</h3>
+common_cpplib.lib - 0 error(s), 2 warning(s)
+</pre>
+</body>
+</html>
