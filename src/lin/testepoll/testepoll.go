@@ -89,17 +89,41 @@ func tcpListen(addr string) int {
 	return fd
 }
 
+func tcpAccept(listenFD int) (connFD int, addr string) {
+	connFD, sa, err := unix.Accept(listenFD)
+	fmt.Println("new connect:", connFD, sa, err)
+
+	remoteAddr := SockaddrToTCPOrUnixAddr(sa)
+	fmt.Println(remoteAddr)
+
+	addr = remoteAddr.String()
+	return
+}
+
+func epollAddRead(efd int, sockfd int){
+	evt := &unix.EpollEvent{Fd: int32(sockfd), Events: unix.EPOLLPRI | unix.EPOLLIN}
+	err := unix.EpollCtl(efd, unix.EPOLL_CTL_ADD, sockfd, evt)
+	fmt.Println("epoll ctl:", err)
+}
+
+func epollWait(efd int) {
+	events := make([]unix.EpollEvent, 128)
+	count, err := unix.EpollWait(efd, events, 30000)
+	fmt.Println("epoll wait:", count, err)
+}
+
 func main() {
 	efd, err := unix.EpollCreate1(unix.EPOLL_CLOEXEC)
 	fmt.Println(efd, " err:", err)
 
 	fd := tcpListen("192.168.2.129:3001")
+	epollAddRead(efd, fd)
 
-	conn_fd, sa, err := unix.Accept(fd)
-	fmt.Println("new connect:", conn_fd, sa, err)
-
-	remoteAddr := SockaddrToTCPOrUnixAddr(sa)
-	fmt.Println(remoteAddr)
+	for {
+		epollWait(efd)
+		connFD, addr := tcpAccept(fd)
+		fmt.Println("new connection:", connFD, addr)
+	}
 
 	for {
 		time.Sleep(time.Second * 10)
