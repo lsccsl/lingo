@@ -46,6 +46,8 @@ type TestSrv struct {
 	local_port int
 
 	TestSrvStatic
+
+	AutoRedial bool
 }
 
 func ConstructTestSrv(addrLocal string, local_port int, addrRemote string, srvId int64) *TestSrv {
@@ -57,6 +59,7 @@ func ConstructTestSrv(addrLocal string, local_port int, addrRemote string, srvId
 		addrRemote : addrRemote,
 		addrLocal : addrLocal,
 		local_port : local_port,
+		AutoRedial : true,
 	}
 	s.minRTTDialRpc = math.MaxInt64
 	s.maxRTTDialRpc = 0
@@ -145,6 +148,43 @@ func (pthis*TestSrv)TestSrvDial() (err interface{}) {
 	return nil
 }
 
+func (pthis*TestSrv)tcpReDial() {
+
+	httpAddDial(&ServerFromHttp{
+		SrvID: pthis.srvId,
+		IP: Global_testCfg.local_ip,
+		Port: pthis.local_port,
+	})
+
+	pthis.DialConnectionID = 0
+	conn, err := net.Dial("tcp", pthis.addrRemote)
+	pthis.totalRedial ++
+	if err != nil || conn == nil{
+		lin_common.LogDebug("dial err:", err, " conn:", pthis.DialConnectionID, " srv:", pthis.srvId)
+		return
+	}
+	pthis.tcpDial = conn.(*net.TCPConn)
+	msgReport := &msgpacket.MSG_SRV_REPORT{SrvId: pthis.srvId}
+	pthis.tcpDial.Write(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_SRV_REPORT, msgReport))
+
+REPORT_RES_LOOP:
+	for {
+		msg, err := recvProtoMsg(pthis.tcpDial, 3, 10)
+		if err != nil {
+			break REPORT_RES_LOOP
+		}
+		switch t := msg.(type) {
+		case *msgpacket.MSG_SRV_REPORT_RES:
+			pthis.DialConnectionID = tcp.TCP_CONNECTION_ID(t.TcpConnId)
+			//lin_common.LogDebug(" suc recv srv report", " conn:", pthis.DialConnectionID, " srv:", pthis.srvId)
+			break REPORT_RES_LOOP
+		default:
+		}
+	}
+	//time.Sleep(time.Second * 1000)
+
+}
+
 func (pthis*TestSrv)go_tcpDial() {
 	defer func() {
 		lin_common.LogDebug("exit dial")
@@ -154,43 +194,19 @@ func (pthis*TestSrv)go_tcpDial() {
 		}
 	}()
 
+	pthis.tcpReDial()
+
 	for{
+		if !pthis.AutoRedial {
+			time.Sleep(time.Second * 3)
+			continue
+		}
 		err := pthis.TestSrvDial()
 		if err != nil || pthis.tcpDial == nil{
 			lin_common.LogDebug("rpc err:", err, " conn:", pthis.DialConnectionID, " srv:", pthis.srvId)
-
-			httpAddDial(&ServerFromHttp{
-				SrvID: pthis.srvId,
-				IP: Global_testCfg.local_ip,
-				Port: pthis.local_port,
-			})
-
-			pthis.DialConnectionID = 0
-			conn, err := net.Dial("tcp", pthis.addrRemote)
-			pthis.totalRedial ++
-			if err != nil || conn == nil{
-				lin_common.LogDebug("dial err:", err, " conn:", pthis.DialConnectionID, " srv:", pthis.srvId)
-				continue
+			if pthis.AutoRedial {
+				pthis.tcpReDial()
 			}
-			pthis.tcpDial = conn.(*net.TCPConn)
-			msgReport := &msgpacket.MSG_SRV_REPORT{SrvId: pthis.srvId}
-			pthis.tcpDial.Write(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_SRV_REPORT, msgReport))
-
-			REPORT_RES_LOOP:
-			for {
-				msg, err := recvProtoMsg(pthis.tcpDial, 3, 10)
-				if err != nil {
-					break REPORT_RES_LOOP
-				}
-				switch t := msg.(type) {
-				case *msgpacket.MSG_SRV_REPORT_RES:
-					pthis.DialConnectionID = tcp.TCP_CONNECTION_ID(t.TcpConnId)
-					//lin_common.LogDebug(" suc recv srv report", " conn:", pthis.DialConnectionID, " srv:", pthis.srvId)
-					break REPORT_RES_LOOP
-				default:
-				}
-			}
-			//time.Sleep(time.Second * 1000)
 		}
 	}
 

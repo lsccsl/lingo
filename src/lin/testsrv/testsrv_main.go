@@ -4,6 +4,7 @@ import (
 	"lin/lin_common"
 	"lin/msgpacket"
 	"os"
+	"strconv"
 	"sync"
 )
 
@@ -30,11 +31,16 @@ var Global_testCfg = &TestCfg {
 }
 var Global_wg sync.WaitGroup
 func main() {
-	lin_common.InitLog("./testsrv.log", true, false)
-	//lin_common.ProfileInit()
-
+	profilePort := 6060
 	if len(os.Args) >= 2 {
-		Global_testCfg.local_ip = os.Args[1]
+		profilePort, _ = strconv.Atoi(os.Args[1])
+	}
+
+	lin_common.InitLog("./testsrv.log", true, false)
+	lin_common.ProfileInit(false, profilePort)
+
+	if len(os.Args) >= 3 {
+		Global_testCfg.local_ip = os.Args[2]
 	}
 	lin_common.LogDebug("local ip:", Global_testCfg.local_ip)
 

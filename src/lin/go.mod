@@ -8,6 +8,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/typa01/go-utils v0.0.0-20181126045345-a86b05b01c1e
+	golang.org/x/sys v0.0.0-20220408201424-a24fb2fb8a0f
 	google.golang.org/protobuf v1.27.1
 )
 

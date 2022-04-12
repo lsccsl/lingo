@@ -41,7 +41,7 @@ func main() {
 
 	lin_common.InitLog("./srv.log", srvCfg.LogEnableConsolePrint, true)
 	msgpacket.InitMsgParseVirtualTable()
-	lin_common.ProfileInit()
+	lin_common.ProfileInit(true, 6060)
 
 	srvMgr = ConstructServerMgr(srvCfg.SrvID, 30, 100)
 

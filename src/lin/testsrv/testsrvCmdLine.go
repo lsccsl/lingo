@@ -70,6 +70,21 @@ func CommandTestRPC(argStr []string) string {
 	return ""
 }
 
+func CommandStopDial(argStr []string) string {
+	for _, val := range Global_TestSrvMgr.mapSrv {
+		val.AutoRedial = false
+	}
+	return ""
+}
+
+func CommandAutoDial(argStr []string) string {
+	for _, val := range Global_TestSrvMgr.mapSrv {
+		val.AutoRedial = true
+	}
+	return ""
+}
+
+
 func CommandDump(argStr []string) string {
 
 	if len(argStr) >= 1{
@@ -144,4 +159,6 @@ func commandLineInit(){
 	lin_common.AddCmd("help", "help", lin_common.DumpAllCmd)
 	lin_common.AddCmd("ms", "multi server", CommandMultiSrv)
 	lin_common.AddCmd("tr", "test rpc", CommandTestRPC)
+	lin_common.AddCmd("stopdial", "stop dial", CommandStopDial)
+	lin_common.AddCmd("autodial", "auto dial", CommandAutoDial)
 }

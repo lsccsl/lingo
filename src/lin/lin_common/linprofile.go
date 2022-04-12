@@ -4,6 +4,7 @@ import (
 	"net/http"
 	_ "net/http/pprof"
 	"runtime"
+	"strconv"
 	"time"
 )
 
@@ -22,16 +23,19 @@ func goStatic() {
 	}
 }
 
-func ProfileInit() {
+func ProfileInit(needStatic bool, profilePort int) {
 	runtime.GOMAXPROCS(4)
 	LogDebug(runtime.NumCPU())
 	runtime.SetMutexProfileFraction(1)
 	runtime.SetBlockProfileRate(1)
 
 	go func() {
-		http.ListenAndServe("0.0.0.0:6060", nil) //go tool pprof --text http://127.0.0.1:6060/debug/pprof/heap
+		addr := "0.0.0.0:" + strconv.Itoa(profilePort)
+		http.ListenAndServe(addr, nil) //go tool pprof --text http://127.0.0.1:6060/debug/pprof/heap
 	}()
-	go goStatic()
+	if needStatic {
+		go goStatic()
+	}
 }
 
 func init(){
