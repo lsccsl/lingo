@@ -10,6 +10,60 @@ import (
 	"time"
 )
 
+var ipv4InIPv6Prefix = []byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff}
+
+func sockaddrInet4ToIP(sa *unix.SockaddrInet4) net.IP {
+	ip := make([]byte, 16)
+	// ipv4InIPv6Prefix
+	copy(ip[0:12], ipv4InIPv6Prefix)
+	copy(ip[12:16], sa.Addr[:])
+	return ip
+}
+func sockaddrInet6ToIPAndZone(sa *unix.SockaddrInet6) (net.IP, string) {
+	ip := make([]byte, 16)
+	copy(ip, sa.Addr[:])
+	return ip, ip6ZoneToString(int(sa.ZoneId))
+}
+func ip6ZoneToString(zone int) string {
+	if zone == 0 {
+		return ""
+	}
+	if ifi, err := net.InterfaceByIndex(zone); err == nil {
+		return ifi.Name
+	}
+	return int2decimal(uint(zone))
+}
+
+// Convert int to decimal string.
+func int2decimal(i uint) string {
+	if i == 0 {
+		return "0"
+	}
+
+	// Assemble decimal in reverse order.
+	b := make([]byte, 32)
+	bp := len(b)
+	for ; i > 0; i /= 10 {
+		bp--
+		b[bp] = byte(i%10) + '0'
+	}
+	return string(b[bp:])
+}
+
+func SockaddrToTCPOrUnixAddr(sa unix.Sockaddr) net.Addr {
+	switch sa := sa.(type) {
+	case *unix.SockaddrInet4:
+		ip := sockaddrInet4ToIP(sa)
+		return &net.TCPAddr{IP: ip, Port: sa.Port}
+	case *unix.SockaddrInet6:
+		ip, zone := sockaddrInet6ToIPAndZone(sa)
+		return &net.TCPAddr{IP: ip, Port: sa.Port, Zone: zone}
+	case *unix.SockaddrUnix:
+		return &net.UnixAddr{Name: sa.Name, Net: "unix"}
+	}
+	return nil
+}
+
 func tcpListen(addr string) int {
 	tcpAddr, err := net.ResolveTCPAddr("tcp", addr)
 	fmt.Println(tcpAddr, err)
@@ -43,6 +97,9 @@ func main() {
 
 	conn_fd, sa, err := unix.Accept(fd)
 	fmt.Println("new connect:", conn_fd, sa, err)
+
+	remoteAddr := SockaddrToTCPOrUnixAddr(sa)
+	fmt.Println(remoteAddr)
 
 	for {
 		time.Sleep(time.Second * 10)
