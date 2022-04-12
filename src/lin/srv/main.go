@@ -83,7 +83,7 @@ func main() {
 				lin_common.LogErr(err)
 				return
 			}
-			srvMgr.AddRemoteServer(val.SrvID, dialAddr.IP.String(), dialAddr.Port, TCP_READ_CLOSE_EXPIRE, 60, true, 3)
+			srvMgr.AddRemoteServer(val.SrvID, dialAddr.IP.String(), dialAddr.Port, TCP_READ_CLOSE_EXPIRE, 15, true, 3)
 			lin_common.LogDebug(val)
 		}
 	}
