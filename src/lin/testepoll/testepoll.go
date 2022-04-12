@@ -10,12 +10,12 @@ import (
 	"time"
 )
 
-func tcpListen(addr string) {
+func tcpListen(addr string) int {
 	tcpAddr, err := net.ResolveTCPAddr("tcp", addr)
 	fmt.Println(tcpAddr, err)
 	fmt.Println("ip:", tcpAddr.IP, " port:", &tcpAddr.Port)
 
-	fd, err := unix.Socket(unix.AF_INET, unix.SOCK_STREAM|unix.SOCK_NONBLOCK|unix.SOCK_CLOEXEC, unix.IPPROTO_TCP)
+	fd, err := unix.Socket(unix.AF_INET, unix.SOCK_STREAM|/*unix.SOCK_NONBLOCK|*/unix.SOCK_CLOEXEC, unix.IPPROTO_TCP)
 	fmt.Println(fd, err)
 
 	sa4 := &unix.SockaddrInet4{Port: tcpAddr.Port}
@@ -31,13 +31,18 @@ func tcpListen(addr string) {
 
 	err = unix.Listen(fd, 128)
 	fmt.Println("listen:", err)
+
+	return fd
 }
 
 func main() {
 	efd, err := unix.EpollCreate1(unix.EPOLL_CLOEXEC)
 	fmt.Println(efd, " err:", err)
 
-	tcpListen("192.168.2.129:3001")
+	fd := tcpListen("192.168.2.129:3001")
+
+	conn_fd, sa, err := unix.Accept(fd)
+	fmt.Println("new connect:", conn_fd, sa, err)
 
 	for {
 		time.Sleep(time.Second * 10)
