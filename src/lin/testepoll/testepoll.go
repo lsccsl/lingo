@@ -6,6 +6,7 @@ package main
 import (
 	"fmt"
 	"golang.org/x/sys/unix"
+	"lin/lin_common"
 	"net"
 	"time"
 )
@@ -113,6 +114,8 @@ func epollWait(efd int) {
 }
 
 func main() {
+	lin_common.InitLog("testepoll.log", true, false)
+	testepoll()
 	efd, err := unix.EpollCreate1(unix.EPOLL_CLOEXEC)
 	fmt.Println(efd, " err:", err)
 
@@ -128,4 +131,10 @@ func main() {
 	for {
 		time.Sleep(time.Second * 10)
 	}
+}
+
+func testepoll() {
+	el, err := lin_common.ConstructEPollListener("192.168.2.129:3001", 1, 128, 300000)
+	fmt.Println("lin_common.ConstructEPollListener", el, err)
+	el.EPollListenerWait()
 }

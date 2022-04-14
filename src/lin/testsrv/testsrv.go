@@ -203,6 +203,9 @@ func (pthis*TestSrv)go_tcpDial() {
 		}
 		err := pthis.TestSrvDial()
 		if err != nil || pthis.tcpDial == nil{
+			if pthis.tcpDial != nil {
+				pthis.tcpDial.Close()
+			}
 			lin_common.LogDebug("rpc err:", err, " conn:", pthis.DialConnectionID, " srv:", pthis.srvId)
 			if pthis.AutoRedial {
 				pthis.tcpReDial()
@@ -337,9 +340,9 @@ func (pthis*TestSrv)go_tcpAcpt() {
 			lin_common.LogDebug("srv:", pthis.srvId, " accept err:", err)
 		}
 
-		if pthis.tcpAcpt != nil {
+/*		if pthis.tcpAcpt != nil {
 			pthis.tcpAcpt.Close()
-		}
+		}*/
 		pthis.totalReAcpt ++
 		if err != nil || conn == nil{
 			lin_common.LogDebug("acpt err:", err, " conn:", pthis.AcptConnectionID, " srv:", pthis.srvId)
@@ -349,6 +352,10 @@ func (pthis*TestSrv)go_tcpAcpt() {
 		pthis.tcpAcpt = conn.(*net.TCPConn)
 
 		go func(){
+			corConn := conn
+			defer func() {
+				corConn.Close()
+			}()
 			REPORT_LOOP:
 			for {
 				msg, err := recvProtoMsg(pthis.tcpAcpt, 3, 10)
