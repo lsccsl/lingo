@@ -8,12 +8,16 @@ import (
 
 type EPollConnectionCoroutine struct {
 	_epollFD int
+	_evtFD int
 
 	_lsn *EPollListener
+
+	_chInterMsg chan interface{}
 }
 type EPollAcceptCoroutine struct {
 	_epollFD int
 	_tcpListenerFD int
+	_evtFD int
 
 	_lsn *EPollListener
 }
@@ -28,6 +32,11 @@ type EPollListener struct {
 	_wg sync.WaitGroup
 }
 
+const (
+	EPOLL_READ_EVENTS = unix.EPOLLPRI | unix.EPOLLIN
+	EPOLL_WRITEE_VENTS = unix.EPOLLOUT
+	EPOLL_READWRITE_EVENTS = EPOLL_READ_EVENTS | EPOLL_WRITEE_VENTS
+)
 
 func (pthis*EPollConnectionCoroutine)_goEpollConnectionCoroutine() {
 	defer func() {
@@ -47,7 +56,12 @@ func (pthis*EPollConnectionCoroutine)_goEpollConnectionCoroutine() {
 		}
 
 		for i := 0; i < count; i ++ {
-			// tcp read or write
+			triggerFD := int(events[i].Fd)
+			if triggerFD == pthis._evtFD {
+				// read from chan
+			} else {
+				// tcp read or write
+			}
 		}
 	}
 }
@@ -70,6 +84,10 @@ func (pthis*EPollAcceptCoroutine)_goEpollAcceptCoroutine() {
 		}
 
 		for i := 0; i < count && i < len(events); i ++ {
+			triggerFD := int(events[i].Fd)
+			if triggerFD == pthis._evtFD {
+				continue
+			}
 			// tcp accept
 			fd, addr, err := _tcpAccept(int(events[i].Fd))
 			if err != nil {
@@ -96,29 +114,68 @@ func ConstructEPollListener(addr string, epollCoroutineCount int,
 	el.EpollAccept._lsn = el
 
 	var err error
-	// create epoll fd
-	el.EpollAccept._epollFD, err = unix.EpollCreate1(unix.EPOLL_CLOEXEC)
-	if err != nil {
-		return nil, GenErrNoERR_NUM("create epoll accept handle fail")
+
+	{
+		// create epoll fd
+		el.EpollAccept._epollFD, err = unix.EpollCreate1(unix.EPOLL_CLOEXEC)
+		if err != nil {
+			return nil, GenErrNoERR_NUM("create epoll accept handle fail:", err)
+		}
+		// create tcp listener fd
+		el.EpollAccept._tcpListenerFD, err = _tcpListen(addr)
+		if err != nil {
+			return nil, err
+		}
+
+		// add tcp listener fd to epoll wait
+		evt := &unix.EpollEvent{Fd: int32(el.EpollAccept._tcpListenerFD), Events: EPOLL_READ_EVENTS}
+		err = unix.EpollCtl(el.EpollAccept._epollFD, unix.EPOLL_CTL_ADD, el.EpollAccept._tcpListenerFD, evt)
+		if err != nil {
+			return nil, GenErrNoERR_NUM("add listener fd to epoll fail:", err)
+		}
 	}
-	// create tcp listener fd
-	el.EpollAccept._tcpListenerFD, err = _tcpListen(addr)
-	if err != nil {
-		return nil, err
+
+	{
+		// create event fd
+		el.EpollAccept._evtFD, err = _linuxEvent()
+		if err != nil {
+			return nil, err
+		}
+
+		// add event fd to epoll wait
+		evt := &unix.EpollEvent{Fd: int32(el.EpollAccept._evtFD), Events: EPOLL_READ_EVENTS}
+		err = unix.EpollCtl(el.EpollAccept._epollFD, unix.EPOLL_CTL_ADD, el.EpollAccept._evtFD, evt)
+		if err != nil {
+			return nil, GenErrNoERR_NUM("add listener fd to epoll fail:", err)
+		}
 	}
-	evt := &unix.EpollEvent{Fd: int32(el.EpollAccept._tcpListenerFD), Events: unix.EPOLLPRI | unix.EPOLLIN}
-	err = unix.EpollCtl(el.EpollAccept._epollFD, unix.EPOLL_CTL_ADD, el.EpollAccept._tcpListenerFD, evt)
-	if err != nil {
-		return nil, GenErrNoERR_NUM("add listener fd to epoll fail")
-	}
+
 	el._wg.Add(1)
 	go el.EpollAccept._goEpollAcceptCoroutine()
 
 	for i := 0; i < epollCoroutineCount; i ++ {
-		epollConn := &EPollConnectionCoroutine{_lsn: el}
+		epollConn := &EPollConnectionCoroutine{
+			_lsn: el,
+			_chInterMsg : make(chan interface{}, 100),
+		}
 		epollConn._epollFD, err = unix.EpollCreate1(unix.EPOLL_CLOEXEC)
 		if err != nil {
-			return nil, GenErrNoERR_NUM("create epoll connection handle fail")
+			return nil, GenErrNoERR_NUM("create epoll connection handle fail:", err)
+		}
+
+		{
+			// create event fd
+			epollConn._evtFD, err = _linuxEvent()
+			if err != nil {
+				return nil, err
+			}
+
+			// add event fd to epoll wait
+			evt := &unix.EpollEvent{Fd: int32(epollConn._evtFD), Events: EPOLL_READ_EVENTS}
+			err = unix.EpollCtl(epollConn._epollFD, unix.EPOLL_CTL_ADD, epollConn._evtFD, evt)
+			if err != nil {
+				return nil, GenErrNoERR_NUM("add listener fd to epoll fail:", err)
+			}
 		}
 		el._wg.Add(1)
 		go epollConn._goEpollConnectionCoroutine()

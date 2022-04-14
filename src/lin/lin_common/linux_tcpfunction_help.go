@@ -62,12 +62,12 @@ func _sockaddrToTCPOrUnixAddr(sa unix.Sockaddr) net.Addr {
 func _tcpListen(addr string) (int, error) {
 	tcpAddr, err := net.ResolveTCPAddr("tcp", addr)
 	if err != nil {
-		return -1, GenErrNoERR_NUM("net.ResolveTCPAddr fail")
+		return -1, GenErrNoERR_NUM("net.ResolveTCPAddr fail:", err)
 	}
 
 	fd, err := unix.Socket(unix.AF_INET, unix.SOCK_STREAM|unix.SOCK_NONBLOCK|unix.SOCK_CLOEXEC, unix.IPPROTO_TCP)
 	if err != nil {
-		return -1, GenErrNoERR_NUM("unix.Socket fail")
+		return -1, GenErrNoERR_NUM("unix.Socket fail:", err)
 	}
 
 	sa4 := &unix.SockaddrInet4{Port: tcpAddr.Port}
@@ -80,12 +80,12 @@ func _tcpListen(addr string) (int, error) {
 	}
 	err = unix.Bind(fd, sa4)
 	if err != nil {
-		return -1, GenErrNoERR_NUM("unix.Bind fail")
+		return -1, GenErrNoERR_NUM("unix.Bind fail:", err)
 	}
 
 	err = unix.Listen(fd, 128)
 	if err != nil {
-		return -1, GenErrNoERR_NUM("unix.Listen fail")
+		return -1, GenErrNoERR_NUM("unix.Listen fail:", err)
 	}
 
 	return fd, nil
