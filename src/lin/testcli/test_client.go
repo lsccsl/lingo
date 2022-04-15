@@ -159,9 +159,9 @@ func CheckError(err error)bool{
 						//lin_common.LogDebug("timeout")
 						return true
 						break
-					case syscall.WSAECONNRESET:
+/*					case syscall.WSAECONNRESET:
 						//lin_common.LogDebug("connection reset")
-						break
+						break*/
 					default:
 						//lin_common.LogDebug("unknow err num:", errno)
 						break
