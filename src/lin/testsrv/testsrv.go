@@ -106,9 +106,9 @@ func (pthis*TestSrv)TestSrvDial() (err interface{}) {
 	}
 	pthis.totalWriteRpc ++
 	tBeginTime := time.Now().UnixMilli()
-	_, err = pthis.tcpDial.Write(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_RPC, msgRPC))
+	wz, err := pthis.tcpDial.Write(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_RPC, msgRPC))
 	if err != nil {
-		lin_common.LogErr("write tcp err:", pthis.DialConnectionID, " srv:", pthis.srvId, " err:", err)
+		lin_common.LogErr("write tcp err:", pthis.DialConnectionID, " srv:", pthis.srvId, " err:", err, " wz:", wz)
 		return err
 	}
 	//lin_common.LogDebug(" write", msgRPC, err)
@@ -163,9 +163,17 @@ func (pthis*TestSrv)tcpReDial() {
 		lin_common.LogDebug("dial err:", err, " conn:", pthis.DialConnectionID, " srv:", pthis.srvId)
 		return
 	}
+	if pthis.tcpDial != nil {
+		pthis.tcpDial.Close()
+		pthis.tcpDial= nil
+	}
 	pthis.tcpDial = conn.(*net.TCPConn)
 	msgReport := &msgpacket.MSG_SRV_REPORT{SrvId: pthis.srvId}
-	pthis.tcpDial.Write(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_SRV_REPORT, msgReport))
+	wz, err := pthis.tcpDial.Write(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_SRV_REPORT, msgReport))
+	if err != nil {
+		lin_common.LogErr("write tcp err:", pthis.DialConnectionID, " srv:", pthis.srvId, " err:", err, " wz:", wz)
+		return
+	}
 
 REPORT_RES_LOOP:
 	for {
@@ -205,6 +213,7 @@ func (pthis*TestSrv)go_tcpDial() {
 		if err != nil || pthis.tcpDial == nil{
 			if pthis.tcpDial != nil {
 				pthis.tcpDial.Close()
+				pthis.tcpDial = nil
 			}
 			lin_common.LogDebug("rpc err:", err, " conn:", pthis.DialConnectionID, " srv:", pthis.srvId)
 			if pthis.AutoRedial {

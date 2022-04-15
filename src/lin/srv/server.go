@@ -405,6 +405,6 @@ func (pthis*Server) process_MSG_HEARTBEAT (tcpConn *tcp.TcpConnection, protoMsg 
 }
 
 func (pthis*Server) process_MSG_HEARTBEAT_RES (tcpConn *tcp.TcpConnection, protoMsg * msgpacket.MSG_HEARTBEAT_RES) {
-	lin_common.LogDebug(" srv:", pthis.srvID, " conn", tcpConn.TcpConnectionID(), " from srv:", protoMsg.Id)
+	//lin_common.LogDebug(" srv:", pthis.srvID, " conn", tcpConn.TcpConnectionID(), " from srv:", protoMsg.Id)
 	pthis.timestampLastHeartbeat = time.Now().Unix()
 }

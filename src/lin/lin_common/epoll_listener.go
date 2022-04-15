@@ -1,23 +1,27 @@
+//go:build linux
+// +build linux
+
 package lin_common
 
 import (
 	"golang.org/x/sys/unix"
 	"sync"
+	"unsafe"
 )
 
 
 type EPollConnectionCoroutine struct {
 	_epollFD int
 	_evtFD int
+	_evtQue *LKQueue // bind for _evtFD todo:改成用go自带的锁队列
 
 	_lsn *EPollListener
-
-	_chInterMsg chan interface{}
 }
 type EPollAcceptCoroutine struct {
 	_epollFD int
 	_tcpListenerFD int
 	_evtFD int
+	_evtQue *LKQueue // bind for _evtFD todo:改成用go自带的锁队列
 
 	_lsn *EPollListener
 }
@@ -38,6 +42,11 @@ const (
 	EPOLL_READWRITE_EVENTS = EPOLL_READ_EVENTS | EPOLL_WRITEE_VENTS
 )
 
+var (
+	EVENT_1 uint64 = 1
+	EVENT_BIN_1 = (*(*[8]byte)(unsafe.Pointer(&EVENT_1)))[:]
+)
+
 func (pthis*EPollConnectionCoroutine)_goEpollConnectionCoroutine() {
 	defer func() {
 		pthis._lsn = nil
@@ -46,6 +55,7 @@ func (pthis*EPollConnectionCoroutine)_goEpollConnectionCoroutine() {
 			LogErr(err)
 		}
 	}()
+
 
 	events := make([]unix.EpollEvent, pthis._lsn._maxEpollEventCount) // todo: change the events array size by epoll wait ret count
 	for {
@@ -64,6 +74,11 @@ func (pthis*EPollConnectionCoroutine)_goEpollConnectionCoroutine() {
 			}
 		}
 	}
+}
+
+func (pthis*EPollConnectionCoroutine)_EPollConnectionCoroutineAddEvent(evt interface{}) {
+	pthis._evtQue.Enqueue(evt)
+	unix.Write(pthis._evtFD, EVENT_BIN_1)
 }
 
 func (pthis*EPollAcceptCoroutine)_goEpollAcceptCoroutine() {
@@ -112,6 +127,7 @@ func ConstructEPollListener(addr string, epollCoroutineCount int,
 		_epollWaitTimeoutMills : epollWaitTimeoutMills,
 	}
 	el.EpollAccept._lsn = el
+	el.EpollAccept._evtQue = NewLKQueue()
 
 	var err error
 
@@ -156,7 +172,7 @@ func ConstructEPollListener(addr string, epollCoroutineCount int,
 	for i := 0; i < epollCoroutineCount; i ++ {
 		epollConn := &EPollConnectionCoroutine{
 			_lsn: el,
-			_chInterMsg : make(chan interface{}, 100),
+			_evtQue:NewLKQueue(),
 		}
 		epollConn._epollFD, err = unix.EpollCreate1(unix.EPOLL_CLOEXEC)
 		if err != nil {
