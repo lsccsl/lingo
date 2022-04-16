@@ -134,7 +134,7 @@ func main() {
 }
 
 func testepoll() {
-	el, err := lin_common.ConstructEPollListener("192.168.2.129:3001", 1, 128, 300000)
+	el, err := lin_common.ConstructEPollListener("192.168.2.129:3001", 1, 128, 300000, 0)
 	fmt.Println("lin_common.ConstructEPollListener", el, err)
 	el.EPollListenerWait()
 }

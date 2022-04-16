@@ -9,11 +9,7 @@ import (
 	"unsafe"
 )
 
-const (
-	EPOLL_READ_EVENTS = unix.EPOLLPRI | unix.EPOLLIN
-	EPOLL_WRITEE_VENTS = unix.EPOLLOUT
-	EPOLL_READWRITE_EVENTS = EPOLL_READ_EVENTS | EPOLL_WRITEE_VENTS
-)
+const MTU = 1536
 
 var (
 	EVENT_1 uint64 = 1
@@ -33,6 +29,8 @@ type EPollConnection struct {
 	_evtBuf []byte
 
 	_lsn *EPollListener
+
+	_binRead []byte
 }
 type EPollAccept struct {
 	_epollFD int // todo:改成select
@@ -51,6 +49,7 @@ type EPollListener struct {
 
 	_maxEpollEventCount int
 	_epollWaitTimeoutMills int
+	_readBufLen int
 
 	_wg sync.WaitGroup
 }
@@ -68,12 +67,67 @@ func (pthis*EPollConnection)EpollConnection_process_evt(){
 			{
 				// new tcp connection add to epoll
 				LogDebug("new conn:", t)
-				evt := &unix.EpollEvent{Fd: int32(t._fdConn), Events: EPOLL_READ_EVENTS}
-				unix.EpollCtl(pthis._epollFD, unix.EPOLL_CTL_ADD, t._fdConn, evt)
+				unixEpollAdd(pthis._epollFD, t._fdConn, epoll_READ_EVENTS, 0)
 			}
 		default:
 		}
 	}
+}
+
+
+func (pthis*EPollConnection)EpollConnection_tcpread(fd int, maxReadcount int) {
+	for i := 0; i < maxReadcount; i ++{
+		n, err := _tcpRead(fd, pthis._binRead)
+
+		if err != nil {
+			LogDebug("tcp read err:", err, " fd:", fd)
+			// close tcp
+			break
+		}
+
+		if n == 0 { // no data
+			break
+		}
+
+		// read until no data any more
+		LogDebug("tcpread:", n)
+	}
+
+	/*
+		from c++
+		do
+		{
+			if(pfi->rpos_ >= pfi->rbuf_.size())
+			{
+				pfi->rbuf_.resize(pfi->rbuf_.size() + 1024);
+			}
+
+			int32 ret = CChannel::TcpRead(pfi->fd_, &pfi->rbuf_[pfi->rpos_], pfi->rbuf_.size() - pfi->rpos_);
+
+			MYLOG_DEBUG(("read ret:%d", ret));
+
+			if(ret < 0)
+			{
+				MYLOG_DEBUG(("err need close"));
+				need_close = 1;
+				break;
+			}
+			else if(0 == ret)
+			{
+				MYLOG_DEBUG(("no data"));
+				break;
+			}
+			else
+			{
+				pfi->rpos_ += ret;
+
+				pfi->byte_read_ += ret;
+
+				MYLOG_DUMP_BIN(&pfi->rbuf_[0], pfi->rpos_);
+
+			}
+		}while(1);
+	*/
 }
 
 func (pthis*EPollConnection)_goEpollConnectionCoroutine() {
@@ -99,6 +153,7 @@ func (pthis*EPollConnection)_goEpollConnectionCoroutine() {
 				pthis.EpollConnection_process_evt()
 			} else {
 				// tcp read or write
+				pthis.EpollConnection_tcpread(triggerFD, 100)
 			}
 		}
 	}
@@ -145,7 +200,7 @@ func (pthis*EPollAccept)_goEpollAcceptCoroutine() {
 }
 
 func ConstructEPollListener(addr string, epollCoroutineCount int,
-	maxEpollEventCount int, epollWaitTimeoutMills int) (*EPollListener, error){
+	maxEpollEventCount int, epollWaitTimeoutMills int, readBufLen int) (*EPollListener, error){
 	if epollCoroutineCount <= 0 {
 		epollCoroutineCount = 1
 	}
@@ -153,16 +208,21 @@ func ConstructEPollListener(addr string, epollCoroutineCount int,
 	el := &EPollListener{
 		_maxEpollEventCount : maxEpollEventCount,
 		_epollWaitTimeoutMills : epollWaitTimeoutMills,
+		_readBufLen: readBufLen,
 	}
 	el._epollAccept._lsn = el
 	el._epollAccept._evtQue = NewLKQueue()
 	el._epollAccept._evtBuf = make([]byte, EVENT_BIN_8)
 
+	if el._readBufLen <= 0 {
+		el._readBufLen = MTU
+	}
+
 	var err error
 
 	{
 		// create epoll fd
-		el._epollAccept._epollFD, err = unix.EpollCreate1(unix.EPOLL_CLOEXEC)
+		el._epollAccept._epollFD, err = unixEpollCreate()
 		if err != nil {
 			return nil, GenErrNoERR_NUM("create epoll accept handle fail:", err)
 		}
@@ -173,8 +233,7 @@ func ConstructEPollListener(addr string, epollCoroutineCount int,
 		}
 
 		// add tcp listener fd to epoll wait
-		evt := &unix.EpollEvent{Fd: int32(el._epollAccept._tcpListenerFD), Events: EPOLL_READ_EVENTS}
-		err = unix.EpollCtl(el._epollAccept._epollFD, unix.EPOLL_CTL_ADD, el._epollAccept._tcpListenerFD, evt)
+		err = unixEpollAdd(el._epollAccept._epollFD, el._epollAccept._tcpListenerFD, epoll_READ_EVENTS, 0)
 		if err != nil {
 			return nil, GenErrNoERR_NUM("add listener fd to epoll fail:", err)
 		}
@@ -188,8 +247,7 @@ func ConstructEPollListener(addr string, epollCoroutineCount int,
 		}
 
 		// add event fd to epoll wait
-		evt := &unix.EpollEvent{Fd: int32(el._epollAccept._evtFD), Events: EPOLL_READ_EVENTS}
-		err = unix.EpollCtl(el._epollAccept._epollFD, unix.EPOLL_CTL_ADD, el._epollAccept._evtFD, evt)
+		err = unixEpollAdd(el._epollAccept._epollFD, el._epollAccept._evtFD, epoll_READ_EVENTS, 0)
 		if err != nil {
 			return nil, GenErrNoERR_NUM("add listener fd to epoll fail:", err)
 		}
@@ -203,9 +261,10 @@ func ConstructEPollListener(addr string, epollCoroutineCount int,
 			_lsn: el,
 			_evtQue:NewLKQueue(),
 			_evtBuf : make([]byte, EVENT_BIN_8),
+			_binRead : make([]byte, el._readBufLen),
 		}
 		el._epollConnection = append(el._epollConnection, epollConn)
-		epollConn._epollFD, err = unix.EpollCreate1(unix.EPOLL_CLOEXEC)
+		epollConn._epollFD, err = unixEpollCreate()
 		if err != nil {
 			return nil, GenErrNoERR_NUM("create epoll connection handle fail:", err)
 		}
@@ -218,8 +277,7 @@ func ConstructEPollListener(addr string, epollCoroutineCount int,
 			}
 
 			// add event fd to epoll wait
-			evt := &unix.EpollEvent{Fd: int32(epollConn._evtFD), Events: EPOLL_READ_EVENTS}
-			err = unix.EpollCtl(epollConn._epollFD, unix.EPOLL_CTL_ADD, epollConn._evtFD, evt)
+			err = unixEpollAdd(epollConn._epollFD, epollConn._evtFD, epoll_READ_EVENTS, 0)
 			if err != nil {
 				return nil, GenErrNoERR_NUM("add listener fd to epoll fail:", err)
 			}

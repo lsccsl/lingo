@@ -103,3 +103,35 @@ func _tcpAccept(listenFD int) (connFD int, addr string, err error) {
 	addr = remoteAddr.String()
 	return
 }
+
+
+func _tcpRead(fd int, bin []byte) (int, error) {
+	n, err := unix.Read(fd, bin)
+	if n == 0 {
+		return 0, unix.ECONNRESET
+	}
+	if err != nil{
+		if err == unix.EAGAIN {
+			return 0, nil
+		} else {
+			return 0, err
+		}
+	}
+
+	return n, err
+
+	/*
+		//from c++
+		int32 ret = recv(fd, (int8 *)buf, (int32)buf_sz, 0);
+		if(ret > 0)
+			return ret;
+		else if(0 == ret)
+			return -1;
+		else
+		{
+			if(EAGAIN == errno)
+				return 0;
+			return -1;
+		}
+	*/
+}
