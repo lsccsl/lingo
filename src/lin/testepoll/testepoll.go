@@ -174,7 +174,7 @@ func testepoll() {
 		300000, 1536, 8192)
 	tcb.lsn = el
 	fmt.Println("lin_common.ConstructEPollListener", el, err)
-	fd, magic, err := tcb.lsn.EPollListenerAddTcpConnection("192.168.2.129:2003")
+	fd, magic, err := tcb.lsn.EPollListenerDial("192.168.2.129:2003")
 	lin_common.LogDebug("fd:", fd, " magic:", magic, " err:", err)
 	el.EPollListenerWait()
 }

@@ -99,7 +99,7 @@ type EPollListener_interface interface {
 	EPollListenerWait()
 	EPollListenerAddEvent(fd int, evt interface{})
 	EPollListenerCloseTcp(rawfd int, magic int32)
-	EPollListenerAddTcpConnection(addr string)(rawfd int, magic int32, err error)
+	EPollListenerDial(addr string)(rawfd int, magic int32, err error)
 }
 type EPollListener struct {
 	_epollAccept EPollAccept

@@ -374,7 +374,7 @@ func (pthis*EPollListener)EPollListenerCloseTcp(rawfd int, magic int32){
 	pthis.EPollListenerAddEvent(rawfd, &Event_TcpClose{rawfd, magic})
 }
 
-func (pthis*EPollListener)EPollListenerAddTcpConnection(addr string)(rawfd int, magic int32, err error){
+func (pthis*EPollListener)EPollListenerDial(addr string)(rawfd int, magic int32, err error){
 	LogDebug(" begin connect addr:", addr)
 	rawfd, err = _tcpConnectNoBlock(addr)
 	if err != nil {
