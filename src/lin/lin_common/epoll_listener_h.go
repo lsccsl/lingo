@@ -28,11 +28,16 @@ type Event_TcpClose struct { // user close tcp connection
 	_fd int
 	_magic int32
 }
+type Event_TcpDial struct {
+	_fd int
+	_magic int32
+}
 /* @brief end inter evetn define */
 
 
 type EPollCallback interface {
-	TcpNewConnection(rawfd int, magic int32, addr net.Addr)
+	TcpAcceptConnection(rawfd int, magic int32, addr net.Addr)
+	TcpDialConnection(rawfd int, magic int32, addr net.Addr)
 	TcpData(rawfd int, readBuf *bytes.Buffer)(bytesProcess int)
 	TcpClose(rawfd int)
 }
@@ -46,6 +51,9 @@ type TcpConnectionInfo struct {
 	_addr net.Addr
 
 	_magic int32
+
+	_isDial bool
+	_isConnSuc bool
 }
 type MAP_TCPCONNECTION map[int]*TcpConnectionInfo
 
@@ -91,6 +99,7 @@ type EPollListener_interface interface {
 	EPollListenerWait()
 	EPollListenerAddEvent(fd int, evt interface{})
 	EPollListenerCloseTcp(rawfd int, magic int32)
+	EPollListenerAddTcpConnection(addr string)(rawfd int, magic int32, err error)
 }
 type EPollListener struct {
 	_epollAccept EPollAccept

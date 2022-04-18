@@ -104,6 +104,36 @@ func _tcpAccept(listenFD int) (connFD int, addr string, err error) {
 	return
 }
 
+func _tcpConnectNoBlock(addr string)(fd int, err error) {
+	tcpAddr, err := net.ResolveTCPAddr("tcp", addr)
+	if err != nil {
+		return -1, GenErrNoERR_NUM("net.ResolveTCPAddr fail:", err)
+	}
+
+	fd, err = unix.Socket(unix.AF_INET, unix.SOCK_STREAM|unix.SOCK_NONBLOCK|unix.SOCK_CLOEXEC, unix.IPPROTO_TCP)
+	if err != nil {
+		return -1, GenErrNoERR_NUM("unix.Socket fail:", err)
+	}
+
+	sa4 := &unix.SockaddrInet4{Port: tcpAddr.Port}
+	if tcpAddr.IP != nil {
+		if len(tcpAddr.IP) == 16 {
+			copy(sa4.Addr[:], tcpAddr.IP[12:16]) // copy last 4 bytes of slice to array
+		} else {
+			copy(sa4.Addr[:], tcpAddr.IP) // copy all bytes of slice to array
+		}
+	}
+	err = unix.Connect(fd, sa4)
+	if err != nil {
+		if err != unix.EINPROGRESS {
+			return -1, GenErrNoERR_NUM("connect fail:", err)
+		}
+	}
+
+	return fd, nil
+}
+
+
 
 func _tcpRead(fd int, bin []byte) (int, error) {
 	n, err := unix.Read(fd, bin)

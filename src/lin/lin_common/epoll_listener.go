@@ -9,13 +9,19 @@ import (
 	"math/rand"
 )
 
-func ConstructorTcpConnectionInfo(fd int, magic int32, buffInitLen int)*TcpConnectionInfo {
+func ConstructorTcpConnectionInfo(fd int, magic int32, isDial bool, buffInitLen int)*TcpConnectionInfo {
 	unix.SetNonblock(fd, true)
 	ti := &TcpConnectionInfo{
 		_fd: fd,
 		_readBuf : bytes.NewBuffer(make([]byte, 0, buffInitLen)),
 		_writeBuf : bytes.NewBuffer(make([]byte, 0, buffInitLen)),
 		_magic: magic,
+		_isDial: isDial,
+	}
+	if isDial {
+		ti._isConnSuc = false
+	} else {
+		ti._isConnSuc = true
 	}
 	sa, err := unix.Getpeername(ti._fd)
 	if err == nil {
@@ -67,10 +73,10 @@ func (pthis*EPollConnection)EpollConnection_process_evt(){
 		case *Event_NewConnection:
 			{
 				// new tcp connection add to epoll
-				magic := int32(rand.Int() + rand.Int())
+				magic := pthis._lsn.EPollListenerGenMagic()
 				LogDebug("new conn fd:", t._fdConn, " magic:", magic)
-				unixEpollAdd(pthis._epollFD, t._fdConn, epoll_READ_EVENTS, magic)
-				ti := ConstructorTcpConnectionInfo(t._fdConn, magic, pthis._lsn._paramTcpRWBuffLen)
+				unixEpollAdd(pthis._epollFD, t._fdConn, EPOLL_EVENT_READ, magic)
+				ti := ConstructorTcpConnectionInfo(t._fdConn, magic, false, pthis._lsn._paramTcpRWBuffLen)
 				pthis._mapTcp[t._fdConn] = ti
 
 				if pthis._lsn._cb != nil {
@@ -82,15 +88,23 @@ func (pthis*EPollConnection)EpollConnection_process_evt(){
 							}
 						}()
 
-						pthis._lsn._cb.TcpNewConnection(ti._fd, ti._magic, ti._addr)
+						pthis._lsn._cb.TcpAcceptConnection(ti._fd, ti._magic, ti._addr)
 					}()
 				}
 			}
 
 		case *Event_TcpClose:
 			{
-				LogDebug("recv close tcp, fd:", t._fd, " magic:", t._magic)
+				LogDebug("recv user close tcp, fd:", t._fd, " magic:", t._magic)
 				pthis.EpollConnection_close_tcp(t._fd, t._magic)
+			}
+
+		case *Event_TcpDial:
+			{
+				LogDebug("dial tcp connection, fd:", t._fd, " magic:", t._magic)
+				ti := ConstructorTcpConnectionInfo(t._fd, t._magic, true, pthis._lsn._paramTcpRWBuffLen)
+				pthis._mapTcp[t._fd] = ti
+				unixEpollAdd(pthis._epollFD, t._fd, EPOLL_EVENT_WRITE, t._magic) // if the tcp connection can write, means the tcp connection is success, it will be mod epoll wait read event when connection is ok
 			}
 
 		default:
@@ -157,9 +171,23 @@ func (pthis*EPollConnection)EpollConnection_tcpread(fd int, magic int32, maxRead
 	}
 }
 
+func (pthis*EPollConnection)EpollConnection_tcpwrite(fd int, magic int32){
+	ti, _ := pthis._mapTcp[fd]
+	if ti == nil {
+		return
+	}
+
+	if ti._isDial && !ti._isConnSuc {
+		ti._isConnSuc = true
+		pthis._lsn._cb.TcpDialConnection(fd, ti._magic, ti._addr)
+	}
+
+	// todo:do write, if all data is write success, mod to epoll wait read
+	unixEpollMod(pthis._epollFD, fd, EPOLL_EVENT_READ, magic)
+}
+
 func (pthis*EPollConnection)EPollConnection_AddEvent(evt interface{}) {
 	pthis._evtQue.Enqueue(evt)
-	LogDebug("add event:", evt)
 	unix.Write(pthis._evtFD, EVENT_BIN_1)
 }
 
@@ -181,12 +209,21 @@ func (pthis*EPollConnection)_go_EpollConnection_epollwait() {
 		}
 
 		for i := 0; i < count; i ++ {
-			triggerFD := int(events[i].Fd)
+			epollEvt := &events[i]
+			triggerFD := int(epollEvt.Fd)
 			if triggerFD == pthis._evtFD {
 				pthis.EpollConnection_process_evt()
 			} else {
-				// tcp read or write
-				pthis.EpollConnection_tcpread(triggerFD, events[i].Pad, 100)
+				// tcp read / write / err
+				if (epollEvt.Events & unix.EPOLLIN) != 0 {
+					pthis.EpollConnection_tcpread(triggerFD, epollEvt.Pad, 100)
+				}
+				if (epollEvt.Events & unix.EPOLLOUT) != 0 {
+					pthis.EpollConnection_tcpwrite(triggerFD, epollEvt.Pad)
+				}
+				if (epollEvt.Events & unix.EPOLLERR) != 0 {
+					pthis.EpollConnection_close_tcp(triggerFD, epollEvt.Pad)
+				}
 			}
 		}
 	}
@@ -260,7 +297,7 @@ func (pthis*EPollListener)EPollListenerInit(cb EPollCallback, addr string, epoll
 		}
 
 		// add tcp listener fd to epoll wait
-		err = unixEpollAdd(pthis._epollAccept._epollFD, pthis._epollAccept._tcpListenerFD, epoll_READ_EVENTS, 0)
+		err = unixEpollAdd(pthis._epollAccept._epollFD, pthis._epollAccept._tcpListenerFD, EPOLL_EVENT_READ, 0)
 		if err != nil {
 			return GenErrNoERR_NUM("add listener fd to epoll fail:", err)
 		}
@@ -274,7 +311,7 @@ func (pthis*EPollListener)EPollListenerInit(cb EPollCallback, addr string, epoll
 		}
 
 		// add event fd to epoll wait
-		err = unixEpollAdd(pthis._epollAccept._epollFD, pthis._epollAccept._evtFD, epoll_READ_EVENTS, 0)
+		err = unixEpollAdd(pthis._epollAccept._epollFD, pthis._epollAccept._evtFD, EPOLL_EVENT_READ, 0)
 		if err != nil {
 			return GenErrNoERR_NUM("add listener fd to epoll fail:", err)
 		}
@@ -305,7 +342,7 @@ func (pthis*EPollListener)EPollListenerInit(cb EPollCallback, addr string, epoll
 			}
 
 			// add event fd to epoll wait
-			err = unixEpollAdd(epollConn._epollFD, epollConn._evtFD, epoll_READ_EVENTS, 0)
+			err = unixEpollAdd(epollConn._epollFD, epollConn._evtFD, EPOLL_EVENT_READ, 0)
 			if err != nil {
 				return GenErrNoERR_NUM("add listener fd to epoll fail:", err)
 			}
@@ -321,6 +358,10 @@ func (pthis*EPollListener)EPollListenerWait() {
 	pthis._wg.Wait()
 }
 
+func (pthis*EPollListener)EPollListenerGenMagic() int32 {
+	return int32(rand.Int()*rand.Int())
+}
+
 func (pthis*EPollListener)EPollListenerAddEvent(fd int, evt interface{}) {
 	idx := fd % len(pthis._epollConnection)
 	if idx >= len(pthis._epollConnection) {
@@ -331,6 +372,20 @@ func (pthis*EPollListener)EPollListenerAddEvent(fd int, evt interface{}) {
 
 func (pthis*EPollListener)EPollListenerCloseTcp(rawfd int, magic int32){
 	pthis.EPollListenerAddEvent(rawfd, &Event_TcpClose{rawfd, magic})
+}
+
+func (pthis*EPollListener)EPollListenerAddTcpConnection(addr string)(rawfd int, magic int32, err error){
+	LogDebug(" begin connect addr:", addr)
+	rawfd, err = _tcpConnectNoBlock(addr)
+	if err != nil {
+		return -1, 0, err
+	}
+
+	magic = pthis.EPollListenerGenMagic()
+	pthis.EPollListenerAddEvent(rawfd,&Event_TcpDial{rawfd,magic})
+
+	LogDebug(" connect fd:", rawfd, " magic:", magic, " addr:", addr)
+	return rawfd, magic, nil
 }
 
 func ConstructorEPollListener(cb EPollCallback, addr string, epollCoroutineCount int,

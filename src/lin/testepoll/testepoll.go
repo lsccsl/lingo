@@ -141,11 +141,15 @@ type test_cb struct {
 	lsn *lin_common.EPollListener
 	mapFD map[int]*test_tcp_info
 }
-func (pthis*test_cb)TcpNewConnection(rawfd int, magic int32, addr net.Addr){
+func (pthis*test_cb)TcpAcceptConnection(rawfd int, magic int32, addr net.Addr){
 	lin_common.LogDebug("new tcp connection:", rawfd, " addr:", addr)
 	ti := &test_tcp_info{magic: magic}
 	pthis.mapFD[rawfd]=ti
 }
+func (pthis*test_cb)TcpDialConnection(rawfd int, magic int32, addr net.Addr){
+	lin_common.LogDebug("suc to dial, fd:", rawfd, " magic:", magic, " addr:", addr)
+}
+
 func (pthis*test_cb)TcpData(rawfd int, readBuf *bytes.Buffer)(bytesProcess int){
 	lin_common.LogDebug("tcp data:", rawfd, " data len:", readBuf.Len())
 	if rawfd % 2 != 0 {
@@ -170,5 +174,7 @@ func testepoll() {
 		300000, 1536, 8192)
 	tcb.lsn = el
 	fmt.Println("lin_common.ConstructEPollListener", el, err)
+	fd, magic, err := tcb.lsn.EPollListenerAddTcpConnection("192.168.2.129:2003")
+	lin_common.LogDebug("fd:", fd, " magic:", magic, " err:", err)
 	el.EPollListenerWait()
 }
