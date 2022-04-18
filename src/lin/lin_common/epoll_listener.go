@@ -6,14 +6,16 @@ package lin_common
 import (
 	"bytes"
 	"golang.org/x/sys/unix"
+	"math/rand"
 )
 
-func ConstructorTcpConnectionInfo(fd int, buffInitLen int)*TcpConnectionInfo {
+func ConstructorTcpConnectionInfo(fd int, magic int32, buffInitLen int)*TcpConnectionInfo {
 	unix.SetNonblock(fd, true)
 	ti := &TcpConnectionInfo{
 		_fd: fd,
 		_readBuf : bytes.NewBuffer(make([]byte, 0, buffInitLen)),
 		_writeBuf : bytes.NewBuffer(make([]byte, 0, buffInitLen)),
+		_magic: magic,
 	}
 	sa, err := unix.Getpeername(ti._fd)
 	if err == nil {
@@ -21,6 +23,36 @@ func ConstructorTcpConnectionInfo(fd int, buffInitLen int)*TcpConnectionInfo {
 	}
 
 	return ti
+}
+
+func (pthis*EPollConnection)EpollConnection_close_tcp(fd int, magic int32){
+	ti, ok := pthis._mapTcp[fd]
+	if ti == nil || !ok{
+		return
+	}
+
+	if ti._magic != magic {
+		// linux fd will auto rollback, new tcp connection fd will take the slot whole that last fd closed
+		LogDebug("magic not match fd:", fd, " current:", ti._magic, " close:", magic)
+		return
+	}
+
+	if pthis._lsn._cb != nil {
+		func(){
+			defer func() {
+				err := recover()
+				if err != nil {
+					LogErr(err)
+				}
+			}()
+			pthis._lsn._cb.TcpClose(fd)
+		}()
+	}
+
+	unixEpollDel(pthis._epollFD, fd)
+	delete(pthis._mapTcp, fd)
+
+	unix.Close(fd)
 }
 
 func (pthis*EPollConnection)EpollConnection_process_evt(){
@@ -35,9 +67,10 @@ func (pthis*EPollConnection)EpollConnection_process_evt(){
 		case *Event_NewConnection:
 			{
 				// new tcp connection add to epoll
-				LogDebug("new conn fd:", t._fdConn)
-				unixEpollAdd(pthis._epollFD, t._fdConn, epoll_READ_EVENTS, 0)
-				ti := ConstructorTcpConnectionInfo(t._fdConn, pthis._lsn._paramTcpRWBuffLen)
+				magic := int32(rand.Int() + rand.Int())
+				LogDebug("new conn fd:", t._fdConn, " magic:", magic)
+				unixEpollAdd(pthis._epollFD, t._fdConn, epoll_READ_EVENTS, magic)
+				ti := ConstructorTcpConnectionInfo(t._fdConn, magic, pthis._lsn._paramTcpRWBuffLen)
 				pthis._mapTcp[t._fdConn] = ti
 
 				if pthis._lsn._cb != nil {
@@ -49,16 +82,23 @@ func (pthis*EPollConnection)EpollConnection_process_evt(){
 							}
 						}()
 
-						pthis._lsn._cb.TcpNewConnection(ti._fd, ti._addr)
+						pthis._lsn._cb.TcpNewConnection(ti._fd, ti._magic, ti._addr)
 					}()
 				}
 			}
+
+		case *Event_TcpClose:
+			{
+				LogDebug("recv close tcp, fd:", t._fd, " magic:", t._magic)
+				pthis.EpollConnection_close_tcp(t._fd, t._magic)
+			}
+
 		default:
 		}
 	}
 }
 
-func (pthis*EPollConnection)EpollConnection_tcpread(fd int, maxReadcount int) {
+func (pthis*EPollConnection)EpollConnection_tcpread(fd int, magic int32, maxReadcount int) {
 	ti, _ := pthis._mapTcp[fd]
 	if ti == nil {
 		return
@@ -68,13 +108,16 @@ func (pthis*EPollConnection)EpollConnection_tcpread(fd int, maxReadcount int) {
 		maxReadcount = 1
 	}
 
+	bClose := false
+
 	// not support epoll et mode, can set read count limited
 	for i := 0; i < maxReadcount; i ++{
 		n, err := _tcpRead(fd, pthis._binRead)
 
 		if err != nil {
-			LogDebug("tcp read err:", err, " fd:", fd)
-			// close tcp
+			LogDebug("tcp read err fd:", fd, " err:", err)
+			// close tcp, del from epoll
+			bClose = true
 			break
 		}
 
@@ -84,7 +127,12 @@ func (pthis*EPollConnection)EpollConnection_tcpread(fd int, maxReadcount int) {
 
 		// read until no data anymore
 		ti._readBuf.Write(pthis._binRead[:n])
-		LogDebug("fd:", fd, " tcp read:", n, " read buf len:", ti._readBuf.Len())
+		LogDebug("tcp read fd:", fd, " count:", n, " read buf len:", ti._readBuf.Len())
+	}
+
+	if bClose {
+		pthis.EpollConnection_close_tcp(fd, magic)
+		return
 	}
 
 	if pthis._lsn._cb != nil {
@@ -111,6 +159,7 @@ func (pthis*EPollConnection)EpollConnection_tcpread(fd int, maxReadcount int) {
 
 func (pthis*EPollConnection)EPollConnection_AddEvent(evt interface{}) {
 	pthis._evtQue.Enqueue(evt)
+	LogDebug("add event:", evt)
 	unix.Write(pthis._evtFD, EVENT_BIN_1)
 }
 
@@ -137,7 +186,7 @@ func (pthis*EPollConnection)_go_EpollConnection_epollwait() {
 				pthis.EpollConnection_process_evt()
 			} else {
 				// tcp read or write
-				pthis.EpollConnection_tcpread(triggerFD, 100)
+				pthis.EpollConnection_tcpread(triggerFD, events[i].Pad, 100)
 			}
 		}
 	}
@@ -173,7 +222,7 @@ func (pthis*EPollAccept)_go_EpollAccept_epollwait() {
 				continue
 			}
 
-			LogDebug("fd:", fd, " addr:", addr)
+			LogDebug("new tcp connection, fd:", fd, " addr:", addr)
 			pthis._lsn.EPollListenerAddEvent(fd, &Event_NewConnection{_fdConn: fd})
 		}
 	}
@@ -278,6 +327,10 @@ func (pthis*EPollListener)EPollListenerAddEvent(fd int, evt interface{}) {
 		return
 	}
 	pthis._epollConnection[idx].EPollConnection_AddEvent(evt)
+}
+
+func (pthis*EPollListener)EPollListenerCloseTcp(rawfd int, magic int32){
+	pthis.EPollListenerAddEvent(rawfd, &Event_TcpClose{rawfd, magic})
 }
 
 func ConstructorEPollListener(cb EPollCallback, addr string, epollCoroutineCount int,

@@ -134,22 +134,41 @@ func main() {
 	}
 }
 
-type test_cb struct {
-
+type test_tcp_info struct {
+	magic int32
 }
-func (pthis*test_cb)TcpNewConnection(rawfd int, addr net.Addr){
+type test_cb struct {
+	lsn *lin_common.EPollListener
+	mapFD map[int]*test_tcp_info
+}
+func (pthis*test_cb)TcpNewConnection(rawfd int, magic int32, addr net.Addr){
 	lin_common.LogDebug("new tcp connection:", rawfd, " addr:", addr)
+	ti := &test_tcp_info{magic: magic}
+	pthis.mapFD[rawfd]=ti
 }
 func (pthis*test_cb)TcpData(rawfd int, readBuf *bytes.Buffer)(bytesProcess int){
 	lin_common.LogDebug("tcp data:", rawfd, " data len:", readBuf.Len())
+	if rawfd % 2 != 0 {
+		ti := pthis.mapFD[rawfd]
+		if ti != nil {
+			lin_common.LogDebug("will close fd:", rawfd, " magic:", ti.magic)
+			pthis.lsn.EPollListenerCloseTcp(rawfd, ti.magic)
+		}
+	}
 	return readBuf.Len()
 }
 
+func (pthis*test_cb)TcpClose(rawfd int){
+	lin_common.LogDebug("tcp close fd:", rawfd)
+}
 
 func testepoll() {
-	tcb := &test_cb{}
-	el, err := lin_common.ConstructorEPollListener(tcb,"192.168.2.129:3001", 1, 128,
+	tcb := &test_cb{
+		mapFD : make(map[int]*test_tcp_info),
+	}
+	el, err := lin_common.ConstructorEPollListener(tcb,"192.168.2.129:3001", 10, 128,
 		300000, 1536, 8192)
+	tcb.lsn = el
 	fmt.Println("lin_common.ConstructEPollListener", el, err)
 	el.EPollListenerWait()
 }

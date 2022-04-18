@@ -24,12 +24,17 @@ type Event_TcpWrite struct { // tcp write event
 	_fdConn int
 	_binData []byte
 }
+type Event_TcpClose struct { // user close tcp connection
+	_fd int
+	_magic int32
+}
 /* @brief end inter evetn define */
 
 
 type EPollCallback interface {
-	TcpNewConnection(rawfd int, addr net.Addr)
+	TcpNewConnection(rawfd int, magic int32, addr net.Addr)
 	TcpData(rawfd int, readBuf *bytes.Buffer)(bytesProcess int)
+	TcpClose(rawfd int)
 }
 
 
@@ -39,14 +44,17 @@ type TcpConnectionInfo struct {
 	_writeBuf *bytes.Buffer
 	_fd int
 	_addr net.Addr
+
+	_magic int32
 }
 type MAP_TCPCONNECTION map[int]*TcpConnectionInfo
 
 
 type EPollConnection_Interface interface {
 	EpollConnection_process_evt()
-	EpollConnection_tcpread(fd int, maxReadcount int)
+	EpollConnection_tcpread(fd int, magic int32, maxReadcount int)
 	EPollConnection_AddEvent(evt interface{})
+	EpollConnection_close_tcp(fd int, magic int32)
 	_go_EpollConnection_epollwait()
 }
 type EPollConnection struct {
@@ -82,6 +90,7 @@ type EPollListener_interface interface {
 	EPollListenerInit(cb EPollCallback, addr string, epollCoroutineCount int) error
 	EPollListenerWait()
 	EPollListenerAddEvent(fd int, evt interface{})
+	EPollListenerCloseTcp(rawfd int, magic int32)
 }
 type EPollListener struct {
 	_epollAccept EPollAccept
