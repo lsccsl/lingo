@@ -4,6 +4,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"golang.org/x/sys/unix"
 	"lin/lin_common"
@@ -133,8 +134,22 @@ func main() {
 	}
 }
 
+type test_cb struct {
+
+}
+func (pthis*test_cb)TcpNewConnection(rawfd int, addr net.Addr){
+	lin_common.LogDebug("new tcp connection:", rawfd, " addr:", addr)
+}
+func (pthis*test_cb)TcpData(rawfd int, readBuf *bytes.Buffer)(bytesProcess int){
+	lin_common.LogDebug("tcp data:", rawfd, " data len:", readBuf.Len())
+	return readBuf.Len()
+}
+
+
 func testepoll() {
-	el, err := lin_common.ConstructEPollListener("192.168.2.129:3001", 1, 128, 300000, 0)
+	tcb := &test_cb{}
+	el, err := lin_common.ConstructorEPollListener(tcb,"192.168.2.129:3001", 1, 128,
+		300000, 1536, 8192)
 	fmt.Println("lin_common.ConstructEPollListener", el, err)
 	el.EPollListenerWait()
 }

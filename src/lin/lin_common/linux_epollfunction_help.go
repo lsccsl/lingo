@@ -1,3 +1,6 @@
+//go:build linux
+// +build linux
+
 package lin_common
 
 import "golang.org/x/sys/unix"

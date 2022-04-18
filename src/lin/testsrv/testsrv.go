@@ -155,6 +155,10 @@ func (pthis*TestSrv)tcpReDial() {
 		IP: Global_testCfg.local_ip,
 		Port: pthis.local_port,
 	})
+	if pthis.tcpDial != nil {
+		pthis.tcpDial.Close()
+		pthis.tcpDial= nil
+	}
 
 	pthis.DialConnectionID = 0
 	conn, err := net.Dial("tcp", pthis.addrRemote)
@@ -162,10 +166,8 @@ func (pthis*TestSrv)tcpReDial() {
 	if err != nil || conn == nil{
 		lin_common.LogDebug("dial err:", err, " conn:", pthis.DialConnectionID, " srv:", pthis.srvId)
 		return
-	}
-	if pthis.tcpDial != nil {
-		pthis.tcpDial.Close()
-		pthis.tcpDial= nil
+	} else {
+		lin_common.LogDebug("srv:", pthis.srvId, " addr:", pthis.addrRemote, " redial suc")
 	}
 	pthis.tcpDial = conn.(*net.TCPConn)
 	msgReport := &msgpacket.MSG_SRV_REPORT{SrvId: pthis.srvId}
@@ -211,10 +213,10 @@ func (pthis*TestSrv)go_tcpDial() {
 		}
 		err := pthis.TestSrvDial()
 		if err != nil || pthis.tcpDial == nil{
-			if pthis.tcpDial != nil {
+/*			if pthis.tcpDial != nil {
 				pthis.tcpDial.Close()
 				pthis.tcpDial = nil
-			}
+			}*/
 			lin_common.LogDebug("rpc err:", err, " conn:", pthis.DialConnectionID, " srv:", pthis.srvId)
 			if pthis.AutoRedial {
 				pthis.tcpReDial()
