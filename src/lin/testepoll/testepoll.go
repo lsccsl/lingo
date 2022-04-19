@@ -150,13 +150,14 @@ func (pthis*test_cb)TcpDialConnection(rawfd int, magic int32, addr net.Addr){
 	lin_common.LogDebug("suc to dial, fd:", rawfd, " magic:", magic, " addr:", addr)
 }
 
-func (pthis*test_cb)TcpData(rawfd int, readBuf *bytes.Buffer)(bytesProcess int){
+func (pthis*test_cb)TcpData(rawfd int, readBuf *bytes.Buffer)(bytesProcess int) {
 	lin_common.LogDebug("tcp data:", rawfd, " data len:", readBuf.Len())
-	if rawfd % 2 != 0 {
-		ti := pthis.mapFD[rawfd]
-		if ti != nil {
-			lin_common.LogDebug("will close fd:", rawfd, " magic:", ti.magic)
-			pthis.lsn.EPollListenerCloseTcp(rawfd, ti.magic)
+	ti := pthis.mapFD[rawfd]
+	if ti != nil {
+		if rawfd%2 != 0 {
+			lin_common.LogDebug("will write back fd:", rawfd, " magic:", ti.magic)
+			pthis.lsn.EPollListenerWrite(rawfd, ti.magic, readBuf.Bytes())
+			//pthis.lsn.EPollListenerCloseTcp(rawfd, ti.magic)
 		}
 	}
 	return readBuf.Len()

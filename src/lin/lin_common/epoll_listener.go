@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"golang.org/x/sys/unix"
 	"math/rand"
+	"runtime"
 )
 
 func ConstructorTcpConnectionInfo(fd int, magic int32, isDial bool, buffInitLen int)*TcpConnectionInfo {
@@ -17,9 +18,11 @@ func ConstructorTcpConnectionInfo(fd int, magic int32, isDial bool, buffInitLen 
 		_writeBuf : bytes.NewBuffer(make([]byte, 0, buffInitLen)),
 		_magic: magic,
 		_isDial: isDial,
+		_cur_epoll_evt : EPOLL_EVENT_READ,
 	}
 	if isDial {
 		ti._isConnSuc = false
+		ti._cur_epoll_evt = EPOLL_EVENT_READ_WRITE
 	} else {
 		ti._isConnSuc = true
 	}
@@ -43,6 +46,7 @@ func (pthis*EPollConnection)EpollConnection_close_tcp(fd int, magic int32){
 		return
 	}
 
+	unixEpollDel(pthis._epollFD, fd)
 	if pthis._lsn._cb != nil {
 		func(){
 			defer func() {
@@ -55,9 +59,7 @@ func (pthis*EPollConnection)EpollConnection_close_tcp(fd int, magic int32){
 		}()
 	}
 
-	unixEpollDel(pthis._epollFD, fd)
 	delete(pthis._mapTcp, fd)
-
 	unix.Close(fd)
 }
 
@@ -75,9 +77,9 @@ func (pthis*EPollConnection)EpollConnection_process_evt(){
 				// new tcp connection add to epoll
 				magic := pthis._lsn.EPollListenerGenMagic()
 				LogDebug("new conn fd:", t._fdConn, " magic:", magic)
-				unixEpollAdd(pthis._epollFD, t._fdConn, EPOLL_EVENT_READ, magic)
 				ti := ConstructorTcpConnectionInfo(t._fdConn, magic, false, pthis._lsn._paramTcpRWBuffLen)
 				pthis._mapTcp[t._fdConn] = ti
+				unixEpollAdd(pthis._epollFD, t._fdConn, ti._cur_epoll_evt, magic)
 
 				if pthis._lsn._cb != nil {
 					func(){
@@ -104,7 +106,13 @@ func (pthis*EPollConnection)EpollConnection_process_evt(){
 				LogDebug("dial tcp connection, fd:", t._fd, " magic:", t._magic)
 				ti := ConstructorTcpConnectionInfo(t._fd, t._magic, true, pthis._lsn._paramTcpRWBuffLen)
 				pthis._mapTcp[t._fd] = ti
-				unixEpollAdd(pthis._epollFD, t._fd, EPOLL_EVENT_WRITE, t._magic) // if the tcp connection can write, means the tcp connection is success, it will be mod epoll wait read event when connection is ok
+				unixEpollAdd(pthis._epollFD, t._fd, ti._cur_epoll_evt, t._magic) // if the tcp connection can write, means the tcp connection is success, it will be mod epoll wait read event when connection is ok
+			}
+
+		case *Event_TcpWrite:
+			{
+				LogDebug(" user tcp write, fd:", t._fdConn, " magic:", t._magic)
+				pthis.EpollConnection_user_write(t._fdConn, t._magic, t._binData)
 			}
 
 		default:
@@ -112,9 +120,28 @@ func (pthis*EPollConnection)EpollConnection_process_evt(){
 	}
 }
 
-func (pthis*EPollConnection)EpollConnection_tcpread(fd int, magic int32, maxReadcount int) {
+func (pthis*EPollConnection)EpollConnection_user_write(fd int, magic int32, binData []byte) {
 	ti, _ := pthis._mapTcp[fd]
 	if ti == nil {
+		return
+	}
+
+	if ti._magic != magic {
+		LogDebug("magic not match, fd:", fd, " magic:", ti._magic, " old magic:", magic)
+		return
+	}
+
+	ti._writeBuf.Write(binData)
+	pthis.EpollConnection_do_write(ti, 100)
+}
+
+func (pthis*EPollConnection)EpollConnection_epllEvt_tcpread(fd int, magic int32, maxReadcount int) {
+	ti, _ := pthis._mapTcp[fd]
+	if ti == nil {
+		return
+	}
+	if ti._magic != magic {
+		LogDebug("magic not match, fd:", fd, " magic:", ti._magic, " old magic:", magic)
 		return
 	}
 
@@ -171,19 +198,66 @@ func (pthis*EPollConnection)EpollConnection_tcpread(fd int, magic int32, maxRead
 	}
 }
 
-func (pthis*EPollConnection)EpollConnection_tcpwrite(fd int, magic int32){
+func (pthis*EPollConnection)EpollConnection_epllEvt_tcpwrite(fd int, magic int32){
 	ti, _ := pthis._mapTcp[fd]
 	if ti == nil {
 		return
 	}
 
+	if ti._magic != magic {
+		LogDebug("magic not match, fd:", fd, " magic:", ti._magic, " old magic:", magic)
+		return
+	}
+
 	if ti._isDial && !ti._isConnSuc {
 		ti._isConnSuc = true
+		ti._cur_epoll_evt = EPOLL_EVENT_READ
+		unixEpollMod(pthis._epollFD, fd, ti._cur_epoll_evt, magic)
 		pthis._lsn._cb.TcpDialConnection(fd, ti._magic, ti._addr)
 	}
 
-	// todo:do write, if all data is write success, mod to epoll wait read
-	unixEpollMod(pthis._epollFD, fd, EPOLL_EVENT_READ, magic)
+	pthis.EpollConnection_do_write(ti, 100)
+}
+
+func (pthis*EPollConnection)EpollConnection_do_write(ti *TcpConnectionInfo, maxWriteLoop int) {
+	// do write, if all data is write success, mod to epoll wait read
+	if ti == nil {
+		return
+	}
+
+	bModEpoll := true
+
+	if ti._writeBuf.Len() != 0 {
+		for i := 0; i < maxWriteLoop; i ++ {
+			write_sz, err, bAgain := _tcpWrite(ti._fd, ti._writeBuf.Bytes())
+			if err != nil {
+				// write fail, will close tcp connection
+				pthis.EpollConnection_close_tcp(ti._fd, ti._magic)
+				return
+			}
+			ti._writeBuf.Next(write_sz)
+
+			if ti._writeBuf.Len() == 0 {
+				// all data has been write to buffer, change mod to epoll wait read
+				break
+			}
+
+			if bAgain {
+				// not all data write to buffer, write buffer is full, need change to epoll wait write mod
+				ti._cur_epoll_evt = EPOLL_EVENT_READ_WRITE
+				unixEpollMod(pthis._epollFD, ti._fd, ti._cur_epoll_evt, ti._magic)
+				bModEpoll = false
+				break
+			}
+		}
+	}
+
+	if bModEpoll {
+		if ti._cur_epoll_evt != EPOLL_EVENT_READ {
+			ti._cur_epoll_evt = EPOLL_EVENT_READ
+			unixEpollMod(pthis._epollFD, ti._fd, ti._cur_epoll_evt, ti._magic)
+		}
+	}
 }
 
 func (pthis*EPollConnection)EPollConnection_AddEvent(evt interface{}) {
@@ -193,18 +267,22 @@ func (pthis*EPollConnection)EPollConnection_AddEvent(evt interface{}) {
 
 func (pthis*EPollConnection)_go_EpollConnection_epollwait() {
 	defer func() {
-		pthis._lsn = nil
 		err := recover()
 		if err != nil {
 			LogErr(err)
 		}
+		LogErr("_go_EpollConnection_epollwait quit")
+		pthis._lsn = nil
 	}()
 
 	events := make([]unix.EpollEvent, pthis._lsn._paramMaxEpollEventCount) // todo: change the events array size by epoll wait ret count
 	for {
 		count, err := unix.EpollWait(pthis._epollFD, events, pthis._lsn._paramEpollWaitTimeoutMills)
-		if err != nil {
-			LogErr("epoll wait err")
+		if count == 0 || (count < 0 && err == unix.EINTR) {
+			runtime.Gosched()
+			continue
+		} else if err != nil {
+			LogErr("epoll wait err:", err)
 			break
 		}
 
@@ -216,10 +294,10 @@ func (pthis*EPollConnection)_go_EpollConnection_epollwait() {
 			} else {
 				// tcp read / write / err
 				if (epollEvt.Events & unix.EPOLLIN) != 0 {
-					pthis.EpollConnection_tcpread(triggerFD, epollEvt.Pad, 100)
+					pthis.EpollConnection_epllEvt_tcpread(triggerFD, epollEvt.Pad, 100)
 				}
 				if (epollEvt.Events & unix.EPOLLOUT) != 0 {
-					pthis.EpollConnection_tcpwrite(triggerFD, epollEvt.Pad)
+					pthis.EpollConnection_epllEvt_tcpwrite(triggerFD, epollEvt.Pad)
 				}
 				if (epollEvt.Events & unix.EPOLLERR) != 0 {
 					pthis.EpollConnection_close_tcp(triggerFD, epollEvt.Pad)
@@ -232,11 +310,12 @@ func (pthis*EPollConnection)_go_EpollConnection_epollwait() {
 
 func (pthis*EPollAccept)_go_EpollAccept_epollwait() {
 	defer func() {
-		pthis._lsn = nil
 		err := recover()
 		if err != nil {
 			LogErr(err)
 		}
+		pthis._lsn = nil
+		LogDebug("_go_EpollAccept_epollwait quit")
 	}()
 
 	events := make([]unix.EpollEvent, pthis._lsn._paramMaxEpollEventCount) // todo: change the events array size by epoll wait ret count
@@ -363,6 +442,10 @@ func (pthis*EPollListener)EPollListenerGenMagic() int32 {
 }
 
 func (pthis*EPollListener)EPollListenerAddEvent(fd int, evt interface{}) {
+	if len(pthis._epollConnection) == 0 {
+		LogErr("epoll connection coroutine count is 0")
+		return
+	}
 	idx := fd % len(pthis._epollConnection)
 	if idx >= len(pthis._epollConnection) {
 		return
@@ -372,6 +455,10 @@ func (pthis*EPollListener)EPollListenerAddEvent(fd int, evt interface{}) {
 
 func (pthis*EPollListener)EPollListenerCloseTcp(rawfd int, magic int32){
 	pthis.EPollListenerAddEvent(rawfd, &Event_TcpClose{rawfd, magic})
+}
+
+func (pthis*EPollListener)EPollListenerWrite(rawfd int, magic int32, binData []byte) {
+	pthis.EPollListenerAddEvent(rawfd, &Event_TcpWrite{rawfd, magic, binData})
 }
 
 func (pthis*EPollListener)EPollListenerDial(addr string)(rawfd int, magic int32, err error){

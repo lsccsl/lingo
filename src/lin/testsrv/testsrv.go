@@ -164,7 +164,7 @@ func (pthis*TestSrv)tcpReDial() {
 	conn, err := net.Dial("tcp", pthis.addrRemote)
 	pthis.totalRedial ++
 	if err != nil || conn == nil{
-		lin_common.LogDebug("dial err:", err, " conn:", pthis.DialConnectionID, " srv:", pthis.srvId)
+		lin_common.LogDebug("dial err:", err, " connid:", pthis.DialConnectionID, " srv:", pthis.srvId, " conn:", conn)
 		return
 	} else {
 		lin_common.LogDebug("srv:", pthis.srvId, " addr:", pthis.addrRemote, " redial suc")

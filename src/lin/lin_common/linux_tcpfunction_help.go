@@ -134,6 +134,20 @@ func _tcpConnectNoBlock(addr string)(fd int, err error) {
 }
 
 
+func _tcpWrite(fd int, bin []byte) (write_sz int, err error, bAgain bool) {
+	n, err := unix.Write(fd, bin)
+	if err != nil {
+		if err != unix.EAGAIN {
+			return 0, GenErrNoERR_NUM(" unix.Write fail, fd:", fd, " err:", err), false
+		} else {
+			bAgain = true
+		}
+	} else {
+		bAgain = false
+	}
+	return n, nil, bAgain
+}
+
 
 func _tcpRead(fd int, bin []byte) (int, error) {
 	n, err := unix.Read(fd, bin)

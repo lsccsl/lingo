@@ -22,6 +22,7 @@ type Event_NewConnection struct { // new tcp connection event
 }
 type Event_TcpWrite struct { // tcp write event
 	_fdConn int
+	_magic int32
 	_binData []byte
 }
 type Event_TcpClose struct { // user close tcp connection
@@ -50,6 +51,8 @@ type TcpConnectionInfo struct {
 	_fd int
 	_addr net.Addr
 
+	_cur_epoll_evt EPOLL_EVENT
+
 	_magic int32
 
 	_isDial bool
@@ -60,7 +63,10 @@ type MAP_TCPCONNECTION map[int]*TcpConnectionInfo
 
 type EPollConnection_Interface interface {
 	EpollConnection_process_evt()
-	EpollConnection_tcpread(fd int, magic int32, maxReadcount int)
+	EpollConnection_epllEvt_tcpread(fd int, magic int32, maxReadcount int)
+	EpollConnection_epllEvt_tcpwrite(fd int, magic int32)
+	EpollConnection_user_write(fd int, magic int32, binData []byte)
+	EpollConnection_do_write(ti *TcpConnectionInfo, maxWriteLoop int)
 	EPollConnection_AddEvent(evt interface{})
 	EpollConnection_close_tcp(fd int, magic int32)
 	_go_EpollConnection_epollwait()
@@ -99,6 +105,7 @@ type EPollListener_interface interface {
 	EPollListenerWait()
 	EPollListenerAddEvent(fd int, evt interface{})
 	EPollListenerCloseTcp(rawfd int, magic int32)
+	EPollListenerWrite(rawfd int, magic int32, binData []byte)
 	EPollListenerDial(addr string)(rawfd int, magic int32, err error)
 }
 type EPollListener struct {
