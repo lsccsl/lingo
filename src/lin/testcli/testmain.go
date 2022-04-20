@@ -18,13 +18,14 @@ type TestCfg struct {
 	addr string
 }
 var Global_testCfg = &TestCfg {
+	//addr : "192.168.2.129:3001",
 	addr : "192.168.2.129:2003",
 	//addr : "10.0.14.48:2001",
 }
 
 // testcli 500 100 | lt
 func main() {
-	//lin_common.InitLog("./testcli.log", false)
+	lin_common.InitLog("./testcli.log", true, false)
 	//lin_common.ProfileInit()
 	AddAllCmd()
 	msgpacket.InitMsgParseVirtualTable()

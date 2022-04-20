@@ -429,6 +429,8 @@ func (tcpInfo *ClientTcpInfo)GoClientTcpRead(){
 			switch msgpacket.MSG_TYPE(curHead.packType) {
 			case msgpacket.MSG_TYPE__MSG_HEARTBEAT_RES:
 			case msgpacket.MSG_TYPE__MSG_TEST_RES:
+			case msgpacket.MSG_TYPE__MSG_LOGIN_RES:
+				lin_common.LogDebug(msgpacket.MSG_TYPE(curHead.packType), " proto msg:", protoMsg)
 			default:
 				//lin_common.LogDebug(msgpacket.MSG_TYPE(curHead.packType), " proto msg:", protoMsg)
 			}

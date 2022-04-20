@@ -3,7 +3,6 @@ package main
 import (
 	"lin/lin_common"
 	"lin/msgpacket"
-	"lin/tcp"
 )
 
 type MAP_CLIENT map[int]*TcpClient
@@ -30,12 +29,13 @@ func (pthis*eSrvMgrProcessUnit)getClient(fd lin_common.FD_DEF) *TcpClient {
 	oldC, _ := pthis.mapClient[fd.FD]
 	return oldC
 }
-func (pthis*eSrvMgrProcessUnit)addClient(c *TcpClient) *TcpClient {
+func (pthis*eSrvMgrProcessUnit)addClient(c *TcpClient) {
 	pthis.mapClient[c.fd.FD] = c
 }
 
 
 func (pthis*eSrvMgrProcessUnit)Process_MSG_LOGIN(fd lin_common.FD_DEF, msg *msgpacket.MSG_LOGIN){
+	lin_common.LogDebug("login:", fd.String(), " clientid:", msg.Id)
 
 	oldC := pthis.getClient(fd)
 	if oldC != nil {
@@ -49,9 +49,11 @@ func (pthis*eSrvMgrProcessUnit)Process_MSG_LOGIN(fd lin_common.FD_DEF, msg *msgp
 	}
 
 	msgRes := &msgpacket.MSG_LOGIN_RES{}
-	msgRes.Id = clientID
-	msgRes.ConnectId = int64(tcpConn.TcpConnectionID())
-	tcpConn.TcpConnectSendBin(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_LOGIN_RES, msgRes))
+	msgRes.Id = msg.Id
+	msgRes.ConnectId = int64(fd.Magic)
+	msgRes.Fd = int64(fd.FD)
+
+	pthis.eSrvMgr.lsn.EPollListenerWrite(fd, msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_LOGIN_RES, msgRes))
 }
 
 func (pthis*eSrvMgrProcessUnit)_go_Process_unit(){

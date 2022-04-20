@@ -55,11 +55,17 @@ func (pthis*EpollServerMgr)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer)(
 	return
 }
 func (pthis*EpollServerMgr)TcpClose(fd lin_common.FD_DEF) {
-
+	lin_common.LogDebug("tcp close:", fd.String())
 }
 
 
 func ConstructorEpollServerMgr(addr string, processUnitCount int) (*EpollServerMgr, error) {
+	defer func() {
+		err := recover()
+		if err != nil {
+			lin_common.LogErr(err)
+		}
+	}()
 	msgpacket.InitMsgParseVirtualTable()
 
 	eSrvMgr := &EpollServerMgr{
