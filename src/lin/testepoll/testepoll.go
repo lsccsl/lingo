@@ -135,47 +135,46 @@ func main() {
 }
 
 type test_tcp_info struct {
-	magic int32
+	fd lin_common.FD_DEF
 }
 type test_cb struct {
 	lsn *lin_common.EPollListener
 	mapFD map[int]*test_tcp_info
 }
-func (pthis*test_cb)TcpAcceptConnection(rawfd int, magic int32, addr net.Addr){
-	lin_common.LogDebug("new tcp connection:", rawfd, " addr:", addr)
-	ti := &test_tcp_info{magic: magic}
-	pthis.mapFD[rawfd]=ti
+func (pthis*test_cb)TcpAcceptConnection(fd lin_common.FD_DEF, addr net.Addr){
+	lin_common.LogDebug("new tcp connection:", fd.FD, " addr:", addr)
+	ti := &test_tcp_info{fd: fd}
+	pthis.mapFD[fd.FD]=ti
 }
-func (pthis*test_cb)TcpDialConnection(rawfd int, magic int32, addr net.Addr){
-	lin_common.LogDebug("suc to dial, fd:", rawfd, " magic:", magic, " addr:", addr)
+func (pthis*test_cb)TcpDialConnection(fd lin_common.FD_DEF, addr net.Addr){
+	lin_common.LogDebug("suc to dial, fd:", fd.FD, " magic:", fd.Magic, " addr:", addr)
 }
 
-func (pthis*test_cb)TcpData(rawfd int, readBuf *bytes.Buffer)(bytesProcess int) {
-	lin_common.LogDebug("tcp data:", rawfd, " data len:", readBuf.Len())
-	ti := pthis.mapFD[rawfd]
+func (pthis*test_cb)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer)(bytesProcess int) {
+	lin_common.LogDebug("tcp data:", fd.FD, " data len:", readBuf.Len())
+	ti := pthis.mapFD[fd.FD]
 	if ti != nil {
-		if rawfd%2 != 0 {
-			lin_common.LogDebug("will write back fd:", rawfd, " magic:", ti.magic)
-			pthis.lsn.EPollListenerWrite(rawfd, ti.magic, readBuf.Bytes())
+		if fd.FD%2 != 0 {
+			lin_common.LogDebug("will write back fd:", fd.FD, " magic:", fd.Magic)
+			pthis.lsn.EPollListenerWrite(fd, readBuf.Bytes())
 			//pthis.lsn.EPollListenerCloseTcp(rawfd, ti.magic)
 		}
 	}
 	return readBuf.Len()
 }
 
-func (pthis*test_cb)TcpClose(rawfd int){
-	lin_common.LogDebug("tcp close fd:", rawfd)
+func (pthis*test_cb)TcpClose(fd lin_common.FD_DEF){
+	lin_common.LogDebug("tcp close fd:", fd.FD)
 }
 
 func testepoll() {
 	tcb := &test_cb{
 		mapFD : make(map[int]*test_tcp_info),
 	}
-	el, err := lin_common.ConstructorEPollListener(tcb,"192.168.2.129:3001", 10, 128,
-		300000, 1536, 8192)
+	el, err := lin_common.ConstructorEPollListener(tcb,"192.168.2.129:3001", 10, lin_common.ParamEPollListener{})
 	tcb.lsn = el
 	fmt.Println("lin_common.ConstructEPollListener", el, err)
-	fd, magic, err := tcb.lsn.EPollListenerDial("192.168.2.129:2003")
-	lin_common.LogDebug("fd:", fd, " magic:", magic, " err:", err)
+	fd, err := tcb.lsn.EPollListenerDial("192.168.2.129:2003")
+	lin_common.LogDebug("fd:", fd.FD, " magic:", fd.Magic, " err:", err)
 	el.EPollListenerWait()
 }
