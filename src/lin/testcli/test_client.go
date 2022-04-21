@@ -390,6 +390,7 @@ func (tcpInfo *ClientTcpInfo)GoClientTcpRead(){
 		tcpInfo.tcpCon.SetReadDeadline(time.Now().Add(time.Second * 120))
 		readSize, err := tcpInfo.tcpCon.Read(TmpBuf)
 		if !CheckError(err){
+			time.Sleep(time.Second * 1)
 			if tcpInfo.tcpCon != nil {
 				tcpInfo.tcpCon.Close()
 				tcpInfo.tcpCon = nil

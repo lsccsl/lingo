@@ -53,7 +53,6 @@ func (pthis*eSrvMgrProcessUnit)delClient(fd lin_common.FD_DEF) {
 }
 
 func (pthis*eSrvMgrProcessUnit)Process_msgTcpClose(msg *msgTcpClose) {
-	lin_common.LogDebug(msg.fd.String())
 	c := pthis.getClient(msg.fd)
 	if c == nil {
 		return
@@ -61,6 +60,7 @@ func (pthis*eSrvMgrProcessUnit)Process_msgTcpClose(msg *msgTcpClose) {
 	if !c.fd.IsSame(&msg.fd) {
 		return
 	}
+	lin_common.LogDebug(msg.fd.String(), " clientid:", c.clientID)
 	pthis.delClient(msg.fd)
 	c.Destructor()
 }

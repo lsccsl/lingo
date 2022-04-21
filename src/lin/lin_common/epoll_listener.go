@@ -400,8 +400,10 @@ func (pthis*ePollAccept)_go_EpollAccept_epollwait() {
 
 			for i:= 0; (i < maxReadcount) || (maxReadcount < 0); i ++ {
 				fd, addr, err := _tcpAccept(triggerFD)
-				if err != nil || fd < 0{
-					LogDebug("fail accept:", err, " fd:", fd, " listen fd:", events[i].Fd)
+				if fd < 0 {
+					if err != nil{
+						LogDebug("fail accept:", err, " fd:", fd, " listen fd:", triggerFD)
+					}
 					break
 				}
 
