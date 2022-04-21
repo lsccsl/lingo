@@ -25,7 +25,7 @@ func unixEpollCreate()(int, error) {
 func unixEpollAdd(efd int, fd int, evtInput EPOLL_EVENT, userData int32, bET bool) error {
 	var eEvent uint32 = _epoll_BASE_EVENTS
 	if bET {
-		LogDebug("fd:", fd, " et mode")
+		//LogDebug("fd:", fd, " et mode")
 		eEvent = _epoll_BASE_EVENTS_ET
 	}
 	if (evtInput & EPOLL_EVENT_READ) != 0 {
@@ -45,7 +45,7 @@ func unixEpollDel(efd int, fd int) error {
 func unixEpollMod(efd int, fd int, evtInput EPOLL_EVENT, userData int32, bET bool) error {
 	var eEvent uint32 = _epoll_BASE_EVENTS
 	if bET {
-		LogDebug("fd:", fd, " et mode")
+		//LogDebug("fd:", fd, " et mode")
 		eEvent = _epoll_BASE_EVENTS_ET
 	}
 

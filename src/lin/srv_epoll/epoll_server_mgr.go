@@ -6,6 +6,7 @@ import (
 	"lin/lin_common"
 	"lin/msgpacket"
 	"net"
+	"strconv"
 	"time"
 )
 
@@ -25,12 +26,17 @@ type msgTcpClose struct {
 }
 /* end process unit msg define */
 
-
+type EpollServerMgrStatic struct {
+	lastTotalRecv int64
+	lastSampleMS int64
+}
 type EpollServerMgr struct {
 	lsn *lin_common.EPollListener
 	processUnit []*eSrvMgrProcessUnit
 
 	clientCloseTimeoutSec int
+
+	EpollServerMgrStatic
 }
 
 func (pthis*EpollServerMgr)TcpAcceptConnection(fd lin_common.FD_DEF, addr net.Addr) {
@@ -63,7 +69,7 @@ func (pthis*EpollServerMgr)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer)(
 	return
 }
 func (pthis*EpollServerMgr)TcpClose(fd lin_common.FD_DEF) {
-	lin_common.LogDebug("tcp close:", fd.String())
+	//lin_common.LogDebug("tcp close:", fd.String())
 	pu := pthis.GetProcessUnitByFD(fd)
 	if pu != nil {
 		pu.chMsg <- &msgTcpClose{fd}
@@ -81,6 +87,37 @@ func (pthis*EpollServerMgr)GetProcessUnitByFD(fd lin_common.FD_DEF) *eSrvMgrProc
 		return nil
 	}
 	return pu
+}
+
+func (pthis*EpollServerMgr)Dump(bDetail bool)string{
+	tnowMs := time.Now().UnixMilli()
+
+	var es lin_common.EPollListenerStatic
+	pthis.lsn.EPollListenerGetStatic(&es)
+
+	var totalRecv int64 = 0
+	var totalClient int = 0
+	for _, val := range pthis.processUnit {
+		totalRecv += val.totalRecv
+		totalClient += val.clientCount
+	}
+
+	var diff = float64(tnowMs - pthis.lastSampleMS) / 1000
+	averRecv := float64(totalRecv - pthis.lastTotalRecv) / diff
+
+	str := "averRecv:" + strconv.FormatFloat(averRecv, 'f', 2,64) +
+		" tcp conn count:" + strconv.FormatInt(int64(es.TcpConnCount), 10) +
+		" totalClient:" + strconv.FormatInt(int64(totalClient), 10) +
+		" totalRecv:" + strconv.FormatInt(totalRecv, 10) +
+		"\r\n byteRecv:" + strconv.FormatInt(es.ByteRecv, 10) +
+		" byteSend:" + strconv.FormatInt(es.ByteSend, 10) +
+		" byteProc:" + strconv.FormatInt(es.ByteProc, 10) +
+		" byte unProc:" + strconv.FormatInt(es.ByteRecv - es.ByteProc, 10) + "\r\n\r\n"
+
+	pthis.lastSampleMS = tnowMs
+	pthis.lastTotalRecv = totalRecv
+
+	return str
 }
 
 func ConstructorEpollServerMgr(addr string, processUnitCount int, clientCloseTimeoutSec int) (*EpollServerMgr, error) {

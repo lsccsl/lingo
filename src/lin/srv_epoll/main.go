@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"lin/lin_common"
 	"math/rand"
+	"net"
+	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -26,7 +29,46 @@ func main() {
 	lin_common.InitLog("./epollsrv.log", /*srvCfg.LogEnableConsolePrint*/true, true)
 	lin_common.ProfileInit(true, 6060)
 
+	httpAddr, err := net.ResolveTCPAddr("tcp", srvCfg.HttpAddr)
+	if err != nil {
+		lin_common.LogErr(err)
+		return
+	}
+	httpSrv, err := lin_common.StartHttpSrvMgr(httpAddr.IP.String(), httpAddr.Port)
+	if err != nil {
+		lin_common.LogErr(err)
+	}
+	httpSrv.HttpSrvAddCallback("/cmd", func(writer http.ResponseWriter, request *http.Request) {
+		cmd , _ := request.Form["cmd"]
+		if cmd != nil {
+			fmt.Fprint(writer, lin_common.DoCmd(cmd, len(cmd)))
+		}
+	})
+
 	eSrvMgr, err := ConstructorEpollServerMgr("192.168.2.129:2003", 10, 600)
-	lin_common.LogDebug(err)
+	if err != nil {
+		lin_common.LogDebug(err)
+		return
+	}
+
+	lin_common.AddCmd("dump", "dump", func(argStr []string)string{
+		bDetail := false
+		bLog := true
+		if len(argStr) >= 1 {
+			detail, _ := strconv.Atoi(argStr[0])
+			bDetail = (detail != 0)
+		}
+		if len(argStr) >= 2 {
+			needLog, _ := strconv.Atoi(argStr[1])
+			bLog = (needLog != 0)
+		}
+		str := eSrvMgr.Dump(bDetail)
+		if bLog {
+			lin_common.LogDebug(str)
+		}
+		return str
+	})
+	lin_common.ParseCmd()
+
 	eSrvMgr.lsn.EPollListenerWait()
 }

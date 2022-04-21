@@ -7,10 +7,16 @@ import (
 
 type MAP_CLIENT map[int]*TcpClient
 
+type eSrvMgrProcessUnitStatic struct {
+	clientCount int
+	totalRecv int64
+}
 type eSrvMgrProcessUnit struct {
 	chMsg chan interface{}
 	eSrvMgr *EpollServerMgr
 	mapClient MAP_CLIENT
+
+	eSrvMgrProcessUnitStatic
 }
 
 
@@ -37,9 +43,13 @@ func (pthis*eSrvMgrProcessUnit)getClient(fd lin_common.FD_DEF) *TcpClient {
 }
 func (pthis*eSrvMgrProcessUnit)addClient(c *TcpClient) {
 	pthis.mapClient[c.fd.FD] = c
+
+	pthis.clientCount = len(pthis.mapClient)
 }
 func (pthis*eSrvMgrProcessUnit)delClient(fd lin_common.FD_DEF) {
 	delete(pthis.mapClient, fd.FD)
+
+	pthis.clientCount = len(pthis.mapClient)
 }
 
 func (pthis*eSrvMgrProcessUnit)Process_msgTcpClose(msg *msgTcpClose) {
@@ -52,6 +62,7 @@ func (pthis*eSrvMgrProcessUnit)Process_msgTcpClose(msg *msgTcpClose) {
 		return
 	}
 	pthis.delClient(msg.fd)
+	c.Destructor()
 }
 
 
@@ -61,11 +72,11 @@ func (pthis*eSrvMgrProcessUnit)Process_MSG_LOGIN(fd lin_common.FD_DEF, msg *msgp
 	oldC := pthis.getClient(fd)
 	if oldC != nil {
 		if !oldC.fd.IsSame(&fd){
-			c := ConstructorTcpClient(pthis, fd)
+			c := ConstructorTcpClient(pthis, fd, msg.Id)
 			pthis.addClient(c)
 		}
 	} else {
-		c := ConstructorTcpClient(pthis, fd)
+		c := ConstructorTcpClient(pthis, fd, msg.Id)
 		pthis.addClient(c)
 	}
 
@@ -78,6 +89,8 @@ func (pthis*eSrvMgrProcessUnit)Process_MSG_LOGIN(fd lin_common.FD_DEF, msg *msgp
 }
 
 func (pthis*eSrvMgrProcessUnit)Process_protoMsg(msg *msgProto) {
+	pthis.totalRecv ++
+
 	c := pthis.getClient(msg.fd)
 	if c == nil {
 		return

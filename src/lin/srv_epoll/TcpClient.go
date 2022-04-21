@@ -4,6 +4,7 @@ import (
 	"lin/lin_common"
 	"lin/msgpacket"
 	"net"
+	"runtime"
 	"time"
 )
 
@@ -18,23 +19,34 @@ type TcpClient struct {
 	timerConnClose * time.Timer
 	durationClose time.Duration
 	pu *eSrvMgrProcessUnit
-
-	mapStaticMsgRecv MAP_CLIENT_STATIC
 }
 
-func ConstructorTcpClient(pu *eSrvMgrProcessUnit, fd lin_common.FD_DEF) *TcpClient {
+func ConstructorTcpClient(pu *eSrvMgrProcessUnit, fd lin_common.FD_DEF, clientID int64) *TcpClient {
 	tc := &TcpClient{
 		fd : fd,
 		pu : pu,
+		clientID : clientID,
 		durationClose : time.Second*time.Duration(pu.eSrvMgr.clientCloseTimeoutSec),
-		mapStaticMsgRecv : make(MAP_CLIENT_STATIC),
 	}
+	runtime.SetFinalizer(tc, (*TcpClient).Destructor)
 	tc.timerConnClose = time.AfterFunc(tc.durationClose,
 		func(){
 			lin_common.LogDebug("timeout close clientid:", tc.clientID, " fd:", tc.fd.String())
 			tc.pu.eSrvMgr.lsn.EPollListenerCloseTcp(tc.fd)
+/*			tc.timerConnClose.Stop()
+			tc.timerConnClose = nil*/
 		})
+
 	return tc
+}
+
+func (pthis*TcpClient)Destructor() {
+	lin_common.LogDebug(" clientid:", pthis.clientID, " fd:", pthis.fd.String())
+	runtime.SetFinalizer(pthis, nil)
+	if pthis.timerConnClose != nil {
+		pthis.timerConnClose.Stop()
+		pthis.timerConnClose = nil
+	}
 }
 
 func (pthis*TcpClient)Process_MSG_TCP_STATIC(msg *msgpacket.MSG_TCP_STATIC) {
@@ -45,14 +57,10 @@ func (pthis*TcpClient)Process_MSG_TCP_STATIC(msg *msgpacket.MSG_TCP_STATIC) {
 		ByteProc:0,
 		ByteSend:0,
 	}
-	msgRes.MapStaticMsgRecv = make(map[int32]int64)
-	for key, val := range pthis.mapStaticMsgRecv {
-		msgRes.MapStaticMsgRecv[int32(key)] = val
-	}
 	pthis.pu.eSrvMgr.lsn.EPollListenerWrite(pthis.fd, msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_TCP_STATIC_RES, msgRes))
 }
 func (pthis*TcpClient)Process_MSG_TEST(msg *msgpacket.MSG_TEST) {
-	lin_common.LogDebug("clientid:", pthis.clientID, " fd:", pthis.fd.String())
+	//lin_common.LogDebug("clientid:", pthis.clientID, " fd:", pthis.fd.String())
 	msgRes := &msgpacket.MSG_TEST_RES{}
 	msgRes.Id = msg.Id
 	msgRes.Str = msg.Str
@@ -72,7 +80,6 @@ func (pthis*TcpClient)Process_MSG_HEARTBEAT(msg *msgpacket.MSG_HEARTBEAT) {
 
 func (pthis*TcpClient)Process_protoMsg(msg *msgProto) {
 	pthis.timerConnClose.Reset(pthis.durationClose)
-	pthis.mapStaticMsgRecv[msg.packType] = pthis.mapStaticMsgRecv[msg.packType] + 1
 
 	switch t := msg.protoMsg.(type) {
 	case *msgpacket.MSG_TEST:

@@ -321,7 +321,7 @@ func (pthis *ClientTcpInfo)processSendMsgLoop(msg *interSendMsgLoop) {
 				pthis.testCountTotal ++
 				//lin_common.LogDebug("recv res:", msgRes.msgdata)
 			}
-			case <- time.After(time.Second * 15):
+			case <- time.After(time.Second * 30):
 				break READ_LOOP
 			}
 		}
@@ -331,7 +331,7 @@ func (pthis *ClientTcpInfo)processSendMsgLoop(msg *interSendMsgLoop) {
 		}
 
 		if maxSeq < seq {
-			lin_common.LogDebug("~~~~~~err seq:", maxSeq)
+			//lin_common.LogDebug("~~~~~~err seq:", maxSeq)
 		}
 	}
 }

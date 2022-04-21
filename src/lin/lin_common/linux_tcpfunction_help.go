@@ -6,6 +6,7 @@ package lin_common
 import (
 	"golang.org/x/sys/unix"
 	"net"
+	"syscall"
 )
 
 var _ipv4InIPv6Prefix = []byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff}
@@ -97,7 +98,10 @@ func _tcpListen(addr string) (int, error) {
 func _tcpAccept(listenFD int) (connFD int, addr string, err error) {
 	connFD, sa, err := unix.Accept(listenFD)
 	if err != nil {
-		return -1, "", err
+		if err == unix.EAGAIN {
+			return -1, "", nil
+		}
+		return -1, "", GenErrNoERR_NUM("unix.Accept fail:", err)
 	}
 	remoteAddr := _sockaddrToTCPOrUnixAddr(sa)
 	addr = remoteAddr.String()
@@ -178,4 +182,48 @@ func _tcpRead(fd int, bin []byte) (int, error) {
 			return -1;
 		}
 	*/
+}
+
+func _setNoBlock(fd int) error{
+	return unix.SetNonblock(fd, true)
+}
+
+func _setNoDelay(fd int) error {
+	return unix.SetsockoptInt(fd, unix.IPPROTO_TCP, unix.TCP_NODELAY, 1)
+}
+
+func _setDelay(fd int) error {
+	return unix.SetsockoptInt(fd, unix.IPPROTO_TCP, unix.TCP_NODELAY, 0)
+}
+
+func _setRecvBuffer(fd, size int) error {
+	return unix.SetsockoptInt(fd, unix.SOL_SOCKET, unix.SO_RCVBUF, size)
+}
+
+func _setSendBuffer(fd, size int) error {
+	return unix.SetsockoptInt(fd, unix.SOL_SOCKET, unix.SO_SNDBUF, size)
+}
+
+func _setReuseport(fd, reusePort int) error {
+	return unix.SetsockoptInt(fd, unix.SOL_SOCKET, unix.SO_REUSEPORT, reusePort)
+}
+
+func _setReuseAddr(fd, reuseAddr int) error {
+	return unix.SetsockoptInt(fd, unix.SOL_SOCKET, unix.SO_REUSEADDR, reuseAddr)
+}
+
+func _setLingerOff(fd int) error {
+	l := &unix.Linger{Onoff:0,Linger:0}
+	return unix.SetsockoptLinger(fd, syscall.SOL_SOCKET, syscall.SO_LINGER, l)
+}
+func _setLinger(fd, sec int) error {
+	var l unix.Linger
+	if sec >= 0 {
+		l.Onoff = 1
+		l.Linger = int32(sec)
+	} else {
+		l.Onoff = 0
+		l.Linger = 0
+	}
+	return unix.SetsockoptLinger(fd, syscall.SOL_SOCKET, syscall.SO_LINGER, &l)
 }

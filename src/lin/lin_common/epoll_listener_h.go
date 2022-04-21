@@ -87,6 +87,16 @@ type ePollConnection_Interface interface {
 	EPollConnection_AddEvent(evt interface{})
 	EpollConnection_close_tcp(fd FD_DEF)
 	_go_EpollConnection_epollwait()
+
+	_add_tcp_conn(*tcpConnectionInfo)
+	_del_tcp_conn(fd int)
+	_get_tcp_conn(fd int)*tcpConnectionInfo
+}
+type ePollConnectionStatic struct {
+	_tcpConnCount int
+	_byteRecv int64
+	_byteProc int64
+	_byteSend int64
 }
 type ePollConnection struct {
 	_epollFD int
@@ -99,6 +109,8 @@ type ePollConnection struct {
 
 	_binRead []byte
 	_mapTcp MAP_TCPCONNECTION
+
+	ePollConnectionStatic
 }
 
 
@@ -136,6 +148,13 @@ type interParamEPollListener struct {
 	_paramET bool // if support epoll et mode
 }
 
+type EPollListenerStatic struct {
+	TcpConnCount int
+	ByteRecv int64
+	ByteProc int64
+	ByteSend int64
+}
+
 type EPollListener_interface interface {
 	EPollListenerInit(cb EPollCallback, addr string, epollCoroutineCount int) error
 	EPollListenerWait()
@@ -143,6 +162,7 @@ type EPollListener_interface interface {
 	EPollListenerCloseTcp(fd FD_DEF)
 	EPollListenerWrite(fd FD_DEF, binData []byte)
 	EPollListenerDial(addr string)(fd FD_DEF, err error)
+	EPollListenerGetStatic(*EPollListenerStatic)
 }
 
 // EPollListener : epoll application interface
