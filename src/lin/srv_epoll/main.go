@@ -26,7 +26,7 @@ func main() {
 	lin_common.InitLog("./epollsrv.log", /*srvCfg.LogEnableConsolePrint*/true, true)
 	lin_common.ProfileInit(true, 6060)
 
-	eSrvMgr, err := ConstructorEpollServerMgr("192.168.2.129:2003", 10)
+	eSrvMgr, err := ConstructorEpollServerMgr("192.168.2.129:2003", 10, 600)
 	lin_common.LogDebug(err)
 	eSrvMgr.lsn.EPollListenerWait()
 }

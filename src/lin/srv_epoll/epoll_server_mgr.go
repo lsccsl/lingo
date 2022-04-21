@@ -6,6 +6,7 @@ import (
 	"lin/lin_common"
 	"lin/msgpacket"
 	"net"
+	"time"
 )
 
 
@@ -15,12 +16,21 @@ type msgProto struct {
 	packType msgpacket.MSG_TYPE
 	protoMsg proto.Message
 }
+type msgTimer struct {
+	fd lin_common.FD_DEF
+	timerData int
+}
+type msgTcpClose struct {
+	fd lin_common.FD_DEF
+}
 /* end process unit msg define */
 
 
 type EpollServerMgr struct {
 	lsn *lin_common.EPollListener
 	processUnit []*eSrvMgrProcessUnit
+
+	clientCloseTimeoutSec int
 }
 
 func (pthis*EpollServerMgr)TcpAcceptConnection(fd lin_common.FD_DEF, addr net.Addr) {
@@ -31,16 +41,7 @@ func (pthis*EpollServerMgr)TcpDialConnection(fd lin_common.FD_DEF, addr net.Addr
 
 }
 func (pthis*EpollServerMgr)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer)(bytesProcess int) {
-	processUnitCount := len(pthis.processUnit)
-	if processUnitCount <= 0 {
-		return readBuf.Len()
-	}
-
-	idx := fd.FD % processUnitCount
-	if idx >= processUnitCount {
-		return readBuf.Len()
-	}
-	pu := pthis.processUnit[idx]
+	pu := pthis.GetProcessUnitByFD(fd)
 	if pu == nil {
 		return readBuf.Len()
 	}
@@ -52,14 +53,37 @@ func (pthis*EpollServerMgr)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer)(
 	}
 
 	pu.chMsg <- &msgProto{fd, packType,protoMsg}
+
+	// todo:delete for test
+	if packType == msgpacket.MSG_TYPE__MSG_TEST {
+		msgTest := protoMsg.(*msgpacket.MSG_TEST)
+		msgTest.TimestampArrive = time.Now().UnixMilli()
+	}
+
 	return
 }
 func (pthis*EpollServerMgr)TcpClose(fd lin_common.FD_DEF) {
 	lin_common.LogDebug("tcp close:", fd.String())
+	pu := pthis.GetProcessUnitByFD(fd)
+	if pu != nil {
+		pu.chMsg <- &msgTcpClose{fd}
+	}
 }
 
+func (pthis*EpollServerMgr)GetProcessUnitByFD(fd lin_common.FD_DEF) *eSrvMgrProcessUnit {
+	processUnitCount := len(pthis.processUnit)
+	idx := fd.FD % processUnitCount
+	if idx >= processUnitCount {
+		return nil
+	}
+	pu := pthis.processUnit[idx]
+	if pu == nil {
+		return nil
+	}
+	return pu
+}
 
-func ConstructorEpollServerMgr(addr string, processUnitCount int) (*EpollServerMgr, error) {
+func ConstructorEpollServerMgr(addr string, processUnitCount int, clientCloseTimeoutSec int) (*EpollServerMgr, error) {
 	defer func() {
 		err := recover()
 		if err != nil {
@@ -70,8 +94,9 @@ func ConstructorEpollServerMgr(addr string, processUnitCount int) (*EpollServerM
 
 	eSrvMgr := &EpollServerMgr{
 		processUnit : make([]*eSrvMgrProcessUnit, 0, processUnitCount),
+		clientCloseTimeoutSec : clientCloseTimeoutSec,
 	}
-	lsn, err := lin_common.ConstructorEPollListener(eSrvMgr, addr, 10, lin_common.ParamEPollListener{})
+	lsn, err := lin_common.ConstructorEPollListener(eSrvMgr, addr, 10, lin_common.ParamEPollListener{ParamET: true})
 	if err != nil {
 		lin_common.LogErr("constructor epoll listener err:", err)
 		return nil, err

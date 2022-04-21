@@ -13,8 +13,8 @@ const (
 )
 
 const (
-	// EPOLLET:not support right now
-	_epoll_BASE_EVENTS = unix.EPOLLPRI | unix.EPOLLERR /*| unix.EPOLLHUP | unix.EPOLLRDHUP | unix.EPOLLET*/
+	_epoll_BASE_EVENTS = unix.EPOLLPRI | unix.EPOLLERR
+	_epoll_BASE_EVENTS_ET = unix.EPOLLPRI | unix.EPOLLERR | unix.EPOLLHUP | unix.EPOLLRDHUP | unix.EPOLLET
 	_epoll_READ_EVENTS =  unix.EPOLLIN
 	_epoll_WRITE_EVENTS = unix.EPOLLOUT
 )
@@ -22,8 +22,12 @@ func unixEpollCreate()(int, error) {
 	return unix.EpollCreate1(unix.EPOLL_CLOEXEC)
 }
 
-func unixEpollAdd(efd int, fd int, evtInput EPOLL_EVENT, userData int32) error {
+func unixEpollAdd(efd int, fd int, evtInput EPOLL_EVENT, userData int32, bET bool) error {
 	var eEvent uint32 = _epoll_BASE_EVENTS
+	if bET {
+		LogDebug("fd:", fd, " et mode")
+		eEvent = _epoll_BASE_EVENTS_ET
+	}
 	if (evtInput & EPOLL_EVENT_READ) != 0 {
 		eEvent |= _epoll_READ_EVENTS
 	}
@@ -38,8 +42,13 @@ func unixEpollDel(efd int, fd int) error {
 	return unix.EpollCtl(efd, unix.EPOLL_CTL_DEL, fd, nil)
 }
 
-func unixEpollMod(efd int, fd int, evtInput EPOLL_EVENT, userData int32) error {
+func unixEpollMod(efd int, fd int, evtInput EPOLL_EVENT, userData int32, bET bool) error {
 	var eEvent uint32 = _epoll_BASE_EVENTS
+	if bET {
+		LogDebug("fd:", fd, " et mode")
+		eEvent = _epoll_BASE_EVENTS_ET
+	}
+
 	if (evtInput & EPOLL_EVENT_READ) != 0 {
 		eEvent |= _epoll_READ_EVENTS
 	}

@@ -80,10 +80,10 @@ type MAP_TCPCONNECTION map[int]*tcpConnectionInfo
 
 type ePollConnection_Interface interface {
 	EpollConnection_process_evt()
-	EpollConnection_epllEvt_tcpread(fd FD_DEF, maxReadcount int)
+	EpollConnection_epllEvt_tcpread(fd FD_DEF)
 	EpollConnection_epllEvt_tcpwrite(fd FD_DEF)
 	EpollConnection_user_write(fd FD_DEF, binData []byte)
-	EpollConnection_do_write(ti *tcpConnectionInfo, maxWriteLoop int)
+	EpollConnection_do_write(ti *tcpConnectionInfo)
 	EPollConnection_AddEvent(evt interface{})
 	EpollConnection_close_tcp(fd FD_DEF)
 	_go_EpollConnection_epollwait()
@@ -124,6 +124,7 @@ type ParamEPollListener struct {
 	ParamTcpRWBuffLen  int // tcp r/w data buffer
 	ParamMaxTcpRead int
 	ParamMaxTcpWrite int
+	ParamET bool
 }
 type interParamEPollListener struct {
 	_paramMaxEpollEventCount int
@@ -132,6 +133,7 @@ type interParamEPollListener struct {
 	_paramTcpRWBuffLen  int // tcp r/w data buffer
 	_paramMaxTcpRead int
 	_paramMaxTcpWrite int
+	_paramET bool // if support epoll et mode
 }
 
 type EPollListener_interface interface {
@@ -164,8 +166,14 @@ func ConstructorEPollListener(cb EPollCallback, addr string, epollCoroutineCount
 			_paramTcpRWBuffLen : param.ParamTcpRWBuffLen,
 			_paramMaxTcpRead : param.ParamMaxTcpRead,
 			_paramMaxTcpWrite : param.ParamMaxTcpWrite,
+			_paramET : param.ParamET,
 		},
 		_cb : cb,
+	}
+
+	if el._paramET {
+		el._paramMaxTcpRead = -1
+		el._paramMaxTcpWrite = -1
 	}
 
 	if el._paramMaxEpollEventCount <= 0 {
