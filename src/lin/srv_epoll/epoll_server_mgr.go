@@ -135,7 +135,7 @@ func ConstructorEpollServerMgr(addr string, processUnitCount int, clientCloseTim
 		processUnit : make([]*eSrvMgrProcessUnit, 0, processUnitCount),
 		clientCloseTimeoutSec : clientCloseTimeoutSec,
 	}
-	lsn, err := lin_common.ConstructorEPollListener(eSrvMgr, addr, 20, lin_common.ParamEPollListener{ParamET: true})
+	lsn, err := lin_common.ConstructorEPollListener(eSrvMgr, addr, 100, lin_common.ParamEPollListener{ParamET: true})
 	if err != nil {
 		lin_common.LogErr("constructor epoll listener err:", err)
 		return nil, err

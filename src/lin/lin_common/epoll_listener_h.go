@@ -71,7 +71,6 @@ type tcpConnectionInfo struct {
 
 	_cur_epoll_evt EPOLL_EVENT
 
-
 	_isDial bool
 	_isConnSuc bool
 }
@@ -105,6 +104,8 @@ type ePollConnection struct {
 	_evtFD int
 	_evtQue *LKQueue // bind for _evtFD todo:改成用go自带的锁队列
 	_evtBuf []byte
+/*	_evt_process int64
+	_evt_need_process_next_loop bool*/
 
 	_lsn *EPollListener
 

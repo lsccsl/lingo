@@ -588,7 +588,7 @@ void MyDequePrint(HMYDEQUE hdq)
 		printf("%d ", (long)dq->map[it.map_index]->first[it.node_index]->data);
 #else
 #ifdef WIN32
-		printf("%d ", (long long)dq->map[it.map_index]->first[it.node_index]->data);
+		printf("%lld ", (long long)dq->map[it.map_index]->first[it.node_index]->data);
 #else
 		printf("%d ", (long)dq->map[it.map_index]->first[it.node_index]->data);
 #endif

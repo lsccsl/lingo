@@ -622,14 +622,14 @@ void MyHashTablePrint(const HMYHASHTABLE hht)
 		if(h->hash_array[i])
 			printf("\n");
 
-		printf("%d:",i);
+		printf("%zd:",i);
 		while(tmp)
 		{
 #ifdef _MBCSV6
 			printf("[%d-%d]", tmp->key, tmp->data);
 #else
 #ifdef WIN32
-			printf("[%d-%d]", (long long)tmp->key, (long long)tmp->data);
+			printf("[%lld-%lld]", (long long)tmp->key, (long long)tmp->data);
 #else
 			printf("[%d-%d]", tmp->key, tmp->data);
 #endif

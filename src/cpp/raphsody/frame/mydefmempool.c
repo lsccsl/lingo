@@ -204,7 +204,7 @@ static void rhapsody_destroy(void * context_data)
 		printf("[%s:%d]rhapsody_destroy %x %d blk has been free\r\n", __FILE__, __LINE__, context_data, blk_count);
 	#else
 	#ifdef WIN32
-		printf("[%s:%d]rhapsody_destroy %d blk has been free from pool %x \r\n", __FILE__, __LINE__, blk_count, (long long)context_data);
+		printf("[%s:%d]rhapsody_destroy %d blk has been free from pool %llx \r\n", __FILE__, __LINE__, blk_count, (long long)context_data);
 	#else
 		printf("[%s:%d]rhapsody_destroy %x %d blk has been free\r\n", __FILE__, __LINE__, context_data, blk_count);
 	#endif
@@ -234,7 +234,7 @@ static void rhapsody_view(void * context_data, void * info, size_t info_size)
 			printf("[%s:%d]blk : %x\r\n", __FILE__, __LINE__, blk);
 		#else
 		#ifdef WIN32
-			printf("[%s:%d]blk : %x\r\n", __FILE__, __LINE__, (long long)blk);
+			printf("[%s:%d]blk : %llx\r\n", __FILE__, __LINE__, (long long)blk);
 		#else
 			printf("[%s:%d]blk : %x\r\n", __FILE__, __LINE__, blk);
 		#endif

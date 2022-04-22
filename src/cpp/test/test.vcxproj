@@ -145,9 +145,11 @@
   <ItemGroup>
     <ClCompile Include="msg.pb.cc" />
     <ClCompile Include="test.cpp" />
+    <ClCompile Include="testclient.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="msg.pb.h" />
+    <ClInclude Include="testclient.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -906,7 +906,7 @@ static int btree_examin(mybtree_t * btree, mybtree_node_t * node,
 		printf("%d %x", current_layer, node);
 #else
 #ifdef WIN32
-		printf("%d %x", current_layer, (long long)node); 
+		printf("%d %I64d", current_layer, (long long)node); 
 #else
 		printf("%d %x", current_layer, node);
 #endif
@@ -934,14 +934,14 @@ static int btree_examin(mybtree_t * btree, mybtree_node_t * node,
 			printf("%x ", sub);
 #else
 #ifdef WIN32
-			printf("[%s:%d]%x ", __FILE__, __LINE__, (long long)node);
-			printf("%x ", (long long)sub);
+			printf("[%s:%d]%I64d ", __FILE__, __LINE__, (long long)node);
+			printf("%I64d ", (long long)sub);
 #else
 			printf("[%s:%d]%x ", __FILE__, __LINE__, node);
 			printf("%x ", sub);
 #endif
 #endif
-			printf("layer:%d sub:%d ", current_layer,i);
+			printf("layer:%d sub:%zd ", current_layer,i);
 			MyVectorPrint(sub->hv_key);
 		}
 

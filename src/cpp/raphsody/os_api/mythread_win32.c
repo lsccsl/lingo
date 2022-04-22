@@ -85,7 +85,7 @@ static void mythread_cancel(mythread_t * mt)
 		context.ContextFlags = CONTEXT_CONTROL;
 		GetThreadContext( mt->hthr, &context );
 # pragma warning (disable:4311)
-		context.Eip = (DWORD)throw_exception_cancel;
+		context.Rip = (DWORD)throw_exception_cancel;
 		SetThreadContext( mt->hthr, &context );
 	}
 

@@ -3,8 +3,10 @@
   <ItemGroup>
     <ClCompile Include="test.cpp" />
     <ClCompile Include="msg.pb.cc" />
+    <ClCompile Include="testclient.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="msg.pb.h" />
+    <ClInclude Include="testclient.h" />
   </ItemGroup>
 </Project>

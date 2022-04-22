@@ -141,7 +141,11 @@ static __INLINE__ mykey_t * createKey(const char * name, size_t name_len, void *
 	key->name = (char *)MyMemPoolMalloc(NULL, name_len + 1);
 	if(NULL == key->name)
 		goto createKey_err_;
+#ifdef WIN32
+	strncpy_s(key->name, key->name_len, name, name_len);
+#else
 	strncpy(key->name, name, name_len);
+#endif
 	key->name_len = name_len;
 	key->name[key->name_len] = 0;
 
@@ -217,7 +221,11 @@ static __INLINE__ mysec_t * createSec(const char * sec_name, size_t name_len)
 		goto createSec_err_;
 
 	sec->name_len = name_len;
+#ifdef WIN32
+	strncpy_s(sec->name, sec->name_len, sec_name, name_len);
+#else
 	strncpy(sec->name, sec_name, name_len);
+#endif
 	sec->name[name_len] = 0;
 
 	return sec;
@@ -445,7 +453,11 @@ HMYINI MyIniConstructFromFile(const char * filepath)
 	if(NULL == filepath)
 		return NULL;
 
+#ifdef WIN32
+	fopen_s(&p, filepath, "rt");
+#else
 	p = fopen(filepath, "rt");
+#endif
 	if(NULL == p)
 		return NULL;
 
@@ -487,8 +499,11 @@ HMYINI MyIniConstructFromFile(const char * filepath)
 			content_len = content_len * 2;
 			content = ptemp;
 		}
-
+#ifdef WIN32
+		strcpy_s(content + strlen(content), content_len - strlen(content), buf);
+#else
 		strcpy(content + strlen(content), buf);
+#endif
 	}while(pcbuf);
 
 	hini = (HMYINI)IniConstruct(content, content_len);
@@ -573,8 +588,11 @@ size_t MyIniGetSecName(HMYINI_SEC hsec, char * name, size_t name_len)
 	mysec_t * sec = (mysec_t *)hsec;
 	if(NULL == sec || NULL == name || 0 == name_len)
 		return 0;
-
+#ifdef WIN32
+	strncpy_s(name, name_len, sec->name, name_len);
+#else
 	strncpy(name, sec->name, name_len);
+#endif
 	return sec->name_len;
 }
 
@@ -631,8 +649,12 @@ size_t MyIniGetKeyValString(HMYINI_KEY hkey, char * val, size_t val_len)
 	mykey_t * key = (mykey_t *)hkey;
 	if(NULL == key || NULL == val || 0 == val_len)
 		return 0;
-
+#ifdef WIN32
+	strncpy_s(val, val_len, (char*)key->val, val_len);
+	
+#else
 	strncpy(val, (char *)key->val, val_len);
+#endif
 	return key->val_len;
 }
 
@@ -646,8 +668,11 @@ size_t MyIniGetKeyName(HMYINI_KEY hkey, char * name, size_t name_len)
 	mykey_t * key = (mykey_t *)hkey;
 	if(NULL == key || NULL == name || 0 == name_len)
 		return 0;
-
+#ifdef WIN32
+	strncpy_s(name, name_len, key->name, name_len);
+#else
 	strncpy(name, key->name, name_len);
+#endif
 	return key->name_len;
 }
 

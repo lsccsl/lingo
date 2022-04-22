@@ -23,7 +23,11 @@ func ConstructorTcpConnectionInfo(fd FD_DEF, isDial bool, buffInitLen int)*tcpCo
 	if err != nil {
 		LogDebug("_setNoDelay:", fd.String(), " err:", err)
 	}
-	//_tcpKeepAlive(fd.FD, 10, 3600, 10)
+	err = _tcpKeepAlive(fd.FD, 10, 10, 10)
+	if err != nil {
+		LogDebug("_setNoDelay:", fd.String(), " err:", err)
+	}
+
 	ti := &tcpConnectionInfo{
 		_fd: fd,
 		_readBuf : bytes.NewBuffer(make([]byte, 0, buffInitLen)),
@@ -149,6 +153,15 @@ func (pthis*ePollConnection)EpollConnection_process_evt(){
 		default:
 		}
 	}
+
+/*	pthis._evt_need_process_next_loop = false
+	atomic.StoreInt64(&pthis._evt_process, 0)
+	if ((!pthis._evtQue.IsEmpty()) && atomic.CompareAndSwapInt64(&pthis._evt_process, 0, 1)) {
+		_, err := unix.Write(pthis._evtFD, EVENT_BIN_1)
+		if err != unix.EAGAIN {
+			pthis._evt_need_process_next_loop = true
+		}
+	}*/
 }
 
 func (pthis*ePollConnection)EpollConnection_user_write(fd FD_DEF, binData []byte) {
@@ -324,6 +337,9 @@ func (pthis*ePollConnection)EpollConnection_do_write(ti *tcpConnectionInfo) {
 func (pthis*ePollConnection)EPollConnection_AddEvent(evt interface{}) {
 	pthis._evtQue.Enqueue(evt)
 	unix.Write(pthis._evtFD, EVENT_BIN_1)
+/*	if atomic.CompareAndSwapInt64(&pthis._evt_process, 0, 1) {
+		unix.Write(pthis._evtFD, EVENT_BIN_1)
+	}*/
 }
 
 func (pthis*ePollConnection)_go_EpollConnection_epollwait() {
@@ -366,6 +382,10 @@ func (pthis*ePollConnection)_go_EpollConnection_epollwait() {
 				}
 			}
 		}
+
+/*		if pthis._evt_need_process_next_loop {
+			pthis.EpollConnection_process_evt()
+		}*/
 	}
 }
 

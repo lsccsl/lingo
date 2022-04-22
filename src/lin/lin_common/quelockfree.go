@@ -10,6 +10,7 @@ import (
 type LKQueue struct {
 	head unsafe.Pointer
 	tail unsafe.Pointer
+	length int64
 }
 
 type node struct {
@@ -33,6 +34,7 @@ func (q *LKQueue) Enqueue(v interface{}) {
 			if next == nil {
 				if cas(&tail.next, next, n) {
 					cas(&q.tail, tail, n) // 排队完成, 尝试将tail移到插入的节点
+					atomic.AddInt64(&q.length, 1)
 					return
 				}
 			} else { // tail没有指向最后一个节点
@@ -60,6 +62,7 @@ func (q *LKQueue) Dequeue() interface{} {
 				// 在CAS之前读取值，否则另一个出队列可能释放下一个节点
 				v := next.value
 				if cas(&q.head, head, next) {
+					atomic.AddInt64(&q.length, -1)
 					return v
 				}
 			}
@@ -75,4 +78,8 @@ func load(p *unsafe.Pointer) (n *node) {
 func cas(p *unsafe.Pointer, old, new *node) (ok bool) {
 	return atomic.CompareAndSwapPointer(
 		p, unsafe.Pointer(old), unsafe.Pointer(new))
+}
+
+func (q *LKQueue) IsEmpty() bool {
+	return atomic.LoadInt64(&q.length) == 0
 }

@@ -11,6 +11,7 @@
 
 void test_bdb()
 {
+#if 0
 	struct timeval tv1;
 	struct timeval tv2;
 	DB * dbp;
@@ -84,6 +85,7 @@ void test_bdb()
 	dbp->close(dbp, 0);
 
 	printf("bdb test over\r\n");
+#endif
 }
 
 //int main()

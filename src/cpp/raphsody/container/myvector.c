@@ -718,14 +718,14 @@ void MyVectorPrint(HMYVECTOR vt)
 		printf("%d ", (long)vt->el_array[i]->data);
 #else
 #ifdef WIN32
-		printf("%d ", (long long)vt->el_array[i]->data);
+		printf("%lld ", (long long)vt->el_array[i]->data);
 #else
 		printf("%d ", (long)vt->el_array[i]->data);
 #endif
 #endif
 	}
 
-	printf("total:%d\r\n", vt->el_count);
+	printf("total:%zd\r\n", vt->el_count);
 }
 
 

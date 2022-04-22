@@ -345,7 +345,7 @@ void MyBufferLook(HMYBUFFER hb)
 	printf("[%s:%d] %x:%s c:%d l:%d r:%d\n", __FILE__, __LINE__, b, (char *)b, c, l, r);
 #else
 #ifdef WIN32
-	printf("[%s:%d] %x:%s c:%d l:%d r:%d\n", __FILE__, __LINE__, (long long)b, (char *)b, c, l, r);
+	printf("[%s:%d] %llx:%s c:%zd l:%zd r:%d\n", __FILE__, __LINE__, (long long)b, (char *)b, c, l, r);
 #else
 	printf("[%s:%d] %x:%s c:%d l:%d r:%d\n", __FILE__, __LINE__, b, (char *)b, c, l, r);
 #endif

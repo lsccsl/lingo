@@ -814,7 +814,7 @@ int MyListernerPrint(HMYLISTERNER hlisterner, char * pctemp, size_t sz)
 {
 	mylisterner_t * l = (mylisterner_t *)hlisterner;
 
-	printf("listerner %x\r\n timer:%d msgq:%d\r\n", 
+	printf("listerner %x\r\n timer:%zd msgq:%zd\r\n", 
 		(unsigned long)l, MyTimerHeapGetCount(l->tmhp),
 		MyMsgQueGetCount(l->mq));
 
