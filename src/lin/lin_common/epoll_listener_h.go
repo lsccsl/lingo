@@ -94,6 +94,7 @@ type ePollConnection_Interface interface {
 }
 type ePollConnectionStatic struct {
 	_tcpConnCount int
+	_tcpCloseCount int64
 	_byteRecv int64
 	_byteProc int64
 	_byteSend int64
@@ -150,6 +151,7 @@ type interParamEPollListener struct {
 
 type EPollListenerStatic struct {
 	TcpConnCount int
+	TcpCloseCount int64
 	ByteRecv int64
 	ByteProc int64
 	ByteSend int64

@@ -227,3 +227,30 @@ func _setLinger(fd, sec int) error {
 	}
 	return unix.SetsockoptLinger(fd, syscall.SOL_SOCKET, syscall.SO_LINGER, &l)
 }
+
+func _tcpKeepAlive(fd int, idle int, interval int, retry_count int) error {
+	err := unix.SetsockoptInt(fd, unix.SOL_SOCKET, unix.SO_KEEPALIVE, 1)
+	if err != nil {
+		return err
+	}
+
+	err = unix.SetsockoptInt(fd, unix.SOL_TCP, unix.TCP_KEEPIDLE, idle)
+	if err != nil {
+		unix.SetsockoptInt(fd, unix.SOL_SOCKET, unix.SO_KEEPALIVE, 0)
+		return err
+	}
+
+	err = unix.SetsockoptInt(fd, unix.SOL_TCP, unix.TCP_KEEPINTVL, interval)
+	if err != nil {
+		unix.SetsockoptInt(fd, unix.SOL_SOCKET, unix.SO_KEEPALIVE, 0)
+		return err
+	}
+
+	err = unix.SetsockoptInt(fd, unix.SOL_TCP, unix.TCP_KEEPCNT, retry_count)
+	if err != nil {
+		unix.SetsockoptInt(fd, unix.SOL_SOCKET, unix.SO_KEEPALIVE, 0)
+		return err
+	}
+
+	return nil
+}

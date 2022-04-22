@@ -109,7 +109,9 @@ func (pthis*EpollServerMgr)Dump(bDetail bool)string{
 		" tcp conn count:" + strconv.FormatInt(int64(es.TcpConnCount), 10) +
 		" totalClient:" + strconv.FormatInt(int64(totalClient), 10) +
 		" totalRecv:" + strconv.FormatInt(totalRecv, 10) +
-		"\r\n byteRecv:" + strconv.FormatInt(es.ByteRecv, 10) +
+		"\r\n" +
+		" TcpCloseCount:" + strconv.FormatInt(es.TcpCloseCount, 10) +
+		" byteRecv:" + strconv.FormatInt(es.ByteRecv, 10) +
 		" byteSend:" + strconv.FormatInt(es.ByteSend, 10) +
 		" byteProc:" + strconv.FormatInt(es.ByteProc, 10) +
 		" byte unProc:" + strconv.FormatInt(es.ByteRecv - es.ByteProc, 10) + "\r\n\r\n"
@@ -133,7 +135,7 @@ func ConstructorEpollServerMgr(addr string, processUnitCount int, clientCloseTim
 		processUnit : make([]*eSrvMgrProcessUnit, 0, processUnitCount),
 		clientCloseTimeoutSec : clientCloseTimeoutSec,
 	}
-	lsn, err := lin_common.ConstructorEPollListener(eSrvMgr, addr, 10, lin_common.ParamEPollListener{ParamET: true})
+	lsn, err := lin_common.ConstructorEPollListener(eSrvMgr, addr, 20, lin_common.ParamEPollListener{ParamET: true})
 	if err != nil {
 		lin_common.LogErr("constructor epoll listener err:", err)
 		return nil, err

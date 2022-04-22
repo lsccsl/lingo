@@ -41,6 +41,7 @@ type ServerMgrStatic struct {
 	totalSend int64
 	totalProc int64
 	timestamp float64
+	totalClientClose int64
 }
 type ServerMgr struct {
 	srvID int64
@@ -145,6 +146,7 @@ func (pthis*ServerMgr)CBConnectClose(tcpConn *tcp.TcpConnection, closeReason tcp
 		} else if tcpConn.ClientID != 0 {
 			oldC := pthis.getClient(tcpConn.ClientID)
 			if oldC != nil {
+				atomic.AddInt64(&pthis.totalClientClose, 1)
 				if oldC.ClientGetConnectionID() == tcpConn.TcpConnectionID(){
 					pthis.delClient(tcpConn.ClientID)
 				}
@@ -367,7 +369,9 @@ func (pthis*ServerMgr)Dump(bDtail bool) string {
 			totalPacket += sval
 		}
 		str += fmt.Sprintf("static:%v", mapStatic)
-		str += "\r\nclient count:" + strconv.Itoa(len(pthis.ClientMapMgr.mapClient)) + " totalPacket:" + strconv.FormatInt(totalPacket, 10)
+		str += "\r\nclient count:" + strconv.Itoa(len(pthis.ClientMapMgr.mapClient)) +
+			" totalPacket:" + strconv.FormatInt(totalPacket, 10) +
+			" totalClientClose:" + strconv.FormatInt(pthis.totalClientClose, 10)
 	}()
 
 	str += "\r\nserver:\r\n"

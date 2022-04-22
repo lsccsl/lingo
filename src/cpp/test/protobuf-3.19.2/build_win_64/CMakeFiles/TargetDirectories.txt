@@ -1,0 +1,14 @@
+F:/test/lingo/src/cpp/test/protobuf-3.19.2/build_win_64/CMakeFiles/libprotobuf-lite.dir
+F:/test/lingo/src/cpp/test/protobuf-3.19.2/build_win_64/CMakeFiles/protoc.dir
+F:/test/lingo/src/cpp/test/protobuf-3.19.2/build_win_64/CMakeFiles/libprotoc.dir
+F:/test/lingo/src/cpp/test/protobuf-3.19.2/build_win_64/CMakeFiles/libprotobuf.dir
+F:/test/lingo/src/cpp/test/protobuf-3.19.2/build_win_64/CMakeFiles/gmock_main.dir
+F:/test/lingo/src/cpp/test/protobuf-3.19.2/build_win_64/CMakeFiles/gmock.dir
+F:/test/lingo/src/cpp/test/protobuf-3.19.2/build_win_64/CMakeFiles/tests.dir
+F:/test/lingo/src/cpp/test/protobuf-3.19.2/build_win_64/CMakeFiles/test_plugin.dir
+F:/test/lingo/src/cpp/test/protobuf-3.19.2/build_win_64/CMakeFiles/lite-test.dir
+F:/test/lingo/src/cpp/test/protobuf-3.19.2/build_win_64/CMakeFiles/lite-arena-test.dir
+F:/test/lingo/src/cpp/test/protobuf-3.19.2/build_win_64/CMakeFiles/check.dir
+F:/test/lingo/src/cpp/test/protobuf-3.19.2/build_win_64/CMakeFiles/INSTALL.dir
+F:/test/lingo/src/cpp/test/protobuf-3.19.2/build_win_64/CMakeFiles/ALL_BUILD.dir
+F:/test/lingo/src/cpp/test/protobuf-3.19.2/build_win_64/CMakeFiles/ZERO_CHECK.dir

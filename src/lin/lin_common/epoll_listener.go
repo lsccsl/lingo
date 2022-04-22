@@ -11,9 +11,19 @@ import (
 )
 
 func ConstructorTcpConnectionInfo(fd FD_DEF, isDial bool, buffInitLen int)*tcpConnectionInfo {
-	_setNoBlock(fd.FD)
-	_setLingerOff(fd.FD)
-	_setNoDelay(fd.FD)
+	err := _setNoBlock(fd.FD)
+	if err != nil {
+		LogDebug("_setNoBlock:", fd.String(), " err:", err)
+	}
+	err = _setLingerOff(fd.FD)
+	if err != nil {
+		LogDebug("_setLingerOff:", fd.String(), " err:", err)
+	}
+	err = _setNoDelay(fd.FD)
+	if err != nil {
+		LogDebug("_setNoDelay:", fd.String(), " err:", err)
+	}
+	//_tcpKeepAlive(fd.FD, 10, 3600, 10)
 	ti := &tcpConnectionInfo{
 		_fd: fd,
 		_readBuf : bytes.NewBuffer(make([]byte, 0, buffInitLen)),
@@ -43,6 +53,7 @@ func (pthis*ePollConnection)_add_tcp_conn(ti*tcpConnectionInfo) {
 func (pthis*ePollConnection)_del_tcp_conn(fd int) {
 	delete(pthis._mapTcp, fd)
 
+	pthis._tcpCloseCount ++
 	pthis._tcpConnCount = len(pthis._mapTcp)
 }
 func (pthis*ePollConnection)_get_tcp_conn(fd int)*tcpConnectionInfo {
@@ -548,6 +559,7 @@ func (pthis*EPollListener)EPollListenerDial(addr string)(fd FD_DEF, err error){
 func(pthis*EPollListener)EPollListenerGetStatic(es *EPollListenerStatic) {
 	for _, val := range pthis._epollConnection {
 		es.TcpConnCount += val._tcpConnCount
+		es.TcpCloseCount += val._tcpCloseCount
 		es.ByteRecv += val._byteRecv
 		es.ByteProc += val._byteProc
 		es.ByteSend += val._byteSend
