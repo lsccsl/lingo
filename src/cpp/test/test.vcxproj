@@ -128,10 +128,11 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>./protobuf-3.19.2/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <Optimization>Disabled</Optimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -139,17 +140,28 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>./protobuf-3.19.2/build_win_64/Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libprotobuf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;libprotobuf.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="channel.cpp" />
+    <ClCompile Include="gettimeofday_win32.c" />
     <ClCompile Include="msg.pb.cc" />
+    <ClCompile Include="mylogex.cpp" />
     <ClCompile Include="test.cpp" />
     <ClCompile Include="testclient.cpp" />
+    <ClCompile Include="testclient_mgr.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="channel.h" />
+    <ClInclude Include="gettimeofday.h" />
     <ClInclude Include="msg.pb.h" />
+    <ClInclude Include="mylogex.h" />
     <ClInclude Include="testclient.h" />
+    <ClInclude Include="testclient_mgr.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\lin\protodef\msg.proto" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

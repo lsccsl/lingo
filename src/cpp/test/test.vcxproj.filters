@@ -4,9 +4,20 @@
     <ClCompile Include="test.cpp" />
     <ClCompile Include="msg.pb.cc" />
     <ClCompile Include="testclient.cpp" />
+    <ClCompile Include="channel.cpp" />
+    <ClCompile Include="gettimeofday_win32.c" />
+    <ClCompile Include="mylogex.cpp" />
+    <ClCompile Include="testclient_mgr.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="msg.pb.h" />
     <ClInclude Include="testclient.h" />
+    <ClInclude Include="channel.h" />
+    <ClInclude Include="gettimeofday.h" />
+    <ClInclude Include="mylogex.h" />
+    <ClInclude Include="testclient_mgr.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\lin\protodef\msg.proto" />
   </ItemGroup>
 </Project>
