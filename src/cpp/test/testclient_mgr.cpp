@@ -1,5 +1,8 @@
 #include "testclient_mgr.h"
 #include <windows.h>
+#include <sys/timeb.h>
+#include "mylogex.h"
+
 
 void testclient_mgr::init(const int unit_count)
 {
@@ -23,9 +26,11 @@ void testclient_mgr::join()
 	}
 }
 
+const int TEST_COUNT = 10;
+
 void testclient_mgr::thread_func(int idx)
 {
-	printf("idx:%d\r\n", idx);
+	MYLOG_ERR(("idx:%d\r\n", idx));
 
 	testclient_mgr_unit& mgr_unit = this->v_mgr_unit_[idx];
 	
@@ -36,21 +41,41 @@ void testclient_mgr::thread_func(int idx)
 		it.second->do_login();
 
 	int64 seq = 0;
+
+	msgpacket::MSG_TEST msg;
+	msg.set_str("testabcdefg");
+	timeb now;
+	ftime(&now);
+	msg.set_timestamp(now.time * 1000 + now.millitm);
+
 	while (1)
 	{
 		if (mgr_unit.map_client_.empty())
 			Sleep(1000);
 		for (auto& it : mgr_unit.map_client_)
 		{
-			if (!it.second->send_test(seq, 10))
+			auto cli = it.second;
+			msg.set_id(cli->id());
+			if (!cli->send_test(msg, seq, TEST_COUNT))
 			{
-				printf("re connect to srv :%d------\r\n", it.second->id());
-				it.second->connect_to_srv("192.168.2.129", 2003);
-				it.second->do_login();
+				MYLOG_ERR(("send err, re connect to srv :%lld------\r\n", it.second->id()));
+				cli->connect_to_srv("192.168.2.129", 2003);
+				cli->do_login();
+			}
+		}
+		for (auto& it : mgr_unit.map_client_)
+		{
+			auto cli = it.second;
+			msg.set_id(cli->id());
+			if (!cli->recv_test(seq, TEST_COUNT))
+			{
+				MYLOG_ERR(("recv err, re connect to srv :%lld------\r\n", it.second->id()));
+				cli->connect_to_srv("192.168.2.129", 2003);
+				cli->do_login();
 			}
 		}
 
-		seq++;
+		seq += TEST_COUNT;
 	}
 }
 

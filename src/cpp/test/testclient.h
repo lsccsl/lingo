@@ -36,12 +36,13 @@ public:
 	{}
 
 	bool connect_to_srv(const std::string& srv_ip, int srv_port);
-	const int64 id() const{
+	inline const int64 id() const{
 		return id_;
 	}
 
 	bool do_login();
-	bool send_test(const int64 seq, int count);
+	bool send_test(msgpacket::MSG_TEST& msg, const int64 seq, int count);
+	bool recv_test(const int64 seq, int count);
 
 	bool send_msg(int msg_typ, google::protobuf::Message* proto_msg);
 	bool recv_one_msg();

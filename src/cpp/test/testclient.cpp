@@ -1,7 +1,7 @@
 #include "testclient.h"
 #include <string>
 #include <winsock2.h>
-#include <sys/timeb.h>
+#include "mylogex.h"
 
 msgpackhelp::MAP_MSGTYPE_PROTOMSG msgpackhelp::map_msgtype_protomsg;
 void msgpackhelp::pack_to_bin(std::string& buf_out, int msg_typ, google::protobuf::Message* proto_msg)
@@ -54,10 +54,14 @@ void msgpackhelp::parse_reg(google::protobuf::Message* proto_msg, int msg_type)
 bool testclient::connect_to_srv(const std::string& srv_ip, int srv_port)
 {
 	this->_reset_client();
-
+	if (this->fd_ > 0)
+		CChannel::CloseFd(this->fd_);
 	this->fd_ = CChannel::TcpConnect(srv_ip.c_str(), srv_port);
 	if (this->fd_ < 0)
+	{
+		MYLOG_ERR(("clientid:%lld connect err:%d-%d", this->id_, ::WSAGetLastError(), ::GetLastError()));
 		return false;
+	}
 
 	return true;
 }
@@ -68,9 +72,15 @@ bool testclient::do_login()
 	msg.set_id(this->id_);
 
 	if (!this->send_msg(msgpacket::_MSG_LOGIN, &msg))
+	{
+		MYLOG_ERR(("clientid:%lld login write err:%d-%d", this->id_, ::WSAGetLastError(), ::GetLastError()));
 		return false;
+	}
 	if (!this->recv_one_msg())
+	{
+		MYLOG_ERR(("clientid:%lld login read err:%d-%d", this->id_, ::WSAGetLastError(), ::GetLastError()));
 		return false;
+	}
 
 	bool bret = false;
 	for (auto& it : this->lst_msg_recv_)
@@ -85,21 +95,20 @@ bool testclient::do_login()
 
 	return bret;
 }
-bool testclient::send_test(const int64 seq, int count)
+bool testclient::send_test(msgpacket::MSG_TEST& msg, const int64 seq, int count)
 {
-	msgpacket::MSG_TEST msg;
-	msg.set_id(this->id_);
-	msg.set_str("test" + std::to_string(this->id_));
-	msg.set_seq(seq);
-	timeb now;
-	ftime(&now);
-	msg.set_timestamp(now.time * 1000 + now.millitm);
-
 	for (int i = 0; i < count; i++)
 	{
+		msg.set_seq(seq + i);
 		if (!this->send_msg(msgpacket::_MSG_TEST, &msg))
 			return false;
 	}
+
+	return true;
+}
+
+bool testclient::recv_test(const int64 seq, int count)
+{
 	for (int i = 0; i < count; i++)
 	{
 		if (!this->recv_one_msg())
@@ -107,12 +116,12 @@ bool testclient::send_test(const int64 seq, int count)
 	}
 
 	bool bret = false;
-	for (auto& it : this->lst_msg_recv_)
+	for (std::list<ProtoMsg>::reverse_iterator it = this->lst_msg_recv_.rbegin(); it != this->lst_msg_recv_.rend(); it ++)
 	{
-		if (it.msg_type == msgpacket::_MSG_TEST_RES)
+		if (it->msg_type == msgpacket::_MSG_TEST_RES)
 		{
-			auto msgRes = std::dynamic_pointer_cast<msgpacket::MSG_TEST_RES>(it.proto_msg);
-			if (msgRes->seq() == seq)
+			auto msgRes = std::dynamic_pointer_cast<msgpacket::MSG_TEST_RES>(it->proto_msg);
+			if (msgRes->seq() == (seq + count - 1))
 			{
 				bret = true;
 				break;
@@ -120,8 +129,12 @@ bool testclient::send_test(const int64 seq, int count)
 		}
 	}
 	this->lst_msg_recv_.clear();
+	if (!bret)
+	{
+		MYLOG_ERR(("id:%lld recv seq err", this->id_));
+	}
 
-	return bret;
+	return true;
 }
 
 bool testclient::send_msg(int msg_typ, google::protobuf::Message* proto_msg)
@@ -131,7 +144,10 @@ bool testclient::send_msg(int msg_typ, google::protobuf::Message* proto_msg)
 
 	int32 ret = CChannel::TcpSelectWrite(this->fd_, buf_bin.data(), buf_bin.size(), 10);
 	if (ret < 0)
+	{
+		MYLOG_ERR(("clientid:%lld write err:%d-%d", this->id_, ::WSAGetLastError(), ::GetLastError()));
 		return false;
+	}
 	return true;
 }
 
@@ -147,7 +163,10 @@ bool testclient::recv_one_msg()
 	if (read_sz > 0)
 		ret = CChannel::TcpSelectRead(this->fd_, buf, read_sz, 30, 10);
 	if (ret < 0)
+	{
+		MYLOG_ERR(("clientid:%lld read head err:%d-%d", this->id_, ::WSAGetLastError(), ::GetLastError()));
 		return false;
+	}
 	this->read_buf_sz_ += ret;
 
 	if (ret < sizeof(msghead))
@@ -165,7 +184,10 @@ bool testclient::recv_one_msg()
 		ret = CChannel::TcpSelectRead(this->fd_, buf, body_len, 30, 10);
 	}
 	if (ret < 0)
+	{
+		MYLOG_ERR(("clientid:%lld read body err:%d-%d", this->id_, ::WSAGetLastError(), ::GetLastError()));
 		return false;
+	}
 	this->read_buf_sz_ += ret;
 	if (ret < body_len)
 		return true;
