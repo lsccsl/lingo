@@ -86,6 +86,7 @@ func (pthis*eSrvMgrProcessUnit)Process_MSG_LOGIN(fd lin_common.FD_DEF, msg *msgp
 	msgRes.Fd = int64(fd.FD)
 
 	pthis.eSrvMgr.lsn.EPollListenerWrite(fd, msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_LOGIN_RES, msgRes))
+	//lin_common.TMP_tcpWrite(fd, msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_LOGIN_RES, msgRes))
 }
 
 func (pthis*eSrvMgrProcessUnit)Process_protoMsg(msg *msgProto) {

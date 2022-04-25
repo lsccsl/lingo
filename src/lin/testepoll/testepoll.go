@@ -156,7 +156,7 @@ func (pthis*test_cb)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer)(bytesPr
 	if ti != nil {
 		if fd.FD%2 != 0 {
 			lin_common.LogDebug("will write back fd:", fd.FD, " magic:", fd.Magic)
-			pthis.lsn.EPollListenerWrite(fd, readBuf.Bytes())
+			//pthis.lsn.EPollListenerWrite(fd, readBuf.Bytes())
 			//pthis.lsn.EPollListenerCloseTcp(rawfd, ti.magic)
 		}
 	}

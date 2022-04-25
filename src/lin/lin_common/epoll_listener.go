@@ -27,6 +27,14 @@ func ConstructorTcpConnectionInfo(fd FD_DEF, isDial bool, buffInitLen int)*tcpCo
 	if err != nil {
 		LogDebug("_setNoDelay:", fd.String(), " err:", err)
 	}
+	err = _setRecvBuffer(fd.FD, 65535)
+	if err != nil {
+		LogErr("_setRecvBuffer:", fd.String(), " err:", err)
+	}
+	err = _setSendBuffer(fd.FD, 65535)
+	if err != nil {
+		LogErr("_setSendBuffer:", fd.String(), " err:", err)
+	}
 
 	ti := &tcpConnectionInfo{
 		_fd: fd,
@@ -411,7 +419,7 @@ func (pthis*ePollAccept)_go_EpollAccept_epollwait() {
 
 	LogDebug("accept maxReadcount:", maxReadcount)
 
-	events := make([]unix.EpollEvent, pthis._lsn._paramMaxEpollEventCount) // todo: change the events array size by epoll wait ret count
+	events := make([]unix.EpollEvent, pthis._lsn._paramMaxEpollEventCount)
 	for {
 		count, err := unix.EpollWait(pthis._epollFD, events, pthis._lsn._paramEpollWaitTimeoutMills)
 		if count == 0 || (count < 0 && err == unix.EINTR) {
@@ -458,8 +466,8 @@ func (pthis*EPollListener)EPollListenerInit(cb EPollCallback, addr string, epoll
 	pthis._epollAccept._evtQue = NewLKQueue()
 	pthis._epollAccept._evtBuf = make([]byte, EVENT_BIN_8)
 
-	if pthis._paramReadBufLen <= 0 {
-		pthis._paramReadBufLen = MTU
+	if pthis._paramTmpReadBufLen <= 0 {
+		pthis._paramTmpReadBufLen = MTU
 	}
 
 	var err error
@@ -505,7 +513,7 @@ func (pthis*EPollListener)EPollListenerInit(cb EPollCallback, addr string, epoll
 			_lsn: pthis,
 			_evtQue:NewLKQueue(),
 			_evtBuf : make([]byte, EVENT_BIN_8),
-			_binRead : make([]byte, pthis._paramReadBufLen),
+			_binRead : make([]byte, pthis._paramTmpReadBufLen),
 			_mapTcp : make(MAP_TCPCONNECTION),
 		}
 		pthis._epollConnection = append(pthis._epollConnection, epollConn)
@@ -543,12 +551,13 @@ func (pthis*EPollListener)EPollListenerGenMagic() int32 {
 }
 
 func (pthis*EPollListener)EPollListenerAddEvent(fd int, evt interface{}) {
-	if len(pthis._epollConnection) == 0 {
+	connCount := len(pthis._epollConnection)
+	if connCount <= 0 {
 		LogErr("epoll connection coroutine count is 0")
 		return
 	}
-	idx := fd % len(pthis._epollConnection)
-	if idx >= len(pthis._epollConnection) {
+	idx := fd % connCount
+	if idx >= connCount {
 		return
 	}
 	pthis._epollConnection[idx].EPollConnection_AddEvent(evt)

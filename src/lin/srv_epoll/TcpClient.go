@@ -58,6 +58,7 @@ func (pthis*TcpClient)Process_MSG_TCP_STATIC(msg *msgpacket.MSG_TCP_STATIC) {
 		ByteSend:0,
 	}
 	pthis.pu.eSrvMgr.lsn.EPollListenerWrite(pthis.fd, msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_TCP_STATIC_RES, msgRes))
+	//lin_common.TMP_tcpWrite(pthis.fd, msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_TCP_STATIC_RES, msgRes))
 }
 func (pthis*TcpClient)Process_MSG_TEST(msg *msgpacket.MSG_TEST) {
 	//lin_common.LogDebug("clientid:", pthis.clientID, " fd:", pthis.fd.String())
@@ -69,6 +70,7 @@ func (pthis*TcpClient)Process_MSG_TEST(msg *msgpacket.MSG_TEST) {
 	msgRes.TimestampArrive = msg.TimestampArrive
 	msgRes.TimestampProcess = time.Now().UnixMilli()
 	pthis.pu.eSrvMgr.lsn.EPollListenerWrite(pthis.fd, msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_TEST_RES, msgRes))
+	//lin_common.TMP_tcpWrite(pthis.fd, msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_TEST_RES, msgRes))
 
 }
 func (pthis*TcpClient)Process_MSG_HEARTBEAT(msg *msgpacket.MSG_HEARTBEAT) {
@@ -76,6 +78,7 @@ func (pthis*TcpClient)Process_MSG_HEARTBEAT(msg *msgpacket.MSG_HEARTBEAT) {
 	msgRes := &msgpacket.MSG_HEARTBEAT_RES{}
 	msgRes.Id = msg.Id
 	pthis.pu.eSrvMgr.lsn.EPollListenerWrite(pthis.fd, msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_HEARTBEAT_RES, msgRes))
+	//lin_common.TMP_tcpWrite(pthis.fd, msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_HEARTBEAT_RES, msgRes))
 }
 
 func (pthis*TcpClient)Process_protoMsg(msg *msgProto) {

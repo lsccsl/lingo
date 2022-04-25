@@ -4,6 +4,9 @@
 void testclient_mgr::init(const int unit_count)
 {
 	this->v_mgr_unit_.resize(unit_count);
+}
+void testclient_mgr::run_thread()
+{
 	for (int i = 0; i < this->v_mgr_unit_.size(); i++)
 	{
 		testclient_mgr_unit& mgr_unit = this->v_mgr_unit_[i];

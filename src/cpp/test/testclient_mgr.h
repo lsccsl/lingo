@@ -21,6 +21,7 @@ public:
 	void join();
 
 	void init(const int unit_count);
+	void run_thread();
 
 	void add_client(const int64 id);
 

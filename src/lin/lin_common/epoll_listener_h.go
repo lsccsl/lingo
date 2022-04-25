@@ -134,7 +134,7 @@ type ePollAccept struct {
 type ParamEPollListener struct {
 	ParamMaxEpollEventCount int
 	ParamEpollWaitTimeoutMills int
-	ParamReadBufLen int    // epoll coroutine tmp read buf
+	ParamTmpReadBufLen int    // epoll coroutine tmp read buf
 	ParamTcpRWBuffLen  int // tcp r/w data buffer
 	ParamMaxTcpRead int
 	ParamMaxTcpWrite int
@@ -143,7 +143,7 @@ type ParamEPollListener struct {
 type interParamEPollListener struct {
 	_paramMaxEpollEventCount int
 	_paramEpollWaitTimeoutMills int
-	_paramReadBufLen int    // epoll coroutine tmp read buf
+	_paramTmpReadBufLen int    // epoll coroutine tmp read buf
 	_paramTcpRWBuffLen  int // tcp r/w data buffer
 	_paramMaxTcpRead int
 	_paramMaxTcpWrite int
@@ -185,7 +185,7 @@ func ConstructorEPollListener(cb EPollCallback, addr string, epollCoroutineCount
 		interParamEPollListener:interParamEPollListener{
 			_paramMaxEpollEventCount : param.ParamMaxEpollEventCount,
 			_paramEpollWaitTimeoutMills : param.ParamEpollWaitTimeoutMills,
-			_paramReadBufLen : param.ParamReadBufLen,
+			_paramTmpReadBufLen : param.ParamTmpReadBufLen,
 			_paramTcpRWBuffLen : param.ParamTcpRWBuffLen,
 			_paramMaxTcpRead : param.ParamMaxTcpRead,
 			_paramMaxTcpWrite : param.ParamMaxTcpWrite,
@@ -200,13 +200,13 @@ func ConstructorEPollListener(cb EPollCallback, addr string, epollCoroutineCount
 	}
 
 	if el._paramMaxEpollEventCount <= 0 {
-		el._paramMaxEpollEventCount = 128
+		el._paramMaxEpollEventCount = 2048
 	}
 	if el._paramEpollWaitTimeoutMills <= 0 {
 		el._paramEpollWaitTimeoutMills = 300 * 1000
 	}
-	if el._paramReadBufLen <= 0 {
-		el._paramReadBufLen = MTU
+	if el._paramTmpReadBufLen <= 0 {
+		el._paramTmpReadBufLen = MTU
 	}
 	if el._paramTcpRWBuffLen <=0 {
 		el._paramTcpRWBuffLen = 8192

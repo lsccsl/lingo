@@ -107,8 +107,8 @@ func startTcpConnection(connMgr InterfaceConnManage, conn net.Conn, closeExpireS
 	realTcpConn := conn.(*net.TCPConn)
 	if realTcpConn != nil {
 		realTcpConn.SetNoDelay(true)
-		realTcpConn.SetReadBuffer(65535)
-		realTcpConn.SetWriteBuffer(65535)
+		//realTcpConn.SetReadBuffer(65535)
+		//realTcpConn.SetWriteBuffer(65535)
 
 		realTcpConn.SetKeepAlive(true)
 		realTcpConn.SetKeepAlivePeriod(10)

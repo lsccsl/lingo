@@ -29,6 +29,7 @@ int main(int argc, char* argv[])
 	tm.init(50);
 	for (int i = 0; i < client_count; i++)
 		tm.add_client(id_base + i);
+	tm.run_thread();
 
 	tm.join();
 }
