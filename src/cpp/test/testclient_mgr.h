@@ -20,10 +20,16 @@ public:
 
 	void join();
 
-	void init(const int unit_count);
+	void init(const int unit_count, const int test_count);
 	void run_thread();
 
 	void add_client(const int64 id);
+
+public:
+
+	const std::vector<testclient_mgr_unit>& v_mgr_unit() const{
+		return v_mgr_unit_;
+	}
 
 private:
 
@@ -32,4 +38,5 @@ private:
 private:
 	
 	std::vector<testclient_mgr_unit> v_mgr_unit_;
+	int test_count_ = 10;
 };

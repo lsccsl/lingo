@@ -2,6 +2,7 @@
 
 #include <string>
 #include <memory>
+#include <sys/timeb.h>
 #include "channel.h"
 #include "msg.pb.h"
 
@@ -32,6 +33,21 @@ class testclient
 {
 public:
 
+	struct testclient_static
+	{
+		int64 total_diff_ = 0;
+		int64 total_count_ = 0;
+	};
+
+	inline static int64 get_timestamp_mills()
+	{
+		timeb now;
+		ftime(&now);
+		return (now.time * 1000 + now.millitm);
+	}
+
+public:
+
 	testclient(const int64 id):id_(id)
 	{}
 
@@ -46,6 +62,12 @@ public:
 
 	bool send_msg(int msg_typ, google::protobuf::Message* proto_msg);
 	bool recv_one_msg();
+
+public:
+
+	testclient_static& tc_static() {
+		return this->tc_static_;
+	}
 
 private:
 
@@ -71,4 +93,6 @@ private:
 		uint16 msg_type = 0;
 	};
 	std::list<ProtoMsg> lst_msg_recv_;
+
+	testclient_static tc_static_;
 };

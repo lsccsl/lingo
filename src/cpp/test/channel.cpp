@@ -57,6 +57,8 @@
 #else
 #include <winsock2.h>
 #include <io.h>
+#include <mstcpip.h>
+#include <ws2ipdef.h>
 #define socklen_t int
 #define close closesocket
 #endif
@@ -176,6 +178,24 @@ int32 CChannel::keep_alive(int32 fd, uint32 idle, uint32 interval, uint32 retry_
 	{
 		return -4;
 	}
+#else
+
+	BOOL bKeepAlive = TRUE;
+	int nRet = setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, (char*)&bKeepAlive, sizeof(bKeepAlive));
+	if (nRet == SOCKET_ERROR)
+		return -1;
+
+	// set KeepAlive parameter
+	tcp_keepalive alive_in;
+	tcp_keepalive alive_out;
+	alive_in.keepalivetime = idle * 1000;
+	alive_in.keepaliveinterval = interval * 1000;
+	alive_in.onoff = TRUE;
+	unsigned long ulBytesReturn = 0;
+	nRet = WSAIoctl(fd, SIO_KEEPALIVE_VALS, &alive_in, sizeof(alive_in), &alive_out, sizeof(alive_out), &ulBytesReturn, NULL, NULL);
+	if (nRet == SOCKET_ERROR)
+		return -2;
+
 #endif
 	return 0;
 }

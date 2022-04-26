@@ -186,6 +186,17 @@ func _tcpRead(fd int, bin []byte) (int, error) {
 	*/
 }
 
+func TcpGetPeerName(fd int) net.Addr {
+	return _tcpGetPeerName(fd)
+}
+func _tcpGetPeerName(fd int) net.Addr {
+	sa, err := unix.Getpeername(fd)
+	if err != nil {
+		return nil
+	}
+	return _sockaddrToTCPOrUnixAddr(sa)
+}
+
 func _setNoBlock(fd int) error{
 	return unix.SetNonblock(fd, true)
 }

@@ -63,6 +63,8 @@ bool testclient::connect_to_srv(const std::string& srv_ip, int srv_port)
 		return false;
 	}
 
+	CChannel::keep_alive(this->fd_);
+
 	return true;
 }
 
@@ -99,6 +101,7 @@ bool testclient::send_test(msgpacket::MSG_TEST& msg, const int64 seq, int count)
 {
 	for (int i = 0; i < count; i++)
 	{
+		msg.set_timestamp(testclient::get_timestamp_mills());
 		msg.set_seq(seq + i);
 		if (!this->send_msg(msgpacket::_MSG_TEST, &msg))
 			return false;
@@ -113,6 +116,22 @@ bool testclient::recv_test(const int64 seq, int count)
 	{
 		if (!this->recv_one_msg())
 			return false;
+
+		if (!this->lst_msg_recv_.empty())
+		{
+			int64 tnow_mills = testclient::get_timestamp_mills();
+
+			std::list<ProtoMsg>::reverse_iterator it = this->lst_msg_recv_.rbegin();
+			if (it->msg_type == msgpacket::_MSG_TEST_RES)
+			{
+				auto msgRes = std::dynamic_pointer_cast<msgpacket::MSG_TEST_RES>(it->proto_msg);
+				if (msgRes->seq() == (seq + i))
+				{
+					this->tc_static_.total_diff_ += (tnow_mills - msgRes->timestamp());
+					this->tc_static_.total_count_++;
+				}
+			}
+		}
 	}
 
 	bool bret = false;
@@ -130,9 +149,7 @@ bool testclient::recv_test(const int64 seq, int count)
 	}
 	this->lst_msg_recv_.clear();
 	if (!bret)
-	{
 		MYLOG_ERR(("id:%lld recv seq err", this->id_));
-	}
 
 	return true;
 }
@@ -164,7 +181,7 @@ bool testclient::recv_one_msg()
 		ret = CChannel::TcpSelectRead(this->fd_, buf, read_sz, 30, 10);
 	if (ret < 0)
 	{
-		MYLOG_ERR(("clientid:%lld read head err:%d-%d", this->id_, ::WSAGetLastError(), ::GetLastError()));
+		MYLOG_ERR(("clientid:%lld read head err:%d-%d read_sz:%d", this->id_, ::WSAGetLastError(), ::GetLastError(), this->read_buf_sz_));
 		return false;
 	}
 	this->read_buf_sz_ += ret;

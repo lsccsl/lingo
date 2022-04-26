@@ -49,10 +49,7 @@ func ConstructorTcpConnectionInfo(fd FD_DEF, isDial bool, buffInitLen int)*tcpCo
 	} else {
 		ti._isConnSuc = true
 	}
-	sa, err := unix.Getpeername(ti._fd.FD)
-	if err == nil {
-		ti._addr = _sockaddrToTCPOrUnixAddr(sa)
-	}
+	ti._addr = _tcpGetPeerName(ti._fd.FD)
 
 	return ti
 }

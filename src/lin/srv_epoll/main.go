@@ -45,7 +45,9 @@ func main() {
 		}
 	})
 
-	eSrvMgr, err := ConstructorEpollServerMgr("192.168.2.129:2003", 100, 600)
+	eSrvMgr, err := ConstructorEpollServerMgr("192.168.2.129:2003",
+		1000, 1000, 100,600,
+		true)
 	if err != nil {
 		lin_common.LogDebug(err)
 		return

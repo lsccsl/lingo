@@ -5,7 +5,8 @@ import (
 	"lin/msgpacket"
 )
 
-type MAP_CLIENT map[int]*TcpClient
+type MAP_TCPCLIENT map[int]*TcpClient
+type MAP_CLIENTID_TCPFD map[int64]int
 
 type eSrvMgrProcessUnitStatic struct {
 	clientCount int
@@ -14,7 +15,8 @@ type eSrvMgrProcessUnitStatic struct {
 type eSrvMgrProcessUnit struct {
 	chMsg chan interface{}
 	eSrvMgr *EpollServerMgr
-	mapClient MAP_CLIENT
+	mapTcpClient MAP_TCPCLIENT
+	mapClientIDTcpFD MAP_CLIENTID_TCPFD
 
 	eSrvMgrProcessUnitStatic
 }
@@ -37,23 +39,36 @@ func (pthis*eSrvMgrProcessUnit)ProcessProtoMsg(msg *msgProto){
 	}
 }
 
-func (pthis*eSrvMgrProcessUnit)getClient(fd lin_common.FD_DEF) *TcpClient {
-	oldC, _ := pthis.mapClient[fd.FD]
+func (pthis*eSrvMgrProcessUnit)getClientByFD(fd int) *TcpClient {
+	oldC, _ := pthis.mapTcpClient[fd]
+	return oldC
+}
+func (pthis*eSrvMgrProcessUnit)getClientByClientID(clientID int64) *TcpClient {
+	oldFD, ok := pthis.mapClientIDTcpFD[clientID]
+	if !ok {
+		return nil
+	}
+	oldC, _ := pthis.mapTcpClient[oldFD]
 	return oldC
 }
 func (pthis*eSrvMgrProcessUnit)addClient(c *TcpClient) {
-	pthis.mapClient[c.fd.FD] = c
+	pthis.mapTcpClient[c.fd.FD] = c
+	pthis.mapClientIDTcpFD[c.clientID] = c.fd.FD
 
-	pthis.clientCount = len(pthis.mapClient)
+	pthis.clientCount = len(pthis.mapTcpClient)
 }
 func (pthis*eSrvMgrProcessUnit)delClient(fd lin_common.FD_DEF) {
-	delete(pthis.mapClient, fd.FD)
+	oldC, _ := pthis.mapTcpClient[fd.FD]
+	if oldC != nil {
+		delete(pthis.mapClientIDTcpFD, oldC.clientID)
+	}
+	delete(pthis.mapTcpClient, fd.FD)
 
-	pthis.clientCount = len(pthis.mapClient)
+	pthis.clientCount = len(pthis.mapTcpClient)
 }
 
 func (pthis*eSrvMgrProcessUnit)Process_msgTcpClose(msg *msgTcpClose) {
-	c := pthis.getClient(msg.fd)
+	c := pthis.getClientByFD(msg.fd.FD)
 	if c == nil {
 		return
 	}
@@ -69,9 +84,14 @@ func (pthis*eSrvMgrProcessUnit)Process_msgTcpClose(msg *msgTcpClose) {
 func (pthis*eSrvMgrProcessUnit)Process_MSG_LOGIN(fd lin_common.FD_DEF, msg *msgpacket.MSG_LOGIN){
 	lin_common.LogDebug("login:", fd.String(), " clientid:", msg.Id)
 
-	oldC := pthis.getClient(fd)
+	oldC := pthis.getClientByClientID(msg.Id)
 	if oldC != nil {
 		if !oldC.fd.IsSame(&fd){
+			if oldC.fd.FD != fd.FD {
+				pthis.delClient(oldC.fd)
+				pthis.eSrvMgr.lsn.EPollListenerCloseTcp(oldC.fd)
+			}
+
 			c := ConstructorTcpClient(pthis, fd, msg.Id)
 			pthis.addClient(c)
 		}
@@ -86,13 +106,12 @@ func (pthis*eSrvMgrProcessUnit)Process_MSG_LOGIN(fd lin_common.FD_DEF, msg *msgp
 	msgRes.Fd = int64(fd.FD)
 
 	pthis.eSrvMgr.lsn.EPollListenerWrite(fd, msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_LOGIN_RES, msgRes))
-	//lin_common.TMP_tcpWrite(fd, msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_LOGIN_RES, msgRes))
 }
 
 func (pthis*eSrvMgrProcessUnit)Process_protoMsg(msg *msgProto) {
 	pthis.totalRecv ++
 
-	c := pthis.getClient(msg.fd)
+	c := pthis.getClientByFD(msg.fd.FD)
 	if c == nil {
 		return
 	}
@@ -110,5 +129,14 @@ func (pthis*eSrvMgrProcessUnit)_go_Process_unit(){
 		case *msgTcpClose:
 			pthis.Process_msgTcpClose(t)
 		}
+	}
+}
+
+func ConstructorESrvMgrProcessUnit(eSrvMgr *EpollServerMgr) *eSrvMgrProcessUnit {
+	return &eSrvMgrProcessUnit{
+		chMsg : make(chan interface{}, 100),
+		eSrvMgr : eSrvMgr,
+		mapTcpClient : make(MAP_TCPCLIENT),
+		mapClientIDTcpFD : make(MAP_CLIENTID_TCPFD),
 	}
 }

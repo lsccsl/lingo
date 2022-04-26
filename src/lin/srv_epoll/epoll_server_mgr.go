@@ -34,6 +34,8 @@ type EpollServerMgr struct {
 	lsn *lin_common.EPollListener
 	processUnit []*eSrvMgrProcessUnit
 
+	tcpSrvMgr *TcpSrvMgr
+
 	clientCloseTimeoutSec int
 
 	EpollServerMgrStatic
@@ -89,6 +91,10 @@ func (pthis*EpollServerMgr)GetProcessUnitByFD(fd lin_common.FD_DEF) *eSrvMgrProc
 	return pu
 }
 
+func (pthis*EpollServerMgr)AddRemoteSrv(srvID int64, addr string, closeExpireSec int) {
+
+}
+
 func (pthis*EpollServerMgr)Dump(bDetail bool)string{
 	tnowMs := time.Now().UnixMilli()
 
@@ -122,20 +128,28 @@ func (pthis*EpollServerMgr)Dump(bDetail bool)string{
 	return str
 }
 
-func ConstructorEpollServerMgr(addr string, processUnitCount int, clientCloseTimeoutSec int) (*EpollServerMgr, error) {
+func ConstructorEpollServerMgr(addr string,
+	processUnitCount int, srvProcessUnitCount int,
+	epollCoroutineCount int, clientCloseTimeoutSec int,
+	bET bool) (*EpollServerMgr, error) {
 	defer func() {
 		err := recover()
 		if err != nil {
 			lin_common.LogErr(err)
 		}
 	}()
+
+	lin_common.LogDebug("processUnitCount:", processUnitCount, "epollCoroutineCount:", epollCoroutineCount, "clientCloseTimeoutSec:", epollCoroutineCount,
+		"bET:", bET)
+
 	msgpacket.InitMsgParseVirtualTable()
 
 	eSrvMgr := &EpollServerMgr{
 		processUnit : make([]*eSrvMgrProcessUnit, 0, processUnitCount),
 		clientCloseTimeoutSec : clientCloseTimeoutSec,
 	}
-	lsn, err := lin_common.ConstructorEPollListener(eSrvMgr, addr, 100, lin_common.ParamEPollListener{ParamET: true})
+	eSrvMgr.tcpSrvMgr = ConstructorTcpSrvMgr(eSrvMgr, srvProcessUnitCount)
+	lsn, err := lin_common.ConstructorEPollListener(eSrvMgr, addr, epollCoroutineCount, lin_common.ParamEPollListener{ParamET: bET})
 	if err != nil {
 		lin_common.LogErr("constructor epoll listener err:", err)
 		return nil, err
@@ -143,11 +157,7 @@ func ConstructorEpollServerMgr(addr string, processUnitCount int, clientCloseTim
 	eSrvMgr.lsn = lsn
 
 	for i := 0; i < processUnitCount; i ++ {
-		pu := &eSrvMgrProcessUnit{
-			chMsg : make(chan interface{}),
-			eSrvMgr : eSrvMgr,
-			mapClient : make(MAP_CLIENT),
-		}
+		pu := ConstructorESrvMgrProcessUnit(eSrvMgr)
 		eSrvMgr.processUnit = append(eSrvMgr.processUnit, pu)
 		go pu._go_Process_unit()
 	}
