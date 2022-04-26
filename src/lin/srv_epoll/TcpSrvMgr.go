@@ -1,83 +1,90 @@
 package main
 
-import "lin/lin_common"
+import (
+	"github.com/golang/protobuf/proto"
+	"lin/lin_common"
+)
 
+/* begin srv event */
 type srvEvt_addremote struct {
-	fd lin_common.FD_DEF
 	srvID int64
 	addr string
 	closeExpireSec int
 }
-
-type MAP_TCPSRV map[int64/*srv id*/]*TcpSrv
-
-type TcpSrvMgrProcessUnit struct {
-	chSrv chan interface{}
-	tcpSrvMgr *TcpSrvMgr
+type srvEvt_TcpDialSuc struct {
+	srvID int64
+	fdDial lin_common.FD_DEF
 }
+type srvEvt_TcpClose struct {
+	srvID int64
+	fd lin_common.FD_DEF
+}
+type srvEvt_TcpAcpt struct {
+	srvID int64
+	fdAcpt lin_common.FD_DEF
+}
+type srvEvt_protoMsg struct {
+	srvID int64
+	fd lin_common.FD_DEF
+	msg proto.Message
+}
+/* end srv event */
+
 type TcpSrvMgr struct {
 	eSrvMgr *EpollServerMgr
-	mapSrv MAP_TCPSRV
 
-	processUnit []*TcpSrvMgrProcessUnit
+	mgrUnit []*TcpSrvMgrUnit
 }
 
-func (pthis*TcpSrvMgrProcessUnit)_go_Process_unit(){
-	for {
-		msg := <- pthis.chSrv
-		switch t := msg.(type) {
-		case *srvEvt_addremote:
-			pthis.process_srvEvt_addremote(t)
-		}
-	}
-}
 
-func (pthis*TcpSrvMgrProcessUnit)process_srvEvt_addremote(evt * srvEvt_addremote){
-	// todo : add srv
-}
-
-func (pthis*TcpSrvMgr)getProcessUnit(fd lin_common.FD_DEF)*TcpSrvMgrProcessUnit{
-	processUnitCount := len(pthis.processUnit)
-	idx := fd.FD % processUnitCount
+func (pthis*TcpSrvMgr)getSrvProcessUnit(srvID int64)*TcpSrvMgrUnit{
+	processUnitCount := int64(len(pthis.mgrUnit))
+	idx := srvID % processUnitCount
 	if idx >= processUnitCount {
 		return nil
 	}
-	pu := pthis.processUnit[idx]
+	pu := pthis.mgrUnit[idx]
 	if pu == nil {
 		return nil
 	}
 	return pu
 }
 
+func (pthis*TcpSrvMgr)TcpSrvMgrPushMsgToUnit(srvID int64, msg interface{}) {
+	pu := pthis.getSrvProcessUnit(srvID)
+	if pu != nil {
+		pu.chSrv <- msg
+	} else {
+		lin_common.LogErr("srv:", srvID, " push msg to srv process unit err")
+	}
+}
+
 func (pthis*TcpSrvMgr)TcpSrvMgrAddRemoteSrv(srvID int64, addr string, closeExpireSec int){
-	fd, err := pthis.eSrvMgr.lsn.EPollListenerDial(addr)
+	pthis.TcpSrvMgrPushMsgToUnit(srvID, &srvEvt_addremote{
+		srvID : srvID,
+		addr : addr,
+		closeExpireSec : closeExpireSec,
+	})
+
+	fd, err := pthis.eSrvMgr.lsn.EPollListenerDial(addr, &TcpAttachData{srvID : srvID})
 	if err != nil {
-		lin_common.LogErr("srv:", srvID, " dial err")
+		lin_common.LogErr("connect to srv:", srvID, " dial err")
 	}
 	lin_common.LogDebug("srv:", srvID, " fd:", fd.String())
+}
 
-	pu := pthis.getProcessUnit(fd)
-	if pu != nil {
-		pu.chSrv <- &srvEvt_addremote{
-			fd : fd,
-			srvID : srvID,
-			addr : addr,
-			closeExpireSec : closeExpireSec,
-		}
-	}
+func (pthis*TcpSrvMgr)TcpSrvMgrRPC(srvID int64){
+
 }
 
 func ConstructorTcpSrvMgr(eSrvMgr *EpollServerMgr, srvProcessUnitCount int) *TcpSrvMgr {
 	tcpSrvMgr := &TcpSrvMgr{
 		eSrvMgr : eSrvMgr,
-		mapSrv : make(MAP_TCPSRV),
 	}
 
 /*	for i := 0; i < srvProcessUnitCount; i ++ {
-		processUnit := &TcpSrvMgrProcessUnit{
-			chSrv : make(chan interface{}, 100),
-			tcpSrvMgr : tcpSrvMgr,
-		}
+		processUnit := ConstructorTcpSrvMgrUnit(tcpSrvMgr)
+		tcpSrvMgr.mgrUnit = append(tcpSrvMgr.mgrUnit, processUnit)
 		processUnit._go_Process_unit()
 	}*/
 

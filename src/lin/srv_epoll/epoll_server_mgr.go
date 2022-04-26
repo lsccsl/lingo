@@ -26,59 +26,108 @@ type msgTcpClose struct {
 }
 /* end process unit msg define */
 
+type TcpAttachData struct {
+	srvID int64
+	cliID int64
+}
+
 type EpollServerMgrStatic struct {
 	lastTotalRecv int64
 	lastSampleMS int64
 }
 type EpollServerMgr struct {
 	lsn *lin_common.EPollListener
-	processUnit []*eSrvMgrProcessUnit
+	processUnit []*EPollProcessUnit
 
 	tcpSrvMgr *TcpSrvMgr
 
 	clientCloseTimeoutSec int
+	srvCloseTimeoutSec int
 
 	EpollServerMgrStatic
 }
 
-func (pthis*EpollServerMgr)TcpAcceptConnection(fd lin_common.FD_DEF, addr net.Addr) {
-	lin_common.LogDebug(" accept connection fd:", fd.FD, " magic:", fd.Magic, " addr:", addr)
+func (pthis*EpollServerMgr)TcpAcceptConnection(fd lin_common.FD_DEF, addr net.Addr, tpcAttachData interface{}) {
+	lin_common.LogDebug(" accept connection fd:", fd.String(), " addr:", addr)
 	//ConstructorTcpClient
 }
-func (pthis*EpollServerMgr)TcpDialConnection(fd lin_common.FD_DEF, addr net.Addr) {
-
-}
-func (pthis*EpollServerMgr)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer)(bytesProcess int) {
-	pu := pthis.GetProcessUnitByFD(fd)
-	if pu == nil {
-		return readBuf.Len()
-	}
-
-	packType, bytesProcess, protoMsg := msgpacket.ProtoUnPacketFromBin(readBuf)
-	if protoMsg == nil {
-		//log.LogErr("can't parse msg:", tcpConn.ByteRecv, " proc:", tcpConn.ByteProc)
+func (pthis*EpollServerMgr)TcpDialConnection(fd lin_common.FD_DEF, addr net.Addr, tpcAttachData interface{}) {
+	lin_common.LogDebug(" dial connection fd:", fd.String(), " addr:", addr)
+	attachData, ok := tpcAttachData.(*TcpAttachData)
+	if !ok || attachData == nil {
 		return
 	}
 
-	pu.chMsg <- &msgProto{fd, packType,protoMsg}
-
-	// todo:delete for test
-	if packType == msgpacket.MSG_TYPE__MSG_TEST {
-		msgTest := protoMsg.(*msgpacket.MSG_TEST)
-		msgTest.TimestampArrive = time.Now().UnixMilli()
+	pthis.tcpSrvMgr.TcpSrvMgrPushMsgToUnit(attachData.srvID, srvEvt_TcpDialSuc{attachData.srvID, fd})
+}
+func (pthis*EpollServerMgr)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, tpcAttachData interface{})(bytesProcess int, attachData interface{}) {
+	packType, bytesProcess, protoMsg := msgpacket.ProtoUnPacketFromBin(readBuf)
+	if protoMsg == nil {
+		return
 	}
 
+	switch packType {
+	case msgpacket.MSG_TYPE__MSG_TEST:
+		{
+			// todo:delete for test
+			msgTest := protoMsg.(*msgpacket.MSG_TEST)
+			msgTest.TimestampArrive = time.Now().UnixMilli()
+		}
+	case msgpacket.MSG_TYPE__MSG_SRV_REPORT:
+		{
+			msgR := protoMsg.(*msgpacket.MSG_SRV_REPORT)
+			attachData = &TcpAttachData{srvID: msgR.SrvId}
+			pthis.tcpSrvMgr.TcpSrvMgrPushMsgToUnit(msgR.SrvId,
+				&srvEvt_TcpAcpt{
+					srvID : msgR.SrvId,
+					fdAcpt : fd,
+				})
+
+			return
+		}
+	}
+
+	if attachData != nil {
+		tcpAttachData, _ := attachData.(*TcpAttachData)
+		if tcpAttachData != nil {
+			pthis.tcpSrvMgr.TcpSrvMgrPushMsgToUnit(tcpAttachData.srvID,
+				&srvEvt_protoMsg{
+					srvID:tcpAttachData.srvID,
+					fd:fd,
+					msg:protoMsg,
+				})
+		}
+	} else {
+		pu := pthis.GetProcessUnitByFD(fd)
+		if pu == nil {
+			return readBuf.Len(), nil
+		}
+		pu.chMsg <- &msgProto{fd, packType,protoMsg}
+
+	}
 	return
 }
-func (pthis*EpollServerMgr)TcpClose(fd lin_common.FD_DEF) {
-	//lin_common.LogDebug("tcp close:", fd.String())
-	pu := pthis.GetProcessUnitByFD(fd)
-	if pu != nil {
-		pu.chMsg <- &msgTcpClose{fd}
+func (pthis*EpollServerMgr)TcpClose(fd lin_common.FD_DEF, attachData interface{}) {
+	if attachData != nil{
+		tcpAttachData, _ := attachData.(*TcpAttachData)
+		if tcpAttachData != nil {
+			pthis.tcpSrvMgr.TcpSrvMgrPushMsgToUnit(tcpAttachData.srvID,
+				&srvEvt_TcpClose{
+					srvID : tcpAttachData.srvID,
+					fd : fd,
+				})
+		}
+		return
+	} else {
+		lin_common.LogDebug("tcp close:", fd.String())
+		pu := pthis.GetProcessUnitByFD(fd)
+		if pu != nil {
+			pu.chMsg <- &msgTcpClose{fd}
+		}
 	}
 }
 
-func (pthis*EpollServerMgr)GetProcessUnitByFD(fd lin_common.FD_DEF) *eSrvMgrProcessUnit {
+func (pthis*EpollServerMgr)GetProcessUnitByFD(fd lin_common.FD_DEF) *EPollProcessUnit {
 	processUnitCount := len(pthis.processUnit)
 	idx := fd.FD % processUnitCount
 	if idx >= processUnitCount {
@@ -93,6 +142,10 @@ func (pthis*EpollServerMgr)GetProcessUnitByFD(fd lin_common.FD_DEF) *eSrvMgrProc
 
 func (pthis*EpollServerMgr)AddRemoteSrv(srvID int64, addr string, closeExpireSec int) {
 
+}
+
+func (pthis*EpollServerMgr)SendProtoMsg(fd lin_common.FD_DEF, msgType msgpacket.MSG_TYPE, protoMsg proto.Message){
+	pthis.lsn.EPollListenerWrite(fd, msgpacket.ProtoPacketToBin(msgType, protoMsg))
 }
 
 func (pthis*EpollServerMgr)Dump(bDetail bool)string{
@@ -130,7 +183,7 @@ func (pthis*EpollServerMgr)Dump(bDetail bool)string{
 
 func ConstructorEpollServerMgr(addr string,
 	processUnitCount int, srvProcessUnitCount int,
-	epollCoroutineCount int, clientCloseTimeoutSec int,
+	epollCoroutineCount int, clientCloseTimeoutSec int, srvCloseTimeoutSec int,
 	bET bool) (*EpollServerMgr, error) {
 	defer func() {
 		err := recover()
@@ -145,8 +198,9 @@ func ConstructorEpollServerMgr(addr string,
 	msgpacket.InitMsgParseVirtualTable()
 
 	eSrvMgr := &EpollServerMgr{
-		processUnit : make([]*eSrvMgrProcessUnit, 0, processUnitCount),
+		processUnit : make([]*EPollProcessUnit, 0, processUnitCount),
 		clientCloseTimeoutSec : clientCloseTimeoutSec,
+		srvCloseTimeoutSec : srvCloseTimeoutSec,
 	}
 	eSrvMgr.tcpSrvMgr = ConstructorTcpSrvMgr(eSrvMgr, srvProcessUnitCount)
 	lsn, err := lin_common.ConstructorEPollListener(eSrvMgr, addr, epollCoroutineCount, lin_common.ParamEPollListener{ParamET: bET})
@@ -157,7 +211,7 @@ func ConstructorEpollServerMgr(addr string,
 	eSrvMgr.lsn = lsn
 
 	for i := 0; i < processUnitCount; i ++ {
-		pu := ConstructorESrvMgrProcessUnit(eSrvMgr)
+		pu := ConstructorEPollProcessUnit(eSrvMgr)
 		eSrvMgr.processUnit = append(eSrvMgr.processUnit, pu)
 		go pu._go_Process_unit()
 	}

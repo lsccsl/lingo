@@ -10,7 +10,7 @@ import (
 	"runtime"
 )
 
-func ConstructorTcpConnectionInfo(fd FD_DEF, isDial bool, buffInitLen int)*tcpConnectionInfo {
+func ConstructorTcpConnectionInfo(fd FD_DEF, isDial bool, buffInitLen int, attachData interface{})*tcpConnectionInfo {
 	err := _setNoBlock(fd.FD)
 	if err != nil {
 		LogDebug("_setNoBlock:", fd.String(), " err:", err)
@@ -42,6 +42,7 @@ func ConstructorTcpConnectionInfo(fd FD_DEF, isDial bool, buffInitLen int)*tcpCo
 		_writeBuf : bytes.NewBuffer(make([]byte, 0, buffInitLen)),
 		_isDial: isDial,
 		_cur_epoll_evt : EPOLL_EVENT_READ,
+		_attachData: attachData,
 	}
 	if isDial {
 		ti._isConnSuc = false
@@ -95,7 +96,7 @@ func (pthis*ePollConnection)EpollConnection_close_tcp(fd FD_DEF){
 					LogErr(err)
 				}
 			}()
-			pthis._lsn._cb.TcpClose(ti._fd)
+			pthis._lsn._cb.TcpClose(ti._fd, ti._attachData)
 		}()
 	}
 
@@ -117,7 +118,7 @@ func (pthis*ePollConnection)EpollConnection_process_evt(){
 				// new tcp connection add to epoll
 				magic := pthis._lsn.EPollListenerGenMagic()
 				LogDebug("new conn fd:", t._fdConn, " magic:", magic)
-				ti := ConstructorTcpConnectionInfo(FD_DEF{t._fdConn, magic}, false, pthis._lsn._paramTcpRWBuffLen)
+				ti := ConstructorTcpConnectionInfo(FD_DEF{t._fdConn, magic}, false, pthis._lsn._paramTcpRWBuffLen, nil)
 				pthis._add_tcp_conn(ti)
 				unixEpollAdd(pthis._epollFD, t._fdConn, ti._cur_epoll_evt, magic, pthis._lsn._paramET)
 
@@ -130,7 +131,7 @@ func (pthis*ePollConnection)EpollConnection_process_evt(){
 							}
 						}()
 
-						pthis._lsn._cb.TcpAcceptConnection(ti._fd, ti._addr)
+						pthis._lsn._cb.TcpAcceptConnection(ti._fd, ti._addr, ti._attachData)
 					}()
 				}
 			}
@@ -144,7 +145,7 @@ func (pthis*ePollConnection)EpollConnection_process_evt(){
 		case *event_TcpDial:
 			{
 				LogDebug("dial tcp connection, fd:", t.fd.FD, " magic:", t.fd.Magic)
-				ti := ConstructorTcpConnectionInfo(t.fd, true, pthis._lsn._paramTcpRWBuffLen)
+				ti := ConstructorTcpConnectionInfo(t.fd, true, pthis._lsn._paramTcpRWBuffLen, t.attachData)
 				pthis._add_tcp_conn(ti)
 				unixEpollAdd(pthis._epollFD, t.fd.FD, ti._cur_epoll_evt, t.fd.Magic, pthis._lsn._paramET) // if the tcp connection can write, means the tcp connection is success, it will be mod epoll wait read event when connection is ok
 			}
@@ -239,9 +240,13 @@ func (pthis*ePollConnection)EpollConnection_epllEvt_tcpread(fd FD_DEF) {
 					}
 				}()
 				for ti._readBuf.Len() > 0 {
-					bytesProcess := pthis._lsn._cb.TcpData(ti._fd, ti._readBuf)
+					bytesProcess, attachData := pthis._lsn._cb.TcpData(ti._fd, ti._readBuf, ti._attachData)
 					if bytesProcess <= 0 {
 						break
+					}
+
+					if attachData != nil {
+						ti._attachData = attachData
 					}
 
 					pthis._byteProc += int64(bytesProcess)
@@ -276,7 +281,7 @@ func (pthis*ePollConnection)EpollConnection_epllEvt_tcpwrite(fd FD_DEF){
 		ti._isConnSuc = true
 		ti._cur_epoll_evt = EPOLL_EVENT_READ
 		unixEpollMod(pthis._epollFD, ti._fd.FD, ti._cur_epoll_evt, ti._fd.Magic, pthis._lsn._paramET)
-		pthis._lsn._cb.TcpDialConnection(ti._fd, ti._addr)
+		pthis._lsn._cb.TcpDialConnection(ti._fd, ti._addr, ti._attachData)
 	}
 
 	pthis.EpollConnection_do_write(ti)
@@ -418,7 +423,7 @@ func (pthis*ePollAccept)_go_EpollAccept_epollwait() {
 
 	events := make([]unix.EpollEvent, pthis._lsn._paramMaxEpollEventCount)
 	for {
-		count, err := unix.EpollWait(pthis._epollFD, events, pthis._lsn._paramEpollWaitTimeoutMills)
+		count, err := unix.EpollWait(pthis._epollFD, events, pthis._lsn._paramEpollWaitTimeoutMills) // todo:改成select,此处不需要用epoll
 		if count == 0 || (count < 0 && err == unix.EINTR) {
 			runtime.Gosched()
 			continue
@@ -568,7 +573,7 @@ func (pthis*EPollListener)EPollListenerWrite(fd FD_DEF, binData []byte) {
 	pthis.EPollListenerAddEvent(fd.FD, &event_TcpWrite{fd:fd, _binData:binData})
 }
 
-func (pthis*EPollListener)EPollListenerDial(addr string)(fd FD_DEF, err error){
+func (pthis*EPollListener)EPollListenerDial(addr string, attachData interface{})(fd FD_DEF, err error){
 	LogDebug(" begin connect addr:", addr)
 	rawfd, err := _tcpConnectNoBlock(addr)
 	if err != nil {
@@ -576,7 +581,10 @@ func (pthis*EPollListener)EPollListenerDial(addr string)(fd FD_DEF, err error){
 	}
 
 	magic := pthis.EPollListenerGenMagic()
-	pthis.EPollListenerAddEvent(rawfd,&event_TcpDial{fd: FD_DEF{rawfd,magic}})
+	pthis.EPollListenerAddEvent(rawfd,&event_TcpDial{
+		fd: FD_DEF{rawfd,magic},
+		attachData: attachData,
+	})
 
 	LogDebug(" connect fd:", rawfd, " magic:", magic, " addr:", addr)
 	return FD_DEF{rawfd, magic}, nil

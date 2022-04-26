@@ -141,16 +141,16 @@ type test_cb struct {
 	lsn *lin_common.EPollListener
 	mapFD map[int]*test_tcp_info
 }
-func (pthis*test_cb)TcpAcceptConnection(fd lin_common.FD_DEF, addr net.Addr){
+func (pthis*test_cb)TcpAcceptConnection(fd lin_common.FD_DEF, addr net.Addr, attachData interface{}){
 	lin_common.LogDebug("new tcp connection:", fd.FD, " addr:", addr)
 	ti := &test_tcp_info{fd: fd}
 	pthis.mapFD[fd.FD]=ti
 }
-func (pthis*test_cb)TcpDialConnection(fd lin_common.FD_DEF, addr net.Addr){
+func (pthis*test_cb)TcpDialConnection(fd lin_common.FD_DEF, addr net.Addr, attachData interface{}){
 	lin_common.LogDebug("suc to dial, fd:", fd.FD, " magic:", fd.Magic, " addr:", addr)
 }
 
-func (pthis*test_cb)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer)(bytesProcess int) {
+func (pthis*test_cb)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, attachData interface{})(bytesProcess int, retAttachData interface{}) {
 	lin_common.LogDebug("tcp data:", fd.FD, " data len:", readBuf.Len())
 	ti := pthis.mapFD[fd.FD]
 	if ti != nil {
@@ -160,10 +160,10 @@ func (pthis*test_cb)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer)(bytesPr
 			//pthis.lsn.EPollListenerCloseTcp(rawfd, ti.magic)
 		}
 	}
-	return readBuf.Len()
+	return readBuf.Len(), nil
 }
 
-func (pthis*test_cb)TcpClose(fd lin_common.FD_DEF){
+func (pthis*test_cb)TcpClose(fd lin_common.FD_DEF, attachData interface{}){
 	lin_common.LogDebug("tcp close fd:", fd.FD)
 }
 
@@ -174,7 +174,7 @@ func testepoll() {
 	el, err := lin_common.ConstructorEPollListener(tcb,"192.168.2.129:3001", 10, lin_common.ParamEPollListener{})
 	tcb.lsn = el
 	fmt.Println("lin_common.ConstructEPollListener", el, err)
-	fd, err := tcb.lsn.EPollListenerDial("192.168.2.129:2003")
+	fd, err := tcb.lsn.EPollListenerDial("192.168.2.129:2003", nil)
 	lin_common.LogDebug("fd:", fd.FD, " magic:", fd.Magic, " err:", err)
 	el.EPollListenerWait()
 }

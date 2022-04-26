@@ -18,10 +18,10 @@ type TcpClient struct {
 
 	timerConnClose * time.Timer
 	durationClose time.Duration
-	pu *eSrvMgrProcessUnit
+	pu *EPollProcessUnit
 }
 
-func ConstructorTcpClient(pu *eSrvMgrProcessUnit, fd lin_common.FD_DEF, clientID int64) *TcpClient {
+func ConstructorTcpClient(pu *EPollProcessUnit, fd lin_common.FD_DEF, clientID int64) *TcpClient {
 	tc := &TcpClient{
 		fd : fd,
 		pu : pu,
@@ -58,7 +58,7 @@ func (pthis*TcpClient)Process_MSG_TCP_STATIC(msg *msgpacket.MSG_TCP_STATIC) {
 		ByteProc:0,
 		ByteSend:0,
 	}
-	pthis.pu.eSrvMgr.lsn.EPollListenerWrite(pthis.fd, msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_TCP_STATIC_RES, msgRes))
+	pthis.pu.eSrvMgr.SendProtoMsg(pthis.fd, msgpacket.MSG_TYPE__MSG_TCP_STATIC_RES, msgRes)
 }
 func (pthis*TcpClient)Process_MSG_TEST(msg *msgpacket.MSG_TEST) {
 	//lin_common.LogDebug("clientid:", pthis.clientID, " fd:", pthis.fd.String())
@@ -69,13 +69,13 @@ func (pthis*TcpClient)Process_MSG_TEST(msg *msgpacket.MSG_TEST) {
 	msgRes.Timestamp = msg.Timestamp
 	msgRes.TimestampArrive = msg.TimestampArrive
 	msgRes.TimestampProcess = time.Now().UnixMilli()
-	pthis.pu.eSrvMgr.lsn.EPollListenerWrite(pthis.fd, msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_TEST_RES, msgRes))
+	pthis.pu.eSrvMgr.SendProtoMsg(pthis.fd, msgpacket.MSG_TYPE__MSG_TEST_RES, msgRes)
 }
 func (pthis*TcpClient)Process_MSG_HEARTBEAT(msg *msgpacket.MSG_HEARTBEAT) {
 	lin_common.LogDebug("clientid:", pthis.clientID, " fd:", pthis.fd.String())
 	msgRes := &msgpacket.MSG_HEARTBEAT_RES{}
 	msgRes.Id = msg.Id
-	pthis.pu.eSrvMgr.lsn.EPollListenerWrite(pthis.fd, msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_HEARTBEAT_RES, msgRes))
+	pthis.pu.eSrvMgr.SendProtoMsg(pthis.fd, msgpacket.MSG_TYPE__MSG_HEARTBEAT_RES, msgRes)
 }
 
 func (pthis*TcpClient)Process_protoMsg(msg *msgProto) {

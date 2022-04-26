@@ -24,6 +24,8 @@ type FD_DEF struct {
 	FD int
 	Magic int32
 }
+var FD_DEF_NIL = FD_DEF{0,0}
+
 func (pthis*FD_DEF)String()string{
 	return "fd:" + strconv.Itoa(pthis.FD) + " magic:" + strconv.Itoa(int(pthis.Magic))
 }
@@ -50,15 +52,16 @@ type event_TcpClose struct { // user close tcp connection
 }
 type event_TcpDial struct {
 	fd FD_DEF
+	attachData interface{}
 }
 /* @brief end inter evetn define */
 
 
 type EPollCallback interface {
-	TcpAcceptConnection(fd FD_DEF, addr net.Addr)
-	TcpDialConnection(fd FD_DEF, addr net.Addr)
-	TcpData(fd FD_DEF, readBuf *bytes.Buffer)(bytesProcess int)
-	TcpClose(fd FD_DEF)
+	TcpAcceptConnection(fd FD_DEF, addr net.Addr, tpcAttachData interface{})
+	TcpDialConnection(fd FD_DEF, addr net.Addr, tpcAttachData interface{})
+	TcpData(fd FD_DEF, readBuf *bytes.Buffer, tpcAttachData interface{})(bytesProcess int, attachData interface{})
+	TcpClose(fd FD_DEF, tpcAttachData interface{})
 }
 
 
@@ -73,6 +76,8 @@ type tcpConnectionInfo struct {
 
 	_isDial bool
 	_isConnSuc bool
+
+	_attachData interface{}
 }
 type MAP_TCPCONNECTION map[int]*tcpConnectionInfo
 
@@ -164,7 +169,7 @@ type EPollListener_interface interface {
 	EPollListenerAddEvent(fd int, evt interface{})
 	EPollListenerCloseTcp(fd FD_DEF)
 	EPollListenerWrite(fd FD_DEF, binData []byte)
-	EPollListenerDial(addr string)(fd FD_DEF, err error)
+	EPollListenerDial(addr string, attachData interface{})(fd FD_DEF, err error)
 	EPollListenerGetStatic(*EPollListenerStatic)
 }
 

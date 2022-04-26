@@ -8,21 +8,21 @@ import (
 type MAP_TCPCLIENT map[int]*TcpClient
 type MAP_CLIENTID_TCPFD map[int64]int
 
-type eSrvMgrProcessUnitStatic struct {
+type ClientProcessUnitStatic struct {
 	clientCount int
 	totalRecv int64
 }
-type eSrvMgrProcessUnit struct {
+type EPollProcessUnit struct {
 	chMsg chan interface{}
 	eSrvMgr *EpollServerMgr
 	mapTcpClient MAP_TCPCLIENT
 	mapClientIDTcpFD MAP_CLIENTID_TCPFD
 
-	eSrvMgrProcessUnitStatic
+	ClientProcessUnitStatic
 }
 
 
-func (pthis*eSrvMgrProcessUnit)ProcessProtoMsg(msg *msgProto){
+func (pthis*EPollProcessUnit)ProcessProtoMsg(msg *msgProto){
 	switch msg.packType {
 	case msgpacket.MSG_TYPE__MSG_LOGIN:
 		{
@@ -39,11 +39,11 @@ func (pthis*eSrvMgrProcessUnit)ProcessProtoMsg(msg *msgProto){
 	}
 }
 
-func (pthis*eSrvMgrProcessUnit)getClientByFD(fd int) *TcpClient {
+func (pthis*EPollProcessUnit)getClientByFD(fd int) *TcpClient {
 	oldC, _ := pthis.mapTcpClient[fd]
 	return oldC
 }
-func (pthis*eSrvMgrProcessUnit)getClientByClientID(clientID int64) *TcpClient {
+func (pthis*EPollProcessUnit)getClientByClientID(clientID int64) *TcpClient {
 	oldFD, ok := pthis.mapClientIDTcpFD[clientID]
 	if !ok {
 		return nil
@@ -51,13 +51,13 @@ func (pthis*eSrvMgrProcessUnit)getClientByClientID(clientID int64) *TcpClient {
 	oldC, _ := pthis.mapTcpClient[oldFD]
 	return oldC
 }
-func (pthis*eSrvMgrProcessUnit)addClient(c *TcpClient) {
+func (pthis*EPollProcessUnit)addClient(c *TcpClient) {
 	pthis.mapTcpClient[c.fd.FD] = c
 	pthis.mapClientIDTcpFD[c.clientID] = c.fd.FD
 
 	pthis.clientCount = len(pthis.mapTcpClient)
 }
-func (pthis*eSrvMgrProcessUnit)delClient(fd lin_common.FD_DEF) {
+func (pthis*EPollProcessUnit)delClient(fd lin_common.FD_DEF) {
 	oldC, _ := pthis.mapTcpClient[fd.FD]
 	if oldC != nil {
 		delete(pthis.mapClientIDTcpFD, oldC.clientID)
@@ -67,7 +67,7 @@ func (pthis*eSrvMgrProcessUnit)delClient(fd lin_common.FD_DEF) {
 	pthis.clientCount = len(pthis.mapTcpClient)
 }
 
-func (pthis*eSrvMgrProcessUnit)Process_msgTcpClose(msg *msgTcpClose) {
+func (pthis*EPollProcessUnit)Process_msgTcpClose(msg *msgTcpClose) {
 	c := pthis.getClientByFD(msg.fd.FD)
 	if c == nil {
 		return
@@ -81,7 +81,7 @@ func (pthis*eSrvMgrProcessUnit)Process_msgTcpClose(msg *msgTcpClose) {
 }
 
 
-func (pthis*eSrvMgrProcessUnit)Process_MSG_LOGIN(fd lin_common.FD_DEF, msg *msgpacket.MSG_LOGIN){
+func (pthis*EPollProcessUnit)Process_MSG_LOGIN(fd lin_common.FD_DEF, msg *msgpacket.MSG_LOGIN){
 	lin_common.LogDebug("login:", fd.String(), " clientid:", msg.Id)
 
 	oldC := pthis.getClientByClientID(msg.Id)
@@ -105,10 +105,10 @@ func (pthis*eSrvMgrProcessUnit)Process_MSG_LOGIN(fd lin_common.FD_DEF, msg *msgp
 	msgRes.ConnectId = int64(fd.Magic)
 	msgRes.Fd = int64(fd.FD)
 
-	pthis.eSrvMgr.lsn.EPollListenerWrite(fd, msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_LOGIN_RES, msgRes))
+	pthis.eSrvMgr.SendProtoMsg(fd, msgpacket.MSG_TYPE__MSG_LOGIN_RES, msgRes)
 }
 
-func (pthis*eSrvMgrProcessUnit)Process_protoMsg(msg *msgProto) {
+func (pthis*EPollProcessUnit)Process_protoMsg(msg *msgProto) {
 	pthis.totalRecv ++
 
 	c := pthis.getClientByFD(msg.fd.FD)
@@ -120,7 +120,7 @@ func (pthis*eSrvMgrProcessUnit)Process_protoMsg(msg *msgProto) {
 }
 
 
-func (pthis*eSrvMgrProcessUnit)_go_Process_unit(){
+func (pthis*EPollProcessUnit)_go_Process_unit(){
 	for {
 		msg := <- pthis.chMsg
 		switch t := msg.(type) {
@@ -132,8 +132,8 @@ func (pthis*eSrvMgrProcessUnit)_go_Process_unit(){
 	}
 }
 
-func ConstructorESrvMgrProcessUnit(eSrvMgr *EpollServerMgr) *eSrvMgrProcessUnit {
-	return &eSrvMgrProcessUnit{
+func ConstructorEPollProcessUnit(eSrvMgr *EpollServerMgr) *EPollProcessUnit {
+	return &EPollProcessUnit{
 		chMsg : make(chan interface{}, 100),
 		eSrvMgr : eSrvMgr,
 		mapTcpClient : make(MAP_TCPCLIENT),
