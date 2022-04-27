@@ -38,7 +38,7 @@ func (pthis*EpollServerMgr)TcpAcceptConnection(fd lin_common.FD_DEF, addr net.Ad
 	return nil
 }
 func (pthis*EpollServerMgr)TcpDialConnection(fd lin_common.FD_DEF, addr net.Addr, inAttachData interface{}) (outAttachData interface{}) {
-	lin_common.LogDebug(" dial connection fd:", fd.String(), " addr:", addr)
+	lin_common.LogDebug(" dial connection fd:", fd.String(), " addr:", addr, " inAttachData:", inAttachData)
 	attachData, ok := inAttachData.(*TcpAttachData)
 	if !ok || attachData == nil {
 		return

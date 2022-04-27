@@ -54,8 +54,8 @@ func (pthis*TcpSrv)sendHeartBeat(){
 
 func ConstructorTcpSrv(srvID int64, addr string, pu *TcpSrvMgrUnit) *TcpSrv {
 	timeSec := pu.tcpSrvMgr.eSrvMgr.clientCloseTimeoutSec
-	if timeSec < 2 {
-		timeSec = 2
+	if timeSec < 6 {
+		timeSec = 6
 	}
 	srv := &TcpSrv{
 		srvID : srvID,

@@ -263,6 +263,10 @@ func (pthis*ePollConnection)EpollConnection_epllEvt_tcpread(fd FD_DEF) {
 		}
 	}
 
+	if ti._readBuf.Len() == 0 {
+		ti._readBuf.Reset() // todo : shrink buf
+	}
+
 	if bClose {
 		pthis.EpollConnection_close_tcp(fd)
 		return
@@ -340,6 +344,10 @@ func (pthis*ePollConnection)EpollConnection_do_write(ti *tcpConnectionInfo) {
 				break
 			}
 		}
+	}
+
+	if ti._writeBuf.Len() == 0 {
+		ti._writeBuf.Reset() // todo : shrink buf ti._writeBuf = bytes.NewBuffer(make([]byte, ti._writeBuf.Cap()/2))
 	}
 
 	if bModEpoll {

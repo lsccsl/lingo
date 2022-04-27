@@ -16,6 +16,7 @@ func main() {
 	fd := lin_common.FD_DEF{}
 	fmt.Println("fd:", fd.String())
 
+	// read config
 	var pathCfg string
 	var id string
 	flag.StringVar(&pathCfg, "path", "cfg.yml", "config path")
@@ -26,9 +27,22 @@ func main() {
 	if srvCfg == nil {
 		fmt.Println("read cfg err", pathCfg)
 	}
+
+	// log and profile
 	lin_common.InitLog("./epollsrv.log", srvCfg.LogEnableConsolePrint, true)
 	lin_common.ProfileInit(true, 6060)
 
+	// epoll mgr
+	eSrvMgr, err := ConstructorEpollServerMgr(srvCfg.BindAddr/*"192.168.2.129:2003"*/,
+		1000, 1000, 10,
+		900,900,
+		true)
+	if err != nil {
+		lin_common.LogDebug(err)
+		return
+	}
+
+	// http interface
 	httpAddr, err := net.ResolveTCPAddr("tcp", srvCfg.HttpAddr)
 	if err != nil {
 		lin_common.LogErr(err)
@@ -45,15 +59,7 @@ func main() {
 		}
 	})
 
-	eSrvMgr, err := ConstructorEpollServerMgr("192.168.2.129:2003",
-		1000, 1000, 20,
-		900,900,
-		true)
-	if err != nil {
-		lin_common.LogDebug(err)
-		return
-	}
-
+	// command line
 	lin_common.AddCmd("dump", "dump", func(argStr []string)string{
 		bDetail := false
 		bLog := true

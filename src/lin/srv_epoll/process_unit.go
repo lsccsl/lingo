@@ -104,17 +104,18 @@ func (pthis*EPollProcessUnit)_go_Process_unit(){
 		if c == nil {
 			if CLIENT_LOGIN == msg.msgType {
 				pthis.Process_LOGIN(msg.clientID, msg.fd)
-				continue
 			}
-		}
-		switch msg.msgType {
-		case CLIENT_PROTO:
-			{
-				pthis.totalRecv ++
-				c.Process_protoMsg(msg)
+			continue
+		} else {
+			switch msg.msgType {
+			case CLIENT_PROTO:
+				{
+					pthis.totalRecv++
+					c.Process_protoMsg(msg)
+				}
+			case CLIENT_TCP_CLOSE:
+				pthis.Process_TcpClose(c, msg.fd)
 			}
-		case CLIENT_TCP_CLOSE:
-			pthis.Process_TcpClose(c, msg.fd)
 		}
 	}
 }

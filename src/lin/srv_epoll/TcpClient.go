@@ -79,6 +79,12 @@ func (pthis*TcpClient)Process_MSG_HEARTBEAT(msg *msgpacket.MSG_HEARTBEAT) {
 }
 
 func (pthis*TcpClient)Process_protoMsg(msg *msgClient) {
+	defer func() {
+		err := recover()
+		if err != nil {
+			lin_common.LogErr(" clientid:", pthis.clientID, " fd:", pthis.fd.String(), " err:", err, " msg:", msg)
+		}
+	}()
 	pthis.timerConnClose.Reset(pthis.durationClose)
 
 	switch t := msg.msg.(type) {
