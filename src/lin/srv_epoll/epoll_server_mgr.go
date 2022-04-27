@@ -11,20 +11,6 @@ import (
 )
 
 
-/* begin process unit msg define */
-type msgProto struct {
-	fd lin_common.FD_DEF
-	packType msgpacket.MSG_TYPE
-	protoMsg proto.Message
-}
-type msgTimer struct {
-	fd lin_common.FD_DEF
-	timerData int
-}
-type msgTcpClose struct {
-	fd lin_common.FD_DEF
-}
-/* end process unit msg define */
 
 type TcpAttachData struct {
 	srvID int64
@@ -47,24 +33,27 @@ type EpollServerMgr struct {
 	EpollServerMgrStatic
 }
 
-func (pthis*EpollServerMgr)TcpAcceptConnection(fd lin_common.FD_DEF, addr net.Addr, tpcAttachData interface{}) {
+func (pthis*EpollServerMgr)TcpAcceptConnection(fd lin_common.FD_DEF, addr net.Addr, inAttachData interface{}) (outAttachData interface{}){
 	lin_common.LogDebug(" accept connection fd:", fd.String(), " addr:", addr)
-	//ConstructorTcpClient
+	return nil
 }
-func (pthis*EpollServerMgr)TcpDialConnection(fd lin_common.FD_DEF, addr net.Addr, tpcAttachData interface{}) {
+func (pthis*EpollServerMgr)TcpDialConnection(fd lin_common.FD_DEF, addr net.Addr, inAttachData interface{}) (outAttachData interface{}) {
 	lin_common.LogDebug(" dial connection fd:", fd.String(), " addr:", addr)
-	attachData, ok := tpcAttachData.(*TcpAttachData)
+	attachData, ok := inAttachData.(*TcpAttachData)
 	if !ok || attachData == nil {
 		return
 	}
 
 	pthis.tcpSrvMgr.TcpSrvMgrPushMsgToUnit(attachData.srvID, srvEvt_TcpDialSuc{attachData.srvID, fd})
+	return nil
 }
-func (pthis*EpollServerMgr)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, tpcAttachData interface{})(bytesProcess int, attachData interface{}) {
+func (pthis*EpollServerMgr)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, inAttachData interface{})(bytesProcess int, retAttachData interface{}) {
 	packType, bytesProcess, protoMsg := msgpacket.ProtoUnPacketFromBin(readBuf)
 	if protoMsg == nil {
 		return
 	}
+
+	var pu *EPollProcessUnit = nil
 
 	switch packType {
 	case msgpacket.MSG_TYPE__MSG_TEST:
@@ -76,60 +65,82 @@ func (pthis*EpollServerMgr)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, 
 	case msgpacket.MSG_TYPE__MSG_SRV_REPORT:
 		{
 			msgR := protoMsg.(*msgpacket.MSG_SRV_REPORT)
-			attachData = &TcpAttachData{srvID: msgR.SrvId}
+			retAttachData = &TcpAttachData{srvID: msgR.SrvId}
 			pthis.tcpSrvMgr.TcpSrvMgrPushMsgToUnit(msgR.SrvId,
 				&srvEvt_TcpAcpt{
 					srvID : msgR.SrvId,
 					fdAcpt : fd,
 				})
-
+			return
+		}
+	case msgpacket.MSG_TYPE__MSG_LOGIN:
+		{
+			msgL := protoMsg.(*msgpacket.MSG_LOGIN)
+			retAttachData =&TcpAttachData{cliID: msgL.Id}
+			pu = pthis.GetProcessUnitByClientID(msgL.Id)
+			if pu != nil {
+				pu.PushTcpLoginMsg(msgL.Id, fd)
+			}
 			return
 		}
 	}
 
-	if attachData != nil {
-		tcpAttachData, _ := attachData.(*TcpAttachData)
-		if tcpAttachData != nil {
+	if inAttachData == nil {
+		lin_common.LogErr("fd:", fd.String(), " no attach data")
+		return
+	} else {
+		tcpAttachData, ok := inAttachData.(*TcpAttachData)
+		if !ok {
+			lin_common.LogErr("fd:", fd.String(), " unknown attach data", inAttachData)
+			return
+		}
+
+		if tcpAttachData.srvID != 0 {
 			pthis.tcpSrvMgr.TcpSrvMgrPushMsgToUnit(tcpAttachData.srvID,
 				&srvEvt_protoMsg{
 					srvID:tcpAttachData.srvID,
 					fd:fd,
 					msg:protoMsg,
 				})
+		} else {
+			pu = pthis.GetProcessUnitByClientID(tcpAttachData.cliID)
+			if pu == nil {
+				lin_common.LogErr("fd:", fd.String(), " not process clientid:", tcpAttachData.cliID)
+				return readBuf.Len(), nil
+			}
+			pu.PushProtoMsg(tcpAttachData.cliID, fd, protoMsg)
 		}
-	} else {
-		pu := pthis.GetProcessUnitByFD(fd)
-		if pu == nil {
-			return readBuf.Len(), nil
-		}
-		pu.chMsg <- &msgProto{fd, packType,protoMsg}
-
 	}
+
 	return
 }
-func (pthis*EpollServerMgr)TcpClose(fd lin_common.FD_DEF, attachData interface{}) {
-	if attachData != nil{
-		tcpAttachData, _ := attachData.(*TcpAttachData)
-		if tcpAttachData != nil {
-			pthis.tcpSrvMgr.TcpSrvMgrPushMsgToUnit(tcpAttachData.srvID,
-				&srvEvt_TcpClose{
-					srvID : tcpAttachData.srvID,
-					fd : fd,
-				})
-		}
+func (pthis*EpollServerMgr)TcpClose(fd lin_common.FD_DEF, inAttachData interface{}) {
+	if inAttachData == nil{
+		lin_common.LogErr("fd:", fd.String(), " not attach data")
 		return
+	}
+	tcpAttachData, ok := inAttachData.(*TcpAttachData)
+	if !ok {
+		lin_common.LogErr("fd:", fd.String(), " unknown attach data", inAttachData)
+		return
+	}
+	if tcpAttachData.srvID != 0 {
+		pthis.tcpSrvMgr.TcpSrvMgrPushMsgToUnit(tcpAttachData.srvID,
+			&srvEvt_TcpClose{
+				srvID : tcpAttachData.srvID,
+				fd : fd,
+			})
 	} else {
-		lin_common.LogDebug("tcp close:", fd.String())
-		pu := pthis.GetProcessUnitByFD(fd)
+		pu := pthis.GetProcessUnitByClientID(tcpAttachData.cliID)
 		if pu != nil {
-			pu.chMsg <- &msgTcpClose{fd}
+			pu.PushTcpCloseMsg(tcpAttachData.cliID, fd)
 		}
 	}
 }
 
-func (pthis*EpollServerMgr)GetProcessUnitByFD(fd lin_common.FD_DEF) *EPollProcessUnit {
-	processUnitCount := len(pthis.processUnit)
-	idx := fd.FD % processUnitCount
+func (pthis*EpollServerMgr)GetProcessUnitByClientID(cliID int64) *EPollProcessUnit {
+	processUnitCount := int64(len(pthis.processUnit))
+	idx := cliID % processUnitCount
 	if idx >= processUnitCount {
 		return nil
 	}

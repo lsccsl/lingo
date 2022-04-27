@@ -26,7 +26,7 @@ func main() {
 	if srvCfg == nil {
 		fmt.Println("read cfg err", pathCfg)
 	}
-	lin_common.InitLog("./epollsrv.log", /*srvCfg.LogEnableConsolePrint*/true, true)
+	lin_common.InitLog("./epollsrv.log", srvCfg.LogEnableConsolePrint, true)
 	lin_common.ProfileInit(true, 6060)
 
 	httpAddr, err := net.ResolveTCPAddr("tcp", srvCfg.HttpAddr)
@@ -46,7 +46,7 @@ func main() {
 	})
 
 	eSrvMgr, err := ConstructorEpollServerMgr("192.168.2.129:2003",
-		1000, 1000, 10,
+		1000, 1000, 20,
 		900,900,
 		true)
 	if err != nil {

@@ -131,7 +131,10 @@ func (pthis*ePollConnection)EpollConnection_process_evt(){
 							}
 						}()
 
-						pthis._lsn._cb.TcpAcceptConnection(ti._fd, ti._addr, ti._attachData)
+						ad := pthis._lsn._cb.TcpAcceptConnection(ti._fd, ti._addr, ti._attachData)
+						if ad != nil {
+							ti._attachData = ad
+						}
 					}()
 				}
 			}
@@ -281,7 +284,10 @@ func (pthis*ePollConnection)EpollConnection_epllEvt_tcpwrite(fd FD_DEF){
 		ti._isConnSuc = true
 		ti._cur_epoll_evt = EPOLL_EVENT_READ
 		unixEpollMod(pthis._epollFD, ti._fd.FD, ti._cur_epoll_evt, ti._fd.Magic, pthis._lsn._paramET)
-		pthis._lsn._cb.TcpDialConnection(ti._fd, ti._addr, ti._attachData)
+		ad := pthis._lsn._cb.TcpDialConnection(ti._fd, ti._addr, ti._attachData)
+		if ad != nil {
+			ti._attachData = ad
+		}
 	}
 
 	pthis.EpollConnection_do_write(ti)
@@ -449,7 +455,7 @@ func (pthis*ePollAccept)_go_EpollAccept_epollwait() {
 				}
 
 				LogDebug("new tcp connection, fd:", fd, " addr:", addr)
-				pthis._lsn.EPollListenerAddEvent(fd, &event_NewConnection{_fdConn: fd})
+				pthis._lsn._EPollListenerAddEvent(fd, &event_NewConnection{_fdConn: fd})
 			}
 		}
 	}
@@ -552,7 +558,7 @@ func (pthis*EPollListener)EPollListenerGenMagic() int32 {
 	return int32(rand.Int()*rand.Int())
 }
 
-func (pthis*EPollListener)EPollListenerAddEvent(fd int, evt interface{}) {
+func (pthis*EPollListener)_EPollListenerAddEvent(fd int, evt interface{}) {
 	connCount := len(pthis._epollConnection)
 	if connCount <= 0 {
 		LogErr("epoll connection coroutine count is 0")
@@ -566,11 +572,11 @@ func (pthis*EPollListener)EPollListenerAddEvent(fd int, evt interface{}) {
 }
 
 func (pthis*EPollListener)EPollListenerCloseTcp(fd FD_DEF){
-	pthis.EPollListenerAddEvent(fd.FD, &event_TcpClose{fd:fd})
+	pthis._EPollListenerAddEvent(fd.FD, &event_TcpClose{fd:fd})
 }
 
 func (pthis*EPollListener)EPollListenerWrite(fd FD_DEF, binData []byte) {
-	pthis.EPollListenerAddEvent(fd.FD, &event_TcpWrite{fd:fd, _binData:binData})
+	pthis._EPollListenerAddEvent(fd.FD, &event_TcpWrite{fd:fd, _binData:binData})
 }
 
 func (pthis*EPollListener)EPollListenerDial(addr string, attachData interface{})(fd FD_DEF, err error){
@@ -581,7 +587,7 @@ func (pthis*EPollListener)EPollListenerDial(addr string, attachData interface{})
 	}
 
 	magic := pthis.EPollListenerGenMagic()
-	pthis.EPollListenerAddEvent(rawfd,&event_TcpDial{
+	pthis._EPollListenerAddEvent(rawfd,&event_TcpDial{
 		fd: FD_DEF{rawfd,magic},
 		attachData: attachData,
 	})

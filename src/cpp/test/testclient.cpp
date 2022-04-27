@@ -56,7 +56,7 @@ bool testclient::connect_to_srv(const std::string& srv_ip, int srv_port)
 	this->_reset_client();
 	if (this->fd_ > 0)
 		CChannel::CloseFd(this->fd_);
-	this->fd_ = CChannel::TcpConnect(srv_ip.c_str(), srv_port);
+	this->fd_ = CChannel::TcpConnect(srv_ip.c_str(), srv_port, 60, 10);
 	if (this->fd_ < 0)
 	{
 		MYLOG_ERR(("clientid:%lld connect err:%d-%d", this->id_, ::WSAGetLastError(), ::GetLastError()));
@@ -159,7 +159,7 @@ bool testclient::send_msg(int msg_typ, google::protobuf::Message* proto_msg)
 	std::string buf_bin;
 	msgpackhelp::pack_to_bin(buf_bin, msg_typ, proto_msg);
 
-	int32 ret = CChannel::TcpSelectWrite(this->fd_, buf_bin.data(), buf_bin.size(), 10);
+	int32 ret = CChannel::TcpSelectWrite(this->fd_, buf_bin.data(), buf_bin.size(), 60);
 	if (ret < 0)
 	{
 		MYLOG_ERR(("clientid:%lld write err:%d-%d", this->id_, ::WSAGetLastError(), ::GetLastError()));
@@ -178,7 +178,7 @@ bool testclient::recv_one_msg()
 	int32 ret = 0;
 	int read_sz = sizeof(msghead) - this->read_buf_sz_;
 	if (read_sz > 0)
-		ret = CChannel::TcpSelectRead(this->fd_, buf, read_sz, 30, 10);
+		ret = CChannel::TcpSelectRead(this->fd_, buf, read_sz, 60, 10);
 	if (ret < 0)
 	{
 		MYLOG_ERR(("clientid:%lld read head err:%d-%d read_sz:%d", this->id_, ::WSAGetLastError(), ::GetLastError(), this->read_buf_sz_));
@@ -198,7 +198,7 @@ bool testclient::recv_one_msg()
 	if (body_len >= 0)
 	{
 		buf = (void*)(this->read_buf_.data() + sizeof(msghead));
-		ret = CChannel::TcpSelectRead(this->fd_, buf, body_len, 30, 10);
+		ret = CChannel::TcpSelectRead(this->fd_, buf, body_len, 60, 10);
 	}
 	if (ret < 0)
 	{

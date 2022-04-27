@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/golang/protobuf/proto"
 	"lin/lin_common"
+	"lin/msgpacket"
 )
 
 /* begin srv event */
@@ -27,6 +28,11 @@ type srvEvt_protoMsg struct {
 	srvID int64
 	fd lin_common.FD_DEF
 	msg proto.Message
+}
+type srvEvt_RPC struct {
+	srvID int64
+	chRouteBack chan interface{}
+	msg msgpacket.MSG_RPC
 }
 /* end srv event */
 
@@ -73,20 +79,21 @@ func (pthis*TcpSrvMgr)TcpSrvMgrAddRemoteSrv(srvID int64, addr string, closeExpir
 	lin_common.LogDebug("srv:", srvID, " fd:", fd.String())
 }
 
-func (pthis*TcpSrvMgr)TcpSrvMgrRPC(srvID int64){
+func (pthis*TcpSrvMgr)TcpSrvMgrRPCSync(srvID int64, msgType msgpacket.MSG_TYPE, protoMsg proto.Message, timeoutMilliSec int) {
 
 }
 
 func ConstructorTcpSrvMgr(eSrvMgr *EpollServerMgr, srvProcessUnitCount int) *TcpSrvMgr {
 	tcpSrvMgr := &TcpSrvMgr{
 		eSrvMgr : eSrvMgr,
+		mgrUnit : make([]*TcpSrvMgrUnit, 0, srvProcessUnitCount),
 	}
 
-/*	for i := 0; i < srvProcessUnitCount; i ++ {
+	for i := 0; i < srvProcessUnitCount; i ++ {
 		processUnit := ConstructorTcpSrvMgrUnit(tcpSrvMgr)
 		tcpSrvMgr.mgrUnit = append(tcpSrvMgr.mgrUnit, processUnit)
-		processUnit._go_Process_unit()
-	}*/
+		go processUnit._go_Process_unit()
+	}
 
 	return tcpSrvMgr
 }

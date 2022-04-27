@@ -57,12 +57,6 @@ type event_TcpDial struct {
 /* @brief end inter evetn define */
 
 
-type EPollCallback interface {
-	TcpAcceptConnection(fd FD_DEF, addr net.Addr, tpcAttachData interface{})
-	TcpDialConnection(fd FD_DEF, addr net.Addr, tpcAttachData interface{})
-	TcpData(fd FD_DEF, readBuf *bytes.Buffer, tpcAttachData interface{})(bytesProcess int, attachData interface{})
-	TcpClose(fd FD_DEF, tpcAttachData interface{})
-}
 
 
 /* @brief tcp connection info define */
@@ -163,10 +157,42 @@ type EPollListenerStatic struct {
 	ByteSend int64
 }
 
+
+// epoll api interface
+
+/*
+	application need init epoll by <EPollListener>, and receive tcp connection/data/close notify by <EPollCallback>
+
+	epollSrv := ConstructorEPollListener(EPollCallback, "0.0.0.0:1234", 10, ParamEPollListener{})
+
+	fd from
+		EPollCallback.TcpAcceptConnection
+		EPollCallback.TcpDialConnection
+	or fd := epollSrv.EPollListenerDial(addr, nil)
+
+	write data to fd
+	epollSrv.EPollListenerWrite(fd, bin)
+
+	close fd
+	epollSrv.EPollListenerCloseTcp(fd)
+
+	fd close notify from EPollCallback.TcpClose
+
+	fd data notify from EPollCallback.TcpData
+*/
+
+// EPollCallback callback with inAttachData/outAttachData, if outAttachData is set to not nil, it will pass to next callback in param:inAttachData
+// bytesProcess return TcpData callback tell epoll api that how many byte has been processed in this callback
+type EPollCallback interface {
+	TcpAcceptConnection(fd FD_DEF, addr net.Addr, inAttachData interface{})(outAttachData interface{})
+	TcpDialConnection(fd FD_DEF, addr net.Addr, inAttachData interface{})(outAttachData interface{})
+	TcpData(fd FD_DEF, readBuf *bytes.Buffer, inAttachData interface{})(bytesProcess int, outAttachData interface{})
+	TcpClose(fd FD_DEF, inAttachData interface{})
+}
+
 type EPollListener_interface interface {
 	EPollListenerInit(cb EPollCallback, addr string, epollCoroutineCount int) error
 	EPollListenerWait()
-	EPollListenerAddEvent(fd int, evt interface{})
 	EPollListenerCloseTcp(fd FD_DEF)
 	EPollListenerWrite(fd FD_DEF, binData []byte)
 	EPollListenerDial(addr string, attachData interface{})(fd FD_DEF, err error)

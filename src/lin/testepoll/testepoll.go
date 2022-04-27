@@ -141,13 +141,15 @@ type test_cb struct {
 	lsn *lin_common.EPollListener
 	mapFD map[int]*test_tcp_info
 }
-func (pthis*test_cb)TcpAcceptConnection(fd lin_common.FD_DEF, addr net.Addr, attachData interface{}){
+func (pthis*test_cb)TcpAcceptConnection(fd lin_common.FD_DEF, addr net.Addr, attachData interface{})interface{}{
 	lin_common.LogDebug("new tcp connection:", fd.FD, " addr:", addr)
 	ti := &test_tcp_info{fd: fd}
 	pthis.mapFD[fd.FD]=ti
+	return nil
 }
-func (pthis*test_cb)TcpDialConnection(fd lin_common.FD_DEF, addr net.Addr, attachData interface{}){
+func (pthis*test_cb)TcpDialConnection(fd lin_common.FD_DEF, addr net.Addr, attachData interface{})interface{}{
 	lin_common.LogDebug("suc to dial, fd:", fd.FD, " magic:", fd.Magic, " addr:", addr)
+	return nil
 }
 
 func (pthis*test_cb)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, attachData interface{})(bytesProcess int, retAttachData interface{}) {

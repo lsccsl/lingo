@@ -78,10 +78,10 @@ func (pthis*TcpClient)Process_MSG_HEARTBEAT(msg *msgpacket.MSG_HEARTBEAT) {
 	pthis.pu.eSrvMgr.SendProtoMsg(pthis.fd, msgpacket.MSG_TYPE__MSG_HEARTBEAT_RES, msgRes)
 }
 
-func (pthis*TcpClient)Process_protoMsg(msg *msgProto) {
+func (pthis*TcpClient)Process_protoMsg(msg *msgClient) {
 	pthis.timerConnClose.Reset(pthis.durationClose)
 
-	switch t := msg.protoMsg.(type) {
+	switch t := msg.msg.(type) {
 	case *msgpacket.MSG_TEST:
 		pthis.Process_MSG_TEST(t)
 	case *msgpacket.MSG_HEARTBEAT:
