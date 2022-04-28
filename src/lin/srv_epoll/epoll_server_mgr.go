@@ -152,7 +152,7 @@ func (pthis*EpollServerMgr)GetProcessUnitByClientID(cliID int64) *EPollProcessUn
 }
 
 func (pthis*EpollServerMgr)AddRemoteSrv(srvID int64, addr string, closeExpireSec int) {
-
+	pthis.tcpSrvMgr.TcpSrvMgrAddRemoteSrv(srvID, addr, closeExpireSec)
 }
 
 func (pthis*EpollServerMgr)SendProtoMsg(fd lin_common.FD_DEF, msgType msgpacket.MSG_TYPE, protoMsg proto.Message){
@@ -203,7 +203,7 @@ func ConstructorEpollServerMgr(addr string,
 		}
 	}()
 
-	lin_common.LogDebug("processUnitCount:", processUnitCount, "epollCoroutineCount:", epollCoroutineCount, "clientCloseTimeoutSec:", epollCoroutineCount,
+	lin_common.LogDebug("processUnitCount:", processUnitCount, "epollCoroutineCount:", epollCoroutineCount, "clientCloseTimeoutSec:", clientCloseTimeoutSec,
 		"bET:", bET)
 
 	msgpacket.InitMsgParseVirtualTable()

@@ -3,7 +3,9 @@ package main
 import (
 	"github.com/golang/protobuf/proto"
 	"lin/lin_common"
+	cor_pool "lin/lin_cor_pool"
 	"lin/msgpacket"
+	"time"
 )
 
 /* begin srv event */
@@ -31,8 +33,15 @@ type srvEvt_protoMsg struct {
 }
 type srvEvt_RPC struct {
 	srvID int64
-	chRouteBack chan interface{}
-	msg msgpacket.MSG_RPC
+	rpcUUID int64
+	chRouteBack CHAN_RPC_ROUTEBACK
+	msgType msgpacket.MSG_TYPE
+	msg proto.Message
+	timeoutMills int64
+}
+type srvEvt_RPC_Del struct {
+	srvID int64
+	rpcUUID int64
 }
 /* end srv event */
 
@@ -40,6 +49,8 @@ type TcpSrvMgr struct {
 	eSrvMgr *EpollServerMgr
 
 	mgrUnit []*TcpSrvMgrUnit
+
+	rpcPool *cor_pool.CorPool
 }
 
 
@@ -79,14 +90,33 @@ func (pthis*TcpSrvMgr)TcpSrvMgrAddRemoteSrv(srvID int64, addr string, closeExpir
 	lin_common.LogDebug("srv:", srvID, " fd:", fd.String())
 }
 
-func (pthis*TcpSrvMgr)TcpSrvMgrRPCSync(srvID int64, msgType msgpacket.MSG_TYPE, protoMsg proto.Message, timeoutMilliSec int) {
+func (pthis*TcpSrvMgr)TcpSrvMgrRPCSync(srvID int64, msgType msgpacket.MSG_TYPE, protoMsg proto.Message, timeoutMilliSec int) (proto.Message, error){
+	chRouteBack := make(CHAN_RPC_ROUTEBACK)
+	evt := &srvEvt_RPC{
+		srvID : srvID,
+		rpcUUID : lin_common.GenUUID64_V4(),
+		chRouteBack : chRouteBack,
+		msgType : msgType,
+		msg : protoMsg,
+	}
 
+	pthis.TcpSrvMgrPushMsgToUnit(srvID, evt)
+
+	chTimer := time.After(time.Millisecond * time.Duration(timeoutMilliSec))
+	select{
+	case msgRsp := <-chRouteBack:
+		return msgRsp, nil
+	case <-chTimer:
+		pthis.TcpSrvMgrPushMsgToUnit(srvID, &srvEvt_RPC_Del{srvID,evt.rpcUUID})
+	}
+	return nil, lin_common.GenErrNoERR_NUM("srv:", srvID, " rpc err, msg:", protoMsg)
 }
 
 func ConstructorTcpSrvMgr(eSrvMgr *EpollServerMgr, srvProcessUnitCount int) *TcpSrvMgr {
 	tcpSrvMgr := &TcpSrvMgr{
 		eSrvMgr : eSrvMgr,
 		mgrUnit : make([]*TcpSrvMgrUnit, 0, srvProcessUnitCount),
+		rpcPool : cor_pool.CorPoolInit(1000),
 	}
 
 	for i := 0; i < srvProcessUnitCount; i ++ {

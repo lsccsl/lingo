@@ -439,7 +439,7 @@ int32 CChannel::TcpSelectRead(int32 fd, void * buf, uint32 buf_sz, uint32 time_o
 		*/
 		int32 r = select(fd + 1, &fdWatch, NULL, NULL, &tvOut);
 		if(r < 0)
-			return -1;
+			return -2;
 		else if(0 == r)
 			continue;
 		else if(!FD_ISSET(fd, &fdWatch))
@@ -450,7 +450,7 @@ int32 CChannel::TcpSelectRead(int32 fd, void * buf, uint32 buf_sz, uint32 time_o
 		*The return value will be 0 when the peer has performed an orderly shutdown.*/
 		ret = recv(fd, (char *)buf + current_read, buf_sz - current_read, 0);
 		if(ret <= 0)
-			return -1;
+			return -3;
 
 		current_read += ret;		
 	}
@@ -516,7 +516,7 @@ int32 CChannel::TcpSelectWrite(int32 fd, const void * buf, const uint32 buf_sz, 
 		*/
 		int32 r = select(fd + 1, NULL, &fdWatch, NULL, &tvOut);
 		if(r < 0)
-			return -1;
+			return -2;
 		else if(0 == r)
 			continue;
 		else if(!FD_ISSET(fd, &fdWatch))
@@ -528,7 +528,7 @@ int32 CChannel::TcpSelectWrite(int32 fd, const void * buf, const uint32 buf_sz, 
 		*/
 		ret = send(fd, (char *)buf + current_write, buf_sz - current_write, 0);
 		if(ret <= 0)
-			return -1;
+			return -3;
 
 		current_write += ret;
 	}

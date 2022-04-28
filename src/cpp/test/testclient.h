@@ -3,6 +3,7 @@
 #include <string>
 #include <memory>
 #include <sys/timeb.h>
+#include <stdint.h>
 #include "channel.h"
 #include "msg.pb.h"
 
@@ -35,8 +36,17 @@ public:
 
 	struct testclient_static
 	{
-		int64 total_diff_ = 0;
-		int64 total_count_ = 0;
+		int64 total_diff = 0;
+		int64 total_count = 0;
+
+		int64 max_diff = 0;
+		int64 min_diff = INT64_MAX;
+
+		int64 t_first_sendloop = 0;
+		int64 t_last_sendloop = 0;
+		int64 max_sendloop_interval = 0;
+		int64 min_sendloop_interval = INT64_MAX;
+		int64 total_send_loop = 0;
 	};
 
 	inline static int64 get_timestamp_mills()
@@ -49,7 +59,9 @@ public:
 public:
 
 	testclient(const int64 id):id_(id)
-	{}
+	{
+		this->tc_static_.t_first_sendloop = this->tc_static_.t_last_sendloop = testclient::get_timestamp_mills();		
+	}
 
 	bool connect_to_srv(const std::string& srv_ip, int srv_port);
 	inline const int64 id() const{

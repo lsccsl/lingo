@@ -56,7 +56,7 @@ bool testclient::connect_to_srv(const std::string& srv_ip, int srv_port)
 	this->_reset_client();
 	if (this->fd_ > 0)
 		CChannel::CloseFd(this->fd_);
-	this->fd_ = CChannel::TcpConnect(srv_ip.c_str(), srv_port, 60, 10);
+	this->fd_ = CChannel::TcpConnect(srv_ip.c_str(), srv_port, 10, 30);
 	if (this->fd_ < 0)
 	{
 		MYLOG_ERR(("clientid:%lld connect err:%d-%d", this->id_, ::WSAGetLastError(), ::GetLastError()));
@@ -99,6 +99,19 @@ bool testclient::do_login()
 }
 bool testclient::send_test(msgpacket::MSG_TEST& msg, const int64 seq, int count)
 {
+	this->tc_static_.total_send_loop++;
+	int64 tnowMS = testclient::get_timestamp_mills();
+	if (this->tc_static_.t_last_sendloop > 0)
+	{
+		int64 diff = tnowMS - this->tc_static_.t_last_sendloop;
+
+		if (diff > this->tc_static_.max_sendloop_interval)
+			this->tc_static_.max_sendloop_interval = diff;
+		if (diff < this->tc_static_.min_sendloop_interval)
+			this->tc_static_.min_sendloop_interval = diff;
+	}
+	this->tc_static_.t_last_sendloop = tnowMS;
+
 	for (int i = 0; i < count; i++)
 	{
 		msg.set_timestamp(testclient::get_timestamp_mills());
@@ -127,8 +140,14 @@ bool testclient::recv_test(const int64 seq, int count)
 				auto msgRes = std::dynamic_pointer_cast<msgpacket::MSG_TEST_RES>(it->proto_msg);
 				if (msgRes->seq() == (seq + i))
 				{
-					this->tc_static_.total_diff_ += (tnow_mills - msgRes->timestamp());
-					this->tc_static_.total_count_++;
+					int64 diff = (tnow_mills - msgRes->timestamp());
+					this->tc_static_.total_diff += diff;
+					this->tc_static_.total_count++;
+
+					if (diff > this->tc_static_.max_diff)
+						this->tc_static_.max_diff = diff;
+					if (diff < this->tc_static_.min_diff)
+						this->tc_static_.min_diff = diff;
 				}
 			}
 		}
@@ -149,7 +168,7 @@ bool testclient::recv_test(const int64 seq, int count)
 	}
 	this->lst_msg_recv_.clear();
 	if (!bret)
-		MYLOG_ERR(("id:%lld recv seq err", this->id_));
+		MYLOG_ERR(("id:%lld recv seq:%lld err", this->id_, seq));
 
 	return true;
 }
@@ -159,10 +178,10 @@ bool testclient::send_msg(int msg_typ, google::protobuf::Message* proto_msg)
 	std::string buf_bin;
 	msgpackhelp::pack_to_bin(buf_bin, msg_typ, proto_msg);
 
-	int32 ret = CChannel::TcpSelectWrite(this->fd_, buf_bin.data(), buf_bin.size(), 60);
+	int32 ret = CChannel::TcpSelectWrite(this->fd_, buf_bin.data(), buf_bin.size(), 10, 30);
 	if (ret < 0)
 	{
-		MYLOG_ERR(("clientid:%lld write err:%d-%d", this->id_, ::WSAGetLastError(), ::GetLastError()));
+		MYLOG_ERR(("clientid:%lld write err:%d-%d ret:%d", this->id_, ::WSAGetLastError(), ::GetLastError(), ret));
 		return false;
 	}
 	return true;
@@ -178,10 +197,10 @@ bool testclient::recv_one_msg()
 	int32 ret = 0;
 	int read_sz = sizeof(msghead) - this->read_buf_sz_;
 	if (read_sz > 0)
-		ret = CChannel::TcpSelectRead(this->fd_, buf, read_sz, 60, 10);
+		ret = CChannel::TcpSelectRead(this->fd_, buf, read_sz, 10, 30);
 	if (ret < 0)
 	{
-		MYLOG_ERR(("clientid:%lld read head err:%d-%d read_sz:%d", this->id_, ::WSAGetLastError(), ::GetLastError(), this->read_buf_sz_));
+		MYLOG_ERR(("clientid:%lld read head err:%d-%d read_sz:%d ret:%d", this->id_, ::WSAGetLastError(), ::GetLastError(), this->read_buf_sz_, ret));
 		return false;
 	}
 	this->read_buf_sz_ += ret;
@@ -198,7 +217,7 @@ bool testclient::recv_one_msg()
 	if (body_len >= 0)
 	{
 		buf = (void*)(this->read_buf_.data() + sizeof(msghead));
-		ret = CChannel::TcpSelectRead(this->fd_, buf, body_len, 60, 10);
+		ret = CChannel::TcpSelectRead(this->fd_, buf, body_len, 10, 30);
 	}
 	if (ret < 0)
 	{

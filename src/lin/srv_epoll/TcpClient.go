@@ -19,6 +19,8 @@ type TcpClient struct {
 	timerConnClose * time.Timer
 	durationClose time.Duration
 	pu *EPollProcessUnit
+
+	timeLastActive int64
 }
 
 func ConstructorTcpClient(pu *EPollProcessUnit, fd lin_common.FD_DEF, clientID int64) *TcpClient {
@@ -28,11 +30,14 @@ func ConstructorTcpClient(pu *EPollProcessUnit, fd lin_common.FD_DEF, clientID i
 		clientID : clientID,
 		durationClose : time.Second*time.Duration(pu.eSrvMgr.clientCloseTimeoutSec),
 		addr : lin_common.TcpGetPeerName(fd.FD),
+		timeLastActive: time.Now().Unix(),
 	}
 	runtime.SetFinalizer(tc, (*TcpClient).Destructor)
 	tc.timerConnClose = time.AfterFunc(tc.durationClose,
 		func(){
-			lin_common.LogDebug("timeout close clientid:", tc.clientID, " fd:", tc.fd.String())
+			tnow := time.Now().Unix()
+			lin_common.LogDebug("timeout close clientid:", tc.clientID, " fd:", tc.fd.String(),
+				" timeLastActive:", tc.timeLastActive, " tnow:", tnow, " diff:", (tnow - tc.timeLastActive))
 			tc.pu.eSrvMgr.lsn.EPollListenerCloseTcp(tc.fd)
 /*			tc.timerConnClose.Stop()
 			tc.timerConnClose = nil*/
@@ -86,6 +91,7 @@ func (pthis*TcpClient)Process_protoMsg(msg *msgClient) {
 		}
 	}()
 	pthis.timerConnClose.Reset(pthis.durationClose)
+	pthis.timeLastActive = time.Now().Unix()
 
 	switch t := msg.msg.(type) {
 	case *msgpacket.MSG_TEST:

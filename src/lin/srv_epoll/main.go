@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"lin/lin_common"
@@ -10,6 +11,14 @@ import (
 	"strconv"
 	"time"
 )
+
+type ServerFromHttp struct {
+	SrvID int64
+	IP string
+	Port int
+}
+
+const TCP_READ_CLOSE_EXPIRE = 600
 
 func main() {
 	rand.Seed(time.Now().Unix())
@@ -34,8 +43,8 @@ func main() {
 
 	// epoll mgr
 	eSrvMgr, err := ConstructorEpollServerMgr(srvCfg.BindAddr/*"192.168.2.129:2003"*/,
-		1000, 1000, 10,
-		900,900,
+		10, 10, 5,
+		600,900,
 		true)
 	if err != nil {
 		lin_common.LogDebug(err)
@@ -57,6 +66,16 @@ func main() {
 		if cmd != nil {
 			fmt.Fprint(writer, lin_common.DoCmd(cmd, len(cmd)))
 		}
+	})
+	httpSrv.HttpSrvAddCallback("/addserver", func(writer http.ResponseWriter, request *http.Request) {
+		bin := make([]byte, request.ContentLength, request.ContentLength)
+		request.Body.Read(bin)
+		//lin_common.LogDebug(string(bin), " len:", request.ContentLength)
+		sh := &ServerFromHttp{}
+		json.Unmarshal(bin, sh)
+		lin_common.LogDebug("add srv:", sh.SrvID, " addr:", sh.IP, ":", sh.Port)
+		eSrvMgr.AddRemoteSrv(sh.SrvID, sh.IP + ":" + strconv.Itoa(sh.Port), TCP_READ_CLOSE_EXPIRE)
+		writer.Write(bin)
 	})
 
 	// command line

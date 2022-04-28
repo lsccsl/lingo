@@ -57,9 +57,11 @@ type CorPoolJobData struct {
 type _corPoolWorker struct {
 	corPool_  *CorPool
 	jobChan_  chan CorPoolJobData
-	workerID_ int
+	workerID_ int64
 	goID      uint64
 }
+
+type MAP_CORPOOLWORKER map[int64]*_corPoolWorker
 
 // coroutine pool define
 type CorPool struct {
@@ -67,11 +69,13 @@ type CorPool struct {
 	//condPoolTrigger bool
 
 	WorkerFree_    list.List // *_corPoolWorker
-	mapJobAll_     map[int]*_corPoolWorker
+	mapJobAll_     MAP_CORPOOLWORKER
 	maxCorCount_   int
 	checkCorCount_ int
 	corCount_      int
 	wg_            sync.WaitGroup
+
+	lastFreeCount_ int
 }
 
 func (worker *_corPoolWorker) _corWorkerDoJob(job *CorPoolJobData) {
@@ -94,9 +98,7 @@ func (worker *_corPoolWorker) _go_CorWorker() {
 
 	COROUTINE_LOOP:
 	for {
-		//println("chan msg count", len(worker.jobChan_))
 		jobData := <-worker.jobChan_
-		//println("get job", jobData.JobType_, "worker:", worker.workerID_, lin_common.GetGID())
 		if jobData.JobType_ == EN_CORPOOL_JOBTYPE_quit {
 			worker._corWorkerDestroy()
 			break COROUTINE_LOOP
@@ -132,6 +134,28 @@ func (pthis *CorPool) corPoolAddFreeWorker(worker *_corPoolWorker) {
 	if bNeedSignal {
 		pthis.condPool_.Broadcast()
 	}
+
+	curFreeCount := pthis.WorkerFree_.Len()
+	if curFreeCount >= pthis.checkCorCount_ && curFreeCount >= pthis.lastFreeCount_ && pthis.lastFreeCount_ > pthis.checkCorCount_{
+		quitCount := curFreeCount / 2
+		if quitCount < 1 {
+			quitCount = 1
+		}
+		for i := 0; i < quitCount; i ++ {
+			ele := pthis.WorkerFree_.Back()
+			if ele == nil {
+				break
+			}
+			pthis.WorkerFree_.Remove(ele)
+			worker, ok := ele.Value.(*_corPoolWorker)
+			if ok {
+				worker._corWorkerQuit()
+				delete(pthis.mapJobAll_, worker.workerID_)
+			}
+		}
+	}
+	pthis.lastFreeCount_ = pthis.WorkerFree_.Len()
+
 	pthis.condPool_.L.Unlock()
 }
 
@@ -171,10 +195,10 @@ func (pthis *CorPool) CorPoolAddJob(jobR *CorPoolJobData /* ready only */) error
 		newWorker := &_corPoolWorker{
 			corPool_: pthis,
 			jobChan_: make(chan CorPoolJobData, 100),
+			workerID_:lin_common.GenUUID64_V4(),
 		}
 
-		pthis.mapJobAll_[pthis.corCount_] = newWorker
-		newWorker.workerID_ = pthis.corCount_
+		pthis.mapJobAll_[newWorker.workerID_] = newWorker
 		pthis.corCount_++
 
 		go newWorker._go_CorWorker()
@@ -198,12 +222,15 @@ func (pthis *CorPool) CorPoolAddJob(jobR *CorPoolJobData /* ready only */) error
 
 // get a coroutine pool
 func CorPoolInit(maxWorkerCount int) *CorPool {
+	if maxWorkerCount < 10 {
+		maxWorkerCount = 10
+	}
 	cp := &CorPool{
 		condPool_:      sync.NewCond(&sync.Mutex{}),
 		maxCorCount_:   maxWorkerCount,
-		checkCorCount_: (maxWorkerCount/2 + 1),
+		checkCorCount_: (maxWorkerCount/5 + 1),
 		corCount_:      0,
-		mapJobAll_:     make(map[int]*_corPoolWorker),
+		mapJobAll_:     make(MAP_CORPOOLWORKER),
 	}
 	cp.WorkerFree_.Init()
 	lin_common.LogDebug("max worker count:", maxWorkerCount)
@@ -220,7 +247,7 @@ func (pthis *CorPool) corPoolUnitInter() {
 		val._corWorkerQuit()
 	}
 
-	pthis.mapJobAll_ = make(map[int]*_corPoolWorker)
+	pthis.mapJobAll_ = make(MAP_CORPOOLWORKER)
 }
 func (pthis *CorPool) CorPoolUnit() {
 

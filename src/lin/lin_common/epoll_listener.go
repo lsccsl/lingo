@@ -63,7 +63,6 @@ func (pthis*ePollConnection)_add_tcp_conn(ti*tcpConnectionInfo) {
 func (pthis*ePollConnection)_del_tcp_conn(fd int) {
 	delete(pthis._mapTcp, fd)
 
-	pthis._tcpCloseCount ++
 	pthis._tcpConnCount = len(pthis._mapTcp)
 }
 func (pthis*ePollConnection)_get_tcp_conn(fd int)*tcpConnectionInfo {
@@ -102,6 +101,7 @@ func (pthis*ePollConnection)EpollConnection_close_tcp(fd FD_DEF){
 
 	pthis._del_tcp_conn(fd.FD)
 	unix.Close(fd.FD)
+	pthis._tcpCloseCount ++
 }
 
 func (pthis*ePollConnection)EpollConnection_process_evt(){
