@@ -1,7 +1,6 @@
 #include "testclient.h"
 #include <string>
 #include <winsock2.h>
-#include "mylogex.h"
 
 msgpackhelp::MAP_MSGTYPE_PROTOMSG msgpackhelp::map_msgtype_protomsg;
 void msgpackhelp::pack_to_bin(std::string& buf_out, int msg_typ, google::protobuf::Message* proto_msg)
@@ -53,9 +52,11 @@ void msgpackhelp::parse_reg(google::protobuf::Message* proto_msg, int msg_type)
 
 bool testclient::connect_to_srv(const std::string& srv_ip, int srv_port)
 {
+	this->tc_static_.b_login_suc = false;
 	this->_reset_client();
 	if (this->fd_ > 0)
 		CChannel::CloseFd(this->fd_);
+	this->fd_ = 0;
 	this->fd_ = CChannel::TcpConnect(srv_ip.c_str(), srv_port, 10, 30);
 	if (this->fd_ < 0)
 	{
@@ -64,8 +65,19 @@ bool testclient::connect_to_srv(const std::string& srv_ip, int srv_port)
 	}
 
 	CChannel::keep_alive(this->fd_);
+	CChannel::set_no_block(this->fd_);
+	bool bret = this->do_login();
+	if (bret)
+	{
+		this->tc_static_.b_login_suc = true;
+		MYLOG_ERR(("clientid:%lld connect suc", this->id_));
+	}
+	else
+	{
+		MYLOG_ERR(("clientid:%lld send login err:%d-%d", this->id_, ::WSAGetLastError(), ::GetLastError()));
+	}
 
-	return true;
+	return bret;
 }
 
 bool testclient::do_login()
@@ -175,6 +187,8 @@ bool testclient::recv_test(const int64 seq, int count)
 
 bool testclient::send_msg(int msg_typ, google::protobuf::Message* proto_msg)
 {
+	auto_timer a(200, this, __LINE__, __FILE__);
+
 	std::string buf_bin;
 	msgpackhelp::pack_to_bin(buf_bin, msg_typ, proto_msg);
 
@@ -189,6 +203,8 @@ bool testclient::send_msg(int msg_typ, google::protobuf::Message* proto_msg)
 
 bool testclient::recv_one_msg()
 {
+	auto_timer a(200, this, __LINE__, __FILE__);
+
 	if (read_buf_sz_ >= this->read_buf_.size())
 		this->read_buf_.resize(read_buf_sz_ * 2);
 
@@ -234,4 +250,13 @@ bool testclient::recv_one_msg()
 	this->read_buf_sz_ = 0;
 
 	return true;
+}
+
+auto_timer::~auto_timer()
+{
+	int64 tnow = time(0);
+	int64 diff = tnow - this->t_start_;
+	if (diff > this->tmax_)
+		MYLOG_ERR(("diff beyond max, param:%lld fd:%d is_login:%d %s:%d", client_->id_, client_->fd_, client_->tc_static_.b_login_suc,
+			this->file_.c_str(), this->line_));
 }

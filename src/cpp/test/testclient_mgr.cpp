@@ -36,10 +36,6 @@ void testclient_mgr::thread_func(int idx)
 	for (auto& it : mgr_unit.map_client_)
 		it.second->connect_to_srv("192.168.2.129", 2003);
 
-	for (auto& it : mgr_unit.map_client_)
-		it.second->do_login();
-
-
 	msgpacket::MSG_TEST msg;
 	msg.set_str("testabcdefg");
 
@@ -54,9 +50,8 @@ void testclient_mgr::thread_func(int idx)
 			msg.set_id(cli->id());
 			if (!cli->send_test(msg, mgr_unit.seq, this->test_count_))
 			{
-				MYLOG_ERR(("send err, re connect to srv :%lld------\r\n", it.second->id()));
+				MYLOG_ERR(("send err, re connect to srv :%lld fd:%d------\r\n", it.second->id(), it.second->fd()));
 				cli->connect_to_srv("192.168.2.129", 2003);
-				cli->do_login();
 			}
 		}
 		for (auto& it : mgr_unit.map_client_)
@@ -65,9 +60,8 @@ void testclient_mgr::thread_func(int idx)
 			msg.set_id(cli->id());
 			if (!cli->recv_test(mgr_unit.seq, this->test_count_))
 			{
-				MYLOG_ERR(("recv err, re connect to srv :%lld------\r\n", it.second->id()));
+				MYLOG_ERR(("recv err, re connect to srv :%lld fd:%d------\r\n", it.second->id(), it.second->fd()));
 				cli->connect_to_srv("192.168.2.129", 2003);
-				cli->do_login();
 			}
 		}
 

@@ -43,7 +43,7 @@ int __g_level_ = 0;
 #define __LOG_TO_FILE_ (0x01)
 #define __LOG_TO_SCREEN_ (0x02)
 #define __LOG_TO_SRV_ (0x04)
-unsigned int __g_direction_ = __LOG_TO_FILE_ | __LOG_TO_SCREEN_;
+unsigned int __g_direction_ = __LOG_TO_SCREEN_;
 //static HMYTHREAD hlog_thread_ = NULL;
 //static HMYMSGQUE hlog_que_ = NULL;
 

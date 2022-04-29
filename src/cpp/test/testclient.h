@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include "channel.h"
 #include "msg.pb.h"
+#include "mylogex.h"
 
 #pragma pack(1)
 struct msghead
@@ -30,8 +31,31 @@ private:
 	static MAP_MSGTYPE_PROTOMSG map_msgtype_protomsg;
 };
 
+class testclient;
+class auto_timer
+{
+public:
+	inline auto_timer(const int64 tmax, testclient * client, int line, const char * file):t_start_(time(0)),
+		tmax_(tmax),
+		client_(client),
+		line_(line),
+		file_(file ? file : "")
+	{}
+	~auto_timer();
+
+private:
+
+	int64 t_start_ = 0;
+	int64 tmax_ = 0;
+	testclient* client_ = 0;
+	int line_ = 0;
+	std::string file_;
+};
+
 class testclient
 {
+	friend class auto_timer;
+
 public:
 
 	struct testclient_static
@@ -48,6 +72,8 @@ public:
 		int64 min_sendloop_interval = INT64_MAX;
 		int64 total_send_loop = 0;
 		int last_read_err = 0;
+
+		bool b_login_suc = false;
 	};
 
 	inline static int64 get_timestamp_mills()
@@ -68,8 +94,10 @@ public:
 	inline const int64 id() const{
 		return id_;
 	}
+	inline const int32 fd() const{
+		return fd_;
+	}
 
-	bool do_login();
 	bool send_test(msgpacket::MSG_TEST& msg, const int64 seq, int count);
 	bool recv_test(const int64 seq, int count);
 
@@ -82,8 +110,9 @@ public:
 		return this->tc_static_;
 	}
 
-private:
+protected:
 
+	bool do_login();
 	void _reset_client()
 	{
 		this->lst_msg_recv_.clear();
@@ -91,7 +120,7 @@ private:
 		this->read_buf_.resize(128);
 	}
 
-private:
+protected:
 
 	int32 fd_ = 0;
 	int64 id_ = 0;

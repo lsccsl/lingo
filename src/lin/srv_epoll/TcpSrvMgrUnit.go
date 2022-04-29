@@ -21,7 +21,7 @@ type TcpSrvMgrUnit struct {
 }
 
 
-func (pthis*TcpSrvMgrUnit)_go_Process_unit(){
+func (pthis*TcpSrvMgrUnit)_go_srvProcess_unit(){
 	for {
 		msg := <- pthis.chSrv
 		switch t := msg.(type) {

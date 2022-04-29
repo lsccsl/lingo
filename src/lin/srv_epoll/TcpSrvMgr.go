@@ -122,7 +122,7 @@ func ConstructorTcpSrvMgr(eSrvMgr *EpollServerMgr, srvProcessUnitCount int) *Tcp
 	for i := 0; i < srvProcessUnitCount; i ++ {
 		processUnit := ConstructorTcpSrvMgrUnit(tcpSrvMgr)
 		tcpSrvMgr.mgrUnit = append(tcpSrvMgr.mgrUnit, processUnit)
-		go processUnit._go_Process_unit()
+		go processUnit._go_srvProcess_unit()
 	}
 
 	return tcpSrvMgr

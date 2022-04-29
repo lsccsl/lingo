@@ -32,6 +32,7 @@ void test_cmd()
 			int64 total_send_loop = 0;
 
 			std::set<int> setTmpNotRun;
+			std::set<int> setFailLogin;
 
 			for (auto& it : __tm_->v_mgr_unit())
 			{
@@ -52,6 +53,9 @@ void test_cmd()
 
 					total_sendloop_interval += itM.second->tc_static().t_last_sendloop - itM.second->tc_static().t_first_sendloop;
 					total_send_loop += itM.second->tc_static().total_send_loop;
+
+					if (!itM.second->tc_static().b_login_suc)
+						setFailLogin.insert(itM.first);
 				}
 
 				if (it.lastSample_seq == it.seq)
@@ -100,12 +104,21 @@ void test_cmd()
 				}
 				printf("\r\n");
 			}
+
+			{
+				printf("fail login:\r\n");
+				for (auto it : setFailLogin) {
+					printf("%d ", it);
+				}
+				printf("\r\n");
+			}
 		}
 	}
 }
 
 int main(int argc, char* argv[])
 {
+	MYLOG_SET_LOG_DIRECTION(2);
 	CChannel::init_sock();
 	msgpacket::MSG_RPC_RES msg;
 	msg.set_msg_id(123);

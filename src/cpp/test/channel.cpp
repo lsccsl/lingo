@@ -433,6 +433,8 @@ int32 CChannel::TcpSelectRead(int32 fd, void * buf, uint32 buf_sz, uint32 time_o
 		current_read += ret;
 #else
 		ret = CChannel::TcpRead(fd, (char*)buf + current_read, buf_sz - current_read);
+		if (last_err)
+			*last_err = WSAGetLastError();
 		if (ret < 0)
 		{
 			if (last_err)

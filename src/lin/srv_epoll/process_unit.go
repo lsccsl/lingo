@@ -104,6 +104,8 @@ func (pthis*EPollProcessUnit)_go_Process_unit(){
 		if c == nil {
 			if CLIENT_LOGIN == msg.msgType {
 				pthis.Process_LOGIN(msg.clientID, msg.fd)
+			} else {
+				lin_common.LogErr("not process fd:", msg.fd.String(), " clientid", msg.clientID, " msg:", msg.msg)
 			}
 			continue
 		} else {
