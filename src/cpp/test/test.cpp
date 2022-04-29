@@ -12,6 +12,7 @@ testclient_mgr * __tm_;
 
 void test_cmd()
 {
+	std::set<int> setNotRun;
 	while (1)
 	{
 		std::string line;
@@ -29,6 +30,8 @@ void test_cmd()
 
 			int64 total_sendloop_interval = 0;
 			int64 total_send_loop = 0;
+
+			std::set<int> setTmpNotRun;
 
 			for (auto& it : __tm_->v_mgr_unit())
 			{
@@ -50,6 +53,11 @@ void test_cmd()
 					total_sendloop_interval += itM.second->tc_static().t_last_sendloop - itM.second->tc_static().t_first_sendloop;
 					total_send_loop += itM.second->tc_static().total_send_loop;
 				}
+
+				if (it.lastSample_seq == it.seq)
+					setTmpNotRun.insert(it.idx);
+
+				it.lastSample_seq = it.seq;
 			}
 			if (total_send_loop < 1)
 				total_send_loop = 1;
@@ -58,9 +66,40 @@ void test_cmd()
 				total_count = 1;
 			double aver = (total_diff / 1000.f) / total_count;
 			printf("total_count:%lld aver rtt:%fs max_diff:%lldms, min_diff:%lldms\r\n"
-				"max_sendloop_interval:%lldms min_sendloop_interval:%lldms aver sendloop:%lldms\r\n",
+				"max_sendloop_interval:%lldms min_sendloop_interval:%lldms aver sendloop:%lldms\r\n"
+				"not_run_count:%zd\r\n",
 				total_count, aver, max_diff, min_diff,
-				max_sendloop_interval, min_sendloop_interval, aver_total_send_loop);
+				max_sendloop_interval, min_sendloop_interval, aver_total_send_loop, setTmpNotRun.size());
+
+			if (setNotRun.empty())
+			{
+				for (auto it : setTmpNotRun)
+					setNotRun.insert(it);
+			}
+
+			{
+				printf("cur not run:\r\n");
+				for (auto it : setTmpNotRun) {
+					printf("%d ", it);
+				}
+				printf("\r\n");
+			}
+
+			{
+				std::list<int> lstDel;
+				for (auto it : setNotRun) {
+					if (setTmpNotRun.end() == setTmpNotRun.find(it))
+						setNotRun.erase(it);
+				}
+			}
+
+			{
+				printf("always not run:\r\n");
+				for (auto it : setNotRun) {
+					printf("%d ", it);
+				}
+				printf("\r\n");
+			}
 		}
 	}
 }

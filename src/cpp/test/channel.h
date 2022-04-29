@@ -127,7 +127,7 @@ public:
 	 * @param time_out : 每次读的超时
 	 * @param count : 重试次数
 	 */
-	static int32 TcpSelectRead(int32 fd, void * buf, uint32 buf_sz, uint32 time_out = 3, uint32 count = 10);
+	static int32 TcpSelectRead(int32 fd, void * buf, uint32 buf_sz, uint32 time_out = 3, uint32 count = 10, int* last_err = NULL);
 
 	/**
 	 * @brief tcp write

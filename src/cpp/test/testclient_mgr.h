@@ -9,6 +9,9 @@ struct testclient_mgr_unit
 {
 	std::thread* thread_ptr_ = nullptr;
 	std::map<int64,testclient*> map_client_;
+	int64 seq = 0;
+	mutable int64 lastSample_seq = 0;
+	int idx = 0;
 };
 
 class testclient_mgr

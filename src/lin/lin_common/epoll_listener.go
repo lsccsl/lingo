@@ -358,9 +358,12 @@ func (pthis*ePollConnection)EpollConnection_do_write(ti *tcpConnectionInfo) {
 	}
 }
 
-func (pthis*ePollConnection)EPollConnection_AddEvent(evt interface{}) {
+func (pthis*ePollConnection)EPollConnection_AddEvent(fd int, evt interface{}) {
 	pthis._evtQue.Enqueue(evt)
-	unix.Write(pthis._evtFD, EVENT_BIN_1)
+	n, err := unix.Write(pthis._evtFD, EVENT_BIN_1)
+	if err != nil || n < len(EVENT_BIN_1) {
+		LogErr("fd:", fd, " write event err:", err, " n:", n)
+	}
 /*	if atomic.CompareAndSwapInt64(&pthis._evt_process, 0, 1) {
 		unix.Write(pthis._evtFD, EVENT_BIN_1)
 	}*/
@@ -576,7 +579,7 @@ func (pthis*EPollListener)_EPollListenerAddEvent(fd int, evt interface{}) {
 	if idx >= connCount {
 		return
 	}
-	pthis._epollConnection[idx].EPollConnection_AddEvent(evt)
+	pthis._epollConnection[idx].EPollConnection_AddEvent(fd, evt)
 }
 
 func (pthis*EPollListener)EPollListenerCloseTcp(fd FD_DEF){

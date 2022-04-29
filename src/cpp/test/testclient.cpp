@@ -197,7 +197,7 @@ bool testclient::recv_one_msg()
 	int32 ret = 0;
 	int read_sz = sizeof(msghead) - this->read_buf_sz_;
 	if (read_sz > 0)
-		ret = CChannel::TcpSelectRead(this->fd_, buf, read_sz, 10, 30);
+		ret = CChannel::TcpSelectRead(this->fd_, buf, read_sz, 10, 30, &this->tc_static_.last_read_err);
 	if (ret < 0)
 	{
 		MYLOG_ERR(("clientid:%lld read head err:%d-%d read_sz:%d ret:%d", this->id_, ::WSAGetLastError(), ::GetLastError(), this->read_buf_sz_, ret));
@@ -217,7 +217,7 @@ bool testclient::recv_one_msg()
 	if (body_len >= 0)
 	{
 		buf = (void*)(this->read_buf_.data() + sizeof(msghead));
-		ret = CChannel::TcpSelectRead(this->fd_, buf, body_len, 10, 30);
+		ret = CChannel::TcpSelectRead(this->fd_, buf, body_len, 10, 30, &this->tc_static_.last_read_err);
 	}
 	if (ret < 0)
 	{

@@ -47,6 +47,7 @@ public:
 		int64 max_sendloop_interval = 0;
 		int64 min_sendloop_interval = INT64_MAX;
 		int64 total_send_loop = 0;
+		int last_read_err = 0;
 	};
 
 	inline static int64 get_timestamp_mills()

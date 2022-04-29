@@ -409,7 +409,7 @@ int32 CChannel::TcpRead(int32 fd, void * buf, uint32 buf_sz)
 /**
  * @brief tcp select read
  */
-int32 CChannel::TcpSelectRead(int32 fd, void * buf, uint32 buf_sz, uint32 time_out, uint32 count)
+int32 CChannel::TcpSelectRead(int32 fd, void * buf, uint32 buf_sz, uint32 time_out, uint32 count, int * last_err)
 {
 	if(NULL == buf || 0 == buf_sz ||  fd < 0)
 	{
@@ -423,6 +423,27 @@ int32 CChannel::TcpSelectRead(int32 fd, void * buf, uint32 buf_sz, uint32 time_o
 	while((current_read < buf_sz) && count)
 	{
 		count -= 1;
+#if 0
+		/*These calls return the number of bytes received,
+		*or -1 if an error occurred.
+		*The return value will be 0 when the peer has performed an orderly shutdown.*/
+		ret = recv(fd, (char*)buf + current_read, buf_sz - current_read, 0);
+		if (ret <= 0)
+			return -3;
+		current_read += ret;
+#else
+		ret = CChannel::TcpRead(fd, (char*)buf + current_read, buf_sz - current_read);
+		if (ret < 0)
+		{
+			if (last_err)
+				*last_err = WSAGetLastError();
+			return -1;
+		}
+		current_read += ret;
+		if (current_read >= buf_sz)
+			return current_read;
+#endif
+
         fd_set fdWatch;
         struct timeval tvOut;
 
@@ -438,21 +459,16 @@ int32 CChannel::TcpSelectRead(int32 fd, void * buf, uint32 buf_sz, uint32 time_o
 		*On error, -1 is returned, and errno is set appropri-ately; the sets and timeout become undefined, so do not rely on their contents after an error.
 		*/
 		int32 r = select(fd + 1, &fdWatch, NULL, NULL, &tvOut);
-		if(r < 0)
+		if (r < 0)
+		{
+			if (last_err)
+				*last_err = WSAGetLastError();
 			return -2;
-		else if(0 == r)
+		}
+		else if (0 == r)
 			continue;
 		else if(!FD_ISSET(fd, &fdWatch))
-			continue;
-
-		/*These calls return the number of bytes received, 
-		*or -1 if an error occurred.
-		*The return value will be 0 when the peer has performed an orderly shutdown.*/
-		ret = recv(fd, (char *)buf + current_read, buf_sz - current_read, 0);
-		if(ret <= 0)
-			return -3;
-
-		current_read += ret;		
+			continue;	
 	}
 
 	return current_read;
@@ -500,6 +516,14 @@ int32 CChannel::TcpSelectWrite(int32 fd, const void * buf, const uint32 buf_sz, 
 	while((current_write < buf_sz) && (count != 0))
 	{
 		count -= 1;
+
+		ret = CChannel::TcpWrite(fd, (char*)buf + current_write, buf_sz - current_write);
+		if (ret < 0)
+			return -1;
+		current_write += ret;
+		if (current_write >= buf_sz)
+			return current_write;
+
         fd_set fdWatch;
         struct timeval tvOut;
 
@@ -521,7 +545,7 @@ int32 CChannel::TcpSelectWrite(int32 fd, const void * buf, const uint32 buf_sz, 
 			continue;
 		else if(!FD_ISSET(fd, &fdWatch))
 			continue;
-
+#if 0
 		/*
 		* On success, these calls return the number of characters sent.
 		* On error, -1 is returned, and errno is set appropriately.
@@ -531,6 +555,7 @@ int32 CChannel::TcpSelectWrite(int32 fd, const void * buf, const uint32 buf_sz, 
 			return -3;
 
 		current_write += ret;
+#endif
 	}
 
 	return current_write;

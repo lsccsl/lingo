@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/golang/protobuf/proto"
 	"lin/lin_common"
+	cor_pool "lin/lin_cor_pool"
 	"lin/msgpacket"
 	"runtime"
 	"time"
@@ -102,14 +103,56 @@ func (pthis*TcpSrv)TcpSrvDelRPC(rpcUUID int64){
 	pthis.delRPC(rpcUUID)
 }
 
-func (pthis*TcpSrv)TcpSrvProcessRPCMsg(fd lin_common.FD_DEF, protoMsg *msgpacket.MSG_RPC){
-	rreq := pthis.getRPC(protoMsg.MsgId)
+func (pthis*TcpSrv)TcpSrvProcessRPCMsg(fd lin_common.FD_DEF, msgRPC *msgpacket.MSG_RPC){
+/*	rreq := pthis.getRPC(msgRPC.MsgId)
 	if rreq == nil {
-		lin_common.LogDebug(" can't find rpc:", protoMsg.MsgId, " srv:", pthis.srvID)
+		lin_common.LogDebug(" can't find rpc:", msgRPC.MsgId, " srv:", pthis.srvID)
+	}*/
+
+	msgRPC.TimestampArrive = time.Now().UnixMilli()
+
+	tDiff := msgRPC.TimestampArrive - msgRPC.Timestamp
+	if tDiff > msgRPC.TimeoutWait {
+		lin_common.LogDebug("recv rpc timeout, tDiff:", tDiff, " timeout wait:", msgRPC.TimeoutWait,
+			" srv:", pthis.srvID, " fd:", fd.String())
 	}
 
+	rpcFunc := func() {
+		msgRPCRes := &msgpacket.MSG_RPC_RES{
+			MsgId:msgRPC.MsgId,
+			MsgType:msgRPC.MsgType,
+			ResCode:msgpacket.RESPONSE_CODE_RESPONSE_CODE_OK,
+			Timestamp:msgRPC.Timestamp,
+			TimestampArrive: msgRPC.TimestampArrive,
+			TimestampProcess: time.Now().UnixMilli(),
+		}
 
-	// todo : send rpc res
+		msgRPCBody := msgpacket.ParseProtoMsg(msgRPC.MsgBin, msgRPC.MsgType)
+		var msgResBody proto.Message = nil
+		switch t:= msgRPCBody.(type) {
+		case *msgpacket.MSG_TEST:
+			{
+				msgResBody = &msgpacket.MSG_TEST_RES{Id: t.Id, Str:t.Str, Seq: t.Seq}
+			}
+		}
+
+		if msgResBody != nil {
+			var err error
+			msgRPCRes.MsgBin, err = proto.Marshal(msgResBody)
+			if err != nil {
+				lin_common.LogErr(err)
+			}
+		}
+
+		pthis.pu.tcpSrvMgr.eSrvMgr.SendProtoMsg(fd, msgpacket.MSG_TYPE__MSG_RPC_RES, msgRPCRes)
+	}
+	pthis.pu.tcpSrvMgr.rpcPool.CorPoolAddJob(&cor_pool.CorPoolJobData{
+		JobType_ : EN_CORPOOL_JOBTYPE_Rpc_req,
+		JobData_ : pthis.srvID,
+		JobCB_ : func(jd cor_pool.CorPoolJobData){
+			rpcFunc()
+		},
+	})
 }
 
 func ConstructorTcpSrv(srvID int64, addr string, pu *TcpSrvMgrUnit) *TcpSrv {

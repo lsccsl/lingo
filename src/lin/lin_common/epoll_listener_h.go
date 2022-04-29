@@ -82,7 +82,7 @@ type ePollConnection_Interface interface {
 	EpollConnection_epllEvt_tcpwrite(fd FD_DEF)
 	EpollConnection_user_write(fd FD_DEF, binData []byte)
 	EpollConnection_do_write(ti *tcpConnectionInfo)
-	EPollConnection_AddEvent(evt interface{})
+	EPollConnection_AddEvent(fd int, evt interface{})
 	EpollConnection_close_tcp(fd FD_DEF)
 	_go_EpollConnection_epollwait()
 
