@@ -21,6 +21,7 @@ type ServerFromHttp struct {
 const TCP_READ_CLOSE_EXPIRE = 600
 
 func main() {
+
 	rand.Seed(time.Now().Unix())
 	fd := lin_common.FD_DEF{}
 	fmt.Println("fd:", fd.String())

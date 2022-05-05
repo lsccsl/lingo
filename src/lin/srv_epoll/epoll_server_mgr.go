@@ -112,13 +112,14 @@ func (pthis*EpollServerMgr)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, 
 				lin_common.LogErr("fd:", fd.String(), " not process clientid:", tcpAttachData.cliID)
 				return readBuf.Len(), nil
 			}
-			pu.PushProtoMsg(tcpAttachData.cliID, fd, protoMsg)
+			pu.PushProtoMsg(tcpAttachData.cliID, fd, protoMsg, tcpAttachData)
 		}
 	}
 
 	return
 }
 func (pthis*EpollServerMgr)TcpClose(fd lin_common.FD_DEF, inAttachData interface{}) {
+	lin_common.LogDebug("recv tcp close ", fd.String(), " attach data:", inAttachData)
 	if inAttachData == nil{
 		lin_common.LogErr("fd:", fd.String(), " not attach data")
 		return

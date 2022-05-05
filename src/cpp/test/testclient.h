@@ -89,8 +89,16 @@ public:
 	{
 		this->tc_static_.t_first_sendloop = this->tc_static_.t_last_sendloop = testclient::get_timestamp_mills();		
 	}
-
 	bool connect_to_srv(const std::string& srv_ip, int srv_port);
+
+	//inline void close_fd() {
+	//	if (this->fd_ > 0)
+	//		CChannel::CloseFd(this->fd_);
+	//	this->fd_ = -1;
+	//	_reset_client();
+	//}
+
+
 	inline const int64 id() const{
 		return id_;
 	}
@@ -118,12 +126,14 @@ protected:
 		this->lst_msg_recv_.clear();
 		this->read_buf_sz_ = 0;
 		this->read_buf_.resize(128);
+		this->magic_ = 0;
 	}
 
 protected:
 
-	int32 fd_ = 0;
+	int32 fd_ = -1;
 	int64 id_ = 0;
+	int32 magic_ = 0;
 
 	std::string read_buf_;
 	size_t read_buf_sz_ = 0;

@@ -124,6 +124,7 @@ public:
 
 	/**
 	 * @brief tcp select read
+	 * @todo : need sync
 	 * @param time_out : 每次读的超时
 	 * @param count : 重试次数
 	 */
@@ -137,6 +138,7 @@ public:
 
 	/**
 	 * @brief tcp select write
+	 * @todo : need sync
 	 * @param time_out : 每次写的超时
 	 * @param count : 重试次数
 	 */

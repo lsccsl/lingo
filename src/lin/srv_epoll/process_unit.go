@@ -18,6 +18,7 @@ type msgClient struct {
 	fd lin_common.FD_DEF
 	msgType CLIENT_MSG_TYPE
 	msg interface{}
+	attachData *TcpAttachData
 }
 /* end process unit msg define */
 
@@ -62,7 +63,7 @@ func (pthis*EPollProcessUnit)Process_TcpClose(c *TcpClient, fd lin_common.FD_DEF
 	if !c.fd.IsSame(&fd) {
 		return
 	}
-	lin_common.LogDebug(fd.String(), " clientid:", c.clientID)
+	lin_common.LogDebug(fd.String(), " clientid:", c.clientID, " fd:", fd.String())
 	pthis.delClient(c.clientID)
 	c.Destructor()
 }
@@ -100,13 +101,15 @@ func (pthis*EPollProcessUnit)Process_LOGIN(cliID int64, fd lin_common.FD_DEF){
 func (pthis*EPollProcessUnit)_go_Process_unit(){
 	for {
 		msg := <- pthis._chMsg
+		if CLIENT_LOGIN == msg.msgType {
+			pthis.Process_LOGIN(msg.clientID, msg.fd)
+			continue
+		}
+
 		c := pthis.getClient(msg.clientID)
 		if c == nil {
-			if CLIENT_LOGIN == msg.msgType {
-				pthis.Process_LOGIN(msg.clientID, msg.fd)
-			} else {
-				lin_common.LogErr("not process fd:", msg.fd.String(), " clientid", msg.clientID, " msg:", msg.msg)
-			}
+			lin_common.LogErr("not process fd:", msg.fd.String(), " clientid:", msg.clientID, " msg:", msg.msg,
+				" attach data:", msg.attachData)
 			continue
 		} else {
 			switch msg.msgType {
@@ -130,8 +133,13 @@ func (pthis*EPollProcessUnit)PushTcpCloseMsg(cliID int64, fd lin_common.FD_DEF){
 	pthis._chMsg <- &msgClient{clientID: cliID, fd:fd, msgType: CLIENT_TCP_CLOSE}
 }
 
-func (pthis*EPollProcessUnit)PushProtoMsg(cliID int64, fd lin_common.FD_DEF, msg proto.Message){
-	pthis._chMsg <- &msgClient{clientID: cliID, fd:fd, msgType: CLIENT_PROTO, msg: msg}
+func (pthis*EPollProcessUnit)PushProtoMsg(cliID int64, fd lin_common.FD_DEF, msg proto.Message, attachData *TcpAttachData){
+	pthis._chMsg <- &msgClient{clientID: cliID,
+		fd : fd,
+		msgType : CLIENT_PROTO,
+		msg : msg,
+		attachData : attachData,
+	}
 }
 
 func ConstructorEPollProcessUnit(eSrvMgr *EpollServerMgr) *EPollProcessUnit {

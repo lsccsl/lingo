@@ -493,8 +493,13 @@ int32 CChannel::TcpWrite(int32 fd, const void * buf, const uint32 buf_sz)
 		return ret;
 	else
 	{
-		if(EAGAIN == errno)
+#ifdef WIN32
+		if (WSAEWOULDBLOCK == WSAGetLastError())
 			return 0;
+#else
+		if (EAGAIN == errno)
+			return 0;
+#endif
 		return -1;
 	}
 }
@@ -521,7 +526,7 @@ int32 CChannel::TcpSelectWrite(int32 fd, const void * buf, const uint32 buf_sz, 
 
 		ret = CChannel::TcpWrite(fd, (char*)buf + current_write, buf_sz - current_write);
 		if (ret < 0)
-			return -1;
+			return -2;
 		current_write += ret;
 		if (current_write >= buf_sz)
 			return current_write;
@@ -542,7 +547,7 @@ int32 CChannel::TcpSelectWrite(int32 fd, const void * buf, const uint32 buf_sz, 
 		*/
 		int32 r = select(fd + 1, NULL, &fdWatch, NULL, &tvOut);
 		if(r < 0)
-			return -2;
+			return -3;
 		else if(0 == r)
 			continue;
 		else if(!FD_ISSET(fd, &fdWatch))

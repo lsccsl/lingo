@@ -56,7 +56,7 @@ bool testclient::connect_to_srv(const std::string& srv_ip, int srv_port)
 	this->_reset_client();
 	if (this->fd_ > 0)
 		CChannel::CloseFd(this->fd_);
-	this->fd_ = 0;
+	this->fd_ = -1;
 	this->fd_ = CChannel::TcpConnect(srv_ip.c_str(), srv_port, 10, 30);
 	if (this->fd_ < 0)
 	{
@@ -70,7 +70,7 @@ bool testclient::connect_to_srv(const std::string& srv_ip, int srv_port)
 	if (bret)
 	{
 		this->tc_static_.b_login_suc = true;
-		MYLOG_ERR(("clientid:%lld connect suc", this->id_));
+		MYLOG_ERR(("clientid:%lld connect suc, fd:%d, magic:%d", this->id_, this->fd_, this->magic_));
 	}
 	else
 	{
@@ -101,6 +101,9 @@ bool testclient::do_login()
 	{
 		if (it.msg_type == msgpacket::_MSG_LOGIN_RES)
 		{
+			msgpacket::MSG_LOGIN_RES * msgLoginRes = dynamic_cast<msgpacket::MSG_LOGIN_RES*>(it.proto_msg.get());
+			if (msgLoginRes)
+				this->magic_ = msgLoginRes->connect_id();
 			bret = true;
 			break;
 		}
@@ -195,7 +198,7 @@ bool testclient::send_msg(int msg_typ, google::protobuf::Message* proto_msg)
 	int32 ret = CChannel::TcpSelectWrite(this->fd_, buf_bin.data(), buf_bin.size(), 10, 30);
 	if (ret < 0)
 	{
-		MYLOG_ERR(("clientid:%lld write err:%d-%d ret:%d", this->id_, ::WSAGetLastError(), ::GetLastError(), ret));
+		MYLOG_ERR(("clientid:%lld write err:%d-%d ret:%d magic:%d", this->id_, ::WSAGetLastError(), ::GetLastError(), ret, this->magic_));
 		return false;
 	}
 	return true;
@@ -216,7 +219,8 @@ bool testclient::recv_one_msg()
 		ret = CChannel::TcpSelectRead(this->fd_, buf, read_sz, 10, 30, &this->tc_static_.last_read_err);
 	if (ret < 0)
 	{
-		MYLOG_ERR(("clientid:%lld read head err:%d-%d read_sz:%d ret:%d", this->id_, ::WSAGetLastError(), ::GetLastError(), this->read_buf_sz_, ret));
+		MYLOG_ERR(("clientid:%lld read head err:%d-%d read_sz:%d ret:%d magic:%d",
+			this->id_, ::WSAGetLastError(), ::GetLastError(), this->read_buf_sz_, ret, this->magic_));
 		return false;
 	}
 	this->read_buf_sz_ += ret;
@@ -237,7 +241,8 @@ bool testclient::recv_one_msg()
 	}
 	if (ret < 0)
 	{
-		MYLOG_ERR(("clientid:%lld read body err:%d-%d", this->id_, ::WSAGetLastError(), ::GetLastError()));
+		MYLOG_ERR(("clientid:%lld read body err:%d-%d magic:%d",
+			this->id_, ::WSAGetLastError(), ::GetLastError(), this->magic_));
 		return false;
 	}
 	this->read_buf_sz_ += ret;
