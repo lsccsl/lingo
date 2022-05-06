@@ -27,7 +27,7 @@ type FD_DEF struct {
 var FD_DEF_NIL = FD_DEF{0,0}
 
 func (pthis*FD_DEF)String()string{
-	return "fd:" + strconv.Itoa(pthis.FD) + " magic:" + strconv.Itoa(int(pthis.Magic))
+	return "[fd:" + strconv.Itoa(pthis.FD) + " magic:" + strconv.Itoa(int(pthis.Magic))  + "]"
 }
 func (pthis*FD_DEF)IsSame(fd *FD_DEF) bool {
 	if pthis.FD != fd.FD {
@@ -37,6 +37,9 @@ func (pthis*FD_DEF)IsSame(fd *FD_DEF) bool {
 		return false
 	}
 	return true
+}
+func (pthis*FD_DEF)IsNull() bool {
+	return FD_DEF_NIL.IsSame(pthis)
 }
 
 /* @brief begin inter evetn define */

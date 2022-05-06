@@ -82,7 +82,7 @@ func (pthis*ePollConnection)EpollConnection_close_tcp(fd FD_DEF){
 
 	if ti._fd.Magic != fd.Magic {
 		// linux fd will auto rollback, new tcp connection fd will take the slot whole that last fd closed
-		LogErr("magic not match fd:", fd, " current:", ti._fd.String(), " close:", fd.String())
+		LogDebug("magic not match fd:", fd, " current:", ti._fd.String(), " close:", fd.String())
 		return
 	}
 
@@ -180,7 +180,7 @@ func (pthis*ePollConnection)EpollConnection_user_write(fd FD_DEF, binData []byte
 	}
 
 	if ti._fd.Magic != fd.Magic {
-		LogDebug("magic not match, fd:", fd, " magic:", ti._fd.Magic, " old magic:", fd.Magic)
+		LogDebug("magic not match, fd:", fd.String(), " current fd:", ti._fd.String())
 		return
 	}
 
@@ -288,6 +288,7 @@ func (pthis*ePollConnection)EpollConnection_epllEvt_tcpwrite(fd FD_DEF){
 		ti._isConnSuc = true
 		ti._cur_epoll_evt = EPOLL_EVENT_READ
 		unixEpollMod(pthis._epollFD, ti._fd.FD, ti._cur_epoll_evt, ti._fd.Magic, pthis._lsn._paramET)
+		ti._addr = _tcpGetPeerName(ti._fd.FD)
 		ad := pthis._lsn._cb.TcpDialConnection(ti._fd, ti._addr, ti._attachData)
 		if ad != nil {
 			ti._attachData = ad

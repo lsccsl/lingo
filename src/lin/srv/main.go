@@ -109,13 +109,13 @@ func main() {
 
 	httpSrv.HttpSrvAddCallback("/test", func(writer http.ResponseWriter, request *http.Request) {
 		fmt.Fprint(writer, request.URL.Path, " ", request.Form)
-	})
+	}, "test")
 	httpSrv.HttpSrvAddCallback("/cmd", func(writer http.ResponseWriter, request *http.Request) {
 		cmd , _ := request.Form["cmd"]
 		if cmd != nil {
 			fmt.Fprint(writer, lin_common.DoCmd(cmd, len(cmd)))
 		}
-	})
+	}, "cmd")
 	httpSrv.HttpSrvAddCallback("/addserver", func(writer http.ResponseWriter, request *http.Request) {
 		bin := make([]byte, request.ContentLength, request.ContentLength)
 		request.Body.Read(bin)
@@ -125,14 +125,14 @@ func main() {
 		lin_common.LogDebug("add srv:", sh.SrvID, " addr:", sh.IP, ":", sh.Port)
 		srvMgr.AddRemoteServer(sh.SrvID, sh.IP, sh.Port, TCP_READ_CLOSE_EXPIRE, 15, true, 3)
 		writer.Write(bin)
-	})
+	}, "addserver")
 	httpSrv.HttpSrvAddCallback("/delserver", func(writer http.ResponseWriter, request *http.Request) {
 		strSrv, _ := request.Form["srv"]
 		if len(strSrv) >= 1 {
 			srvID, _ := strconv.ParseInt(strSrv[0], 10, 64)
 			srvMgr.delServer(srvID)
 		}
-	})
+	}, "delserver")
 
 	lin_common.ParseCmd()
 	tcpMgr.TcpMgrWait()

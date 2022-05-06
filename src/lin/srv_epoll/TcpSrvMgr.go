@@ -5,6 +5,7 @@ import (
 	"lin/lin_common"
 	cor_pool "lin/lin_cor_pool"
 	"lin/msgpacket"
+	"strconv"
 	"time"
 )
 
@@ -30,6 +31,7 @@ type srvEvt_protoMsg struct {
 	srvID int64
 	fd lin_common.FD_DEF
 	msg proto.Message
+	msgType msgpacket.MSG_TYPE
 }
 type srvEvt_RPC struct {
 	srvID int64
@@ -43,9 +45,14 @@ type srvEvt_RPC_Del struct {
 	srvID int64
 	rpcUUID int64
 }
+type srvEvt_static struct {
+	chBack chan TcpSrvMgrUnit
+}
 /* end srv event */
 
 type TcpSrvMgr struct {
+	srvID int64 // self
+
 	eSrvMgr *EpollServerMgr
 
 	mgrUnit []*TcpSrvMgrUnit
@@ -82,12 +89,6 @@ func (pthis*TcpSrvMgr)TcpSrvMgrAddRemoteSrv(srvID int64, addr string, closeExpir
 		addr : addr,
 		closeExpireSec : closeExpireSec,
 	})
-
-	fd, err := pthis.eSrvMgr.lsn.EPollListenerDial(addr, &TcpAttachData{srvID : srvID})
-	if err != nil {
-		lin_common.LogErr("connect to srv:", srvID, " dial err")
-	}
-	lin_common.LogDebug("srv:", srvID, " fd:", fd.String())
 }
 
 func (pthis*TcpSrvMgr)TcpSrvMgrRPCSync(srvID int64, msgType msgpacket.MSG_TYPE, protoMsg proto.Message, timeoutMilliSec int) (proto.Message, error){
@@ -109,6 +110,7 @@ func (pthis*TcpSrvMgr)TcpSrvMgrRPCSync(srvID int64, msgType msgpacket.MSG_TYPE, 
 	case <-chTimer:
 		pthis.TcpSrvMgrPushMsgToUnit(srvID, &srvEvt_RPC_Del{srvID,evt.rpcUUID})
 	}
+	close(chRouteBack)
 	return nil, lin_common.GenErrNoERR_NUM("srv:", srvID, " rpc err, msg:", protoMsg)
 }
 
@@ -128,3 +130,40 @@ func ConstructorTcpSrvMgr(eSrvMgr *EpollServerMgr, srvProcessUnitCount int) *Tcp
 	return tcpSrvMgr
 }
 
+
+
+func (pthis*TcpSrvMgr)Dump(bDetail bool)string{
+	arrayMgrUnit := make([]TcpSrvMgrUnit, 0, len(pthis.mgrUnit))
+	for _, val := range pthis.mgrUnit {
+		chBack := make(chan TcpSrvMgrUnit)
+		val.chSrv <- &srvEvt_static{chBack}
+		arrayMgrUnit = append(arrayMgrUnit, <- chBack)
+	}
+
+	var str string
+	serverCount := 0
+	noDial := 0
+	noAcpt := 0
+	for _, val := range arrayMgrUnit {
+		serverCount += len(val.mapSrv)
+		for _, valSrv := range val.mapSrv {
+			if bDetail {
+				str += "\r\n srv:" + strconv.FormatInt(valSrv.srvID, 10) +
+					" HB timestamp:" + strconv.FormatInt(valSrv.timestampLastHeartbeat, 10) +
+					" fdDial:" + valSrv.fdDial.String() + " fdAcpt:" + valSrv.fdAcpt.String()
+			}
+
+			if valSrv.fdAcpt.IsNull() {
+				noAcpt++
+			}
+			if valSrv.fdDial.IsNull() {
+				noDial++
+			}
+		}
+	}
+
+	str += "\r\nserver count:" + strconv.Itoa(serverCount) +
+		" noAcpt:" + strconv.Itoa(noAcpt) + " noDial:" + strconv.Itoa(noDial)
+
+	return str
+}

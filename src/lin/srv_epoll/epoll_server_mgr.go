@@ -42,13 +42,14 @@ func (pthis*EpollServerMgr)TcpAcceptConnection(fd lin_common.FD_DEF, addr net.Ad
 	return nil
 }
 func (pthis*EpollServerMgr)TcpDialConnection(fd lin_common.FD_DEF, addr net.Addr, inAttachData interface{}) (outAttachData interface{}) {
-	lin_common.LogDebug(" dial connection fd:", fd.String(), " addr:", addr, " inAttachData:", inAttachData)
 	attachData, ok := inAttachData.(*TcpAttachData)
 	if !ok || attachData == nil {
+		lin_common.LogErr(" dial connection no attach data, fd:", fd.String(), " addr:", addr, " inAttachData:", inAttachData)
 		return
 	}
+	lin_common.LogDebug(" dial connection fd:", fd.String(), " addr:", addr, " srv:", attachData.srvID)
 
-	pthis.tcpSrvMgr.TcpSrvMgrPushMsgToUnit(attachData.srvID, srvEvt_TcpDialSuc{attachData.srvID, fd})
+	pthis.tcpSrvMgr.TcpSrvMgrPushMsgToUnit(attachData.srvID, &srvEvt_TcpDialSuc{attachData.srvID, fd})
 	return nil
 }
 func (pthis*EpollServerMgr)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, inAttachData interface{})(bytesProcess int, retAttachData interface{}) {
@@ -105,6 +106,7 @@ func (pthis*EpollServerMgr)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, 
 					srvID:tcpAttachData.srvID,
 					fd:fd,
 					msg:protoMsg,
+					msgType:packType,
 				})
 		} else {
 			pu = pthis.GetProcessUnitByClientID(tcpAttachData.cliID)
@@ -190,6 +192,8 @@ func (pthis*EpollServerMgr)Dump(bDetail bool)string{
 		" byteSend:" + strconv.FormatInt(es.ByteSend, 10) +
 		" byteProc:" + strconv.FormatInt(es.ByteProc, 10) +
 		" byte unProc:" + strconv.FormatInt(es.ByteRecv - es.ByteProc, 10) + "\r\n\r\n"
+
+	str += pthis.tcpSrvMgr.Dump(bDetail)
 
 	pthis.lastSampleMS = tnowMs
 	pthis.lastTotalRecv = totalRecv

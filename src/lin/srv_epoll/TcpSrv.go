@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/golang/protobuf/proto"
 	"lin/lin_common"
 	cor_pool "lin/lin_cor_pool"
@@ -62,11 +63,10 @@ func (pthis*TcpSrv)sendHeartBeat(){
 	msgHeartBeat := &msgpacket.MSG_HEARTBEAT{}
 	msgHeartBeat.Id = pthis.srvID
 
-	pthis.pu.tcpSrvMgr.eSrvMgr.SendProtoMsg(pthis.fdDial, msgpacket.MSG_TYPE__MSG_HEARTBEAT, msgHeartBeat)
-	pthis.timerHB = time.AfterFunc(pthis.durationHB,
-		func(){
-			pthis.sendHeartBeat()
-		})
+	if !pthis.fdDial.IsNull() {
+		pthis.pu.tcpSrvMgr.eSrvMgr.SendProtoMsg(pthis.fdDial, msgpacket.MSG_TYPE__MSG_HEARTBEAT, msgHeartBeat)
+	}
+	pthis.timerHB = time.AfterFunc(pthis.durationHB, pthis.sendHeartBeat)
 }
 
 func (pthis*TcpSrv)addRPC(rpcID int64, chRouteBack CHAN_RPC_ROUTEBACK) {
@@ -103,12 +103,25 @@ func (pthis*TcpSrv)TcpSrvDelRPC(rpcUUID int64){
 	pthis.delRPC(rpcUUID)
 }
 
-func (pthis*TcpSrv)TcpSrvProcessRPCMsg(fd lin_common.FD_DEF, msgRPC *msgpacket.MSG_RPC){
-/*	rreq := pthis.getRPC(msgRPC.MsgId)
-	if rreq == nil {
-		lin_common.LogDebug(" can't find rpc:", msgRPC.MsgId, " srv:", pthis.srvID)
-	}*/
+func (pthis*TcpSrv)TcpSrvProcessRPCResMsg(fd lin_common.FD_DEF, msgRPCRes *msgpacket.MSG_RPC_RES){
+	defer func() {
+		err := recover()
+		if err != nil {
+			lin_common.LogErr(" rpc res err:", fd.String(), " err:", err, " rpc:", msgRPCRes.MsgId, " rpctype:", msgRPCRes.MsgType)
+		}
+	}()
 
+	rreq := pthis.getRPC(msgRPCRes.MsgId)
+	pthis.delRPC(msgRPCRes.MsgId)
+
+	if rreq == nil {
+		return
+	}
+	msgBody := msgpacket.ParseProtoMsg(msgRPCRes.MsgBin, msgRPCRes.MsgType)
+	rreq.chRouteBack <- msgBody
+}
+
+func (pthis*TcpSrv)TcpSrvProcessRPCMsg(fd lin_common.FD_DEF, msgRPC *msgpacket.MSG_RPC){
 	msgRPC.TimestampArrive = time.Now().UnixMilli()
 
 	tDiff := msgRPC.TimestampArrive - msgRPC.Timestamp
@@ -155,12 +168,38 @@ func (pthis*TcpSrv)TcpSrvProcessRPCMsg(fd lin_common.FD_DEF, msgRPC *msgpacket.M
 	})
 }
 
+func (pthis*TcpSrv)process_ProtoMsg(fd lin_common.FD_DEF, protoMsg proto.Message) {
+	switch t:=protoMsg.(type){
+	case *msgpacket.MSG_TEST_RPC:
+		fmt.Println(t)
+	}
+}
+
+func (pthis*TcpSrv)startCloseAcptTimer() {
+	if !pthis.fdAcpt.IsNull() {
+		lin_common.LogDebug("timeout close srv acpt:", pthis.srvID, " fdAcpt:", pthis.fdAcpt.String())
+		pthis.pu.tcpSrvMgr.eSrvMgr.lsn.EPollListenerCloseTcp(pthis.fdAcpt)
+	}
+	pthis.timerAcptClose = time.AfterFunc(pthis.durationClose, pthis.startCloseAcptTimer)
+}
+
+func (pthis*TcpSrv)startCloseDailTimer() {
+	if !pthis.fdDial.IsNull() {
+		lin_common.LogDebug("timeout close srv dial:", pthis.srvID, " fdDial:", pthis.fdDial.String())
+		pthis.pu.tcpSrvMgr.eSrvMgr.lsn.EPollListenerCloseTcp(pthis.fdDial)
+	}
+	pthis.timerDialClose = time.AfterFunc(pthis.durationClose, pthis.startCloseDailTimer)
+}
+
+
 func ConstructorTcpSrv(srvID int64, addr string, pu *TcpSrvMgrUnit) *TcpSrv {
 	timeSec := pu.tcpSrvMgr.eSrvMgr.clientCloseTimeoutSec
 	if timeSec < 6 {
 		timeSec = 6
 	}
 	srv := &TcpSrv{
+		fdDial: lin_common.FD_DEF_NIL,
+		fdAcpt: lin_common.FD_DEF_NIL,
 		srvID : srvID,
 		pu : pu,
 		addr: addr,
@@ -172,20 +211,12 @@ func ConstructorTcpSrv(srvID int64, addr string, pu *TcpSrvMgrUnit) *TcpSrv {
 	}
 	runtime.SetFinalizer(srv, (*TcpSrv).Destructor)
 
-	srv.timerDialClose = time.AfterFunc(srv.durationClose,
-		func(){
-			lin_common.LogDebug("timeout close srv dial:", srv.srvID, " fdDial:", srv.fdDial.String())
-			srv.pu.tcpSrvMgr.eSrvMgr.lsn.EPollListenerCloseTcp(srv.fdDial)
-		})
-	srv.timerAcptClose = time.AfterFunc(srv.durationClose,
-		func(){
-			lin_common.LogDebug("timeout close srv acpt:", srv.srvID, " fdAcpt:", srv.fdAcpt.String())
-			srv.pu.tcpSrvMgr.eSrvMgr.lsn.EPollListenerCloseTcp(srv.fdAcpt)
-		})
-	srv.timerHB = time.AfterFunc(srv.durationHB,
-		func(){
-			srv.sendHeartBeat()
-		})
+	lin_common.LogDebug(" srv:", srvID, " close timeout:", srv.durationClose)
+
+	srv.timerAcptClose = time.AfterFunc(srv.durationClose, srv.startCloseAcptTimer)
+	srv.timerDialClose = time.AfterFunc(srv.durationClose, srv.startCloseDailTimer)
+	srv.timerHB = time.AfterFunc(srv.durationHB, srv.sendHeartBeat)
+
 	return srv
 }
 

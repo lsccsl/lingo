@@ -55,6 +55,7 @@ func CommandTestRPC(argStr []string) string {
 	for _, val := range Global_TestSrvMgr.mapSrv {
 		val.TestSrvBeginDial()
 	}
+	return ""
 
 	count := 100000000
 	if len(argStr) >= 1 {

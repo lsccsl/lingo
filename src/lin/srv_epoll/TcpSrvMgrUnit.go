@@ -39,6 +39,8 @@ func (pthis*TcpSrvMgrUnit)_go_srvProcess_unit(){
 			pthis.process_srvEvt_RPC(t)
 		case *srvEvt_RPC_Del:
 			pthis.process_srvEvt_RPC_Del(t)
+		case *srvEvt_static:
+			pthis.process_srvEvt_static(t)
 		}
 	}
 }
@@ -54,25 +56,44 @@ func (pthis*TcpSrvMgrUnit)getSrv(srvID int64) *TcpSrv {
 func (pthis*TcpSrvMgrUnit)process_srvEvt_addremote(evt * srvEvt_addremote){
 	lin_common.LogDebug("add srv:", evt.srvID, " addr:", evt.addr)
 	oldSrv := pthis.getSrv(evt.srvID)
+	bDial := true
 	if oldSrv != nil {
-		return
+		if oldSrv.addr == evt.addr {
+			if !oldSrv.fdDial.IsNull() {
+				bDial = false
+			}
+		}
+	} else {
+		pthis.addSrv(ConstructorTcpSrv(evt.srvID, evt.addr, pthis))
 	}
-	pthis.addSrv(ConstructorTcpSrv(evt.srvID, evt.addr, pthis))
+
+	if bDial {
+		fd, err := pthis.tcpSrvMgr.eSrvMgr.lsn.EPollListenerDial(evt.addr, &TcpAttachData{srvID : evt.srvID})
+		if err != nil {
+			lin_common.LogErr("connect to srv:", evt.srvID, " dial err")
+		}
+		lin_common.LogDebug("srv:", evt.srvID, " fd:", fd.String())
+	}
 }
 
 func (pthis*TcpSrvMgrUnit)process_srvEvt_DialSuc(evt * srvEvt_TcpDialSuc){
-	lin_common.LogDebug("srv:", evt.srvID, " dial suc, fd:", evt.fdDial.String())
 	oldSrv := pthis.getSrv(evt.srvID)
 	if oldSrv == nil {
+		lin_common.LogDebug(" dial suc, no srv:", evt.srvID, " dial suc, fd:", evt.fdDial.String())
 		return
 	}
+	lin_common.LogDebug("srv:", evt.srvID, " dial suc, fd:", evt.fdDial.String())
 	oldFD := oldSrv.fdDial
 	oldSrv.fdDial = evt.fdDial
 
-	if !oldFD.IsSame(&evt.fdDial) {
+	if !oldFD.IsSame(&evt.fdDial) && !oldFD.IsNull(){
 		if oldFD.FD != evt.fdDial.FD {
 			pthis.tcpSrvMgr.eSrvMgr.lsn.EPollListenerCloseTcp(oldFD)
 		}
+	}
+
+	if oldSrv.timerDialClose != nil {
+		oldSrv.timerDialClose.Reset(oldSrv.durationClose)
 	}
 }
 
@@ -85,11 +106,21 @@ func (pthis*TcpSrvMgrUnit)process_srvEvt_TcpAcpt(evt *srvEvt_TcpAcpt) {
 	oldFD := oldSrv.fdAcpt
 	oldSrv.fdAcpt = evt.fdAcpt
 
-	if !oldFD.IsSame(&evt.fdAcpt) {
+	if !oldFD.IsSame(&evt.fdAcpt) && !oldFD.IsNull(){
 		if oldFD.FD != evt.fdAcpt.FD {
 			pthis.tcpSrvMgr.eSrvMgr.lsn.EPollListenerCloseTcp(oldFD)
 		}
 	}
+
+	if oldSrv.timerAcptClose != nil {
+		oldSrv.timerAcptClose.Reset(oldSrv.durationClose)
+	}
+
+	msgRes := &msgpacket.MSG_SRV_REPORT_RES{
+		SrvId:evt.srvID,
+		TcpConnId:int64(oldSrv.fdAcpt.Magic),
+	}
+	pthis.tcpSrvMgr.eSrvMgr.SendProtoMsg(evt.fdAcpt, msgpacket.MSG_TYPE__MSG_SRV_REPORT_RES, msgRes)
 }
 
 func (pthis*TcpSrvMgrUnit)process_srvEvt_TcpClose(evt * srvEvt_TcpClose){
@@ -99,43 +130,61 @@ func (pthis*TcpSrvMgrUnit)process_srvEvt_TcpClose(evt * srvEvt_TcpClose){
 		return
 	}
 
-	if !oldSrv.fdDial.IsSame(&evt.fd) {
+	if oldSrv.fdDial.IsSame(&evt.fd) || oldSrv.fdDial.IsNull() {
 		oldSrv.fdDial = lin_common.FD_DEF_NIL
 
-		fd, err := pthis.tcpSrvMgr.eSrvMgr.lsn.EPollListenerDial(oldSrv.addr, &TcpAttachData{srvID : oldSrv.srvID})
+/*		fd, err := pthis.tcpSrvMgr.eSrvMgr.lsn.EPollListenerDial(oldSrv.addr, &TcpAttachData{srvID : oldSrv.srvID})
 		if err != nil {
 			lin_common.LogErr("srv:", oldSrv.srvID, " dial err")
 		}
-		lin_common.LogDebug(" reconnect to srv:", oldSrv.srvID, " fd:", fd.String())
+		lin_common.LogDebug(" reconnect to srv:", oldSrv.srvID, " fd:", fd.String())*/
 	}
-	if !oldSrv.fdAcpt.IsSame(&evt.fd) {
+	if oldSrv.fdAcpt.IsSame(&evt.fd) {
 		oldSrv.fdAcpt = lin_common.FD_DEF_NIL
 	}
 }
 
 func (pthis*TcpSrvMgrUnit)process_srvEvt_protoMsg(evt *srvEvt_protoMsg) {
-	lin_common.LogDebug("proto msg srv:", evt.srvID, " fd:", evt.fd.String())
+	//lin_common.LogDebug("proto msg srv:", evt.srvID, " fd:", evt.fd.String(), " msg:", evt.msg, " msgtype:", evt.msgType)
 	oldSrv := pthis.getSrv(evt.srvID)
 	if oldSrv == nil {
 		return
 	}
 
 	if evt.fd.IsSame(&oldSrv.fdDial) {
-		oldSrv.timerDialClose.Reset(oldSrv.durationClose)
+		if oldSrv.timerDialClose != nil {
+			oldSrv.timerDialClose.Reset(oldSrv.durationClose)
+		}
 	}
 	if evt.fd.IsSame(&oldSrv.fdAcpt) {
-		oldSrv.timerAcptClose.Reset(oldSrv.durationClose)
+		if oldSrv.timerAcptClose != nil {
+			oldSrv.timerAcptClose.Reset(oldSrv.durationClose)
+		}
 	}
 
-	switch t := evt.msg.(type) {
-	case *msgpacket.MSG_HEARTBEAT:
-		pthis.process_MSG_HEARTBEAT(oldSrv, evt.fd, t)
-	case *msgpacket.MSG_HEARTBEAT_RES:
-		pthis.process_MSG_HEARTBEAT_RES(oldSrv, evt.fd, t)
-	case *msgpacket.MSG_RPC:
-		pthis.process_MSG_RPC(oldSrv, evt.fd, t)
-	case *msgpacket.MSG_RPC_RES:
-		pthis.process_MSG_RPC_RES(oldSrv, evt.fd, t)
+	switch evt.msgType {
+	case msgpacket.MSG_TYPE__MSG_HEARTBEAT:
+		t := evt.msg.(*msgpacket.MSG_HEARTBEAT)
+		if t != nil {
+			pthis.process_MSG_HEARTBEAT(oldSrv, evt.fd, t)
+		}
+	case msgpacket.MSG_TYPE__MSG_HEARTBEAT_RES:
+		t := evt.msg.(*msgpacket.MSG_HEARTBEAT_RES)
+		if t != nil {
+			pthis.process_MSG_HEARTBEAT_RES(oldSrv, evt.fd, t)
+		}
+	case msgpacket.MSG_TYPE__MSG_RPC:
+		t := evt.msg.(*msgpacket.MSG_RPC)
+		if t != nil {
+			pthis.process_MSG_RPC(oldSrv, evt.fd, t)
+		}
+	case msgpacket.MSG_TYPE__MSG_RPC_RES:
+		t := evt.msg.(*msgpacket.MSG_RPC_RES)
+		if t != nil {
+			pthis.process_MSG_RPC_RES(oldSrv, evt.fd, t)
+		}
+	default:
+		oldSrv.process_ProtoMsg(evt.fd, evt.msg)
 	}
 }
 
@@ -159,7 +208,9 @@ func (pthis*TcpSrvMgrUnit)process_srvEvt_RPC_Del(evt *srvEvt_RPC_Del) {
 
 	oldSrv.TcpSrvDelRPC(evt.rpcUUID)
 }
-
+func (pthis*TcpSrvMgrUnit)process_srvEvt_static(evt *srvEvt_static) {
+	evt.chBack <- *pthis
+}
 
 func (pthis*TcpSrvMgrUnit)process_MSG_HEARTBEAT(srv * TcpSrv, fd lin_common.FD_DEF, protoMsg *msgpacket.MSG_HEARTBEAT) {
 	lin_common.LogDebug(" HB srv:", srv.srvID, " fd", fd.String(), " from srv:", protoMsg.Id)
@@ -185,9 +236,11 @@ func (pthis*TcpSrvMgrUnit)process_MSG_RPC(srv * TcpSrv, fd lin_common.FD_DEF, pr
 }
 
 func (pthis*TcpSrvMgrUnit)process_MSG_RPC_RES(srv * TcpSrv, fd lin_common.FD_DEF, protoMsg *msgpacket.MSG_RPC_RES) {
-	// todo :
+	if srv == nil {
+		return
+	}
+	srv.TcpSrvProcessRPCResMsg(fd, protoMsg)
 }
-
 
 func ConstructorTcpSrvMgrUnit(tcpSrvMgr*TcpSrvMgr)*TcpSrvMgrUnit {
 	return &TcpSrvMgrUnit{

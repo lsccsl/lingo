@@ -67,7 +67,7 @@ func main() {
 		if cmd != nil {
 			fmt.Fprint(writer, lin_common.DoCmd(cmd, len(cmd)))
 		}
-	})
+	}, "")
 	httpSrv.HttpSrvAddCallback("/addserver", func(writer http.ResponseWriter, request *http.Request) {
 		bin := make([]byte, request.ContentLength, request.ContentLength)
 		request.Body.Read(bin)
@@ -77,7 +77,7 @@ func main() {
 		lin_common.LogDebug("add srv:", sh.SrvID, " addr:", sh.IP, ":", sh.Port)
 		eSrvMgr.AddRemoteSrv(sh.SrvID, sh.IP + ":" + strconv.Itoa(sh.Port), TCP_READ_CLOSE_EXPIRE)
 		writer.Write(bin)
-	})
+	}, "")
 
 	// command line
 	lin_common.AddCmd("dump", "dump", func(argStr []string)string{

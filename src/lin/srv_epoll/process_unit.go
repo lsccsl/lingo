@@ -78,6 +78,7 @@ func (pthis*EPollProcessUnit)Process_LOGIN(cliID int64, fd lin_common.FD_DEF){
 			if oldC.fd.FD != fd.FD {
 				pthis.delClient(oldC.clientID)
 				pthis.eSrvMgr.lsn.EPollListenerCloseTcp(oldC.fd)
+				oldC.Destructor()
 			}
 
 			c := ConstructorTcpClient(pthis, fd, cliID)
