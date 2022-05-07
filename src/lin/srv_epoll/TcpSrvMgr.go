@@ -9,6 +9,8 @@ import (
 	"time"
 )
 
+
+
 /* begin srv event */
 type srvEvt_addremote struct {
 	srvID int64
@@ -48,8 +50,25 @@ type srvEvt_RPC_Del struct {
 type srvEvt_static struct {
 	chBack chan TcpSrvMgrUnit
 }
+
+type EN_TIMER_TYPE int
+const(
+	EN_TIMER_TYPE_close_dial EN_TIMER_TYPE = 1
+	EN_TIMER_TYPE_close_acpt EN_TIMER_TYPE = 2
+	EN_TIMER_TYPE_heartbeat  EN_TIMER_TYPE = 3
+)
+type srvEvt_timer struct {
+	srvID int64
+	timerType EN_TIMER_TYPE
+	timerData interface{}
+}
 /* end srv event */
 
+type TcpSrvMgrStatic struct {
+	lastTotalRPCOut int64
+	lastTotalRPCIn int64
+	lastSampleMS int64
+}
 type TcpSrvMgr struct {
 	srvID int64 // self
 
@@ -58,6 +77,8 @@ type TcpSrvMgr struct {
 	mgrUnit []*TcpSrvMgrUnit
 
 	rpcPool *cor_pool.CorPool
+
+	TcpSrvMgrStatic
 }
 
 
@@ -144,7 +165,11 @@ func (pthis*TcpSrvMgr)Dump(bDetail bool)string{
 	serverCount := 0
 	noDial := 0
 	noAcpt := 0
+	var totalRPCOut int64 = 0
+	var totalRPCIn int64 = 0
 	for _, val := range arrayMgrUnit {
+		totalRPCOut += val.totalRPCOut
+		totalRPCIn += val.totalRPCIn
 		serverCount += len(val.mapSrv)
 		for _, valSrv := range val.mapSrv {
 			if bDetail {
@@ -162,8 +187,23 @@ func (pthis*TcpSrvMgr)Dump(bDetail bool)string{
 		}
 	}
 
+	tnowMS := time.Now().UnixMilli()
+	tdiffSec := float64(tnowMS - pthis.lastSampleMS) / 1000.0
+	diffRPCOut := totalRPCOut - pthis.lastTotalRPCOut
+	diffRPCIn := totalRPCIn - pthis.lastTotalRPCIn
+
+	averRPCOut := float64(diffRPCOut) / tdiffSec
+	averRPCIn :=  float64(diffRPCIn) / tdiffSec
+
 	str += "\r\nserver count:" + strconv.Itoa(serverCount) +
-		" noAcpt:" + strconv.Itoa(noAcpt) + " noDial:" + strconv.Itoa(noDial)
+		" noAcpt:" + strconv.Itoa(noAcpt) + " noDial:" + strconv.Itoa(noDial) +
+		"\r\ntotalRPCOut:" + strconv.FormatInt(totalRPCOut, 10) + " totalRPCIn:" + strconv.FormatInt(totalRPCIn, 10) +
+		" averRPCOut:" + strconv.FormatFloat(averRPCOut, 'f', 2,64) +
+		" averRPCIn:" + strconv.FormatFloat(averRPCIn, 'f', 2,64)
+
+	pthis.lastTotalRPCOut = totalRPCOut
+	pthis.lastTotalRPCIn = totalRPCIn
+	pthis.lastSampleMS = tnowMS
 
 	return str
 }

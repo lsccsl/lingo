@@ -58,17 +58,6 @@ func (pthis*TcpSrv)Destructor() {
 	}
 }
 
-func (pthis*TcpSrv)sendHeartBeat(){
-	lin_common.LogDebug("send heartbeat to dial:", pthis.srvID, " fdDial:", pthis.fdDial.String())
-	msgHeartBeat := &msgpacket.MSG_HEARTBEAT{}
-	msgHeartBeat.Id = pthis.srvID
-
-	if !pthis.fdDial.IsNull() {
-		pthis.pu.tcpSrvMgr.eSrvMgr.SendProtoMsg(pthis.fdDial, msgpacket.MSG_TYPE__MSG_HEARTBEAT, msgHeartBeat)
-	}
-	pthis.timerHB = time.AfterFunc(pthis.durationHB, pthis.sendHeartBeat)
-}
-
 func (pthis*TcpSrv)addRPC(rpcID int64, chRouteBack CHAN_RPC_ROUTEBACK) {
 	pthis.mapRPC[rpcID] = &RPCReq{rpcID:rpcID,chRouteBack: chRouteBack}
 }
@@ -175,20 +164,57 @@ func (pthis*TcpSrv)process_ProtoMsg(fd lin_common.FD_DEF, protoMsg proto.Message
 	}
 }
 
-func (pthis*TcpSrv)startCloseAcptTimer() {
-	if !pthis.fdAcpt.IsNull() {
-		lin_common.LogDebug("timeout close srv acpt:", pthis.srvID, " fdAcpt:", pthis.fdAcpt.String())
-		pthis.pu.tcpSrvMgr.eSrvMgr.lsn.EPollListenerCloseTcp(pthis.fdAcpt)
+func (pthis*TcpSrv)process_Timer(evt *srvEvt_timer) {
+	switch evt.timerType {
+	case EN_TIMER_TYPE_close_dial:
+		{
+			if !pthis.fdDial.IsNull() {
+				lin_common.LogDebug("timeout close srv dial:", pthis.srvID, " fdDial:", pthis.fdDial.String())
+				pthis.pu.tcpSrvMgr.eSrvMgr.lsn.EPollListenerCloseTcp(pthis.fdDial)
+			}
+			pthis.timerDialClose = time.AfterFunc(pthis.durationClose, pthis.startCloseDailTimer)
+		}
+	case EN_TIMER_TYPE_close_acpt:
+		{
+			if !pthis.fdAcpt.IsNull() {
+				lin_common.LogDebug("timeout close srv acpt:", pthis.srvID, " fdAcpt:", pthis.fdAcpt.String())
+				pthis.pu.tcpSrvMgr.eSrvMgr.lsn.EPollListenerCloseTcp(pthis.fdAcpt)
+			}
+			pthis.timerAcptClose = time.AfterFunc(pthis.durationClose, pthis.startCloseAcptTimer)
+		}
+	case EN_TIMER_TYPE_heartbeat:
+		{
+			//lin_common.LogDebug("send heartbeat to dial, srv:", pthis.srvID, " fdDial:", pthis.fdDial.String())
+			msgHeartBeat := &msgpacket.MSG_HEARTBEAT{}
+			msgHeartBeat.Id = pthis.srvID
+
+			if !pthis.fdDial.IsNull() {
+				pthis.pu.tcpSrvMgr.eSrvMgr.SendProtoMsg(pthis.fdDial, msgpacket.MSG_TYPE__MSG_HEARTBEAT, msgHeartBeat)
+			}
+			pthis.timerHB = time.AfterFunc(pthis.durationHB, pthis.startHeartBeatTimer)
+		}
 	}
-	pthis.timerAcptClose = time.AfterFunc(pthis.durationClose, pthis.startCloseAcptTimer)
+}
+
+func (pthis*TcpSrv)startHeartBeatTimer(){
+	pthis.pu.chSrv <- &srvEvt_timer{srvID:pthis.srvID,
+		timerType:EN_TIMER_TYPE_heartbeat,
+		timerData:nil,
+	}
+}
+
+func (pthis*TcpSrv)startCloseAcptTimer() {
+	pthis.pu.chSrv <- &srvEvt_timer{srvID:pthis.srvID,
+		timerType:EN_TIMER_TYPE_close_acpt,
+		timerData:nil,
+	}
 }
 
 func (pthis*TcpSrv)startCloseDailTimer() {
-	if !pthis.fdDial.IsNull() {
-		lin_common.LogDebug("timeout close srv dial:", pthis.srvID, " fdDial:", pthis.fdDial.String())
-		pthis.pu.tcpSrvMgr.eSrvMgr.lsn.EPollListenerCloseTcp(pthis.fdDial)
+	pthis.pu.chSrv <- &srvEvt_timer{srvID:pthis.srvID,
+		timerType:EN_TIMER_TYPE_close_dial,
+		timerData:nil,
 	}
-	pthis.timerDialClose = time.AfterFunc(pthis.durationClose, pthis.startCloseDailTimer)
 }
 
 
@@ -215,7 +241,7 @@ func ConstructorTcpSrv(srvID int64, addr string, pu *TcpSrvMgrUnit) *TcpSrv {
 
 	srv.timerAcptClose = time.AfterFunc(srv.durationClose, srv.startCloseAcptTimer)
 	srv.timerDialClose = time.AfterFunc(srv.durationClose, srv.startCloseDailTimer)
-	srv.timerHB = time.AfterFunc(srv.durationHB, srv.sendHeartBeat)
+	srv.timerHB        = time.AfterFunc(srv.durationHB,    srv.startHeartBeatTimer)
 
 	return srv
 }
