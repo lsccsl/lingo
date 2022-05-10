@@ -71,8 +71,8 @@ func main() {
 	httpSrv.HttpSrvAddCallback("/addserver", func(writer http.ResponseWriter, request *http.Request) {
 		bin := make([]byte, request.ContentLength, request.ContentLength)
 		request.Body.Read(bin)
-		lin_common.LogDebug("~~~~~recv addserver", string(bin), " len:", request.ContentLength,
-			" body len:", len(bin), " post form:", request.PostForm)
+/*		lin_common.LogDebug("~~~~~recv addserver", string(bin), " len:", request.ContentLength,
+			" body len:", len(bin), " post form:", request.PostForm)*/
 		sh := &ServerFromHttp{}
 		json.Unmarshal(bin, sh)
 		lin_common.LogDebug("add srv:", sh.SrvID, " addr:", sh.IP, ":", sh.Port)

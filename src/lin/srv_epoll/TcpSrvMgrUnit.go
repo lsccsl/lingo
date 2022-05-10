@@ -31,8 +31,8 @@ func (pthis*TcpSrvMgrUnit)_go_srvProcess_unit(){
 			pthis.process_srvEvt_DialSuc(t)
 		case *srvEvt_TcpClose:
 			pthis.process_srvEvt_TcpClose(t)
-		case *srvEvt_TcpAcpt:
-			pthis.process_srvEvt_TcpAcpt(t)
+		case *srvEvt_SrvReport:
+			pthis.process_srvEvt_SrvReport(t)
 		case *srvEvt_protoMsg:
 			pthis.process_srvEvt_protoMsg(t)
 		case *srvEvt_RPC:
@@ -56,7 +56,7 @@ func (pthis*TcpSrvMgrUnit)getSrv(srvID int64) *TcpSrv {
 }
 
 func (pthis*TcpSrvMgrUnit)process_srvEvt_addremote(evt * srvEvt_addremote){
-	lin_common.LogDebug("add srv:", evt.srvID, " addr:", evt.addr)
+	//lin_common.LogDebug("add srv:", evt.srvID, " addr:", evt.addr)
 	oldSrv := pthis.getSrv(evt.srvID)
 	bDial := true
 	if oldSrv != nil {
@@ -66,15 +66,22 @@ func (pthis*TcpSrvMgrUnit)process_srvEvt_addremote(evt * srvEvt_addremote){
 			}
 		}
 	} else {
-		pthis.addSrv(ConstructorTcpSrv(evt.srvID, evt.addr, pthis))
+		oldSrv = ConstructorTcpSrv(evt.srvID, evt.addr, pthis)
+		pthis.addSrv(oldSrv)
+	}
+
+	if oldSrv == nil {
+		lin_common.LogErr(" fail add srv:", evt.srvID, " addr:", evt.addr)
+		return
 	}
 
 	if bDial {
-		fd, err := pthis.tcpSrvMgr.eSrvMgr.lsn.EPollListenerDial(evt.addr, &TcpAttachData{srvID : evt.srvID})
+		var err error
+		oldSrv.fdDial, err = pthis.tcpSrvMgr.eSrvMgr.lsn.EPollListenerDial(evt.addr, &TcpAttachData{srvID : evt.srvID})
 		if err != nil {
 			lin_common.LogErr("connect to srv:", evt.srvID, " dial err")
 		}
-		lin_common.LogDebug("srv:", evt.srvID, " fd:", fd.String())
+		lin_common.LogDebug("srv:", evt.srvID, " fd:", oldSrv.fdDial.String(), " addr:", evt.addr)
 	}
 }
 
@@ -97,12 +104,19 @@ func (pthis*TcpSrvMgrUnit)process_srvEvt_DialSuc(evt * srvEvt_TcpDialSuc){
 	if oldSrv.timerDialClose != nil {
 		oldSrv.timerDialClose.Reset(oldSrv.durationClose)
 	}
+
+	msgR := &msgpacket.MSG_SRV_REPORT{
+		SrvId:oldSrv.srvID,
+		TcpConnId:int64(oldSrv.fdDial.Magic),
+	}
+	pthis.tcpSrvMgr.eSrvMgr.SendProtoMsg(oldSrv.fdDial, msgpacket.MSG_TYPE__MSG_SRV_REPORT, msgR)
 }
 
-func (pthis*TcpSrvMgrUnit)process_srvEvt_TcpAcpt(evt *srvEvt_TcpAcpt) {
+func (pthis*TcpSrvMgrUnit)process_srvEvt_SrvReport(evt *srvEvt_SrvReport) {
 	lin_common.LogDebug("srv:", evt.srvID, " acpt fd:", evt.fdAcpt.String())
 	oldSrv := pthis.getSrv(evt.srvID)
 	if oldSrv == nil {
+		lin_common.LogDebug("no srv:", evt.srvID, " acpt fd:", evt.fdAcpt.String())
 		return
 	}
 	oldFD := oldSrv.fdAcpt
@@ -126,14 +140,16 @@ func (pthis*TcpSrvMgrUnit)process_srvEvt_TcpAcpt(evt *srvEvt_TcpAcpt) {
 }
 
 func (pthis*TcpSrvMgrUnit)process_srvEvt_TcpClose(evt * srvEvt_TcpClose){
-	lin_common.LogDebug("add srv:", evt.srvID, " fd:", evt.fd.String())
+	//lin_common.LogDebug(" srv:", evt.srvID, " fd:", evt.fd.String())
 	oldSrv := pthis.getSrv(evt.srvID)
 	if oldSrv == nil {
 		return
 	}
 
-	if oldSrv.fdDial.IsSame(&evt.fd) || oldSrv.fdDial.IsNull() {
+	if oldSrv.fdDial.IsSame(&evt.fd) && !oldSrv.fdDial.IsNull() {
 		oldSrv.fdDial = lin_common.FD_DEF_NIL
+		lin_common.LogDebug(" dail srv:", evt.srvID, " fd:", evt.fd.String())
+		return
 
 /*		fd, err := pthis.tcpSrvMgr.eSrvMgr.lsn.EPollListenerDial(oldSrv.addr, &TcpAttachData{srvID : oldSrv.srvID})
 		if err != nil {
@@ -141,8 +157,11 @@ func (pthis*TcpSrvMgrUnit)process_srvEvt_TcpClose(evt * srvEvt_TcpClose){
 		}
 		lin_common.LogDebug(" reconnect to srv:", oldSrv.srvID, " fd:", fd.String())*/
 	}
-	if oldSrv.fdAcpt.IsSame(&evt.fd) {
+
+	if oldSrv.fdAcpt.IsSame(&evt.fd) && !oldSrv.fdAcpt.IsNull(){
 		oldSrv.fdAcpt = lin_common.FD_DEF_NIL
+		lin_common.LogDebug(" acpt srv:", evt.srvID, " fd:", evt.fd.String())
+		return
 	}
 }
 
@@ -187,13 +206,18 @@ func (pthis*TcpSrvMgrUnit)process_srvEvt_protoMsg(evt *srvEvt_protoMsg) {
 		if t != nil {
 			pthis.process_MSG_RPC_RES(oldSrv, evt.fd, t)
 		}
+	case msgpacket.MSG_TYPE__MSG_SRV_REPORT_RES:
+		t := evt.msg.(*msgpacket.MSG_SRV_REPORT_RES)
+		if t != nil {
+			lin_common.LogDebug("proto msg srv:", evt.srvID, " fd:", evt.fd.String(), " msg:", evt.msg, " msgtype:", evt.msgType)
+		}
 	default:
 		oldSrv.process_ProtoMsg(evt.fd, evt.msg)
 	}
 }
 
 func (pthis*TcpSrvMgrUnit)process_srvEvt_RPC(evt *srvEvt_RPC) {
-	lin_common.LogDebug("rpc msg srv:", evt.srvID, " rpcUUID:", evt.rpcUUID, " msgtype:", evt.msgType, " msg:", evt.msg)
+	//lin_common.LogDebug("rpc msg srv:", evt.srvID, " rpcUUID:", evt.rpcUUID, " msgtype:", evt.msgType, " msg:", evt.msg)
 	oldSrv := pthis.getSrv(evt.srvID)
 	if oldSrv == nil {
 		return

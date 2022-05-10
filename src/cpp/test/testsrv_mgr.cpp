@@ -20,7 +20,8 @@ void testsrv_mgr::run_srv_thread()
 	{
 		testsrv_mgr_unit& mgr_unit = this->v_mgr_unit_[i];
 		mgr_unit.idx = i;
-		mgr_unit.thread_ptr_ = new std::thread(&testsrv_mgr::thread_srv_func, this, i);
+		mgr_unit.thread_acpt_ptr_ = new std::thread(&testsrv_mgr::thread_acpt_func, this, i);
+		mgr_unit.thread_dial_ptr_ = new std::thread(&testsrv_mgr::thread_dial_func, this, i);
 	}
 }
 
@@ -40,7 +41,7 @@ void testsrv_mgr::add_srv(const int64 id,
 	psrv->init_listen();
 }
 
-void testsrv_mgr::thread_srv_func(int idx)
+void testsrv_mgr::thread_dial_func(int idx)
 {
 	MYLOG_ERR(("idx:%d\r\n", idx));
 
@@ -49,37 +50,67 @@ void testsrv_mgr::thread_srv_func(int idx)
 	for (auto& it : mgr_unit.map_srv_)
 		it.second->connect_to_srv();
 
-	msgpacket::MSG_TEST msg;
-	msg.set_str("testabcdefg");
+	int64 seq = 0;
+
+	while (1)
+	{		
+		if (mgr_unit.map_srv_.empty())
+			Sleep(1000);
+
+		// send rpc
+		for (auto& it : mgr_unit.map_srv_)
+		{
+			testsrv* srv = it.second;
+			if (!srv->send_test_rpc(seq, 6000))
+			{
+				MYLOG_ERR(("send fail, reconnect srv:%lld connect err:%d-%d", srv->srvid(), ::WSAGetLastError(), ::GetLastError()));
+				srv->connect_to_srv();
+			}
+		}
+
+		// recv rpc response
+		for (auto& it : mgr_unit.map_srv_)
+		{
+			testsrv* srv = it.second;
+			if (!srv->recv_test_rpc_res(seq))
+			{
+				MYLOG_ERR(("recv fail, reconnect srv:%lld connect err:%d-%d", srv->srvid(), ::WSAGetLastError(), ::GetLastError()));
+				srv->connect_to_srv();
+			}
+		}
+
+		mgr_unit.seq += this->test_count_;
+	}
+}
+
+void testsrv_mgr::thread_acpt_func(int idx)
+{
+	MYLOG_ERR(("idx:%d\r\n", idx));
+
+	testsrv_mgr_unit& mgr_unit = this->v_mgr_unit_[idx];
+
+	int64 seq = 0;
+
+	for (auto& it : mgr_unit.map_srv_)
+		it.second->http_addsrv();
+	Sleep(1000);
+
+	for (auto& it : mgr_unit.map_srv_)
+		it.second->accept_client_no_block();
 
 	while (1)
 	{
 		if (mgr_unit.map_srv_.empty())
 			Sleep(1000);
 
-		// acpt
-		for (auto& it : mgr_unit.map_srv_)
-			it.second->accept_client_no_block();
-
-		// send rpc
-		for (auto& it : mgr_unit.map_srv_)
-		{
-		}
-
-		// recv rpc response
-		for (auto& it : mgr_unit.map_srv_)
-		{
-		}
-
 		// recv rpc request
 		for (auto& it : mgr_unit.map_srv_)
 		{
+			testsrv* srv = it.second;
+			if (!srv->process_acpt_msg())
+				srv->accept_client_no_block();
 		}
-
-		// check dial tcp fail
-
 
 		mgr_unit.seq += this->test_count_;
 	}
-
 }

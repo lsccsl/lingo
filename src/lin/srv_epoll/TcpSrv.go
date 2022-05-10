@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/golang/protobuf/proto"
 	"lin/lin_common"
 	cor_pool "lin/lin_cor_pool"
@@ -157,12 +156,6 @@ func (pthis*TcpSrv)TcpSrvProcessRPCMsg(fd lin_common.FD_DEF, msgRPC *msgpacket.M
 	})
 }
 
-func (pthis*TcpSrv)process_ProtoMsg(fd lin_common.FD_DEF, protoMsg proto.Message) {
-	switch t:=protoMsg.(type){
-	case *msgpacket.MSG_TEST_RPC:
-		fmt.Println(t)
-	}
-}
 
 func (pthis*TcpSrv)process_Timer(evt *srvEvt_timer) {
 	switch evt.timerType {

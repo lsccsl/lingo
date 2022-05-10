@@ -45,6 +45,7 @@ func (pthis*FD_DEF)IsNull() bool {
 /* @brief begin inter evetn define */
 type event_NewConnection struct { // new tcp connection event
 	_fdConn int
+	addr string
 }
 type event_TcpWrite struct { // tcp write event
 	fd FD_DEF

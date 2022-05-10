@@ -21,7 +21,7 @@ class msgpackhelp
 public:
 
 	static void pack_to_bin(std::string& buf_out, int msg_typ, google::protobuf::Message * proto_msg);
-	static google::protobuf::Message* parse_from_bin(const void * buf, size_t buf_sz, const msghead& mh);
+	static google::protobuf::Message* parse_from_bin(const void * buf, size_t buf_sz, const int msgtype);
 
 	static void parse_reg(google::protobuf::Message* proto_msg, int msg_type);
 

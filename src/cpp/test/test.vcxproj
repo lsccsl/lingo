@@ -156,6 +156,7 @@
     <ClCompile Include="testsrv_mgr.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="cfg.h" />
     <ClInclude Include="channel.h" />
     <ClInclude Include="gettimeofday.h" />
     <ClInclude Include="msg.pb.h" />

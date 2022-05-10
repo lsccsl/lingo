@@ -22,9 +22,9 @@ void msgpackhelp::pack_to_bin(std::string& buf_out, int msg_typ, google::protobu
 	memcpy(buf, msgbin.data(), msgbin.size());
 }
 
-google::protobuf::Message* msgpackhelp::parse_from_bin(const void* buf, size_t buf_sz, const msghead& mh)
+google::protobuf::Message* msgpackhelp::parse_from_bin(const void* buf, size_t buf_sz, const int msgtype)
 {
-	auto it = msgpackhelp::map_msgtype_protomsg.find(mh.msg_type);
+	auto it = msgpackhelp::map_msgtype_protomsg.find(msgtype);
 	if (msgpackhelp::map_msgtype_protomsg.end() == it)
 		return NULL;
 
@@ -249,7 +249,7 @@ bool testclient::recv_one_msg()
 	if (ret < body_len)
 		return true;
 
-	std::shared_ptr<google::protobuf::Message> proto_msg(msgpackhelp::parse_from_bin(this->read_buf_.data() + sizeof(msghead), body_len, this->mh_));
+	std::shared_ptr<google::protobuf::Message> proto_msg(msgpackhelp::parse_from_bin(this->read_buf_.data() + sizeof(msghead), body_len, this->mh_.msg_type));
 	this->lst_msg_recv_.push_back({ proto_msg, this->mh_.msg_type });
 
 	this->read_buf_sz_ = 0;

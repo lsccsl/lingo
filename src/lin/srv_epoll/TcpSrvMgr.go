@@ -25,7 +25,7 @@ type srvEvt_TcpClose struct {
 	srvID int64
 	fd lin_common.FD_DEF
 }
-type srvEvt_TcpAcpt struct {
+type srvEvt_SrvReport struct {
 	srvID int64
 	fdAcpt lin_common.FD_DEF
 }

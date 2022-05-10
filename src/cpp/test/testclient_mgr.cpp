@@ -1,6 +1,7 @@
 #include "testclient_mgr.h"
 #include <windows.h>
 #include "mylogex.h"
+#include "cfg.h"
 
 
 void testclient_mgr::init(const int unit_count, const int test_count)
@@ -34,7 +35,7 @@ void testclient_mgr::thread_func(int idx)
 	testclient_mgr_unit& mgr_unit = this->v_mgr_unit_[idx];
 	
 	for (auto& it : mgr_unit.map_client_)
-		it.second->connect_to_srv("192.168.2.129", 2003);
+		it.second->connect_to_srv(__global_cfg_.remote_ip_, 2003);
 
 	msgpacket::MSG_TEST msg;
 	msg.set_str("testabcdefg");
@@ -51,7 +52,7 @@ void testclient_mgr::thread_func(int idx)
 			if (!cli->send_test(msg, mgr_unit.seq, this->test_count_))
 			{
 				MYLOG_ERR(("send err, re connect to srv :%lld fd:%d------\r\n", it.second->id(), it.second->fd()));
-				cli->connect_to_srv("192.168.2.129", 2003);
+				cli->connect_to_srv(__global_cfg_.remote_ip_, 2003);
 			}
 		}
 		for (auto& it : mgr_unit.map_client_)
@@ -61,7 +62,7 @@ void testclient_mgr::thread_func(int idx)
 			if (!cli->recv_test(mgr_unit.seq, this->test_count_))
 			{
 				MYLOG_ERR(("recv err, re connect to srv :%lld fd:%d------\r\n", it.second->id(), it.second->fd()));
-				cli->connect_to_srv("192.168.2.129", 2003);
+				cli->connect_to_srv(__global_cfg_.remote_ip_, 2003);
 			}
 		}
 

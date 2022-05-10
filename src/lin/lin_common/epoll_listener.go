@@ -117,7 +117,7 @@ func (pthis*ePollConnection)EpollConnection_process_evt(){
 			{
 				// new tcp connection add to epoll
 				magic := pthis._lsn.EPollListenerGenMagic()
-				LogDebug("new conn fd:", t._fdConn, " magic:", magic)
+				//LogDebug("new conn fd:", t._fdConn, " magic:", magic)
 				ti := ConstructorTcpConnectionInfo(FD_DEF{t._fdConn, magic}, false, pthis._lsn._paramTcpRWBuffLen, nil)
 				pthis._add_tcp_conn(ti)
 				unixEpollAdd(pthis._epollFD, t._fdConn, ti._cur_epoll_evt, magic, pthis._lsn._paramET)
@@ -147,7 +147,7 @@ func (pthis*ePollConnection)EpollConnection_process_evt(){
 
 		case *event_TcpDial:
 			{
-				LogDebug("dial tcp connection, fd:", t.fd.FD, " magic:", t.fd.Magic)
+				//LogDebug("dial tcp connection, fd:", t.fd.FD, " magic:", t.fd.Magic)
 				ti := ConstructorTcpConnectionInfo(t.fd, true, pthis._lsn._paramTcpRWBuffLen, t.attachData)
 				pthis._add_tcp_conn(ti)
 				unixEpollAdd(pthis._epollFD, t.fd.FD, ti._cur_epoll_evt, t.fd.Magic, pthis._lsn._paramET) // if the tcp connection can write, means the tcp connection is success, it will be mod epoll wait read event when connection is ok
@@ -466,8 +466,8 @@ func (pthis*ePollAccept)_go_EpollAccept_epollwait() {
 					break
 				}
 
-				LogDebug("new tcp connection, fd:", fd, " addr:", addr)
-				pthis._lsn._EPollListenerAddEvent(fd, &event_NewConnection{_fdConn: fd})
+				//LogDebug("new tcp connection, fd:", fd, " addr:", addr)
+				pthis._lsn._EPollListenerAddEvent(fd, &event_NewConnection{_fdConn: fd, addr:addr})
 			}
 		}
 	}
@@ -592,9 +592,10 @@ func (pthis*EPollListener)EPollListenerWrite(fd FD_DEF, binData []byte) {
 }
 
 func (pthis*EPollListener)EPollListenerDial(addr string, attachData interface{})(fd FD_DEF, err error){
-	LogDebug(" begin connect addr:", addr)
+	//LogDebug(" begin connect addr:", addr)
 	rawfd, err := _tcpConnectNoBlock(addr)
 	if err != nil {
+		LogErr(" fail connect addr:", addr)
 		return FD_DEF{-1,0}, err
 	}
 
@@ -604,7 +605,7 @@ func (pthis*EPollListener)EPollListenerDial(addr string, attachData interface{})
 		attachData: attachData,
 	})
 
-	LogDebug(" connect fd:", rawfd, " magic:", magic, " addr:", addr)
+	//LogDebug(" connect fd:", rawfd, " magic:", magic, " addr:", addr)
 	return FD_DEF{rawfd, magic}, nil
 }
 

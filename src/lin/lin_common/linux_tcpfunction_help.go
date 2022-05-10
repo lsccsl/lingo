@@ -74,6 +74,9 @@ func _tcpListen(addr string) (int, error) {
 		return -1, GenErrNoERR_NUM("unix.Socket fail:", err)
 	}
 
+	_setReuseport(fd, 1)
+	_setReuseAddr(fd, 1)
+
 	sa4 := &unix.SockaddrInet4{Port: tcpAddr.Port}
 	if tcpAddr.IP != nil {
 		if len(tcpAddr.IP) == 16 {

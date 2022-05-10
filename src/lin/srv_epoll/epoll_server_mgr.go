@@ -47,7 +47,7 @@ func (pthis*EpollServerMgr)TcpDialConnection(fd lin_common.FD_DEF, addr net.Addr
 		lin_common.LogErr(" dial connection no attach data, fd:", fd.String(), " addr:", addr, " inAttachData:", inAttachData)
 		return
 	}
-	lin_common.LogDebug(" dial connection fd:", fd.String(), " addr:", addr, " srv:", attachData.srvID)
+	//lin_common.LogDebug(" dial connection fd:", fd.String(), " addr:", addr, " srv:", attachData.srvID)
 
 	pthis.tcpSrvMgr.TcpSrvMgrPushMsgToUnit(attachData.srvID, &srvEvt_TcpDialSuc{attachData.srvID, fd})
 	return nil
@@ -72,7 +72,7 @@ func (pthis*EpollServerMgr)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, 
 			msgR := protoMsg.(*msgpacket.MSG_SRV_REPORT)
 			retAttachData = &TcpAttachData{srvID: msgR.SrvId}
 			pthis.tcpSrvMgr.TcpSrvMgrPushMsgToUnit(msgR.SrvId,
-				&srvEvt_TcpAcpt{
+				&srvEvt_SrvReport{
 					srvID : msgR.SrvId,
 					fdAcpt : fd,
 				})
@@ -121,7 +121,7 @@ func (pthis*EpollServerMgr)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, 
 	return
 }
 func (pthis*EpollServerMgr)TcpClose(fd lin_common.FD_DEF, inAttachData interface{}) {
-	lin_common.LogDebug("recv tcp close ", fd.String(), " attach data:", inAttachData)
+	//lin_common.LogDebug("recv tcp close ", fd.String(), " attach data:", inAttachData)
 	if inAttachData == nil{
 		lin_common.LogErr("fd:", fd.String(), " not attach data")
 		return

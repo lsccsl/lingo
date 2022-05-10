@@ -9,7 +9,8 @@
 
 struct testsrv_mgr_unit
 {
-	std::thread* thread_ptr_ = nullptr;
+	std::thread* thread_acpt_ptr_ = nullptr;
+	std::thread* thread_dial_ptr_ = nullptr;
 	std::map<int64, testsrv*> map_srv_;
 	int64 seq = 0;
 	mutable int64 lastSample_seq = 0;
@@ -32,7 +33,8 @@ public:
 
 private:
 
-	void thread_srv_func(int idx);
+	void thread_acpt_func(int idx);
+	void thread_dial_func(int idx);
 
 private:
 

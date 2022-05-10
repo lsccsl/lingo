@@ -13,6 +13,15 @@
 class testsrv
 {
 public:
+	inline static int64 get_timestamp_mills()
+	{
+		timeb now;
+		ftime(&now);
+		return (now.time * 1000 + now.millitm);
+	}
+	static bool httpRequest(const int64 srvid, const std::string& ip, const int port);
+
+public:
 
 	testsrv(int64 srvid, const std::string& local_ip, const int local_port,
 		const std::string& remote_ip, const int remote_port):
@@ -29,6 +38,7 @@ public:
 
 	void init_listen();
 
+	void http_addsrv();
 	void accept_client_no_block();
 	bool connect_to_srv();
 
@@ -43,7 +53,10 @@ public:
 	bool send_msg_dial(int msg_typ, google::protobuf::Message* proto_msg);
 	bool send_msg_acpt(int msg_typ, google::protobuf::Message* proto_msg);
 
-	static bool httpRequest(const int64 srvid, const std::string& ip, const int port);
+	bool send_test_rpc(const int64 seq, const int64 timeout_wait);
+	bool recv_test_rpc_res(const int64 seq);
+
+	bool process_acpt_msg();
 
 private:
 
@@ -105,6 +118,15 @@ private:
 		int32 magic_acpt_ = 0;
 
 		int last_read_err = 0;
+
+		void _reset()
+		{
+			this->lst_msg_recv_.clear();
+			this->read_buf_sz_ = 0;
+			this->read_buf_.resize(128);
+			this->magic_acpt_ = 0;
+			this->fd_acpt_ = -1;
+		}
 	};
 	AcptInfo ai_;
 
