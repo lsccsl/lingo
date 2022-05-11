@@ -18,12 +18,12 @@ type TcpClient struct {
 
 	timerConnClose * time.Timer
 	durationClose time.Duration
-	pu *EPollProcessUnit
+	pu *TcpClientMgrUnit
 
 	timeLastActive int64
 }
 
-func ConstructorTcpClient(pu *EPollProcessUnit, fd lin_common.FD_DEF, clientID int64) *TcpClient {
+func ConstructorTcpClient(pu *TcpClientMgrUnit, fd lin_common.FD_DEF, clientID int64) *TcpClient {
 	tc := &TcpClient{
 		fd : fd,
 		pu : pu,

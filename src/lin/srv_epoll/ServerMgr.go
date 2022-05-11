@@ -16,32 +16,45 @@ const(
 	EN_CORPOOL_JOBTYPE_Rpc_req = cor_pool.EN_CORPOOL_JOBTYPE_user + 100
 	EN_CORPOOL_JOBTYPE_client_Rpc_req
 )
-type TcpAttachData struct {
+type TcpSrvAttachData struct {
 	srvID int64
+	isDial bool
+}
+type TcpCliAttachData struct {
 	cliID int64
 }
+type TcpAttachData struct {
+	TcpSrvAttachData
+	TcpCliAttachData
+}
 
-type EpollServerMgrStatic struct {
+type ServerMgrStatic struct {
 	lastTotalRecv int64
 	lastSampleMS int64
+
+	clientClose int64
+	serverDialClose int64
+	serverAcptClose int64
+
+	unknownTcpClose int64
 }
-type EpollServerMgr struct {
+type ServerMgr struct {
 	lsn *lin_common.EPollListener
-	processUnit []*EPollProcessUnit
+	processUnit []*TcpClientMgrUnit
 
 	tcpSrvMgr *TcpSrvMgr
 
 	clientCloseTimeoutSec int
 	srvCloseTimeoutSec int
 
-	EpollServerMgrStatic
+	ServerMgrStatic
 }
 
-func (pthis*EpollServerMgr)TcpAcceptConnection(fd lin_common.FD_DEF, addr net.Addr, inAttachData interface{}) (outAttachData interface{}){
+func (pthis*ServerMgr)TcpAcceptConnection(fd lin_common.FD_DEF, addr net.Addr, inAttachData interface{}) (outAttachData interface{}){
 	lin_common.LogDebug(" accept connection fd:", fd.String(), " addr:", addr)
 	return nil
 }
-func (pthis*EpollServerMgr)TcpDialConnection(fd lin_common.FD_DEF, addr net.Addr, inAttachData interface{}) (outAttachData interface{}) {
+func (pthis*ServerMgr)TcpDialConnection(fd lin_common.FD_DEF, addr net.Addr, inAttachData interface{}) (outAttachData interface{}) {
 	attachData, ok := inAttachData.(*TcpAttachData)
 	if !ok || attachData == nil {
 		lin_common.LogErr(" dial connection no attach data, fd:", fd.String(), " addr:", addr, " inAttachData:", inAttachData)
@@ -52,13 +65,13 @@ func (pthis*EpollServerMgr)TcpDialConnection(fd lin_common.FD_DEF, addr net.Addr
 	pthis.tcpSrvMgr.TcpSrvMgrPushMsgToUnit(attachData.srvID, &srvEvt_TcpDialSuc{attachData.srvID, fd})
 	return nil
 }
-func (pthis*EpollServerMgr)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, inAttachData interface{})(bytesProcess int, retAttachData interface{}) {
+func (pthis*ServerMgr)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, inAttachData interface{})(bytesProcess int, retAttachData interface{}) {
 	packType, bytesProcess, protoMsg := msgpacket.ProtoUnPacketFromBin(readBuf)
 	if protoMsg == nil {
 		return
 	}
 
-	var pu *EPollProcessUnit = nil
+	var pu *TcpClientMgrUnit = nil
 
 	switch packType {
 	case msgpacket.MSG_TYPE__MSG_TEST:
@@ -70,7 +83,12 @@ func (pthis*EpollServerMgr)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, 
 	case msgpacket.MSG_TYPE__MSG_SRV_REPORT:
 		{
 			msgR := protoMsg.(*msgpacket.MSG_SRV_REPORT)
-			retAttachData = &TcpAttachData{srvID: msgR.SrvId}
+			retAttachData = &TcpAttachData{
+				TcpSrvAttachData:TcpSrvAttachData {
+					srvID: msgR.SrvId,
+					isDial: false,
+				},
+			}
 			pthis.tcpSrvMgr.TcpSrvMgrPushMsgToUnit(msgR.SrvId,
 				&srvEvt_SrvReport{
 					srvID : msgR.SrvId,
@@ -81,7 +99,11 @@ func (pthis*EpollServerMgr)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, 
 	case msgpacket.MSG_TYPE__MSG_LOGIN:
 		{
 			msgL := protoMsg.(*msgpacket.MSG_LOGIN)
-			retAttachData =&TcpAttachData{cliID: msgL.Id}
+			retAttachData =&TcpAttachData {
+				TcpCliAttachData:TcpCliAttachData{
+					cliID: msgL.Id,
+				},
+			}
 			pu = pthis.GetProcessUnitByClientID(msgL.Id)
 			if pu != nil {
 				pu.PushTcpLoginMsg(msgL.Id, fd)
@@ -120,15 +142,17 @@ func (pthis*EpollServerMgr)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, 
 
 	return
 }
-func (pthis*EpollServerMgr)TcpClose(fd lin_common.FD_DEF, inAttachData interface{}) {
+func (pthis*ServerMgr)TcpClose(fd lin_common.FD_DEF, inAttachData interface{}) {
 	//lin_common.LogDebug("recv tcp close ", fd.String(), " attach data:", inAttachData)
 	if inAttachData == nil{
 		lin_common.LogErr("fd:", fd.String(), " not attach data")
+		pthis.unknownTcpClose ++
 		return
 	}
 	tcpAttachData, ok := inAttachData.(*TcpAttachData)
 	if !ok {
 		lin_common.LogErr("fd:", fd.String(), " unknown attach data", inAttachData)
+		pthis.unknownTcpClose ++
 		return
 	}
 	if tcpAttachData.srvID != 0 {
@@ -137,15 +161,23 @@ func (pthis*EpollServerMgr)TcpClose(fd lin_common.FD_DEF, inAttachData interface
 				srvID : tcpAttachData.srvID,
 				fd : fd,
 			})
+
+		if tcpAttachData.isDial {
+			pthis.serverDialClose ++
+		} else {
+			pthis.serverAcptClose ++
+		}
 	} else {
 		pu := pthis.GetProcessUnitByClientID(tcpAttachData.cliID)
 		if pu != nil {
 			pu.PushTcpCloseMsg(tcpAttachData.cliID, fd)
 		}
+
+		pthis.clientClose ++
 	}
 }
 
-func (pthis*EpollServerMgr)GetProcessUnitByClientID(cliID int64) *EPollProcessUnit {
+func (pthis*ServerMgr)GetProcessUnitByClientID(cliID int64) *TcpClientMgrUnit {
 	processUnitCount := int64(len(pthis.processUnit))
 	idx := cliID % processUnitCount
 	if idx >= processUnitCount {
@@ -158,15 +190,15 @@ func (pthis*EpollServerMgr)GetProcessUnitByClientID(cliID int64) *EPollProcessUn
 	return pu
 }
 
-func (pthis*EpollServerMgr)AddRemoteSrv(srvID int64, addr string, closeExpireSec int) {
+func (pthis*ServerMgr)AddRemoteSrv(srvID int64, addr string, closeExpireSec int) {
 	pthis.tcpSrvMgr.TcpSrvMgrAddRemoteSrv(srvID, addr, closeExpireSec)
 }
 
-func (pthis*EpollServerMgr)SendProtoMsg(fd lin_common.FD_DEF, msgType msgpacket.MSG_TYPE, protoMsg proto.Message){
+func (pthis*ServerMgr)SendProtoMsg(fd lin_common.FD_DEF, msgType msgpacket.MSG_TYPE, protoMsg proto.Message){
 	pthis.lsn.EPollListenerWrite(fd, msgpacket.ProtoPacketToBin(msgType, protoMsg))
 }
 
-func (pthis*EpollServerMgr)Dump(bDetail bool)string{
+func (pthis*ServerMgr)Dump(bDetail bool)string{
 	tnowMs := time.Now().UnixMilli()
 
 	var es lin_common.EPollListenerStatic
@@ -191,7 +223,12 @@ func (pthis*EpollServerMgr)Dump(bDetail bool)string{
 		" byteRecv:" + strconv.FormatInt(es.ByteRecv, 10) +
 		" byteSend:" + strconv.FormatInt(es.ByteSend, 10) +
 		" byteProc:" + strconv.FormatInt(es.ByteProc, 10) +
-		" byte unProc:" + strconv.FormatInt(es.ByteRecv - es.ByteProc, 10) + "\r\n\r\n"
+		" byte unProc:" + strconv.FormatInt(es.ByteRecv - es.ByteProc, 10) +
+		" clientClose:" + strconv.FormatInt(pthis.clientClose, 10) +
+		" serverDialClose:" + strconv.FormatInt(pthis.serverDialClose, 10) +
+		" serverAcptClose:" + strconv.FormatInt(pthis.serverAcptClose, 10) +
+		" unknownTcpClose:" + strconv.FormatInt(pthis.unknownTcpClose, 10) +
+		"\r\n\r\n"
 
 	str += pthis.tcpSrvMgr.Dump(bDetail)
 
@@ -204,7 +241,7 @@ func (pthis*EpollServerMgr)Dump(bDetail bool)string{
 func ConstructorEpollServerMgr(addr string,
 	processUnitCount int, srvProcessUnitCount int,
 	epollCoroutineCount int, clientCloseTimeoutSec int, srvCloseTimeoutSec int,
-	bET bool) (*EpollServerMgr, error) {
+	bET bool) (*ServerMgr, error) {
 	defer func() {
 		err := recover()
 		if err != nil {
@@ -217,8 +254,8 @@ func ConstructorEpollServerMgr(addr string,
 
 	msgpacket.InitMsgParseVirtualTable()
 
-	eSrvMgr := &EpollServerMgr{
-		processUnit : make([]*EPollProcessUnit, 0, processUnitCount),
+	eSrvMgr := &ServerMgr{
+		processUnit : make([]*TcpClientMgrUnit, 0, processUnitCount),
 		clientCloseTimeoutSec : clientCloseTimeoutSec,
 		srvCloseTimeoutSec : srvCloseTimeoutSec,
 	}

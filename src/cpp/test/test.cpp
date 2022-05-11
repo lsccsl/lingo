@@ -171,9 +171,9 @@ int main(int argc, char* argv[])
 	if (is_server)
 	{
 		int64 srvid_base = 100;
-		int thread_count = 1;
+		int thread_count = 50;
 		int test_count = 1;
-		int srv_count = 1;
+		int srv_count = 100;
 		if (argc >= 3)
 			srvid_base = ::_atoi64(argv[2]);
 		if (argc >= 4)

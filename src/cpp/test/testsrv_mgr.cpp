@@ -43,7 +43,7 @@ void testsrv_mgr::add_srv(const int64 id,
 
 void testsrv_mgr::thread_dial_func(int idx)
 {
-	MYLOG_ERR(("idx:%d\r\n", idx));
+	MYLOG_ERR(("dial idx:%d\r\n", idx));
 
 	testsrv_mgr_unit& mgr_unit = this->v_mgr_unit_[idx];
 
@@ -61,7 +61,7 @@ void testsrv_mgr::thread_dial_func(int idx)
 		for (auto& it : mgr_unit.map_srv_)
 		{
 			testsrv* srv = it.second;
-			if (!srv->send_test_rpc(seq, 6000))
+			if (!srv->send_test_rpc(seq, 120000))
 			{
 				MYLOG_ERR(("send fail, reconnect srv:%lld connect err:%d-%d", srv->srvid(), ::WSAGetLastError(), ::GetLastError()));
 				srv->connect_to_srv();
@@ -80,12 +80,15 @@ void testsrv_mgr::thread_dial_func(int idx)
 		}
 
 		mgr_unit.seq += this->test_count_;
+
+		//if (seq % 10 == 0)
+		//	Sleep(0);
 	}
 }
 
 void testsrv_mgr::thread_acpt_func(int idx)
 {
-	MYLOG_ERR(("idx:%d\r\n", idx));
+	MYLOG_ERR(("acpt idx:%d\r\n", idx));
 
 	testsrv_mgr_unit& mgr_unit = this->v_mgr_unit_[idx];
 
@@ -112,5 +115,8 @@ void testsrv_mgr::thread_acpt_func(int idx)
 		}
 
 		mgr_unit.seq += this->test_count_;
+
+		//if (seq % 10 == 0)
+		//	Sleep(0);
 	}
 }

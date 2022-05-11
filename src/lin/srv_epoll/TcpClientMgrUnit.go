@@ -25,38 +25,38 @@ type msgClient struct {
 
 type MAP_CLIENT map[int64/* client id */]*TcpClient
 
-type ClientProcessUnitStatic struct {
+type TcpClientMgrUnitStatic struct {
 	clientCount int
 	totalRecv int64
 }
-type EPollProcessUnit struct {
+type TcpClientMgrUnit struct {
 	_chMsg chan *msgClient
-	eSrvMgr *EpollServerMgr
+	eSrvMgr *ServerMgr
 	mapClient MAP_CLIENT
 
-	ClientProcessUnitStatic
+	TcpClientMgrUnitStatic
 }
 
 
-func (pthis*EPollProcessUnit)getClient(clientID int64) *TcpClient {
+func (pthis*TcpClientMgrUnit)getClient(clientID int64) *TcpClient {
 	oldC, ok := pthis.mapClient[clientID]
 	if !ok {
 		return nil
 	}
 	return oldC
 }
-func (pthis*EPollProcessUnit)addClient(c *TcpClient) {
+func (pthis*TcpClientMgrUnit)addClient(c *TcpClient) {
 	pthis.mapClient[c.clientID] = c
 
 	pthis.clientCount = len(pthis.mapClient)
 }
-func (pthis*EPollProcessUnit)delClient(cliID int64) {
+func (pthis*TcpClientMgrUnit)delClient(cliID int64) {
 	delete(pthis.mapClient, cliID)
 
 	pthis.clientCount = len(pthis.mapClient)
 }
 
-func (pthis*EPollProcessUnit)Process_TcpClose(c *TcpClient, fd lin_common.FD_DEF) {
+func (pthis*TcpClientMgrUnit)Process_TcpClose(c *TcpClient, fd lin_common.FD_DEF) {
 	if c == nil {
 		return
 	}
@@ -69,7 +69,7 @@ func (pthis*EPollProcessUnit)Process_TcpClose(c *TcpClient, fd lin_common.FD_DEF
 }
 
 
-func (pthis*EPollProcessUnit)Process_LOGIN(cliID int64, fd lin_common.FD_DEF){
+func (pthis*TcpClientMgrUnit)Process_LOGIN(cliID int64, fd lin_common.FD_DEF){
 	lin_common.LogDebug("login:", fd.String(), " clientid:", cliID)
 
 	oldC := pthis.getClient(cliID)
@@ -99,7 +99,7 @@ func (pthis*EPollProcessUnit)Process_LOGIN(cliID int64, fd lin_common.FD_DEF){
 
 
 
-func (pthis*EPollProcessUnit)_go_Process_unit(){
+func (pthis*TcpClientMgrUnit)_go_Process_unit(){
 	for {
 		msg := <- pthis._chMsg
 		if CLIENT_LOGIN == msg.msgType {
@@ -126,15 +126,15 @@ func (pthis*EPollProcessUnit)_go_Process_unit(){
 	}
 }
 
-func (pthis*EPollProcessUnit)PushTcpLoginMsg(cliID int64, fd lin_common.FD_DEF){
+func (pthis*TcpClientMgrUnit)PushTcpLoginMsg(cliID int64, fd lin_common.FD_DEF){
 	pthis._chMsg <- &msgClient{clientID: cliID, fd:fd, msgType: CLIENT_LOGIN}
 }
 
-func (pthis*EPollProcessUnit)PushTcpCloseMsg(cliID int64, fd lin_common.FD_DEF){
+func (pthis*TcpClientMgrUnit)PushTcpCloseMsg(cliID int64, fd lin_common.FD_DEF){
 	pthis._chMsg <- &msgClient{clientID: cliID, fd:fd, msgType: CLIENT_TCP_CLOSE}
 }
 
-func (pthis*EPollProcessUnit)PushProtoMsg(cliID int64, fd lin_common.FD_DEF, msg proto.Message, attachData *TcpAttachData){
+func (pthis*TcpClientMgrUnit)PushProtoMsg(cliID int64, fd lin_common.FD_DEF, msg proto.Message, attachData *TcpAttachData){
 	pthis._chMsg <- &msgClient{clientID: cliID,
 		fd : fd,
 		msgType : CLIENT_PROTO,
@@ -143,8 +143,8 @@ func (pthis*EPollProcessUnit)PushProtoMsg(cliID int64, fd lin_common.FD_DEF, msg
 	}
 }
 
-func ConstructorEPollProcessUnit(eSrvMgr *EpollServerMgr) *EPollProcessUnit {
-	return &EPollProcessUnit{
+func ConstructorEPollProcessUnit(eSrvMgr *ServerMgr) *TcpClientMgrUnit {
+	return &TcpClientMgrUnit{
 		_chMsg : make(chan *msgClient, 100),
 		eSrvMgr : eSrvMgr,
 		mapClient : make(MAP_CLIENT),

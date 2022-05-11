@@ -10,6 +10,8 @@ testsrv::~testsrv()
 void testsrv::init_listen()
 {
 	this->fd_lsn_ = CChannel::TcpOpen(local_ip_.c_str(), local_port_, 128);
+	if (this->fd_lsn_ < 0)
+		MYLOG_ERR(("srv:%lld, listen fail", this->srvid_));
 
 	CChannel::set_no_block(this->fd_lsn_);
 }

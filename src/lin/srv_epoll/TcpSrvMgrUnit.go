@@ -77,7 +77,13 @@ func (pthis*TcpSrvMgrUnit)process_srvEvt_addremote(evt * srvEvt_addremote){
 
 	if bDial {
 		var err error
-		oldSrv.fdDial, err = pthis.tcpSrvMgr.eSrvMgr.lsn.EPollListenerDial(evt.addr, &TcpAttachData{srvID : evt.srvID})
+		oldSrv.fdDial, err = pthis.tcpSrvMgr.eSrvMgr.lsn.EPollListenerDial(evt.addr,
+			&TcpAttachData{
+				TcpSrvAttachData:TcpSrvAttachData{
+					srvID : evt.srvID,
+					isDial: true,
+				},
+			})
 		if err != nil {
 			lin_common.LogErr("connect to srv:", evt.srvID, " dial err")
 		}
@@ -250,7 +256,7 @@ func (pthis*TcpSrvMgrUnit)process_srvEvt_timer(evt *srvEvt_timer) {
 
 
 func (pthis*TcpSrvMgrUnit)process_MSG_HEARTBEAT(srv * TcpSrv, fd lin_common.FD_DEF, protoMsg *msgpacket.MSG_HEARTBEAT) {
-	lin_common.LogDebug(" HB srv:", srv.srvID, " fd", fd.String(), " from srv:", protoMsg.Id)
+	//lin_common.LogDebug(" HB srv:", srv.srvID, " fd", fd.String(), " from srv:", protoMsg.Id)
 	srv.timestampLastHeartbeat = time.Now().Unix()
 
 	msgRes := &msgpacket.MSG_HEARTBEAT_RES{}
@@ -259,7 +265,7 @@ func (pthis*TcpSrvMgrUnit)process_MSG_HEARTBEAT(srv * TcpSrv, fd lin_common.FD_D
 }
 
 func (pthis*TcpSrvMgrUnit)process_MSG_HEARTBEAT_RES(srv * TcpSrv, fd lin_common.FD_DEF, protoMsg *msgpacket.MSG_HEARTBEAT_RES) {
-	lin_common.LogDebug(" HBRES srv:", srv.srvID, " fd", fd.String(), " from srv:", protoMsg.Id)
+	//lin_common.LogDebug(" HBRES srv:", srv.srvID, " fd", fd.String(), " from srv:", protoMsg.Id)
 	srv.timestampLastHeartbeat = time.Now().Unix()
 }
 

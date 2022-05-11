@@ -72,7 +72,7 @@ type TcpSrvMgrStatic struct {
 type TcpSrvMgr struct {
 	srvID int64 // self
 
-	eSrvMgr *EpollServerMgr
+	eSrvMgr *ServerMgr
 
 	mgrUnit []*TcpSrvMgrUnit
 
@@ -135,7 +135,7 @@ func (pthis*TcpSrvMgr)TcpSrvMgrRPCSync(srvID int64, msgType msgpacket.MSG_TYPE, 
 	return nil, lin_common.GenErrNoERR_NUM("srv:", srvID, " rpc err, msg:", protoMsg)
 }
 
-func ConstructorTcpSrvMgr(eSrvMgr *EpollServerMgr, srvProcessUnitCount int) *TcpSrvMgr {
+func ConstructorTcpSrvMgr(eSrvMgr *ServerMgr, srvProcessUnitCount int) *TcpSrvMgr {
 	tcpSrvMgr := &TcpSrvMgr{
 		eSrvMgr : eSrvMgr,
 		mgrUnit : make([]*TcpSrvMgrUnit, 0, srvProcessUnitCount),
@@ -175,7 +175,8 @@ func (pthis*TcpSrvMgr)Dump(bDetail bool)string{
 			if bDetail {
 				str += "\r\n srv:" + strconv.FormatInt(valSrv.srvID, 10) +
 					" HB timestamp:" + strconv.FormatInt(valSrv.timestampLastHeartbeat, 10) +
-					" fdDial:" + valSrv.fdDial.String() + " fdAcpt:" + valSrv.fdAcpt.String()
+					" fdDial:" + valSrv.fdDial.String() + " fdAcpt:" + valSrv.fdAcpt.String() +
+					" addr:" + valSrv.addr
 			}
 
 			if valSrv.fdAcpt.IsNull() {
