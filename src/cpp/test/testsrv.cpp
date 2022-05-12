@@ -232,7 +232,7 @@ bool testsrv::connect_to_srv()
 		return false;
 	}
 
-	CChannel::keep_alive(this->di_.fd_dial_);
+	//CChannel::keep_alive(this->di_.fd_dial_);
 	CChannel::set_no_block(this->di_.fd_dial_);
 	bool bret = this->do_report();
 	if (bret)

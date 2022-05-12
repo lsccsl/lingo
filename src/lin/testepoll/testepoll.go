@@ -165,7 +165,7 @@ func (pthis*test_cb)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, attachD
 	return readBuf.Len(), nil
 }
 
-func (pthis*test_cb)TcpClose(fd lin_common.FD_DEF, attachData interface{}){
+func (pthis*test_cb)TcpClose(fd lin_common.FD_DEF, reason lin_common.EN_TCP_CLOSE_REASON, attachData interface{}){
 	lin_common.LogDebug("tcp close fd:", fd.FD)
 }
 

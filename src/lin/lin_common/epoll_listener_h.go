@@ -19,6 +19,14 @@ var (
 	EVENT_BIN_8 = 8
 )
 
+type EN_TCP_CLOSE_REASON int
+const(
+	EN_TCP_CLOSE_REASON_inter_none EN_TCP_CLOSE_REASON = 0
+	EN_TCP_CLOSE_REASON_read_err   EN_TCP_CLOSE_REASON = 1
+	EN_TCP_CLOSE_REASON_write_err  EN_TCP_CLOSE_REASON = 2
+	EN_TCP_CLOSE_REASON_epoll_err  EN_TCP_CLOSE_REASON = 3
+	EN_TCP_CLOSE_REASON_inter_max  EN_TCP_CLOSE_REASON = 100
+)
 
 type FD_DEF struct {
 	FD int
@@ -53,6 +61,7 @@ type event_TcpWrite struct { // tcp write event
 }
 type event_TcpClose struct { // user close tcp connection
 	fd FD_DEF
+	reason EN_TCP_CLOSE_REASON
 }
 type event_TcpDial struct {
 	fd FD_DEF
@@ -76,6 +85,8 @@ type tcpConnectionInfo struct {
 	_isConnSuc bool
 
 	_attachData interface{}
+
+	_closeReason EN_TCP_CLOSE_REASON
 }
 type MAP_TCPCONNECTION map[int]*tcpConnectionInfo
 
@@ -87,7 +98,7 @@ type ePollConnection_Interface interface {
 	EpollConnection_user_write(fd FD_DEF, binData []byte)
 	EpollConnection_do_write(ti *tcpConnectionInfo)
 	EPollConnection_AddEvent(fd int, evt interface{})
-	EpollConnection_close_tcp(fd FD_DEF)
+	EpollConnection_close_tcp(fd FD_DEF, reason EN_TCP_CLOSE_REASON)
 	_go_EpollConnection_epollwait()
 
 	_add_tcp_conn(*tcpConnectionInfo)
@@ -191,13 +202,13 @@ type EPollCallback interface {
 	TcpAcceptConnection(fd FD_DEF, addr net.Addr, inAttachData interface{})(outAttachData interface{})
 	TcpDialConnection(fd FD_DEF, addr net.Addr, inAttachData interface{})(outAttachData interface{})
 	TcpData(fd FD_DEF, readBuf *bytes.Buffer, inAttachData interface{})(bytesProcess int, outAttachData interface{})
-	TcpClose(fd FD_DEF, inAttachData interface{})
+	TcpClose(fd FD_DEF, closeReason EN_TCP_CLOSE_REASON, inAttachData interface{})
 }
 
 type EPollListener_interface interface {
 	EPollListenerInit(cb EPollCallback, addr string, epollCoroutineCount int) error
 	EPollListenerWait()
-	EPollListenerCloseTcp(fd FD_DEF)
+	EPollListenerCloseTcp(fd FD_DEF, reason EN_TCP_CLOSE_REASON)
 	EPollListenerWrite(fd FD_DEF, binData []byte)
 	EPollListenerDial(addr string, attachData interface{})(fd FD_DEF, err error)
 	EPollListenerGetStatic(*EPollListenerStatic)

@@ -64,7 +64,7 @@ bool testclient::connect_to_srv(const std::string& srv_ip, int srv_port)
 		return false;
 	}
 
-	CChannel::keep_alive(this->fd_);
+	//CChannel::keep_alive(this->fd_);
 	CChannel::set_no_block(this->fd_);
 	bool bret = this->do_login();
 	if (bret)

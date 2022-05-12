@@ -16,6 +16,13 @@ const(
 	EN_CORPOOL_JOBTYPE_Rpc_req = cor_pool.EN_CORPOOL_JOBTYPE_user + 100
 	EN_CORPOOL_JOBTYPE_client_Rpc_req
 )
+
+const(
+	EN_TCP_CLOSE_REASON_timeout lin_common.EN_TCP_CLOSE_REASON = lin_common.EN_TCP_CLOSE_REASON_inter_max + 1
+	EN_TCP_CLOSE_REASON_new_conn lin_common.EN_TCP_CLOSE_REASON = lin_common.EN_TCP_CLOSE_REASON_inter_max + 2
+	EN_TCP_CLOSE_REASON_new_dial lin_common.EN_TCP_CLOSE_REASON = lin_common.EN_TCP_CLOSE_REASON_inter_max + 3
+)
+
 type TcpSrvAttachData struct {
 	srvID int64
 	isDial bool
@@ -142,8 +149,8 @@ func (pthis*ServerMgr)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, inAtt
 
 	return
 }
-func (pthis*ServerMgr)TcpClose(fd lin_common.FD_DEF, inAttachData interface{}) {
-	//lin_common.LogDebug("recv tcp close ", fd.String(), " attach data:", inAttachData)
+func (pthis*ServerMgr)TcpClose(fd lin_common.FD_DEF, closeReason lin_common.EN_TCP_CLOSE_REASON, inAttachData interface{}) {
+	lin_common.LogDebug("recv tcp close ", fd.String(), " attach data:", inAttachData, " closeReason:", closeReason)
 	if inAttachData == nil{
 		lin_common.LogErr("fd:", fd.String(), " not attach data")
 		pthis.unknownTcpClose ++

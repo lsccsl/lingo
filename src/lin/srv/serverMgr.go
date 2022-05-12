@@ -160,8 +160,8 @@ func ConstructServerMgr(srvID int64, heartbeatIntervalSec int, rpcPoolCount int)
 	srvMgr.mapClient = make(MAP_CLIENT)
 	srvMgr.mapServer = make(MAP_SERVER)
 	srvMgr.heartbeatIntervalSec = heartbeatIntervalSec
-	srvMgr.rpcPool = cor_pool.CorPoolInit(rpcPoolCount)
-	srvMgr.dialPool = cor_pool.CorPoolInit(100)
+	srvMgr.rpcPool = cor_pool.CorPoolInit(rpcPoolCount, rpcPoolCount/2, 60)
+	srvMgr.dialPool = cor_pool.CorPoolInit(100, 50, 60)
 
 	return srvMgr
 }

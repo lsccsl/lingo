@@ -31,6 +31,8 @@ public:
 		const std::string& local_ip, const int local_port,
 		const std::string& remote_ip, const int remote_port);
 
+	void dump();
+
 private:
 
 	void thread_acpt_func(int idx);

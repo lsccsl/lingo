@@ -120,3 +120,7 @@ void testsrv_mgr::thread_acpt_func(int idx)
 		//	Sleep(0);
 	}
 }
+
+void testsrv_mgr::dump()
+{
+}

@@ -38,7 +38,7 @@ func ConstructorTcpClient(pu *TcpClientMgrUnit, fd lin_common.FD_DEF, clientID i
 			tnow := time.Now().Unix()
 			lin_common.LogDebug("timeout close clientid:", tc.clientID, " fd:", tc.fd.String(),
 				" timeLastActive:", tc.timeLastActive, " tnow:", tnow, " diff:", (tnow - tc.timeLastActive))
-			tc.pu.eSrvMgr.lsn.EPollListenerCloseTcp(tc.fd)
+			tc.pu.eSrvMgr.lsn.EPollListenerCloseTcp(tc.fd, EN_TCP_CLOSE_REASON_timeout)
 /*			tc.timerConnClose.Stop()
 			tc.timerConnClose = nil*/
 		})

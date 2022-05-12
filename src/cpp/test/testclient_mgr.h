@@ -28,11 +28,11 @@ public:
 
 	void add_client(const int64 id);
 
-public:
-
 	const std::vector<testclient_mgr_unit>& v_mgr_unit() const{
 		return v_mgr_unit_;
 	}
+
+	void dump();
 
 private:
 
@@ -42,4 +42,6 @@ private:
 	
 	std::vector<testclient_mgr_unit> v_mgr_unit_;
 	int test_count_ = 10;
+
+	std::set<int> set_not_run_;
 };

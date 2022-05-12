@@ -139,7 +139,7 @@ func ConstructorTcpSrvMgr(eSrvMgr *ServerMgr, srvProcessUnitCount int) *TcpSrvMg
 	tcpSrvMgr := &TcpSrvMgr{
 		eSrvMgr : eSrvMgr,
 		mgrUnit : make([]*TcpSrvMgrUnit, 0, srvProcessUnitCount),
-		rpcPool : cor_pool.CorPoolInit(1000),
+		rpcPool : cor_pool.CorPoolInit(1000, 5, 300),
 	}
 
 	for i := 0; i < srvProcessUnitCount; i ++ {

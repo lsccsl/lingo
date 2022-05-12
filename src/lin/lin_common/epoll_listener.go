@@ -23,10 +23,10 @@ func ConstructorTcpConnectionInfo(fd FD_DEF, isDial bool, buffInitLen int, attac
 	if err != nil {
 		LogDebug("_setNoDelay:", fd.String(), " err:", err)
 	}
-	err = _tcpKeepAlive(fd.FD, 10, 10, 10)
+/*	err = _tcpKeepAlive(fd.FD, 10, 10, 10)
 	if err != nil {
 		LogDebug("_setNoDelay:", fd.String(), " err:", err)
-	}
+	}*/
 	err = _setRecvBuffer(fd.FD, 65535)
 	if err != nil {
 		LogErr("_setRecvBuffer:", fd.String(), " err:", err)
@@ -43,6 +43,7 @@ func ConstructorTcpConnectionInfo(fd FD_DEF, isDial bool, buffInitLen int, attac
 		_isDial: isDial,
 		_cur_epoll_evt : EPOLL_EVENT_READ,
 		_attachData: attachData,
+		_closeReason: EN_TCP_CLOSE_REASON_inter_none,
 	}
 	if isDial {
 		ti._isConnSuc = false
@@ -73,10 +74,10 @@ func (pthis*ePollConnection)_get_tcp_conn(fd int)*tcpConnectionInfo {
 	return ti
 }
 
-func (pthis*ePollConnection)EpollConnection_close_tcp(fd FD_DEF){
+func (pthis*ePollConnection)EpollConnection_close_tcp(fd FD_DEF, reason EN_TCP_CLOSE_REASON){
 	ti := pthis._get_tcp_conn(fd.FD)
 	if ti == nil{
-		LogDebug(" can't find tcp:", fd.String(), " ti:", ti)
+		//LogDebug(" can't find tcp:", fd.String(), " ti:", ti)
 		return
 	}
 
@@ -95,7 +96,7 @@ func (pthis*ePollConnection)EpollConnection_close_tcp(fd FD_DEF){
 					LogErr(err)
 				}
 			}()
-			pthis._lsn._cb.TcpClose(ti._fd, ti._attachData)
+			pthis._lsn._cb.TcpClose(ti._fd, reason, ti._attachData)
 		}()
 	}
 
@@ -142,7 +143,7 @@ func (pthis*ePollConnection)EpollConnection_process_evt(){
 		case *event_TcpClose:
 			{
 				LogDebug("recv user close tcp, fd:", t.fd.FD, " magic:", t.fd.Magic)
-				pthis.EpollConnection_close_tcp(t.fd)
+				pthis.EpollConnection_close_tcp(t.fd, t.reason)
 			}
 
 		case *event_TcpDial:
@@ -268,7 +269,7 @@ func (pthis*ePollConnection)EpollConnection_epllEvt_tcpread(fd FD_DEF) {
 	}
 
 	if bClose {
-		pthis.EpollConnection_close_tcp(fd)
+		pthis.EpollConnection_close_tcp(fd, EN_TCP_CLOSE_REASON_read_err)
 		return
 	}
 }
@@ -324,7 +325,7 @@ func (pthis*ePollConnection)EpollConnection_do_write(ti *tcpConnectionInfo) {
 			write_sz, err, bAgain := _tcpWrite(ti._fd.FD, ti._writeBuf.Bytes())
 			if err != nil {
 				// write fail, will close tcp connection
-				pthis.EpollConnection_close_tcp(ti._fd)
+				pthis.EpollConnection_close_tcp(ti._fd, EN_TCP_CLOSE_REASON_write_err)
 				return
 			}
 
@@ -406,7 +407,7 @@ func (pthis*ePollConnection)_go_EpollConnection_epollwait() {
 					pthis.EpollConnection_epllEvt_tcpwrite(fd)
 				}
 				if (epollEvt.Events & unix.EPOLLERR) != 0 {
-					pthis.EpollConnection_close_tcp(fd)
+					pthis.EpollConnection_close_tcp(fd, EN_TCP_CLOSE_REASON_epoll_err)
 				}
 			}
 		}
@@ -583,8 +584,8 @@ func (pthis*EPollListener)_EPollListenerAddEvent(fd int, evt interface{}) {
 	pthis._epollConnection[idx].EPollConnection_AddEvent(fd, evt)
 }
 
-func (pthis*EPollListener)EPollListenerCloseTcp(fd FD_DEF){
-	pthis._EPollListenerAddEvent(fd.FD, &event_TcpClose{fd:fd})
+func (pthis*EPollListener)EPollListenerCloseTcp(fd FD_DEF, reason EN_TCP_CLOSE_REASON){
+	pthis._EPollListenerAddEvent(fd.FD, &event_TcpClose{fd:fd, reason:reason})
 }
 
 func (pthis*EPollListener)EPollListenerWrite(fd FD_DEF, binData []byte) {

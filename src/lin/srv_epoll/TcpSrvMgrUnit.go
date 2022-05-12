@@ -103,7 +103,7 @@ func (pthis*TcpSrvMgrUnit)process_srvEvt_DialSuc(evt * srvEvt_TcpDialSuc){
 
 	if !oldFD.IsSame(&evt.fdDial) && !oldFD.IsNull(){
 		if oldFD.FD != evt.fdDial.FD {
-			pthis.tcpSrvMgr.eSrvMgr.lsn.EPollListenerCloseTcp(oldFD)
+			pthis.tcpSrvMgr.eSrvMgr.lsn.EPollListenerCloseTcp(oldFD, EN_TCP_CLOSE_REASON_new_dial)
 		}
 	}
 
@@ -130,7 +130,7 @@ func (pthis*TcpSrvMgrUnit)process_srvEvt_SrvReport(evt *srvEvt_SrvReport) {
 
 	if !oldFD.IsSame(&evt.fdAcpt) && !oldFD.IsNull(){
 		if oldFD.FD != evt.fdAcpt.FD {
-			pthis.tcpSrvMgr.eSrvMgr.lsn.EPollListenerCloseTcp(oldFD)
+			pthis.tcpSrvMgr.eSrvMgr.lsn.EPollListenerCloseTcp(oldFD, EN_TCP_CLOSE_REASON_new_conn)
 		}
 	}
 

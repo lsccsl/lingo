@@ -162,16 +162,16 @@ func (pthis*TcpSrv)process_Timer(evt *srvEvt_timer) {
 	case EN_TIMER_TYPE_close_dial:
 		{
 			if !pthis.fdDial.IsNull() {
-				lin_common.LogDebug("timeout close srv dial:", pthis.srvID, " fdDial:", pthis.fdDial.String())
-				pthis.pu.tcpSrvMgr.eSrvMgr.lsn.EPollListenerCloseTcp(pthis.fdDial)
+				lin_common.LogErr("timeout close srv dial:", pthis.srvID, " fdDial:", pthis.fdDial.String())
+				pthis.pu.tcpSrvMgr.eSrvMgr.lsn.EPollListenerCloseTcp(pthis.fdDial, EN_TCP_CLOSE_REASON_timeout)
 			}
 			pthis.timerDialClose = time.AfterFunc(pthis.durationClose, pthis.startCloseDailTimer)
 		}
 	case EN_TIMER_TYPE_close_acpt:
 		{
 			if !pthis.fdAcpt.IsNull() {
-				lin_common.LogDebug("timeout close srv acpt:", pthis.srvID, " fdAcpt:", pthis.fdAcpt.String())
-				pthis.pu.tcpSrvMgr.eSrvMgr.lsn.EPollListenerCloseTcp(pthis.fdAcpt)
+				lin_common.LogErr("timeout close srv acpt:", pthis.srvID, " fdAcpt:", pthis.fdAcpt.String())
+				pthis.pu.tcpSrvMgr.eSrvMgr.lsn.EPollListenerCloseTcp(pthis.fdAcpt, EN_TCP_CLOSE_REASON_timeout)
 			}
 			pthis.timerAcptClose = time.AfterFunc(pthis.durationClose, pthis.startCloseAcptTimer)
 		}

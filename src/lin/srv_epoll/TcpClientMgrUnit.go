@@ -77,7 +77,7 @@ func (pthis*TcpClientMgrUnit)Process_LOGIN(cliID int64, fd lin_common.FD_DEF){
 		if !oldC.fd.IsSame(&fd){
 			if oldC.fd.FD != fd.FD {
 				pthis.delClient(oldC.clientID)
-				pthis.eSrvMgr.lsn.EPollListenerCloseTcp(oldC.fd)
+				pthis.eSrvMgr.lsn.EPollListenerCloseTcp(oldC.fd, EN_TCP_CLOSE_REASON_new_conn)
 				oldC.Destructor()
 			}
 

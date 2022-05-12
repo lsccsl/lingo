@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"lin/lin_common"
 	"sync"
+	"time"
 )
 
 type CALLBACK_FUNC_WORK func(CorPoolJobData)
@@ -70,8 +71,9 @@ type CorPool struct {
 
 	WorkerFree_    list.List // *_corPoolWorker
 	mapJobAll_     MAP_CORPOOLWORKER
-	maxCorCount_   int
-	checkCorCount_ int
+	paramMaxCorCount   int
+	paramCheckCorCount int
+	paramCheckInterval int
 	corCount_      int
 	wg_            sync.WaitGroup
 
@@ -120,6 +122,44 @@ func (worker *_corPoolWorker) _corWorkerQuit() {
 	}
 }
 
+func (pthis *CorPool) _go_CorPoolCheck() {
+	for {
+		pthis.condPool_.L.Lock()
+		func(){
+			defer func() {
+				err := recover()
+				if err != nil {
+					lin_common.LogErr("check cor pool err:", err)
+				}
+			}()
+			curFreeCount := pthis.WorkerFree_.Len()
+			if curFreeCount >= pthis.paramCheckCorCount && curFreeCount >= pthis.lastFreeCount_ && pthis.lastFreeCount_ > pthis.paramCheckCorCount{
+				lin_common.LogDebug(" will quit some cor worker, curFreeCount:", curFreeCount, " lastFreeCount_:", pthis.lastFreeCount_)
+				quitCount := curFreeCount / 2
+				if quitCount < 1 {
+					quitCount = 1
+				}
+				for i := 0; i < quitCount; i ++ {
+					ele := pthis.WorkerFree_.Back()
+					if ele == nil {
+						break
+					}
+					pthis.WorkerFree_.Remove(ele)
+					worker, ok := ele.Value.(*_corPoolWorker)
+					if ok {
+						worker._corWorkerQuit()
+						delete(pthis.mapJobAll_, worker.workerID_)
+					}
+				}
+			}
+			pthis.lastFreeCount_ = pthis.WorkerFree_.Len()
+		}()
+		pthis.condPool_.L.Unlock()
+
+		lin_common.LogDebug(" check cor pool, curFreeCount:", pthis.WorkerFree_.Len(), " lastFreeCount_:", pthis.lastFreeCount_)
+		time.Sleep(time.Second * time.Duration(pthis.paramCheckInterval))
+	}
+}
 
 
 func (pthis *CorPool) corPoolAddFreeWorker(worker *_corPoolWorker) {
@@ -127,35 +167,13 @@ func (pthis *CorPool) corPoolAddFreeWorker(worker *_corPoolWorker) {
 	pthis.condPool_.L.Lock()
 	//pthis.condPoolTrigger = true
 	bNeedSignal := false
-	if pthis.corCount_ >= pthis.maxCorCount_ && pthis.WorkerFree_.Len() == 0 {
+	if pthis.corCount_ >= pthis.paramMaxCorCount && pthis.WorkerFree_.Len() == 0 {
 		bNeedSignal = true
 	}
 	pthis.WorkerFree_.PushFront(worker)
 	if bNeedSignal {
 		pthis.condPool_.Broadcast()
 	}
-
-	curFreeCount := pthis.WorkerFree_.Len()
-	if curFreeCount >= pthis.checkCorCount_ && curFreeCount >= pthis.lastFreeCount_ && pthis.lastFreeCount_ > pthis.checkCorCount_{
-		quitCount := curFreeCount / 2
-		if quitCount < 1 {
-			quitCount = 1
-		}
-		for i := 0; i < quitCount; i ++ {
-			ele := pthis.WorkerFree_.Back()
-			if ele == nil {
-				break
-			}
-			pthis.WorkerFree_.Remove(ele)
-			worker, ok := ele.Value.(*_corPoolWorker)
-			if ok {
-				worker._corWorkerQuit()
-				delete(pthis.mapJobAll_, worker.workerID_)
-			}
-		}
-	}
-	pthis.lastFreeCount_ = pthis.WorkerFree_.Len()
-
 	pthis.condPool_.L.Unlock()
 }
 
@@ -172,7 +190,7 @@ func (pthis *CorPool) CorPoolAddJob(jobR *CorPoolJobData /* ready only */) error
 	tWaitBegin := time.Now().UnixMilli()*/
 
 	for {
-		if pthis.corCount_ >= pthis.maxCorCount_ && pthis.WorkerFree_.Len() == 0 {
+		if pthis.corCount_ >= pthis.paramMaxCorCount && pthis.WorkerFree_.Len() == 0 {
 /*			lin_common.LogDebug("no worker, wait for free worker cor:",
 				pthis.corCount_, " free:", pthis.WorkerFree_.Len())*/
 			/*waitCount ++*/
@@ -187,7 +205,7 @@ func (pthis *CorPool) CorPoolAddJob(jobR *CorPoolJobData /* ready only */) error
 		lin_common.LogErr("wait too long:", tWaitEnd - tWaitBegin, " job data:", jobR.JobData_, " waitCount:", waitCount)
 	}*/
 
-	if pthis.corCount_ >= pthis.maxCorCount_ && pthis.WorkerFree_.Len() == 0 {
+	if pthis.corCount_ >= pthis.paramMaxCorCount && pthis.WorkerFree_.Len() == 0 {
 		return genCorpErr(EN_CORPOOL_ERR_no_free_worker, "~~~~~~~~~no free work, cor:", pthis.corCount_, " free_len:", pthis.WorkerFree_.Len())
 	}
 
@@ -221,19 +239,25 @@ func (pthis *CorPool) CorPoolAddJob(jobR *CorPoolJobData /* ready only */) error
 
 
 // get a coroutine pool
-func CorPoolInit(maxWorkerCount int) *CorPool {
+func CorPoolInit(maxWorkerCount int, checkCount int, checkInterval int) *CorPool {
 	if maxWorkerCount < 10 {
 		maxWorkerCount = 10
 	}
+	if checkCount <=1 {
+		checkCount = maxWorkerCount/2 + 1
+	}
 	cp := &CorPool{
 		condPool_:      sync.NewCond(&sync.Mutex{}),
-		maxCorCount_:   maxWorkerCount,
-		checkCorCount_: (maxWorkerCount/5 + 1),
+		paramMaxCorCount:   maxWorkerCount,
+		paramCheckCorCount: checkCount,
+		paramCheckInterval: checkInterval,
 		corCount_:      0,
 		mapJobAll_:     make(MAP_CORPOOLWORKER),
 	}
 	cp.WorkerFree_.Init()
-	lin_common.LogDebug("max worker count:", maxWorkerCount)
+	lin_common.LogDebug("max worker count:", cp.paramMaxCorCount, " check count:", cp.paramCheckCorCount)
+
+	go cp._go_CorPoolCheck()
 
 	return cp
 }
