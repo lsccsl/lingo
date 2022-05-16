@@ -10,7 +10,7 @@ import (
 	"runtime"
 )
 
-func ConstructorTcpConnectionInfo(fd FD_DEF, isDial bool, buffInitLen int, attachData interface{})*tcpConnectionInfo {
+func ConstructorTcpConnectionInfo(fd FD_DEF, isDial bool, buffInitLen int, needKeepAlive bool, attachData interface{})*tcpConnectionInfo {
 	err := _setNoBlock(fd.FD)
 	if err != nil {
 		LogDebug("_setNoBlock:", fd.String(), " err:", err)
@@ -23,10 +23,12 @@ func ConstructorTcpConnectionInfo(fd FD_DEF, isDial bool, buffInitLen int, attac
 	if err != nil {
 		LogDebug("_setNoDelay:", fd.String(), " err:", err)
 	}
-/*	err = _tcpKeepAlive(fd.FD, 10, 10, 10)
-	if err != nil {
-		LogDebug("_setNoDelay:", fd.String(), " err:", err)
-	}*/
+	if needKeepAlive {
+		err = _tcpKeepAlive(fd.FD, 10, 10, 10)
+		if err != nil {
+			LogDebug("_setNoDelay:", fd.String(), " err:", err)
+		}
+	}
 	err = _setRecvBuffer(fd.FD, 65535)
 	if err != nil {
 		LogErr("_setRecvBuffer:", fd.String(), " err:", err)
@@ -119,7 +121,7 @@ func (pthis*ePollConnection)EpollConnection_process_evt(){
 				// new tcp connection add to epoll
 				magic := pthis._lsn.EPollListenerGenMagic()
 				//LogDebug("new conn fd:", t._fdConn, " magic:", magic)
-				ti := ConstructorTcpConnectionInfo(FD_DEF{t._fdConn, magic}, false, pthis._lsn._paramTcpRWBuffLen, nil)
+				ti := ConstructorTcpConnectionInfo(FD_DEF{t._fdConn, magic}, false, pthis._lsn._paramTcpRWBuffLen, false, nil)
 				pthis._add_tcp_conn(ti)
 				unixEpollAdd(pthis._epollFD, t._fdConn, ti._cur_epoll_evt, magic, pthis._lsn._paramET)
 
@@ -149,7 +151,7 @@ func (pthis*ePollConnection)EpollConnection_process_evt(){
 		case *event_TcpDial:
 			{
 				//LogDebug("dial tcp connection, fd:", t.fd.FD, " magic:", t.fd.Magic)
-				ti := ConstructorTcpConnectionInfo(t.fd, true, pthis._lsn._paramTcpRWBuffLen, t.attachData)
+				ti := ConstructorTcpConnectionInfo(t.fd, true, pthis._lsn._paramTcpRWBuffLen, false, t.attachData)
 				pthis._add_tcp_conn(ti)
 				unixEpollAdd(pthis._epollFD, t.fd.FD, ti._cur_epoll_evt, t.fd.Magic, pthis._lsn._paramET) // if the tcp connection can write, means the tcp connection is success, it will be mod epoll wait read event when connection is ok
 			}

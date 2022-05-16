@@ -30,6 +30,7 @@ void testsrv::accept_client_no_block()
 	{
 		MYLOG_ERR(("accept err srv:%lld read head err:%d-%d",
 			this->srvid_, ::WSAGetLastError(), ::GetLastError()));
+		this->ai_.last_err = ::WSAGetLastError();
 		return;
 	}
 
@@ -60,7 +61,7 @@ bool testsrv::recv_dial()
 	int32 ret = 0;
 	int read_sz = sizeof(msghead) - this->di_.read_buf_sz_;
 	if (read_sz > 0)
-		ret = CChannel::TcpSelectRead(this->di_.fd_dial_, buf, read_sz, 10, 30, &this->di_.last_read_err);
+		ret = CChannel::TcpSelectRead(this->di_.fd_dial_, buf, read_sz, 10, 30, &this->di_.last_err);
 	if (ret < 0)
 	{
 		MYLOG_ERR(("srv:%lld read head err:%d-%d read_sz:%d ret:%d magic:%d",
@@ -81,7 +82,7 @@ bool testsrv::recv_dial()
 	if (body_len >= 0)
 	{
 		buf = (void*)(this->di_.read_buf_.data() + sizeof(msghead));
-		ret = CChannel::TcpSelectRead(this->di_.fd_dial_, buf, body_len, 10, 30, &this->di_.last_read_err);
+		ret = CChannel::TcpSelectRead(this->di_.fd_dial_, buf, body_len, 10, 30, &this->di_.last_err);
 	}
 	if (ret < 0)
 	{
@@ -110,11 +111,12 @@ bool testsrv::recv_acpt()
 	int32 ret = 0;
 	int read_sz = sizeof(msghead) - this->ai_.read_buf_sz_;
 	if (read_sz > 0)
-		ret = CChannel::TcpSelectRead(this->ai_.fd_acpt_, buf, read_sz, 10, 30, &this->ai_.last_read_err);
+		ret = CChannel::TcpSelectRead(this->ai_.fd_acpt_, buf, read_sz, 10, 30, &this->ai_.last_err);
 	if (ret < 0)
 	{
 		MYLOG_ERR(("srv:%lld read head err:%d-%d read_sz:%d ret:%d magic:%d",
 			this->srvid_, ::WSAGetLastError(), ::GetLastError(), this->ai_.read_buf_sz_, ret, this->ai_.magic_acpt_));
+		this->ai_.last_err = ::WSAGetLastError();
 		return false;
 	}
 	this->ai_.read_buf_sz_ += ret;
@@ -131,12 +133,13 @@ bool testsrv::recv_acpt()
 	if (body_len >= 0)
 	{
 		buf = (void*)(this->ai_.read_buf_.data() + sizeof(msghead));
-		ret = CChannel::TcpSelectRead(this->ai_.fd_acpt_, buf, body_len, 10, 30, &this->ai_.last_read_err);
+		ret = CChannel::TcpSelectRead(this->ai_.fd_acpt_, buf, body_len, 10, 30, &this->ai_.last_err);
 	}
 	if (ret < 0)
 	{
 		MYLOG_ERR(("srv:%lld read body err:%d-%d magic:%d",
 			this->srvid_, ::WSAGetLastError(), ::GetLastError(), this->ai_.magic_acpt_));
+		this->ai_.last_err = ::WSAGetLastError();
 		return false;
 	}
 	this->ai_.read_buf_sz_ += ret;
@@ -160,6 +163,7 @@ bool testsrv::send_msg_dial(int msg_typ, google::protobuf::Message* proto_msg)
 	if (ret < 0)
 	{
 		MYLOG_ERR(("srv:%lld write err:%d-%d ret:%d magic:%d", this->srvid_, ::WSAGetLastError(), ::GetLastError(), ret, this->di_.magic_dial_));
+		this->di_.last_err = ::WSAGetLastError();
 		return false;
 	}
 	return true;
@@ -173,6 +177,7 @@ bool testsrv::send_msg_acpt(int msg_typ, google::protobuf::Message* proto_msg)
 	if (ret < 0)
 	{
 		MYLOG_ERR(("srv:%lld write err:%d-%d ret:%d magic:%d", this->srvid_, ::WSAGetLastError(), ::GetLastError(), ret, this->ai_.magic_acpt_));
+		this->ai_.last_err = ::WSAGetLastError();
 		return false;
 	}
 	return true;
@@ -229,6 +234,7 @@ bool testsrv::connect_to_srv()
 	if (this->di_.fd_dial_ < 0)
 	{
 		MYLOG_ERR(("srv:%lld connect err:%d-%d", this->srvid_, ::WSAGetLastError(), ::GetLastError()));
+		this->di_.last_err = ::WSAGetLastError();
 		return false;
 	}
 

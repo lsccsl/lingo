@@ -123,4 +123,29 @@ void testsrv_mgr::thread_acpt_func(int idx)
 
 void testsrv_mgr::dump()
 {
+	//是否连接上 是否成功accept
+	std::list<testsrv*> set_no_acpt;
+	std::list<testsrv*> set_no_conn;
+	for (auto& it : this->v_mgr_unit_)
+	{
+		const testsrv_mgr_unit& tmu = it;
+
+		for (auto& it : tmu.map_srv_)
+		{
+			testsrv* srv = it.second;
+
+			if (srv->di().fd_dial_ <= 0)
+				set_no_conn.emplace_back(srv);
+			if (srv->ai().fd_acpt_ <= 0)
+				set_no_acpt.emplace_back(srv);
+		}
+	}
+
+	printf("no acpt:%zd\r\n", set_no_acpt.size());
+	for (auto& it : set_no_acpt)
+		printf("%lld:%d ", it->srvid(), it->ai().last_err);
+
+	printf("\r\n\r\nno conn:%zd\r\n", set_no_conn.size());
+	for (auto& it : set_no_conn)
+		printf("%lld:%d ", it->srvid(), it->di().last_err);
 }

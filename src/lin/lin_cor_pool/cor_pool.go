@@ -133,8 +133,9 @@ func (pthis *CorPool) _go_CorPoolCheck() {
 				}
 			}()
 			curFreeCount := pthis.WorkerFree_.Len()
-			if curFreeCount >= pthis.paramCheckCorCount && curFreeCount >= pthis.lastFreeCount_ && pthis.lastFreeCount_ > pthis.paramCheckCorCount{
-				lin_common.LogDebug(" will quit some cor worker, curFreeCount:", curFreeCount, " lastFreeCount_:", pthis.lastFreeCount_)
+			if curFreeCount >= pthis.paramCheckCorCount && curFreeCount >= pthis.lastFreeCount_ && pthis.lastFreeCount_ >= pthis.paramCheckCorCount{
+				lin_common.LogDebug(" will quit some cor worker, curFreeCount:",
+					curFreeCount, " lastFreeCount_:", pthis.lastFreeCount_, " paramCheckCorCount:", pthis.paramCheckCorCount)
 				quitCount := curFreeCount / 2
 				if quitCount < 1 {
 					quitCount = 1
@@ -156,7 +157,8 @@ func (pthis *CorPool) _go_CorPoolCheck() {
 		}()
 		pthis.condPool_.L.Unlock()
 
-		lin_common.LogDebug(" check cor pool, curFreeCount:", pthis.WorkerFree_.Len(), " lastFreeCount_:", pthis.lastFreeCount_)
+		lin_common.LogDebug(" check cor pool, curFreeCount:",
+			pthis.WorkerFree_.Len(), " lastFreeCount_:", pthis.lastFreeCount_, " paramCheckCorCount:", pthis.paramCheckCorCount)
 		time.Sleep(time.Second * time.Duration(pthis.paramCheckInterval))
 	}
 }

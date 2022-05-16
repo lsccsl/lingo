@@ -21,6 +21,67 @@ public:
 	}
 	static bool httpRequest(const int64 srvid, const std::string& ip, const int port);
 
+
+	struct DialInfo
+	{
+		std::string read_buf_;
+		size_t read_buf_sz_ = 0;
+		msghead mh_;
+
+		struct ProtoMsg
+		{
+			std::shared_ptr<google::protobuf::Message> proto_msg;
+			uint16 msg_type = 0;
+		};
+		std::list<ProtoMsg> lst_msg_recv_;
+
+		int32 fd_dial_ = -1;
+		int32 magic_dial_ = 0;
+
+		int last_err = 0;
+
+		bool b_login_suc = false;
+
+		void _reset()
+		{
+			this->lst_msg_recv_.clear();
+			this->read_buf_sz_ = 0;
+			this->read_buf_.resize(128);
+			this->magic_dial_ = 0;
+			this->fd_dial_ = -1;
+		}
+
+	};
+
+	struct AcptInfo
+	{
+		std::string read_buf_;
+		size_t read_buf_sz_ = 0;
+		msghead mh_;
+
+		struct ProtoMsg
+		{
+			std::shared_ptr<google::protobuf::Message> proto_msg;
+			uint16 msg_type = 0;
+		};
+		std::list<ProtoMsg> lst_msg_recv_;
+
+		int32 fd_acpt_ = -1;
+		int32 magic_acpt_ = 0;
+
+		int last_err = 0;
+
+		void _reset()
+		{
+			this->lst_msg_recv_.clear();
+			this->read_buf_sz_ = 0;
+			this->read_buf_.resize(128);
+			this->magic_acpt_ = 0;
+			this->fd_acpt_ = -1;
+		}
+	};
+
+
 public:
 
 	testsrv(int64 srvid, const std::string& local_ip, const int local_port,
@@ -35,6 +96,14 @@ public:
 	~testsrv();
 	const int64 srvid()
 	{ return this->srvid_; }
+	const DialInfo& di()const
+	{
+		return this->di_;
+	}
+	const AcptInfo& ai()const
+	{
+		return this->ai_;
+	}
 
 	void init_listen();
 
@@ -69,67 +138,8 @@ private:
 	std::string remote_ip_;
 	int remote_port_;
 
-	struct DialInfo
-	{
-		std::string read_buf_;
-		size_t read_buf_sz_ = 0;
-		msghead mh_;
-
-		struct ProtoMsg
-		{
-			std::shared_ptr<google::protobuf::Message> proto_msg;
-			uint16 msg_type = 0;
-		};
-		std::list<ProtoMsg> lst_msg_recv_;
-
-		int32 fd_dial_ = -1;
-		int32 magic_dial_ = 0;
-
-		int last_read_err = 0;
-
-		bool b_login_suc = false;
-
-		void _reset()
-		{
-			this->lst_msg_recv_.clear();
-			this->read_buf_sz_ = 0;
-			this->read_buf_.resize(128);
-			this->magic_dial_ = 0;
-			this->fd_dial_ = -1;
-		}
-
-	};
 	DialInfo di_;
-
-	struct AcptInfo
-	{
-		std::string read_buf_;
-		size_t read_buf_sz_ = 0;
-		msghead mh_;
-
-		struct ProtoMsg
-		{
-			std::shared_ptr<google::protobuf::Message> proto_msg;
-			uint16 msg_type = 0;
-		};
-		std::list<ProtoMsg> lst_msg_recv_;
-
-		int32 fd_acpt_ = -1;
-		int32 magic_acpt_ = 0;
-
-		int last_read_err = 0;
-
-		void _reset()
-		{
-			this->lst_msg_recv_.clear();
-			this->read_buf_sz_ = 0;
-			this->read_buf_.resize(128);
-			this->magic_acpt_ = 0;
-			this->fd_acpt_ = -1;
-		}
-	};
 	AcptInfo ai_;
-
 
 	int32 fd_lsn_ = -1;
 };
