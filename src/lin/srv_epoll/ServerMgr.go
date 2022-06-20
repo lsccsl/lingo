@@ -259,8 +259,6 @@ func ConstructorEpollServerMgr(addr string,
 	lin_common.LogDebug("processUnitCount:", processUnitCount, "epollCoroutineCount:", epollCoroutineCount, "clientCloseTimeoutSec:", clientCloseTimeoutSec,
 		"bET:", bET)
 
-	msgpacket.InitMsgParseVirtualTable()
-
 	eSrvMgr := &ServerMgr{
 		processUnit : make([]*TcpClientMgrUnit, 0, processUnitCount),
 		clientCloseTimeoutSec : clientCloseTimeoutSec,

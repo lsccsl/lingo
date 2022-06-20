@@ -53,10 +53,12 @@ func GetMsgTypeByMsgInstance(msg proto.Message) int32 {
 	return intType
 }
 
-func genAllMsgParse() {
-	_,filename,_,_ := runtime.Caller(0)
-	pathBase := filepath.Dir(filename) + "/.."
-	msgprotoPath := pathBase + "/msgpacket"
+func genAllMsgParse(msgprotoPath string) {
+	if 0 == len(msgprotoPath) {
+		_,filename,_,_ := runtime.Caller(0)
+		pathBase := filepath.Dir(filename) + "/.."
+		msgprotoPath = pathBase + "/msgpacket"
+	}
 
 	var fset = token.NewFileSet()
 	pkgs, err := parser.ParseDir(fset, msgprotoPath, nil, 0)
@@ -91,9 +93,9 @@ func genAllMsgParse() {
 	}
 }
 
-func InitMsgParseVirtualTable(){
+func InitMsgParseVirtualTable(msgprotoPath string){
 
-	genAllMsgParse()
+	genAllMsgParse(msgprotoPath)
 
 /*	msg := &MSG_TEST{}
 	fmt.Println(GetMsgTypeByMsgInstance(msg))

@@ -15,7 +15,9 @@ testclient_mgr * __tm_;
 testsrv_mgr* __tsm_;
 
 testcfg __global_cfg_ = {
-   "192.168.2.129",
+	"118.190.144.92",
+	//"47.104.129.217",
+   //"192.168.2.129",
    2003,
    "10.0.14.48"
 };
@@ -107,20 +109,26 @@ int main(int argc, char* argv[])
 		}
 		__tsm_->run_srv_thread();
 	}
-	else
+	else // .\test.exe 0 1000 47.104.129.217 1000 10 50 
 	{
 		int64 id_base = 1000;
 		int client_count = 1000;
 		int test_count = 10;
 		int thread_count = 50;
+		std::string srvIP;
 		if (argc >= 3)
 			id_base = ::_atoi64(argv[2]);
 		if (argc >= 4)
-			client_count = atoi(argv[3]);
+		{
+			srvIP = argv[3];
+			__global_cfg_.remote_ip_ = srvIP;
+		}
 		if (argc >= 5)
-			test_count = atoi(argv[4]);
+			client_count = atoi(argv[4]);
 		if (argc >= 6)
-			thread_count = atoi(argv[5]);
+			test_count = atoi(argv[5]);
+		if (argc >= 7)
+			thread_count = atoi(argv[6]);
 
 		__tm_ = new testclient_mgr;
 

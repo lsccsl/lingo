@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"lin/lin_common"
+	"lin/msgpacket"
 	"math/rand"
 	"net"
 	"net/http"
@@ -42,15 +43,22 @@ func main() {
 	lin_common.InitLog("./epollsrv.log", srvCfg.LogEnableConsolePrint, true)
 	lin_common.ProfileInit(true, 6060)
 
+	fmt.Println("begin epoll listen, ip:", srvCfg.BindAddr)
+
+	msgpacket.InitMsgParseVirtualTable(Global_ServerCfg.Msgdef)
+
 	// epoll mgr
-	eSrvMgr, err := ConstructorEpollServerMgr(srvCfg.BindAddr/*"192.168.2.129:2003"*/,
+	eSrvMgr, err := ConstructorEpollServerMgr(srvCfg.BindAddr,
 		10, 10, 5,
 		600,900,
 		true)
 	if err != nil {
+		fmt.Println(err)
 		lin_common.LogDebug(err)
 		return
 	}
+
+	fmt.Println("end epoll listen")
 
 	// http interface
 	httpAddr, err := net.ResolveTCPAddr("tcp", srvCfg.HttpAddr)

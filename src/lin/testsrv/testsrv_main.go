@@ -46,7 +46,7 @@ func main() {
 
 	commandLineInit()
 
-	msgpacket.InitMsgParseVirtualTable()
+	msgpacket.InitMsgParseVirtualTable("")
 
 	lin_common.ParseCmd()
 

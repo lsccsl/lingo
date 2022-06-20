@@ -1,3 +1,4 @@
+msgdef: "../src/lin/msgpacket"
 server:
     1:
         bind_addr: 10.0.14.48:2001
