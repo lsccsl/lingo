@@ -140,7 +140,8 @@ bool testclient::send_test(msgpacket::MSG_TEST& msg, const int64 seq, int count)
 
 bool testclient::recv_test(const int64 seq, int count)
 {
-	for (int i = 0; i < count; i++)
+	int total_recv = count + this->need_recv_more_;
+	for (int i = 0; i < total_recv; i++)
 	{
 		if (!this->recv_one_msg())
 			return false;
@@ -169,18 +170,23 @@ bool testclient::recv_test(const int64 seq, int count)
 	}
 
 	bool bret = false;
+	int32 recv_test_count = 0;
 	for (std::list<ProtoMsg>::reverse_iterator it = this->lst_msg_recv_.rbegin(); it != this->lst_msg_recv_.rend(); it ++)
 	{
 		if (it->msg_type == msgpacket::_MSG_TEST_RES)
 		{
-			auto msgRes = std::dynamic_pointer_cast<msgpacket::MSG_TEST_RES>(it->proto_msg);
-			if (msgRes->seq() == (seq + count - 1))
+			recv_test_count++;
+			if (!bret)
 			{
-				bret = true;
-				break;
+				auto msgRes = std::dynamic_pointer_cast<msgpacket::MSG_TEST_RES>(it->proto_msg);
+				if (msgRes->seq() == (seq + count - 1))
+					bret = true;
 			}
 		}
 	}
+
+	this->need_recv_more_ = total_recv - recv_test_count;
+
 	this->lst_msg_recv_.clear();
 	if (!bret)
 		MYLOG_ERR(("id:%lld recv seq:%lld err", this->id_, seq));

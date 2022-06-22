@@ -14,6 +14,12 @@ struct testclient_mgr_unit
 	int idx = 0;
 };
 
+struct testclient_mgr_static
+{
+	int64 total_count_last = 0;
+	int64 t_last = 0;
+};
+
 class testclient_mgr
 {
 public:
@@ -43,5 +49,6 @@ private:
 	std::vector<testclient_mgr_unit> v_mgr_unit_;
 	int test_count_ = 10;
 
+	testclient_mgr_static static_;
 	std::set<int> set_not_run_;
 };

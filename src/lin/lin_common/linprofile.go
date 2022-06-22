@@ -24,7 +24,7 @@ func goStatic() {
 }
 
 func ProfileInit(needStatic bool, profilePort int) {
-	runtime.GOMAXPROCS(8)
+	runtime.GOMAXPROCS(16)
 	LogDebug(runtime.NumCPU())
 	runtime.SetMutexProfileFraction(1)
 	runtime.SetBlockProfileRate(1)

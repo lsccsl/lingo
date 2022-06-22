@@ -115,7 +115,7 @@ func epollWait(efd int) {
 }
 
 func main() {
-	lin_common.InitLog("testepoll.log", true, false)
+	lin_common.InitLog("testepoll.log", "testepoll_err.log", true, false)
 	testepoll()
 	efd, err := unix.EpollCreate1(unix.EPOLL_CLOEXEC)
 	fmt.Println(efd, " err:", err)

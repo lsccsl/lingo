@@ -94,6 +94,8 @@ void testclient_mgr::dump()
 	std::set<int> setTmpNotRun;
 	std::set<int> setFailLogin;
 
+	int64 tnow = testclient::get_timestamp_mills();
+
 	for (auto& it : this->v_mgr_unit())
 	{
 		for (auto& itM : it.map_client_)
@@ -128,12 +130,18 @@ void testclient_mgr::dump()
 	int64 aver_total_send_loop = total_sendloop_interval / total_send_loop;
 	if (total_count <= 0)
 		total_count = 1;
-	double aver = (total_diff / 1000.f) / total_count;
-	printf("total_count:%lld aver rtt:%fs max_diff:%lldms, min_diff:%lldms\r\n"
+	double aver_rtt = (total_diff / 1000.f) / total_count;
+	int64 diff = total_count - static_.total_count_last;
+	float aver = diff / ((float)(tnow - static_.t_last)/1000.0f);
+	printf("total_count:%lld diff:%lld aver:%f\r\n aver rtt:%fs max_diff:%lldms, min_diff:%lldms\r\n"
 		"max_sendloop_interval:%lldms min_sendloop_interval:%lldms aver sendloop:%lldms\r\n"
 		"not_run_count:%zd\r\n",
-		total_count, aver, max_diff, min_diff,
+		total_count, diff, aver,
+		aver_rtt, max_diff, min_diff,
 		max_sendloop_interval, min_sendloop_interval, aver_total_send_loop, setTmpNotRun.size());
+
+	static_.total_count_last = total_count;
+	static_.t_last = tnow;
 
 	if (this->set_not_run_.empty())
 	{

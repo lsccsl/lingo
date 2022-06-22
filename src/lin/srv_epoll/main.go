@@ -40,8 +40,10 @@ func main() {
 	}
 
 	// log and profile
-	lin_common.InitLog("./epollsrv.log", srvCfg.LogEnableConsolePrint, true)
+	lin_common.InitLog("./epollsrv.log", "./epollsrv_err.log", srvCfg.LogEnableConsolePrint, true)
 	lin_common.ProfileInit(true, 6060)
+
+	lin_common.LogErr("test err log")
 
 	fmt.Println("begin epoll listen, ip:", srvCfg.BindAddr)
 
@@ -49,7 +51,7 @@ func main() {
 
 	// epoll mgr
 	eSrvMgr, err := ConstructorEpollServerMgr(srvCfg.BindAddr,
-		10, 10, 5,
+		20, 20, 8,
 		600,900,
 		true)
 	if err != nil {

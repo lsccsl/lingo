@@ -1,16 +1,16 @@
-msgdef: "../src/lin/msgpacket"
+msgdef: "../cfg"
 server:
     1:
-        bind_addr: 10.0.14.48:2001
+        bind_addr: 172.28.111.221:2001
         srv_id: 1
-        http_addr: 10.0.14.48:8801
+        http_addr: 172.28.111.221:8801
         alias_name: test_srv_1
         cluster: test1
         log_enable_console_print : true
     2:
-        bind_addr: 10.0.14.48:2002
+        bind_addr: 172.28.111.220:2002
         srv_id: 2
-        http_addr: 10.0.14.48:8802
+        http_addr: 172.28.111.220:8802
         alias_name: test_srv_2
         cluster: test2
         log_enable_console_print : true

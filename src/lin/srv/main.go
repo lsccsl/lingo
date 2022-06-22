@@ -39,8 +39,8 @@ func main() {
 		fmt.Println("read cfg err", pathCfg)
 	}
 
-	lin_common.InitLog("./srv.log", srvCfg.LogEnableConsolePrint, true)
-	msgpacket.InitMsgParseVirtualTable("")
+	lin_common.InitLog("./srv.log", "./srv_err.log", srvCfg.LogEnableConsolePrint, true)
+	msgpacket.InitMsgParseVirtualTable(Global_ServerCfg.Msgdef)
 	lin_common.ProfileInit(true, 6060)
 
 	srvMgr = ConstructServerMgr(srvCfg.SrvID, 30, 100)

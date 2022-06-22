@@ -113,7 +113,7 @@ int main(int argc, char* argv[])
 	{
 		int64 id_base = 1000;
 		int client_count = 1000;
-		int test_count = 10;
+		int test_count = 150;
 		int thread_count = 50;
 		std::string srvIP;
 		if (argc >= 3)

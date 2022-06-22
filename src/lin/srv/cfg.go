@@ -19,6 +19,7 @@ type ServerOneCfg struct {
 
 type ServerCfg struct {
 	MapServer map[string]ServerOneCfg `yaml:"server"`
+	Msgdef string `yaml:"msgdef"`
 }
 
 var Global_ServerCfg ServerCfg

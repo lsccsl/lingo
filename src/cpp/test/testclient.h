@@ -145,6 +145,7 @@ protected:
 		uint16 msg_type = 0;
 	};
 	std::list<ProtoMsg> lst_msg_recv_;
+	int need_recv_more_ = 0;
 
 	testclient_static tc_static_;
 };

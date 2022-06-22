@@ -36,7 +36,7 @@ func main() {
 		profilePort, _ = strconv.Atoi(os.Args[1])
 	}
 
-	lin_common.InitLog("./testsrv.log", true, false)
+	lin_common.InitLog("./testsrv.log", "./testsrv_err.log",true, false)
 	lin_common.ProfileInit(false, profilePort)
 
 	if len(os.Args) >= 3 {

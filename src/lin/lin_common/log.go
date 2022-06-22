@@ -9,13 +9,21 @@ import (
 	"time"
 )
 
+type LOG_LEVEL int
+const (
+	LOG_LEVEL_DEBUG LOG_LEVEL = 1
+	LOG_LEVEL_ERR LOG_LEVEL = 2
+)
+
 type LogMsg struct {
 	strLog string
+	logLevel LOG_LEVEL
 }
 
 type LogMgr struct {
 	chLog chan *LogMsg
 	logFile string
+	logFileErr string
 	enableLog bool
 	enableConsolePrint bool
 	enableFilePrint bool
@@ -37,7 +45,7 @@ func LogDebug(args ... interface{}) {
 	if len(globalLogMgr.chLog) >= 999 {
 		return
 	}
-	l := &LogMsg{}
+	l := &LogMsg{logLevel:LOG_LEVEL_DEBUG}
 	l.strLog = fmt.Sprintf("%s[%s:%d] route:%d %s %s\r\n",
 		time.Now().Format(time.RFC3339Nano), path.Base(filename), line, GetGID(), funcName, fmt.Sprint(args...))
 	globalLogMgr.chLog <- l
@@ -50,14 +58,15 @@ func LogErr(args ... interface{}) {
 
 	pc,filename, line, _ := runtime.Caller(1)
 	funcName := runtime.FuncForPC(pc).Name()
-	l := &LogMsg{}
+	l := &LogMsg{logLevel:LOG_LEVEL_ERR}
 	l.strLog = fmt.Sprintf("ERROR %s[%s:%d] route:%d %s %s\r\n%s\r\n",
 		time.Now().Format(time.RFC3339Nano), path.Base(filename), line, GetGID(), funcName, fmt.Sprint(args...), fmt.Sprintf(string(debug.Stack())))
 	globalLogMgr.chLog <- l
 }
 
-func InitLog(str string, enableConsolePrint bool, enableFilePrint bool) {
+func InitLog(str string, strErr string, enableConsolePrint bool, enableFilePrint bool) {
 	globalLogMgr.logFile = str
+	globalLogMgr.logFileErr = strErr
 	globalLogMgr.enableLog = true
 	globalLogMgr.enableConsolePrint = enableConsolePrint
 	globalLogMgr.enableFilePrint = enableFilePrint
@@ -81,21 +90,38 @@ func go_logPrint() {
 			return
 		}
 	}
+	var filehandleErr *os.File = nil
+	if globalLogMgr.enableFilePrint {
+		filehandleErr, errOpen = os.OpenFile(globalLogMgr.logFileErr, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+		if errOpen != nil {
+			fmt.Println("log open file err:", errOpen)
+			return
+		}
+	}
+
 	count := 0
 	for l := range globalLogMgr.chLog{
 		if globalLogMgr.enableConsolePrint {
 			fmt.Print(l.strLog)
 		}
-		if filehandle != nil && globalLogMgr.enableFilePrint{
-			_, err := filehandle.WriteString(l.strLog)
-			if err != nil {
-				fmt.Println(err)
-				if filehandle != nil {
-					filehandle.Close()
-				}
-				filehandle, err = os.OpenFile(globalLogMgr.logFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+		if globalLogMgr.enableFilePrint{
+			if filehandle != nil {
+				_, err := filehandle.WriteString(l.strLog)
 				if err != nil {
 					fmt.Println(err)
+					if filehandle != nil {
+						filehandle.Close()
+					}
+					filehandle, err = os.OpenFile(globalLogMgr.logFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+					if err != nil {
+						fmt.Println(err)
+					}
+				}
+			}
+
+			if l.logLevel == LOG_LEVEL_ERR {
+				if filehandleErr != nil {
+					filehandleErr.WriteString(l.strLog)
 				}
 			}
 		}
