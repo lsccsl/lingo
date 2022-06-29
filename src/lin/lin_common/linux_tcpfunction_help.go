@@ -140,9 +140,9 @@ func _tcpConnectNoBlock(addr string)(fd int, err error) {
 	return fd, nil
 }
 
-/*func TMP_tcpWrite(fd FD_DEF, bin []byte) (write_sz int, err error, bAgain bool) {
+func TMP_tcpWrite(fd FD_DEF, bin []byte) (write_sz int, err error, bAgain bool) {
 	return _tcpWrite(fd.FD, bin)
-}*/
+}
 func _tcpWrite(fd int, bin []byte) (write_sz int, err error, bAgain bool) {
 	n, err := unix.Write(fd, bin)
 	if err != nil {

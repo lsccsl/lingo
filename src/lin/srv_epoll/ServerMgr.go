@@ -152,7 +152,7 @@ func (pthis*ServerMgr)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, inAtt
 func (pthis*ServerMgr)TcpClose(fd lin_common.FD_DEF, closeReason lin_common.EN_TCP_CLOSE_REASON, inAttachData interface{}) {
 	lin_common.LogDebug("recv tcp close ", fd.String(), " attach data:", inAttachData, " closeReason:", closeReason)
 	if inAttachData == nil{
-		lin_common.LogErr("fd:", fd.String(), " not attach data")
+		lin_common.LogDebug("fd:", fd.String(), " not attach data")
 		pthis.unknownTcpClose ++
 		return
 	}

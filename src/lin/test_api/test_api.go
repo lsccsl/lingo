@@ -1,6 +1,7 @@
 package main
 
 func main()  {
-	test_reflect()
-	test_yaml()
+	test_bmp("../resource/aa.bmp")
+	//test_reflect()
+	//test_yaml()
 }
