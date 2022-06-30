@@ -30,9 +30,11 @@ DWORD bfOffBits;
 } BITMAPFILEHEADER;
 */
 
-func test_bmp(bmp_file string){
+func test_bmp(){
 
 	bmp := &lin_common.Bitmap{}
-	bmp.ReadBmp(bmp_file)
+	bmp.ReadBmp("../resource/ab.bmp")
+
+	bmp.WriteBmp("../resource/testw.bmp", bmp.BmpData, int(bmp.Biheader.Width), int(bmp.Biheader.Height), int(bmp.Biheader.BitCount))
 
 }
