@@ -38,6 +38,8 @@ func (pthis*MapData)GetBitBlock(x int, y int)bool{
 	return posBit != 0
 }
 
+
+
 func (pthis*MapData)DumpMap(strMapFile string) {
 
 	dataLen := len(pthis.mapBit)
