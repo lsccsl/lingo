@@ -3,7 +3,6 @@ package lin_common
 import (
 	"encoding/binary"
 	"os"
-	//"image"
 )
 
 /*
@@ -22,11 +21,11 @@ const (
 )
 
 type BitmapFileHeader struct {
-	bfType uint16 // BM
-	bfSize uint32
-	bfReserved1 uint16 // 0
-	bfReserved2 uint16 // 0
-	bfOffBits uint32
+	BfType uint16 // BM
+	BfSize uint32
+	BfReserved1 uint16 // 0
+	BfReserved2 uint16 // 0
+	BfOffBits uint32
 }//14bit
 
 type BitmapInfoHeader struct {
@@ -44,7 +43,7 @@ type BitmapInfoHeader struct {
 }//40bit
 
 type Bitmap struct{
-	bfHeader BitmapFileHeader
+	BfHeader BitmapFileHeader
 	Biheader BitmapInfoHeader
 
 	BmpData []uint8
@@ -54,7 +53,6 @@ type Bitmap struct{
 func (pthis*Bitmap)ReadBmp(bmpFile string)error{
 	file, err := os.Open(bmpFile)
 	if err != nil {
-		LogDebug(err)
 		return err
 	}
 
@@ -64,50 +62,43 @@ func (pthis*Bitmap)ReadBmp(bmpFile string)error{
 	//Read第二个参数字节序一般windows/linux大部分都是LittleEndian,苹果系统用BigEndian
 	//binary.Read(file, binary.LittleEndian, &pthis.headA)
 	//binary.Read(file, binary.LittleEndian, &pthis.headB)
-	err = binary.Read(file, binary.LittleEndian, &pthis.bfHeader.bfType)
+	err = binary.Read(file, binary.LittleEndian, &pthis.BfHeader.BfType)
 	if err != nil {
-		LogDebug(err)
 		return err
 	}
 
 	//文件大小
-	err = binary.Read(file, binary.LittleEndian, &pthis.bfHeader.bfSize)
+	err = binary.Read(file, binary.LittleEndian, &pthis.BfHeader.BfSize)
 	if err != nil {
-		LogDebug(err)
 		return err
 	}
 
 	//预留字节
-	err = binary.Read(file, binary.LittleEndian, &pthis.bfHeader.bfReserved1)
+	err = binary.Read(file, binary.LittleEndian, &pthis.BfHeader.BfReserved1)
 	if err != nil {
-		LogDebug(err)
 		return err
 	}
-	err = binary.Read(file, binary.LittleEndian, &pthis.bfHeader.bfReserved2)
+	err = binary.Read(file, binary.LittleEndian, &pthis.BfHeader.BfReserved2)
 	if err != nil {
-		LogDebug(err)
 		return err
 	}
 
 	//偏移字节
-	err = binary.Read(file, binary.LittleEndian, &pthis.bfHeader.bfOffBits)
+	err = binary.Read(file, binary.LittleEndian, &pthis.BfHeader.BfOffBits)
 	if err != nil {
-		LogDebug(err)
 		return err
 	}
 
 	err = binary.Read(file, binary.LittleEndian, &pthis.Biheader)
 	if err != nil {
-		LogDebug(err)
 		return err
 	}
 
-	szPalette := int(pthis.bfHeader.bfOffBits) - BITMAP_HEADER_TOTAL
+	szPalette := int(pthis.BfHeader.BfOffBits) - BITMAP_HEADER_TOTAL
 	if szPalette > 0 {
 		pthis.BinPalette = make([]uint8, szPalette)
 		err = binary.Read(file, binary.LittleEndian, pthis.BinPalette)
 		if err != nil {
-			LogDebug(err)
 			return err
 		}
 	}
@@ -115,7 +106,6 @@ func (pthis*Bitmap)ReadBmp(bmpFile string)error{
 	pthis.BmpData = make([]uint8, pthis.Biheader.SizeImage)
 	err = binary.Read(file, binary.LittleEndian, pthis.BmpData)
 	if err != nil {
-		LogDebug(err)
 		return err
 	}
 	return nil
@@ -124,7 +114,6 @@ func (pthis*Bitmap)ReadBmp(bmpFile string)error{
 func (pthis*Bitmap)WriteBmp(bmpFile string, binData[]uint8, w int, h int, bitCount int)error{
 	file, err := os.Create(bmpFile)
 	if err != nil {
-		LogDebug(err)
 		return err
 	}
 
@@ -136,12 +125,10 @@ func (pthis*Bitmap)WriteBmp(bmpFile string, binData[]uint8, w int, h int, bitCou
 	// write BM
 	err = binary.Write(file, binary.LittleEndian, uint8('B'))
 	if err != nil {
-		LogDebug(err)
 		return err
 	}
 	err = binary.Write(file, binary.LittleEndian, uint8('M'))
 	if err != nil {
-		LogDebug(err)
 		return err
 	}
 
@@ -152,48 +139,49 @@ func (pthis*Bitmap)WriteBmp(bmpFile string, binData[]uint8, w int, h int, bitCou
 	//write total file size
 	err = binary.Write(file, binary.LittleEndian, uint32(headerLen + len(binData)))
 	if err != nil {
-		LogDebug(err)
 		return err
 	}
 
-	//write reserver
+	//write reserve
 	err = binary.Write(file, binary.LittleEndian, uint16(0))
 	if err != nil {
-		LogDebug(err)
 		return err
 	}
 	err = binary.Write(file, binary.LittleEndian, uint16(0))
 	if err != nil {
-		LogDebug(err)
 		return err
 	}
 
 	//write offset
 	err = binary.Write(file, binary.LittleEndian, uint32(headerLen))
 	if err != nil {
-		LogDebug(err)
 		return err
 	}
 
 	//write bitmap info
 	err = binary.Write(file, binary.LittleEndian, &pthis.Biheader)
 	if err != nil {
-		LogDebug(err)
 		return err
 	}
 
 	//write palette
 	err = binary.Write(file, binary.LittleEndian, pthis.BinPalette)
 	if err != nil {
-		LogDebug(err)
 		return err
 	}
 
 	//write bitmap bin data
 	err = binary.Write(file, binary.LittleEndian, binData)
 	if err != nil {
-		LogDebug(err)
 		return err
 	}
 	return nil
+}
+
+func (pthis*Bitmap)GetWidth() int {
+	return int(pthis.Biheader.Width)
+}
+
+func (pthis*Bitmap)GetHeight() int {
+	return int(pthis.Biheader.Height)
 }
