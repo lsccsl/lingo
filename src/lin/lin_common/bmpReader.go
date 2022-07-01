@@ -17,6 +17,7 @@ DWORD bfOffBits;
 */
 
 const (
+	BITMAP_BIN_HEADER int = 40
 	BITMAP_HEADER_TOTAL int = 54
 )
 
@@ -111,15 +112,17 @@ func (pthis*Bitmap)ReadBmp(bmpFile string)error{
 	return nil
 }
 
-func (pthis*Bitmap)WriteBmp(bmpFile string, binData[]uint8, w int, h int, bitCount int)error{
+func (pthis*Bitmap)WriteBmp(bmpFile string)error{
 	file, err := os.Create(bmpFile)
 	if err != nil {
 		return err
 	}
 
 	defer func() {
-		file.Sync()
-		file.Close()
+		if file != nil {
+			file.Sync()
+			file.Close()
+		}
 	}()
 
 	// write BM
@@ -137,7 +140,7 @@ func (pthis*Bitmap)WriteBmp(bmpFile string, binData[]uint8, w int, h int, bitCou
 		headerLen += len(pthis.BinPalette)
 	}
 	//write total file size
-	err = binary.Write(file, binary.LittleEndian, uint32(headerLen + len(binData)))
+	err = binary.Write(file, binary.LittleEndian, uint32(headerLen + len(pthis.BmpData)))
 	if err != nil {
 		return err
 	}
@@ -171,7 +174,7 @@ func (pthis*Bitmap)WriteBmp(bmpFile string, binData[]uint8, w int, h int, bitCou
 	}
 
 	//write bitmap bin data
-	err = binary.Write(file, binary.LittleEndian, binData)
+	err = binary.Write(file, binary.LittleEndian, pthis.BmpData)
 	if err != nil {
 		return err
 	}
@@ -184,4 +187,28 @@ func (pthis*Bitmap)GetWidth() int {
 
 func (pthis*Bitmap)GetHeight() int {
 	return int(pthis.Biheader.Height)
+}
+
+func CreateBMP(w int, h int, bitCount int, binBMP []uint8) *Bitmap {
+	bmp := &Bitmap{}
+
+	bmp.BfHeader.BfSize = uint32(BITMAP_HEADER_TOTAL + len(binBMP))
+	bmp.BfHeader.BfOffBits = uint32(BITMAP_HEADER_TOTAL)
+
+	bmp.Biheader.Size = uint32(BITMAP_BIN_HEADER)
+	bmp.Biheader.Width = int32(w)
+	bmp.Biheader.Height = int32(h)
+	bmp.Biheader.Places = 1
+	bmp.Biheader.BitCount = uint16(bitCount)
+	bmp.Biheader.Compression = 0
+	bmp.Biheader.SizeImage = uint32(len(binBMP))
+	bmp.Biheader.XperlsPerMeter = 0
+	bmp.Biheader.YperlsPerMeter = 0
+	bmp.Biheader.ClsrUsed = 0
+	bmp.Biheader.ClrImportant = 0
+
+	bmp.BmpData = make([]uint8, len(binBMP))
+	copy(bmp.BmpData, binBMP)
+
+	return bmp
 }

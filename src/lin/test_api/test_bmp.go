@@ -9,14 +9,14 @@ import (
 func test_bmp(){
 
 	bmp := &lin_common.Bitmap{}
-	bmp.ReadBmp("../resource/ab.bmp")
+	bmp.ReadBmp("../resource/aa.bmp")
 	binJson,_ := json.Marshal(bmp.Biheader)
 	fmt.Println(string(binJson))
 	binJson,_ = json.Marshal(bmp.BfHeader)
 	fmt.Println(string(binJson))
 	fmt.Println(bmp.Biheader, bmp.BfHeader) // {40 384 290 1 24 0 334080 0 0 0 0} {19778 334134 0 0 54}
 
-	bmp.WriteBmp("../resource/testw.bmp", bmp.BmpData, int(bmp.Biheader.Width), int(bmp.Biheader.Height), int(bmp.Biheader.BitCount))
+	bmp.WriteBmp("../resource/testw.bmp"/*, bmp.BmpData, int(bmp.Biheader.Width), int(bmp.Biheader.Height), int(bmp.Biheader.BitCount)*/)
 }
 
 func test_map(){
@@ -36,4 +36,6 @@ func test_map(){
 
 	bret = testMap.GetBitBlock(1, 1)
 	fmt.Println(bret)
+
+	testMap.DumpMap("../resource/dump.bmp")
 }

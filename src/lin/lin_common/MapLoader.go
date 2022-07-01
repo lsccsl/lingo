@@ -38,5 +38,26 @@ func (pthis*MapData)GetBitBlock(x int, y int)bool{
 	return posBit != 0
 }
 
-func (pthis*MapData)DumpMap(mapFile string){
+func (pthis*MapData)DumpMap(strMapFile string) {
+
+	dataLen := len(pthis.mapBit)
+	tmpBMP := make([]uint8, dataLen * 24)
+
+	for idx, val := range pthis.mapBit {
+		for i := 7; i >= 0 ; i -- {
+			tmp := val & (1 << i)
+			var clr uint8 = 0
+			if tmp != 0 {
+				clr = 0xff
+			}
+			newIdx := idx * 24 + (7 - i) * 3
+			tmpBMP[newIdx + 0] = clr
+			tmpBMP[newIdx + 1] = 0
+			tmpBMP[newIdx + 2] = clr
+		}
+	}
+
+	bmp := CreateBMP(pthis.wid, pthis.hei, 24, tmpBMP)
+
+	bmp.WriteBmp(strMapFile)
 }
