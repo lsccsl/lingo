@@ -38,4 +38,11 @@ func test_map(){
 	fmt.Println(bret)
 
 	testMap.DumpMap("../resource/dump.bmp")
+
+	src := lin_common.Coord2d{30, 261}
+	dst := lin_common.Coord2d{76, 232}
+	path := testMap.PathSearch(src, dst)
+	for _, val := range path {
+		fmt.Println(val)
+	}
 }

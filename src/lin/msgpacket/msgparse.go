@@ -166,6 +166,7 @@ func ProtoParseAddText(name string, msgType string){
 func ProtoParseByName(binMsg []byte, msgType int32)proto.Message {
 	parse, ok := mapProtoMsgParse[msgType]
 	if !ok{
+		lin_common.LogDebug("can't find msg type:", msgType)
 		return nil
 	}
 
