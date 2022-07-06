@@ -37,12 +37,15 @@ func test_map(){
 	bret = testMap.GetBitBlock(1, 1)
 	fmt.Println(bret)
 
-	testMap.DumpMap("../resource/dump.bmp")
+	testMap.DumpMap("../resource/dump.bmp", nil, nil, nil)
 
-	src := lin_common.Coord2d{30, 261}
-	dst := lin_common.Coord2d{76, 232}
+	src := lin_common.Coord2d{10, 290 - 261}
+	dst := lin_common.Coord2d{367,290 - 109}
+	fmt.Println("begin search")
 	path := testMap.PathSearch(src, dst)
+	fmt.Println("end search")
 	for _, val := range path {
 		fmt.Println(val)
 	}
+	testMap.DumpMap("../resource/path.bmp", path, &src, &dst)
 }

@@ -147,7 +147,6 @@ func (pthis*MapData)PathSearch(src Coord2d, dst Coord2d) (path []Coord2d) {
 		parent:nil,
 	}
 
-
 	searchMgr := &SearchOpenNodeMgr{
 		root:startNode,
 		mapHistoryPath: make(MAP_HISTORY_PATH),
@@ -223,7 +222,6 @@ func (pthis*MapData)PathSearch(src Coord2d, dst Coord2d) (path []Coord2d) {
 			searchMgr.mapHistoryPath[nodeNeighbor.pos] = nodeNeighbor
 
 			node.neighbor[i] = nodeNeighbor
-
 			searchMgr.addNode(nodeNeighbor)
 		}
 
@@ -243,7 +241,7 @@ func (pthis*MapData)PathSearch(src Coord2d, dst Coord2d) (path []Coord2d) {
 	return nil
 }
 
-func (pthis*MapData)DumpMap(strMapFile string) {
+func (pthis*MapData)DumpMap(strMapFile string, path []Coord2d, src * Coord2d , dst * Coord2d) {
 
 	dataLen := len(pthis.mapBit)
 	tmpBMP := make([]uint8, dataLen * 24)
@@ -257,9 +255,31 @@ func (pthis*MapData)DumpMap(strMapFile string) {
 			}
 			newIdx := idx * 24 + (7 - i) * 3
 			tmpBMP[newIdx + 0] = clr
-			tmpBMP[newIdx + 1] = 0
+			tmpBMP[newIdx + 1] = clr
 			tmpBMP[newIdx + 2] = clr
 		}
+	}
+
+	if path != nil {
+		for _, val := range path {
+			idx := (val.Y*pthis.wid + val.X) * 3
+			tmpBMP[idx+0] = 0
+			tmpBMP[idx+1] = 0
+			tmpBMP[idx+2] = 0xff
+		}
+	}
+
+	if src != nil {
+		idx := (src.Y*pthis.wid + src.X) * 3
+		tmpBMP[idx+0] = 0xff
+		tmpBMP[idx+1] = 0
+		tmpBMP[idx+2] = 0
+	}
+	if dst != nil {
+		idx := (dst.Y*pthis.wid + dst.X) * 3
+		tmpBMP[idx+0] = 0xff
+		tmpBMP[idx+1] = 0
+		tmpBMP[idx+2] = 0
 	}
 
 	bmp := CreateBMP(pthis.wid, pthis.hei, 24, tmpBMP)
