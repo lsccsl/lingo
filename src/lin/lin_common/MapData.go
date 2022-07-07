@@ -28,7 +28,10 @@ func (pthis*MapData)LoadMap(mapFile string)error{
 	return nil
 }
 
-func (pthis*MapData)GetBitBlock(x int, y int)bool{
+func (pthis*MapData)CoordIsBlock(pos Coord2d)bool{
+	return pthis.IsBlock(pos.X, pos.Y)
+}
+func (pthis*MapData)IsBlock(x int, y int)bool{
 	if x < 0 || x >= pthis.wid {
 		return true
 	}

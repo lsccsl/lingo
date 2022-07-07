@@ -23,18 +23,18 @@ func test_map(){
 	testMap := &lin_common.MapData{}
 	testMap.LoadMap("../resource/aa.bmp")
 
-	bret := testMap.GetBitBlock(0, 0)
+	bret := testMap.IsBlock(0, 0)
 	fmt.Println(bret)
 
-	bret = testMap.GetBitBlock(1, 0)
+	bret = testMap.IsBlock(1, 0)
 	fmt.Println(bret)
 
-	bret = testMap.GetBitBlock(0, 1)
+	bret = testMap.IsBlock(0, 1)
 	fmt.Println(bret)
-	bret = testMap.GetBitBlock(0, 2)
+	bret = testMap.IsBlock(0, 2)
 	fmt.Println(bret)
 
-	bret = testMap.GetBitBlock(1, 1)
+	bret = testMap.IsBlock(1, 1)
 	fmt.Println(bret)
 
 	testMap.DumpMap("../resource/dump.bmp", nil, nil, nil)

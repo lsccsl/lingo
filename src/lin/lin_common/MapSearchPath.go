@@ -8,6 +8,7 @@ import (
 const (
 	WEIGHT_slash = 14
 	WEIGHT_straight = 10
+	WEIGHT_scale = 10
 )
 
 const (
@@ -84,7 +85,7 @@ func (pthis*SearchOpenNodeMgr)getNearestNode() *SearchNode {
 
 
 func calEndWeight(src Coord2d, dst Coord2d) int {
-	return int(math.Abs(float64(src.X - dst.X)) + math.Abs(float64(src.Y - dst.Y)))
+	return int(math.Abs(float64(src.X - dst.X)) + math.Abs(float64(src.Y - dst.Y))) * WEIGHT_scale
 }
 
 
@@ -123,10 +124,10 @@ func (pthis*MapData)PathSearch(src Coord2d, dst Coord2d) (path []Coord2d) {
 			startWeight := 0
 			switch i {
 			case SEARCH_NEIGHBOR_up:
-				curPos.Y += 1
+				curPos.Y -= 1
 				startWeight = WEIGHT_straight
 			case SEARCH_NEIGHBOR_down:
-				curPos.Y -= 1
+				curPos.Y += 1
 				startWeight = WEIGHT_straight
 			case SEARCH_NEIGHBOR_left:
 				curPos.X -= 1
@@ -158,7 +159,7 @@ func (pthis*MapData)PathSearch(src Coord2d, dst Coord2d) (path []Coord2d) {
 				bFind = true
 				break
 			}
-			if pthis.GetBitBlock(curPos.X, curPos.Y) {
+			if pthis.IsBlock(curPos.X, curPos.Y) {
 				continue
 			}
 			_, ok := searchMgr.mapHistoryPath[curPos]
