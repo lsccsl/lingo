@@ -1,10 +1,23 @@
 package lin_common
 
+const (
+	WEIGHT_slash = 14
+	WEIGHT_straight = 10
+	WEIGHT_scale = 10
+)
 
 type Coord2d struct {
 	X int
 	Y int
 }
+
+func (pthis*Coord2d)add(r*Coord2d) Coord2d {
+	return Coord2d{pthis.X + r.X, pthis.Y + r.Y}
+}
+func (pthis*Coord2d)isEqual(r*Coord2d) bool {
+	return pthis.X ==  r.X && pthis.Y == r.Y
+}
+
 type MapData struct {
 	wid int
 	hei int

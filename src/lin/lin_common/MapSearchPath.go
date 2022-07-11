@@ -6,12 +6,6 @@ import (
 )
 
 const (
-	WEIGHT_slash = 14
-	WEIGHT_straight = 10
-	WEIGHT_scale = 10
-)
-
-const (
 	SEARCH_NEIGHBOR_up    = 0
 	SEARCH_NEIGHBOR_down  = 1
 	SEARCH_NEIGHBOR_left  = 2

@@ -1,29 +1,27 @@
 package lin_common
 
+import "sort"
+
+type JPS_DIR int
 const (
-	JSP_WEIGHT_slash = 14
-	JSP_WEIGHT_straight = 10
+	JPS_DIR_up    JPS_DIR = 0
+	JPS_DIR_down  JPS_DIR = 1
+	JPS_DIR_left  JPS_DIR = 2
+	JPS_DIR_right JPS_DIR = 3
+
+	JPS_DIR_up_left    JPS_DIR = 4
+	JPS_DIR_up_right   JPS_DIR = 5
+	JPS_DIR_down_left  JPS_DIR = 6
+	JPS_DIR_down_right JPS_DIR = 7
+
+	JPS_DIR_MAX  JPS_DIR = 8
 )
 
-const (
-	JPS_up    = 0
-	JPS_down  = 1
-	JPS_left  = 2
-	JPS_right = 3
-
-	JPS_up_left    = 4
-	JPS_up_right   = 5
-	JPS_down_left  = 6
-	JPS_down_right = 7
-)
-
-var dirStraight = [4]Coord2d{
+var array_dirJPS = [JPS_DIR_MAX]Coord2d{
 	{0,-1},
 	{0,1},
 	{-1,0},
 	{1,0},
-}
-var dirSlash = [4]Coord2d{
 	{-1,-1},
 	{1,-1},
 	{-1,1},
@@ -37,6 +35,344 @@ type JPSNode struct {
 	startWeight int
 	endWeight int
 	totalWeight int
+
+	forceNeighbor []Coord2d
+}
+type MAP_JSP_HISTORY_PATH map[Coord2d]*JPSNode
+type JSPMgr struct {
+	root *JPSNode
+	nodes []*JPSNode
+	mapHistoryPath MAP_JSP_HISTORY_PATH
+
+	dst Coord2d
+}
+func (pthis*JSPMgr)Len() int {
+	return len(pthis.nodes)
+}
+func (pthis*JSPMgr)Less(i, j int) bool {
+	if i < 0 || i >= len(pthis.nodes) {
+		return false
+	}
+	if j < 0 || j >= len(pthis.nodes) {
+		return false
+	}
+
+	node_i := pthis.nodes[i]
+	node_j := pthis.nodes[j]
+	if node_i.totalWeight > node_j.totalWeight {
+		return true
+	}
+	return false
+}
+func (pthis*JSPMgr)Swap(i, j int) {
+	if i < 0 || i >= len(pthis.nodes) {
+		return
+	}
+	if j < 0 || j >= len(pthis.nodes) {
+		return
+	}
+	nodeTmp := pthis.nodes[i]
+	pthis.nodes[i] = pthis.nodes[j]
+	pthis.nodes[j] = nodeTmp
+}
+func (pthis*JSPMgr)addNode(node *JPSNode) {
+	pthis.nodes = append(pthis.nodes, node)
+	sort.Sort(pthis)
+}
+func (pthis*JSPMgr)getNearestNode() *JPSNode {
+	if len(pthis.nodes) == 0 {
+		return nil
+	}
+	lastIdx := len(pthis.nodes) - 1
+	node := pthis.nodes[lastIdx]
+	pthis.nodes = pthis.nodes[:lastIdx]
+	return node
+}
+
+
+func getDirVector(dir JPS_DIR) *Coord2d{
+	return &array_dirJPS[dir]
+}
+
+func (pthis*MapData)hasForceNeighbor(jpsMgr *JSPMgr, searchPos Coord2d, dir JPS_DIR) (bFindForceNeighbor bool, forceNeighbor []Coord2d) {
+	bFindForceNeighbor = false
+	forceNeighbor = nil
+
+	if jpsMgr == nil {
+		return
+	}
+
+	if jpsMgr.dst.isEqual(&searchPos) {
+		bFindForceNeighbor = true
+		return
+	}
+
+	switch dir {
+	case JPS_DIR_up:
+		posLeft  := Coord2d{searchPos.X - 1, searchPos.Y}
+		posRight := Coord2d{searchPos.X + 1, searchPos.Y}
+		if pthis.CoordIsBlock(posLeft) {
+			posN := Coord2d{posLeft.X, posLeft.Y - 1}
+			if !pthis.CoordIsBlock(posN) {
+				bFindForceNeighbor = true
+				forceNeighbor = append(forceNeighbor, posN)
+			}
+		}
+		if pthis.CoordIsBlock(posRight) {
+			posN := Coord2d{posRight.X, posRight.Y - 1}
+			if !pthis.CoordIsBlock(posN) {
+				bFindForceNeighbor = true
+				forceNeighbor = append(forceNeighbor, posN)
+			}
+		}
+
+	case JPS_DIR_down:
+		posLeft  := Coord2d{searchPos.X - 1, searchPos.Y}
+		posRight := Coord2d{searchPos.X + 1, searchPos.Y}
+		if pthis.CoordIsBlock(posLeft) {
+			posN := Coord2d{posLeft.X, posLeft.Y + 1}
+			if !pthis.CoordIsBlock(posN) {
+				bFindForceNeighbor = true
+				forceNeighbor = append(forceNeighbor, posN)
+			}
+		}
+		if pthis.CoordIsBlock(posRight) {
+			posN := Coord2d{posRight.X, posRight.Y + 1}
+			if !pthis.CoordIsBlock(posN) {
+				bFindForceNeighbor = true
+				forceNeighbor = append(forceNeighbor, posN)
+			}
+		}
+
+	case JPS_DIR_left:
+		posUp   := Coord2d{searchPos.X, searchPos.Y - 1}
+		posDown := Coord2d{searchPos.X, searchPos.Y + 1}
+		if pthis.CoordIsBlock(posUp) {
+			posN := Coord2d{posUp.X - 1, posUp.Y}
+			if !pthis.CoordIsBlock(posN) {
+				bFindForceNeighbor = true
+				forceNeighbor = append(forceNeighbor, posN)
+			}
+		}
+		if pthis.CoordIsBlock(posDown) {
+			posN := Coord2d{posDown.X - 1, posDown.Y}
+			if !pthis.CoordIsBlock(posN) {
+				bFindForceNeighbor = true
+				forceNeighbor = append(forceNeighbor, posN)
+			}
+		}
+
+	case JPS_DIR_right:
+		posUp   := Coord2d{searchPos.X, searchPos.Y - 1}
+		posDown := Coord2d{searchPos.X, searchPos.Y + 1}
+
+		if pthis.CoordIsBlock(posUp) {
+			posN := Coord2d{posUp.X + 1, posUp.Y}
+			if !pthis.CoordIsBlock(posN) {
+				bFindForceNeighbor = true
+				forceNeighbor = append(forceNeighbor, posN)
+			}
+		}
+		if pthis.CoordIsBlock(posDown) {
+			posN := Coord2d{posDown.X + 1, posDown.Y}
+			if !pthis.CoordIsBlock(posN) {
+				bFindForceNeighbor = true
+				forceNeighbor = append(forceNeighbor, posN)
+			}
+		}
+
+	case JPS_DIR_up_left:
+		/*
+           _ _ N
+           _ @ *
+		   N * \
+		*/
+		posRight := Coord2d{searchPos.X + 1, searchPos.Y}
+		posDown  := Coord2d{searchPos.X, searchPos.Y + 1}
+		if pthis.CoordIsBlock(posRight) {
+			posN := Coord2d{posRight.X, posRight.Y - 1}
+			if !pthis.CoordIsBlock(posN) {
+				bFindForceNeighbor = true
+				forceNeighbor = append(forceNeighbor, posN)
+			}
+		}
+		if pthis.CoordIsBlock(posDown) {
+			posN := Coord2d{posDown.X - 1, posDown.Y}
+			if !pthis.CoordIsBlock(posN) {
+				bFindForceNeighbor = true
+				forceNeighbor = append(forceNeighbor, posN)
+			}
+		}
+
+	case JPS_DIR_up_right:
+		/*
+            N _ _
+            * @ _
+		    / * N
+		*/
+		posLeft := Coord2d{searchPos.X - 1, searchPos.Y}
+		posDown := Coord2d{searchPos.X, searchPos.Y + 1}
+		if pthis.CoordIsBlock(posLeft) {
+			posN := Coord2d{posLeft.X, posLeft.Y - 1}
+			if !pthis.CoordIsBlock(posN) {
+				bFindForceNeighbor = true
+				forceNeighbor = append(forceNeighbor, posN)
+			}
+		}
+		if pthis.CoordIsBlock(posDown) {
+			posN := Coord2d{posDown.X + 1, posDown.Y}
+			if !pthis.CoordIsBlock(posN) {
+				bFindForceNeighbor = true
+				forceNeighbor = append(forceNeighbor, posN)
+			}
+		}
+
+	case JPS_DIR_down_left:
+		/*
+          N * /
+          _ @ *
+          _ _ N
+		*/
+		posUp    := Coord2d{searchPos.X, searchPos.Y - 1}
+		posRight := Coord2d{searchPos.X + 1, searchPos.Y}
+		if pthis.CoordIsBlock(posUp) {
+			posN := Coord2d{posUp.X - 1, posUp.Y}
+			if !pthis.CoordIsBlock(posN) {
+				bFindForceNeighbor = true
+				forceNeighbor = append(forceNeighbor, posN)
+			}
+		}
+		if pthis.CoordIsBlock(posRight) {
+			posN := Coord2d{posRight.X, posRight.Y + 1}
+			if !pthis.CoordIsBlock(posN) {
+				bFindForceNeighbor = true
+				forceNeighbor = append(forceNeighbor, posN)
+			}
+		}
+
+	case JPS_DIR_down_right:
+		/*
+            \ * N
+            * @ _
+            N _ _
+		*/
+		posUp   := Coord2d{searchPos.X, searchPos.Y - 1}
+		posLeft := Coord2d{searchPos.X - 1, searchPos.Y}
+		if pthis.CoordIsBlock(posUp) {
+			posN := Coord2d{posUp.X + 1, posUp.Y}
+			if !pthis.CoordIsBlock(posN) {
+				bFindForceNeighbor = true
+				forceNeighbor = append(forceNeighbor, posN)
+			}
+		}
+		if pthis.CoordIsBlock(posLeft) {
+			posN := Coord2d{posLeft.X, posLeft.Y + 1}
+			if !pthis.CoordIsBlock(posN) {
+				bFindForceNeighbor = true
+				forceNeighbor = append(forceNeighbor, posN)
+			}
+		}
+	}
+
+	return
+}
+
+func (pthis*MapData)searchHorVer(jpsMgr *JSPMgr, curNode *JPSNode, curPos Coord2d, enDir JPS_DIR, bAdd bool) (findJump bool) {
+	findJump = false
+	dir := getDirVector(enDir)
+	if dir == nil {
+		return
+	}
+	searchPos := curPos
+	curWeightAdd := 0
+	for {
+		searchPos := Coord2d{searchPos.X + dir.X, searchPos.Y + dir.Y}
+		curWeightAdd += WEIGHT_straight
+		if pthis.IsBlock(searchPos.X, searchPos.Y) {
+			break
+		}
+
+		bFindForceNeighbor, forceNeighbor := pthis.hasForceNeighbor(jpsMgr, searchPos, enDir)
+		if bFindForceNeighbor {
+			findJump = true
+			if bAdd {
+				jp := &JPSNode{
+					parent: curNode,
+					pos:searchPos,
+					endWeight:calEndWeight(searchPos, jpsMgr.dst),
+					startWeight:curNode.startWeight + curWeightAdd,
+					forceNeighbor:nil,
+				}
+				jp.totalWeight = jp.startWeight + jp.endWeight
+				jp.forceNeighbor = forceNeighbor
+
+				// add pos to open list
+				jpsMgr.addNode(jp)
+			}
+			break
+		}
+	}
+
+	return
+}
+
+func (pthis*MapData)searchSlash(jpsMgr *JSPMgr, curNode *JPSNode, curPos Coord2d, enDir JPS_DIR) {
+
+	bFindForceNeighbor, forceNeighbor := pthis.hasForceNeighbor(jpsMgr, curPos, enDir)
+	if bFindForceNeighbor {
+		curNode.forceNeighbor = append(curNode.forceNeighbor, forceNeighbor...)
+	}
+
+	dir := getDirVector(enDir)
+	newPos := Coord2d{curPos.X, curPos.Y}
+	curWeightAdd := 0
+	for {
+		if pthis.CoordIsBlock(newPos) {
+			break
+		}
+
+		newPos = Coord2d{newPos.X + dir.X, newPos.Y + dir.Y}
+		curWeightAdd += WEIGHT_slash
+
+		findJump := false
+		// 横向 纵向搜索
+		switch enDir {
+		case JPS_DIR_up_left:
+			findJump = pthis.searchHorVer(jpsMgr, curNode, newPos, JPS_DIR_up, false)
+			if !findJump {
+				findJump = pthis.searchHorVer(jpsMgr, curNode, newPos, JPS_DIR_left, false)
+			}
+
+		case JPS_DIR_up_right:
+			findJump = pthis.searchHorVer(jpsMgr, curNode, newPos, JPS_DIR_up, false)
+			if !findJump {
+				findJump = pthis.searchHorVer(jpsMgr, curNode, newPos, JPS_DIR_right, false)
+			}
+
+		case JPS_DIR_down_left:
+			findJump = pthis.searchHorVer(jpsMgr, curNode, newPos, JPS_DIR_down, false)
+			if !findJump {
+				findJump = pthis.searchHorVer(jpsMgr, curNode, newPos, JPS_DIR_left, false)
+			}
+
+		case JPS_DIR_down_right:
+			findJump = pthis.searchHorVer(jpsMgr, curNode, newPos, JPS_DIR_down, false)
+			if !findJump {
+				findJump = pthis.searchHorVer(jpsMgr, curNode, newPos, JPS_DIR_right, false)
+			}
+		}
+
+		if findJump {
+			jp := &JPSNode{
+				parent: curNode,
+				pos:newPos,
+				endWeight:calEndWeight(newPos, jpsMgr.dst),
+				startWeight:curNode.startWeight + curWeightAdd,
+				forceNeighbor:nil,
+			}
+			jp.totalWeight = jp.startWeight + jp.endWeight
+		}
+	}
 }
 
 func (pthis*MapData)PathJPS(src Coord2d, dst Coord2d) (path []Coord2d) {
@@ -45,6 +381,29 @@ func (pthis*MapData)PathJPS(src Coord2d, dst Coord2d) (path []Coord2d) {
 		(1)节点 A 是起点、终点.
 		(2)节点A 至少有一个强迫邻居. 以横向x为例,说明此时被阻挡了,并且越过这个点之后,有新的连通区域
 		(3)父节点在斜方向(斜向搜索)，节点A的水平或者垂直方向上有满足 (1)、(2) 的节点 用于转向
+
+	(1).如果节点A没有父方向P(起点)
+	则直线方向按照 (上下左右)四个方向， dirList = {上、下、左、右}
+	斜方向按照(左上、右上、右下、左下)四个方向搜索 dirList = {左上、右上、右下、左下}
+	(2).如果节点A有父方向P
+	则 PA=（X,Y）
+	将PA分解为水平 horizontalDir=(X,0)，垂直 verticalDir=(0,Y)
+
+	还是先考虑水平和垂直的搜索方向,dirList = {}
+	如果 horizontalDir=(X,0) != (0, 0) 即 X ！= 0 则 将 horizontalDir 加入到 dirList
+	如果 verticalDir=(0,Y) !=(0, 0) 即 Y ！= 0 则 将 verticalDir 加入到 dirList
+	直线方向搜索 dirList 中的方向
+
+	然后是斜向 dirList = {}
+	如果 PA=(X,Y)，X ！= 0 且 Y ！= 0， 则将 PA方向加入到 dirList
+	如果 A有强迫邻居 {N1, N2, N3…},则将 AN1，AN2，AN3，。。。都加入到 dirList
+
+	强近邻居是斜的,所以要分解
+
+	————————————————
+	版权声明：本文为CSDN博主「[奋斗不止]」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
+	原文链接：https://blog.csdn.net/LIQIANGEASTSUN/article/details/118766080
+	http://qiao.github.io/PathFinding.js/visual/
 	*/
 
 	startNode := &JPSNode{
@@ -54,59 +413,70 @@ func (pthis*MapData)PathJPS(src Coord2d, dst Coord2d) (path []Coord2d) {
 	}
 	startNode.totalWeight = startNode.endWeight
 
-	//if find jp/block/outbound map, stop
-	curPos := src
-	curNode := startNode
+	jpsMgr := &JSPMgr{
+		root:startNode,
+		mapHistoryPath: make(MAP_JSP_HISTORY_PATH),
+		dst:dst,
+	}
+	jpsMgr.addNode(startNode)
 
-	for i := 0; i < 4; i ++ {
-		dir := dirStraight[i]
-		for {
-			searchPos := Coord2d{curPos.X + dir.X, curPos.Y + dir.Y}
-			if pthis.IsBlock(searchPos.X, searchPos.Y) {
-				break
+	for {
+		curNode := jpsMgr.getNearestNode()
+		if curNode == nil {
+			break
+		}
+		curPos := curNode.pos
+
+		if curPos.X == dst.X && curPos.Y == dst.Y {
+			break
+		}
+
+		var straightDir []JPS_DIR
+		var slashDir []JPS_DIR
+
+		if curNode.parent != nil {
+			// 根据父节点相对位置,以及强迫邻居相对位置分解方向搜索
+			relativeDir := curNode.pos.add(&curNode.parent.pos)
+
+			if relativeDir.X > 0 {
+				straightDir = append(straightDir, JPS_DIR_right)
+			} else if relativeDir.X > 0 {
+				straightDir = append(straightDir, JPS_DIR_left)
+			}
+			if relativeDir.Y > 0 {
+				straightDir = append(straightDir, JPS_DIR_down)
+			} else if relativeDir.Y > 0 {
+				straightDir = append(straightDir, JPS_DIR_up)
 			}
 
-			bStop := false
-
-			switch i {
-			case JPS_up:
-
-			case JPS_down:
-
-			case JPS_left:
-
-			case JPS_right:
-				posUp   := Coord2d{searchPos.X, searchPos.Y - 1}
-				posDown := Coord2d{searchPos.X, searchPos.Y + 1}
-
-				if pthis.CoordIsBlock(posUp) {
-					posN := Coord2d{posUp.X + 1, posUp.Y}
-					if !pthis.CoordIsBlock(posN) {
-						bStop = true
-
-						// todo add pos to open list
-						jp := JPSNode{
-							parent: curNode,
-							pos:searchPos,
-							endWeight:calEndWeight(searchPos, dst),
-							startWeight:curNode.startWeight + JSP_WEIGHT_straight,
-						}
-						jp.totalWeight = jp.startWeight + jp.endWeight
-					}
-				}
-				if pthis.CoordIsBlock(posDown) {
-					posN := Coord2d{posDown.X + 1, posDown.Y}
-					if !pthis.CoordIsBlock(posN) {
-						bStop = true
-
-						// todo add pos to open list
-					}
-				}
+			if relativeDir.X > 0 && relativeDir.Y > 0 {
+				slashDir = append(slashDir, JPS_DIR_down_right)
+			}
+			if relativeDir.X > 0 && relativeDir.Y < 0 {
+				slashDir = append(slashDir, JPS_DIR_up_right)
+			}
+			if relativeDir.X < 0 && relativeDir.Y > 0 {
+				slashDir = append(slashDir, JPS_DIR_down_left)
+			}
+			if relativeDir.X < 0 && relativeDir.Y < 0 {
+				slashDir = append(slashDir, JPS_DIR_up_left)
+			}
+		} else {
+			for i := JPS_DIR_up; i <= JPS_DIR_right; i ++ {
+				straightDir = append(straightDir, i)
 			}
 
-			if bStop {
-				break
+			for  i := JPS_DIR_up_left; i <= JPS_DIR_down_right; i ++ {
+				slashDir = append(slashDir, i)
 			}
+		}
+
+		for _, val := range straightDir {
+			pthis.searchHorVer(jpsMgr, curNode, curPos, val, true)
+		}
+
+		for _, val := range slashDir {
+			pthis.searchSlash(jpsMgr, curNode, curPos, val)
 		}
 	}
 

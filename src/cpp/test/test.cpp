@@ -3,7 +3,7 @@
 #include <string>
 #include <iostream>
 #include <sstream>
-#include "curl/curl-7.83.0/include/curl/curl.h"
+//#include "curl/curl-7.83.0/include/curl/curl.h"
 
 #include "msg.pb.h"
 #include "testclient_mgr.h"
@@ -44,12 +44,12 @@ void test_cmd()
 
 int main(int argc, char* argv[])
 {
-	CURLcode ret = curl_global_init(CURL_GLOBAL_ALL);
-	if (CURLE_OK != ret)
-	{
-		printf("curl init fail");
-		return 0;
-	}
+	//CURLcode ret = curl_global_init(CURL_GLOBAL_ALL);
+	//if (CURLE_OK != ret)
+	//{
+	//	printf("curl init fail");
+	//	return 0;
+	//}
 	//testsrv::httpRequest(100, "10.0.0.1", 8686);
 
 	MYLOG_SET_LOG_DIRECTION(2);
