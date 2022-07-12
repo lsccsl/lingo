@@ -439,11 +439,13 @@ func (pthis*MapData)PathJPS(src Coord2d, dst Coord2d) (path []Coord2d) {
 		curNode := jpsMgr.getNearestNode()
 		if curNode == nil {
 			node = curNode
+			pthis.DumpJPSMap("../resource/jumppath.bmp", nil, jpsMgr)
 			break
 		}
 		curPos := curNode.pos
 
 		if curPos.isNear(&dst) {
+			pthis.DumpJPSMap("../resource/jumppath.bmp", nil, jpsMgr)
 			break
 		}
 
@@ -537,11 +539,18 @@ func (pthis*MapData)DumpJPSMap(strMapFile string, path []Coord2d, searchMgr *JSP
 	}
 
 	if searchMgr != nil {
-		for key, _ := range searchMgr.mapHistoryPath {
+		for key, node := range searchMgr.mapHistoryPath {
 			idx := key.Y*widBytePitch + key.X * 3
 			tmpBMP[idx+0] = 0
 			tmpBMP[idx+1] = 0xff
 			tmpBMP[idx+2] = 0
+
+			for _, val := range node.forceNeighbor {
+				idx := val.Y*widBytePitch + val.X * 3
+				tmpBMP[idx+0] = 0
+				tmpBMP[idx+1] = 0
+				tmpBMP[idx+2] = 0xff
+			}
 		}
 	}
 
