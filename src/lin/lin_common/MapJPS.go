@@ -78,6 +78,7 @@ func (pthis*JSPMgr)Swap(i, j int) {
 func (pthis*JSPMgr)addNode(node *JPSNode) {
 	pthis.nodes = append(pthis.nodes, node)
 	sort.Sort(pthis)
+	pthis.addHistory(node)
 }
 func (pthis*JSPMgr)getNearestNode() *JPSNode {
 	if len(pthis.nodes) == 0 {
@@ -88,7 +89,13 @@ func (pthis*JSPMgr)getNearestNode() *JPSNode {
 	pthis.nodes = pthis.nodes[:lastIdx]
 	return node
 }
-
+func (pthis*JSPMgr)isInHistory(pos Coord2d) bool {
+	_, ok := pthis.mapHistoryPath[pos]
+	return ok
+}
+func (pthis*JSPMgr)addHistory(node *JPSNode) {
+	pthis.mapHistoryPath[node.pos] = node
+}
 
 func getDirVector(dir JPS_DIR) *Coord2d{
 	return &array_dirJPS[dir]
@@ -102,7 +109,7 @@ func (pthis*MapData)hasForceNeighbor(jpsMgr *JSPMgr, searchPos Coord2d, dir JPS_
 		return
 	}
 
-	if jpsMgr.dst.isEqual(&searchPos) {
+	if jpsMgr.dst.isNear(&searchPos) {
 		bFindForceNeighbor = true
 		return
 	}
@@ -286,7 +293,6 @@ func (pthis*MapData)searchHorVer(jpsMgr *JSPMgr, curNode *JPSNode, curPos Coord2
 	searchPos := curPos
 	curWeightAdd := 0
 	for {
-		searchPos := Coord2d{searchPos.X + dir.X, searchPos.Y + dir.Y}
 		curWeightAdd += WEIGHT_straight
 		if pthis.IsBlock(searchPos.X, searchPos.Y) {
 			break
@@ -295,7 +301,7 @@ func (pthis*MapData)searchHorVer(jpsMgr *JSPMgr, curNode *JPSNode, curPos Coord2
 		bFindForceNeighbor, forceNeighbor := pthis.hasForceNeighbor(jpsMgr, searchPos, enDir)
 		if bFindForceNeighbor {
 			findJump = true
-			if bAdd {
+			if bAdd && !jpsMgr.isInHistory(searchPos){
 				jp := &JPSNode{
 					parent: curNode,
 					pos:searchPos,
@@ -311,6 +317,7 @@ func (pthis*MapData)searchHorVer(jpsMgr *JSPMgr, curNode *JPSNode, curPos Coord2
 			}
 			break
 		}
+		searchPos = Coord2d{searchPos.X + dir.X, searchPos.Y + dir.Y}
 	}
 
 	return
@@ -420,14 +427,17 @@ func (pthis*MapData)PathJPS(src Coord2d, dst Coord2d) (path []Coord2d) {
 	}
 	jpsMgr.addNode(startNode)
 
+	node := startNode
+
 	for {
 		curNode := jpsMgr.getNearestNode()
 		if curNode == nil {
+			node = curNode
 			break
 		}
 		curPos := curNode.pos
 
-		if curPos.X == dst.X && curPos.Y == dst.Y {
+		if curPos.isNear(&dst) {
 			break
 		}
 
@@ -436,30 +446,40 @@ func (pthis*MapData)PathJPS(src Coord2d, dst Coord2d) (path []Coord2d) {
 
 		if curNode.parent != nil {
 			// 根据父节点相对位置,以及强迫邻居相对位置分解方向搜索
-			relativeDir := curNode.pos.add(&curNode.parent.pos)
+			var vecRelativeDir []Coord2d
 
-			if relativeDir.X > 0 {
-				straightDir = append(straightDir, JPS_DIR_right)
-			} else if relativeDir.X > 0 {
-				straightDir = append(straightDir, JPS_DIR_left)
-			}
-			if relativeDir.Y > 0 {
-				straightDir = append(straightDir, JPS_DIR_down)
-			} else if relativeDir.Y > 0 {
-				straightDir = append(straightDir, JPS_DIR_up)
+			relativeParentDir := curNode.pos.dec(&curNode.parent.pos)
+			vecRelativeDir = append(vecRelativeDir, relativeParentDir)
+
+			for _, val := range curNode.forceNeighbor {
+				relativeDir := val.dec(&curNode.pos)
+				vecRelativeDir = append(vecRelativeDir, relativeDir)
 			}
 
-			if relativeDir.X > 0 && relativeDir.Y > 0 {
-				slashDir = append(slashDir, JPS_DIR_down_right)
-			}
-			if relativeDir.X > 0 && relativeDir.Y < 0 {
-				slashDir = append(slashDir, JPS_DIR_up_right)
-			}
-			if relativeDir.X < 0 && relativeDir.Y > 0 {
-				slashDir = append(slashDir, JPS_DIR_down_left)
-			}
-			if relativeDir.X < 0 && relativeDir.Y < 0 {
-				slashDir = append(slashDir, JPS_DIR_up_left)
+			for _, relativeDir := range vecRelativeDir {
+				if relativeDir.X > 0 {
+					straightDir = append(straightDir, JPS_DIR_right)
+				} else if relativeDir.X > 0 {
+					straightDir = append(straightDir, JPS_DIR_left)
+				}
+				if relativeDir.Y > 0 {
+					straightDir = append(straightDir, JPS_DIR_down)
+				} else if relativeDir.Y > 0 {
+					straightDir = append(straightDir, JPS_DIR_up)
+				}
+
+				if relativeDir.X > 0 && relativeDir.Y > 0 {
+					slashDir = append(slashDir, JPS_DIR_down_right)
+				}
+				if relativeDir.X > 0 && relativeDir.Y < 0 {
+					slashDir = append(slashDir, JPS_DIR_up_right)
+				}
+				if relativeDir.X < 0 && relativeDir.Y > 0 {
+					slashDir = append(slashDir, JPS_DIR_down_left)
+				}
+				if relativeDir.X < 0 && relativeDir.Y < 0 {
+					slashDir = append(slashDir, JPS_DIR_up_left)
+				}
 			}
 		} else {
 			for i := JPS_DIR_up; i <= JPS_DIR_right; i ++ {
@@ -478,6 +498,14 @@ func (pthis*MapData)PathJPS(src Coord2d, dst Coord2d) (path []Coord2d) {
 		for _, val := range slashDir {
 			pthis.searchSlash(jpsMgr, curNode, curPos, val)
 		}
+	}
+
+	if node != nil {
+		for ;node != nil; {
+			path = append(path, node.pos)
+			node = node.parent
+		}
+		return path
 	}
 
 	return nil

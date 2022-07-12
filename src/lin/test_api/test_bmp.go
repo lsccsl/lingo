@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"lin/lin_common"
+	"time"
 )
 
 func test_bmp(){
@@ -21,7 +22,7 @@ func test_bmp(){
 
 func test_map(){
 	testMap := &lin_common.MapData{}
-	testMap.LoadMap("../resource/aa.bmp")
+	testMap.LoadMap("../resource/sample.bmp")
 
 	bret := testMap.IsBlock(0, 0)
 	fmt.Println(bret)
@@ -37,15 +38,31 @@ func test_map(){
 	bret = testMap.IsBlock(1, 1)
 	fmt.Println(bret)
 
-	testMap.DumpMap("../resource/dump.bmp", nil, nil, nil)
+	testMap.DumpMap("../resource/dump.bmp", nil, nil, nil, nil)
 
-	src := lin_common.Coord2d{10, 290 - 261}
-	dst := lin_common.Coord2d{367,290 - 109}
-	fmt.Println("begin search")
-	path := testMap.PathSearch(src, dst)
-	fmt.Println("end search")
-	for _, val := range path {
-		fmt.Println(val)
+	//src := lin_common.Coord2d{10, 290 - 261}
+	//dst := lin_common.Coord2d{367,290 - 109}
+	src := lin_common.Coord2d{72, 342 - 158}
+	dst := lin_common.Coord2d{252,342 - 157}
+	{
+		fmt.Println("begin search")
+		t1 := time.Now().UnixMilli()
+		path, searchMgr := testMap.PathSearch(src, dst)
+		t2 := time.Now().UnixMilli()
+		fmt.Println("end search:", t2 - t1)
+/*		for _, val := range path {
+			fmt.Println(val)
+		}
+*/		testMap.DumpMap("../resource/path.bmp", path, &src, &dst, searchMgr)
 	}
-	testMap.DumpMap("../resource/path.bmp", path, &src, &dst)
+
+	{
+		path := testMap.PathJPS(src, dst)
+		fmt.Println("end search")
+		for _, val := range path {
+			fmt.Println(val)
+		}
+		testMap.DumpMap("../resource/jumppath.bmp", path, &src, &dst, nil)
+	}
+
 }

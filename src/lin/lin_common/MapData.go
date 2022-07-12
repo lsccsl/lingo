@@ -1,5 +1,7 @@
 package lin_common
 
+import "math"
+
 const (
 	WEIGHT_slash = 14
 	WEIGHT_straight = 10
@@ -14,17 +16,22 @@ type Coord2d struct {
 func (pthis*Coord2d)add(r*Coord2d) Coord2d {
 	return Coord2d{pthis.X + r.X, pthis.Y + r.Y}
 }
+func (pthis*Coord2d)dec(r*Coord2d) Coord2d {
+	return Coord2d{pthis.X - r.X, pthis.Y - r.Y}
+}
 func (pthis*Coord2d)isEqual(r*Coord2d) bool {
 	return pthis.X ==  r.X && pthis.Y == r.Y
 }
+func (pthis*Coord2d)isNear(r*Coord2d) bool {
+	return math.Abs(float64(pthis.X -  r.X)) <= 1 && math.Abs(float64(pthis.Y - r.Y)) <= 1
+}
 
 type MapData struct {
-	wid int
+	widReal int
+	widBytePitch int
 	hei int
 
 	mapBit []uint8
-
-	openNodeMgr SearchOpenNodeMgr
 }
 
 func (pthis*MapData)LoadMap(mapFile string)error{
@@ -35,7 +42,8 @@ func (pthis*MapData)LoadMap(mapFile string)error{
 	}
 
 	pthis.mapBit = bmp.BmpData
-	pthis.wid = bmp.GetWidth()
+	pthis.widReal = bmp.GetRealWidth()
+	pthis.widBytePitch = bmp.GetPitchByteWidth()
 	pthis.hei = bmp.GetHeight()
 
 	return nil
@@ -45,16 +53,15 @@ func (pthis*MapData)CoordIsBlock(pos Coord2d)bool{
 	return pthis.IsBlock(pos.X, pos.Y)
 }
 func (pthis*MapData)IsBlock(x int, y int)bool{
-	if x < 0 || x >= pthis.wid {
+	if x < 0 || x >= pthis.widReal {
 		return true
 	}
 	if y < 0 || y >= pthis.hei {
 		return true
 	}
 
-	idx := y * pthis.wid + x
-	idxByte := idx / 8
-	idxBit := 7 - idx % 8
+	idxByte := y * pthis.widBytePitch + x/8
+	idxBit := 7 - x % 8
 	posByte := pthis.mapBit[idxByte]
 	posBit := posByte & (1 << idxBit)
 
@@ -64,28 +71,37 @@ func (pthis*MapData)IsBlock(x int, y int)bool{
 
 
 
-func (pthis*MapData)DumpMap(strMapFile string, path []Coord2d, src * Coord2d , dst * Coord2d) {
+func (pthis*MapData)DumpMap(strMapFile string, path []Coord2d, src * Coord2d , dst * Coord2d, searchMgr *SearchMgr) {
 
-	dataLen := len(pthis.mapBit)
-	tmpBMP := make([]uint8, dataLen * 24)
+	widBytePitch := CalWidBytePitch(pthis.widReal, 24)
+	dataLen := widBytePitch * pthis.hei
+	tmpBMP := make([]uint8, dataLen)
 
-	for idx, val := range pthis.mapBit {
-		for i := 7; i >= 0 ; i -- {
-			tmp := val & (1 << i)
-			var clr uint8 = 0
-			if tmp != 0 {
-				clr = 0xff
+	for j := 0; j < pthis.hei; j ++ {
+		for i := 0; i < pthis.widReal; i ++ {
+			var clr uint8 = 0xff
+			if pthis.IsBlock(i, j) {
+				clr = 0
 			}
-			newIdx := idx * 24 + (7 - i) * 3
+			newIdx := j * widBytePitch + i * 3
 			tmpBMP[newIdx + 0] = clr
 			tmpBMP[newIdx + 1] = clr
 			tmpBMP[newIdx + 2] = clr
 		}
 	}
 
+	if searchMgr != nil {
+		for key, _ := range searchMgr.mapHistoryPath {
+			idx := key.Y*widBytePitch + key.X * 3
+			tmpBMP[idx+0] = 0
+			tmpBMP[idx+1] = 0xff
+			tmpBMP[idx+2] = 0
+		}
+	}
+
 	if path != nil {
 		for _, val := range path {
-			idx := (val.Y*pthis.wid + val.X) * 3
+			idx := val.Y*widBytePitch + val.X * 3
 			tmpBMP[idx+0] = 0
 			tmpBMP[idx+1] = 0
 			tmpBMP[idx+2] = 0xff
@@ -93,19 +109,19 @@ func (pthis*MapData)DumpMap(strMapFile string, path []Coord2d, src * Coord2d , d
 	}
 
 	if src != nil {
-		idx := (src.Y*pthis.wid + src.X) * 3
+		idx := src.Y*widBytePitch + src.X * 3
 		tmpBMP[idx+0] = 0xff
 		tmpBMP[idx+1] = 0
 		tmpBMP[idx+2] = 0
 	}
 	if dst != nil {
-		idx := (dst.Y*pthis.wid + dst.X) * 3
+		idx := dst.Y*widBytePitch + dst.X * 3
 		tmpBMP[idx+0] = 0xff
 		tmpBMP[idx+1] = 0
 		tmpBMP[idx+2] = 0
 	}
 
-	bmp := CreateBMP(pthis.wid, pthis.hei, 24, tmpBMP)
+	bmp := CreateBMP(pthis.widReal, pthis.hei, 24, tmpBMP)
 
 	bmp.WriteBmp(strMapFile)
 }

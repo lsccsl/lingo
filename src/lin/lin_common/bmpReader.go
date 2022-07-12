@@ -47,8 +47,21 @@ type Bitmap struct{
 	BfHeader BitmapFileHeader
 	Biheader BitmapInfoHeader
 
+	widBytePitch int
+
 	BmpData []uint8
 	BinPalette []uint8
+}
+
+func CalWidBytePitch(wid int, bitCount int) int {
+	widByte := (int(wid) * int(bitCount) + 7)/8
+	return ((widByte + 3)/4) * 4
+}
+
+func (pthis*Bitmap)calWidBytePitch() {
+	pthis.widBytePitch = CalWidBytePitch(int(pthis.Biheader.Width), int(pthis.Biheader.BitCount))
+/*	widByte := (int(pthis.Biheader.Width) * int(pthis.Biheader.BitCount) + 7)/8
+	pthis.widBytePitch = ((widByte + 3)/4) * 4*/
 }
 
 func (pthis*Bitmap)ReadBmp(bmpFile string)error{
@@ -94,6 +107,7 @@ func (pthis*Bitmap)ReadBmp(bmpFile string)error{
 	if err != nil {
 		return err
 	}
+	pthis.calWidBytePitch()
 
 	szPalette := int(pthis.BfHeader.BfOffBits) - BITMAP_HEADER_TOTAL
 	if szPalette > 0 {
@@ -181,8 +195,12 @@ func (pthis*Bitmap)WriteBmp(bmpFile string)error{
 	return nil
 }
 
-func (pthis*Bitmap)GetWidth() int {
+func (pthis*Bitmap)GetRealWidth() int {
 	return int(pthis.Biheader.Width)
+}
+
+func (pthis*Bitmap)GetPitchByteWidth() int {
+	return pthis.widBytePitch
 }
 
 func (pthis*Bitmap)GetHeight() int {
@@ -206,6 +224,8 @@ func CreateBMP(w int, h int, bitCount int, binBMP []uint8) *Bitmap {
 	bmp.Biheader.YperlsPerMeter = 0
 	bmp.Biheader.ClsrUsed = 0
 	bmp.Biheader.ClrImportant = 0
+
+	bmp.calWidBytePitch()
 
 	bmp.BmpData = make([]uint8, len(binBMP))
 	copy(bmp.BmpData, binBMP)

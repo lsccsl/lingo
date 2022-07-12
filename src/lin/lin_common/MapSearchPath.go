@@ -29,15 +29,15 @@ type SearchNode struct {
 }
 
 type MAP_HISTORY_PATH map[Coord2d]*SearchNode
-type SearchOpenNodeMgr struct {
+type SearchMgr struct {
 	root *SearchNode
 	nodes []*SearchNode
 	mapHistoryPath MAP_HISTORY_PATH
 }
-func (pthis*SearchOpenNodeMgr)Len() int {
+func (pthis*SearchMgr)Len() int {
 	return len(pthis.nodes)
 }
-func (pthis*SearchOpenNodeMgr)Less(i, j int) bool {
+func (pthis*SearchMgr)Less(i, j int) bool {
 	if i < 0 || i >= len(pthis.nodes) {
 		return false
 	}
@@ -52,7 +52,7 @@ func (pthis*SearchOpenNodeMgr)Less(i, j int) bool {
 	}
 	return false
 }
-func (pthis*SearchOpenNodeMgr)Swap(i, j int) {
+func (pthis*SearchMgr)Swap(i, j int) {
 	if i < 0 || i >= len(pthis.nodes) {
 		return
 	}
@@ -63,11 +63,11 @@ func (pthis*SearchOpenNodeMgr)Swap(i, j int) {
 	pthis.nodes[i] = pthis.nodes[j]
 	pthis.nodes[j] = nodeTmp
 }
-func (pthis*SearchOpenNodeMgr)addNode(node *SearchNode) {
+func (pthis*SearchMgr)addNode(node *SearchNode) {
 	pthis.nodes = append(pthis.nodes, node)
 	sort.Sort(pthis)
 }
-func (pthis*SearchOpenNodeMgr)getNearestNode() *SearchNode {
+func (pthis*SearchMgr)getNearestNode() *SearchNode {
 	if len(pthis.nodes) == 0 {
 		return nil
 	}
@@ -83,7 +83,7 @@ func calEndWeight(src Coord2d, dst Coord2d) int {
 }
 
 
-func (pthis*MapData)PathSearch(src Coord2d, dst Coord2d) (path []Coord2d) {
+func (pthis*MapData)PathSearch(src Coord2d, dst Coord2d) (path []Coord2d, search * SearchMgr) {
 
 	// search around by weight,
 	// weight = end_weight + start_weight,
@@ -96,7 +96,7 @@ func (pthis*MapData)PathSearch(src Coord2d, dst Coord2d) (path []Coord2d) {
 		parent:nil,
 	}
 
-	searchMgr := &SearchOpenNodeMgr{
+	searchMgr := &SearchMgr{
 		root:startNode,
 		mapHistoryPath: make(MAP_HISTORY_PATH),
 	}
@@ -184,9 +184,9 @@ func (pthis*MapData)PathSearch(src Coord2d, dst Coord2d) (path []Coord2d) {
 			path = append(path, node.pos)
 			node = node.parent
 		}
-		return path
+		return path, searchMgr
 	}
 
-	return nil
+	return nil, nil
 }
 
