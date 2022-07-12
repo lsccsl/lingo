@@ -44,6 +44,7 @@ type JSPMgr struct {
 	nodes []*JPSNode
 	mapHistoryPath MAP_JSP_HISTORY_PATH
 
+	src Coord2d
 	dst Coord2d
 }
 func (pthis*JSPMgr)Len() int {
@@ -293,7 +294,6 @@ func (pthis*MapData)searchHorVer(jpsMgr *JSPMgr, curNode *JPSNode, curPos Coord2
 	searchPos := curPos
 	curWeightAdd := 0
 	for {
-		curWeightAdd += WEIGHT_straight
 		if pthis.IsBlock(searchPos.X, searchPos.Y) {
 			break
 		}
@@ -314,10 +314,12 @@ func (pthis*MapData)searchHorVer(jpsMgr *JSPMgr, curNode *JPSNode, curPos Coord2
 
 				// add pos to open list
 				jpsMgr.addNode(jp)
+				pthis.DumpJPSMap("../resource/jumppath.bmp", nil, jpsMgr)
 			}
 			break
 		}
 		searchPos = Coord2d{searchPos.X + dir.X, searchPos.Y + dir.Y}
+		curWeightAdd += WEIGHT_straight
 	}
 
 	return
@@ -369,7 +371,7 @@ func (pthis*MapData)searchSlash(jpsMgr *JSPMgr, curNode *JPSNode, curPos Coord2d
 			}
 		}
 
-		if findJump {
+		if findJump && !jpsMgr.isInHistory(newPos){
 			jp := &JPSNode{
 				parent: curNode,
 				pos:newPos,
@@ -378,6 +380,9 @@ func (pthis*MapData)searchSlash(jpsMgr *JSPMgr, curNode *JPSNode, curPos Coord2d
 				forceNeighbor:nil,
 			}
 			jp.totalWeight = jp.startWeight + jp.endWeight
+
+			jpsMgr.addNode(jp)
+			pthis.DumpJPSMap("../resource/jumppath.bmp", nil, jpsMgr)
 		}
 	}
 }
@@ -423,6 +428,7 @@ func (pthis*MapData)PathJPS(src Coord2d, dst Coord2d) (path []Coord2d) {
 	jpsMgr := &JSPMgr{
 		root:startNode,
 		mapHistoryPath: make(MAP_JSP_HISTORY_PATH),
+		src:src,
 		dst:dst,
 	}
 	jpsMgr.addNode(startNode)
@@ -509,4 +515,58 @@ func (pthis*MapData)PathJPS(src Coord2d, dst Coord2d) (path []Coord2d) {
 	}
 
 	return nil
+}
+
+func (pthis*MapData)DumpJPSMap(strMapFile string, path []Coord2d, searchMgr *JSPMgr) {
+
+	widBytePitch := CalWidBytePitch(pthis.widReal, 24)
+	dataLen := widBytePitch * pthis.hei
+	tmpBMP := make([]uint8, dataLen)
+
+	for j := 0; j < pthis.hei; j ++ {
+		for i := 0; i < pthis.widReal; i ++ {
+			var clr uint8 = 0xff
+			if pthis.IsBlock(i, j) {
+				clr = 0
+			}
+			newIdx := j * widBytePitch + i * 3
+			tmpBMP[newIdx + 0] = clr
+			tmpBMP[newIdx + 1] = clr
+			tmpBMP[newIdx + 2] = clr
+		}
+	}
+
+	if searchMgr != nil {
+		for key, _ := range searchMgr.mapHistoryPath {
+			idx := key.Y*widBytePitch + key.X * 3
+			tmpBMP[idx+0] = 0
+			tmpBMP[idx+1] = 0xff
+			tmpBMP[idx+2] = 0
+		}
+	}
+
+	if path != nil {
+		for _, val := range path {
+			idx := val.Y*widBytePitch + val.X * 3
+			tmpBMP[idx+0] = 0
+			tmpBMP[idx+1] = 0
+			tmpBMP[idx+2] = 0xff
+		}
+	}
+
+	{
+		idx := searchMgr.src.Y*widBytePitch + searchMgr.src.X * 3
+		tmpBMP[idx+0] = 0xff
+		tmpBMP[idx+1] = 0
+		tmpBMP[idx+2] = 0
+	}
+	{
+		idx := searchMgr.dst.Y*widBytePitch + searchMgr.dst.X * 3
+		tmpBMP[idx+0] = 0xff
+		tmpBMP[idx+1] = 0
+		tmpBMP[idx+2] = 0
+	}
+
+	bmp := CreateBMP(pthis.widReal, pthis.hei, 24, tmpBMP)
+	bmp.WriteBmp(strMapFile)
 }
