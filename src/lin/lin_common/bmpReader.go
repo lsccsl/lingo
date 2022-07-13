@@ -227,8 +227,10 @@ func CreateBMP(w int, h int, bitCount int, binBMP []uint8) *Bitmap {
 
 	bmp.calWidBytePitch()
 
-	bmp.BmpData = make([]uint8, len(binBMP))
-	copy(bmp.BmpData, binBMP)
+	if binBMP != nil {
+		bmp.BmpData = make([]uint8, len(binBMP))
+		copy(bmp.BmpData, binBMP)
+	}
 
 	return bmp
 }

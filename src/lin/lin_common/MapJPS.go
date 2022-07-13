@@ -1,6 +1,10 @@
 package lin_common
 
-import "sort"
+import (
+	"fmt"
+	"math"
+	"sort"
+)
 
 type JPS_DIR int
 const (
@@ -30,16 +34,18 @@ var array_dirJPS = [JPS_DIR_MAX]Coord2d{
 
 type JPSNode struct {
 	parent *JPSNode
-	pos Coord2d
+	subNode []*JPSNode
 
-	startWeight int
-	endWeight int
 	totalWeight int
 
+	pos Coord2d
+	startWeight int
+	endWeight int
 	forceNeighbor []Coord2d
 }
 type MAP_JSP_HISTORY_PATH map[Coord2d]*JPSNode
 type JSPMgr struct {
+	pMapData *MapData
 	root *JPSNode
 	nodes []*JPSNode
 	mapHistoryPath MAP_JSP_HISTORY_PATH
@@ -76,10 +82,32 @@ func (pthis*JSPMgr)Swap(i, j int) {
 	pthis.nodes[i] = pthis.nodes[j]
 	pthis.nodes[j] = nodeTmp
 }
-func (pthis*JSPMgr)addNode(node *JPSNode) {
+func (pthis*JSPMgr)addNode(node *JPSNode, parent *JPSNode) {
+	if node == nil {
+		return
+	}
+	node.totalWeight = node.startWeight + node.endWeight
 	pthis.nodes = append(pthis.nodes, node)
 	sort.Sort(pthis)
 	pthis.addHistory(node)
+
+	if node == pthis.root {
+		return
+	}
+
+	if pthis.root == nil {
+		pthis.root = node
+	} else {
+		if parent == nil {
+			node.parent = pthis.root
+		} else {
+			node.parent = parent
+		}
+	}
+
+	if node.parent != nil {
+		node.parent.subNode = append(pthis.root.subNode, node)
+	}
 }
 func (pthis*JSPMgr)getNearestNode() *JPSNode {
 	if len(pthis.nodes) == 0 {
@@ -303,17 +331,14 @@ func (pthis*MapData)searchHorVer(jpsMgr *JSPMgr, curNode *JPSNode, curPos Coord2
 			findJump = true
 			if bAdd && !jpsMgr.isInHistory(searchPos){
 				jp := &JPSNode{
-					parent: curNode,
 					pos:searchPos,
 					endWeight:calEndWeight(searchPos, jpsMgr.dst),
 					startWeight:curNode.startWeight + curWeightAdd,
-					forceNeighbor:nil,
+					forceNeighbor:forceNeighbor,
 				}
-				jp.totalWeight = jp.startWeight + jp.endWeight
-				jp.forceNeighbor = forceNeighbor
 
 				// add pos to open list
-				jpsMgr.addNode(jp)
+				jpsMgr.addNode(jp, curNode)
 				pthis.DumpJPSMap("../resource/jumppath.bmp", nil, jpsMgr)
 			}
 			break
@@ -373,21 +398,26 @@ func (pthis*MapData)searchSlash(jpsMgr *JSPMgr, curNode *JPSNode, curPos Coord2d
 
 		if findJump && !jpsMgr.isInHistory(newPos){
 			jp := &JPSNode{
-				parent: curNode,
 				pos:newPos,
 				endWeight:calEndWeight(newPos, jpsMgr.dst),
 				startWeight:curNode.startWeight + curWeightAdd,
 				forceNeighbor:nil,
 			}
-			jp.totalWeight = jp.startWeight + jp.endWeight
 
-			jpsMgr.addNode(jp)
+			jpsMgr.addNode(jp, curNode)
 			pthis.DumpJPSMap("../resource/jumppath.bmp", nil, jpsMgr)
 		}
 	}
 }
 
 func (pthis*MapData)PathJPS(src Coord2d, dst Coord2d) (path []Coord2d) {
+
+	defer func() {
+		err := recover()
+		if err != nil {
+			fmt.Println(err)
+		}
+	}()
 
 	/*
 		(1)节点 A 是起点、终点.
@@ -426,12 +456,13 @@ func (pthis*MapData)PathJPS(src Coord2d, dst Coord2d) (path []Coord2d) {
 	startNode.totalWeight = startNode.endWeight
 
 	jpsMgr := &JSPMgr{
+		pMapData:pthis,
 		root:startNode,
 		mapHistoryPath: make(MAP_JSP_HISTORY_PATH),
 		src:src,
 		dst:dst,
 	}
-	jpsMgr.addNode(startNode)
+	jpsMgr.addNode(startNode, nil)
 
 	node := startNode
 
@@ -519,11 +550,42 @@ func (pthis*MapData)PathJPS(src Coord2d, dst Coord2d) (path []Coord2d) {
 	return nil
 }
 
+func (pthis*MapData)DumpNodeSub(searchMgr *JSPMgr, node *JPSNode, bmp * Bitmap) {
+	tmpBMP := bmp.BmpData
+	widBytePitch := bmp.widBytePitch
+	for _, val := range node.subNode {
+		coordDiff := val.pos.dec(&node.pos)
+		if coordDiff.X != 0 {
+			coordDiff.X = coordDiff.X / int(math.Abs(float64(coordDiff.X)))
+		}
+		if coordDiff.Y != 0 {
+			coordDiff.Y = coordDiff.Y / int(math.Abs(float64(coordDiff.Y)))
+		}
+
+		pos := node.pos.add(&coordDiff)
+		for {
+			idx := pos.Y * widBytePitch + pos.X * 3
+			tmpBMP[idx + 0] = 0xff
+			tmpBMP[idx + 1] = 0
+			tmpBMP[idx + 2] = 0xff
+
+			pos = pos.add(&coordDiff)
+			if pos.isNear(&val.pos) {
+				break
+			}
+		}
+
+		pthis.DumpNodeSub(searchMgr, val, bmp)
+	}
+}
+
 func (pthis*MapData)DumpJPSMap(strMapFile string, path []Coord2d, searchMgr *JSPMgr) {
 
 	widBytePitch := CalWidBytePitch(pthis.widReal, 24)
 	dataLen := widBytePitch * pthis.hei
 	tmpBMP := make([]uint8, dataLen)
+	bmp := CreateBMP(pthis.widReal, pthis.hei, 24, nil)
+	bmp.BmpData = tmpBMP
 
 	for j := 0; j < pthis.hei; j ++ {
 		for i := 0; i < pthis.widReal; i ++ {
@@ -537,6 +599,8 @@ func (pthis*MapData)DumpJPSMap(strMapFile string, path []Coord2d, searchMgr *JSP
 			tmpBMP[newIdx + 2] = clr
 		}
 	}
+
+	pthis.DumpNodeSub(searchMgr, searchMgr.root, bmp)
 
 	if searchMgr != nil {
 		for key, node := range searchMgr.mapHistoryPath {
@@ -576,6 +640,5 @@ func (pthis*MapData)DumpJPSMap(strMapFile string, path []Coord2d, searchMgr *JSP
 		tmpBMP[idx+2] = 0
 	}
 
-	bmp := CreateBMP(pthis.widReal, pthis.hei, 24, tmpBMP)
 	bmp.WriteBmp(strMapFile)
 }
