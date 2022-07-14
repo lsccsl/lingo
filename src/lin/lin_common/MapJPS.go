@@ -144,7 +144,7 @@ func (pthis*MapData)hasForceNeighbor(jpsMgr *JSPMgr, searchPos Coord2d, dir JPS_
 		return
 	}
 
-	if jpsMgr.dst.isNear(&searchPos) {
+	if jpsMgr.dst.isEqual(&searchPos) {
 		bFindForceNeighbor = true
 		return
 	}
@@ -504,7 +504,7 @@ func (pthis*MapData)PathJPS(src Coord2d, dst Coord2d) (path []Coord2d) {
 			for _, relativeDir := range vecRelativeDir {
 				if relativeDir.X > 0 {
 					straightDir = append(straightDir, JPS_DIR_right)
-				} else if relativeDir.X > 0 {
+				} else if relativeDir.X < 0 {
 					straightDir = append(straightDir, JPS_DIR_left)
 				}
 				if relativeDir.Y > 0 {
