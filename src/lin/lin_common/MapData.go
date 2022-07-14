@@ -13,16 +13,16 @@ type Coord2d struct {
 	Y int
 }
 
-func (pthis*Coord2d)add(r*Coord2d) Coord2d {
+func (pthis*Coord2d)Add(r*Coord2d) Coord2d {
 	return Coord2d{pthis.X + r.X, pthis.Y + r.Y}
 }
-func (pthis*Coord2d)dec(r*Coord2d) Coord2d {
+func (pthis*Coord2d)Dec(r*Coord2d) Coord2d {
 	return Coord2d{pthis.X - r.X, pthis.Y - r.Y}
 }
-func (pthis*Coord2d)isEqual(r*Coord2d) bool {
+func (pthis*Coord2d)IsEqual(r*Coord2d) bool {
 	return pthis.X ==  r.X && pthis.Y == r.Y
 }
-func (pthis*Coord2d)isNear(r*Coord2d) bool {
+func (pthis*Coord2d)IsNear(r*Coord2d) bool {
 	return math.Abs(float64(pthis.X -  r.X)) <= 1 && math.Abs(float64(pthis.Y - r.Y)) <= 1
 }
 

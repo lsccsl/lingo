@@ -144,7 +144,7 @@ func (pthis*MapData)hasForceNeighbor(jpsMgr *JSPMgr, searchPos Coord2d, dir JPS_
 		return
 	}
 
-	if jpsMgr.dst.isEqual(&searchPos) {
+	if jpsMgr.dst.IsEqual(&searchPos) {
 		bFindForceNeighbor = true
 		return
 	}
@@ -481,7 +481,7 @@ func (pthis*MapData)PathJPS(src Coord2d, dst Coord2d) (path []Coord2d, jpsMgr *J
 		}
 		curPos := curNode.pos
 
-		if curPos.isNear(&dst) {
+		if curPos.IsNear(&dst) {
 			//pthis.DumpJPSMap("../resource/jumppath.bmp", nil, jpsMgr)
 			node = curNode
 			break
@@ -494,11 +494,11 @@ func (pthis*MapData)PathJPS(src Coord2d, dst Coord2d) (path []Coord2d, jpsMgr *J
 			// 根据父节点相对位置,以及强迫邻居相对位置分解方向搜索
 			var vecRelativeDir []Coord2d
 
-			relativeParentDir := curNode.pos.dec(&curNode.parent.pos)
+			relativeParentDir := curNode.pos.Dec(&curNode.parent.pos)
 			vecRelativeDir = append(vecRelativeDir, relativeParentDir)
 
 			for _, val := range curNode.forceNeighbor {
-				relativeDir := val.dec(&curNode.pos)
+				relativeDir := val.Dec(&curNode.pos)
 				vecRelativeDir = append(vecRelativeDir, relativeDir)
 			}
 
@@ -561,7 +561,7 @@ func (pthis*MapData)DumpNodeSub(searchMgr *JSPMgr, node *JPSNode, bmp * Bitmap) 
 	tmpBMP := bmp.BmpData
 	widBytePitch := bmp.widBytePitch
 	for _, val := range node.subNode {
-		coordDiff := val.pos.dec(&node.pos)
+		coordDiff := val.pos.Dec(&node.pos)
 		if coordDiff.X != 0 {
 			coordDiff.X = coordDiff.X / int(math.Abs(float64(coordDiff.X)))
 		}
@@ -569,15 +569,15 @@ func (pthis*MapData)DumpNodeSub(searchMgr *JSPMgr, node *JPSNode, bmp * Bitmap) 
 			coordDiff.Y = coordDiff.Y / int(math.Abs(float64(coordDiff.Y)))
 		}
 
-		pos := node.pos.add(&coordDiff)
+		pos := node.pos.Add(&coordDiff)
 		for {
 			idx := pos.Y * widBytePitch + pos.X * 3
 			tmpBMP[idx + 0] = 0xff
 			tmpBMP[idx + 1] = 0
 			tmpBMP[idx + 2] = 0xff
 
-			pos = pos.add(&coordDiff)
-			if pos.isNear(&val.pos) {
+			pos = pos.Add(&coordDiff)
+			if pos.IsNear(&val.pos) {
 				break
 			}
 		}
