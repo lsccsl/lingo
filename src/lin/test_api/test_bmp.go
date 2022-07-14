@@ -46,12 +46,15 @@ func test_map(){
 	dst := lin_common.Coord2d{252,342 - 157}
 
 	{
-		path := testMap.PathJPS(src, dst)
-		fmt.Println("end search")
+		t1 := time.Now().UnixMilli()
+		path, jpsMgr := testMap.PathJPS(src, dst)
+		t2 := time.Now().UnixMilli()
+		fmt.Println("end search:", t2 - t1)
 		for _, val := range path {
 			fmt.Println(val)
 		}
-		testMap.DumpMap("../resource/jumppath.bmp", path, &src, &dst, nil)
+		testMap.DumpMap("../resource/jump_path.bmp", path, &src, &dst, nil)
+		testMap.DumpJPSMap("../resource/jump_tree_path.bmp", nil, jpsMgr)
 	}
 
 	{

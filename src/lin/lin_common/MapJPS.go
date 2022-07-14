@@ -345,7 +345,7 @@ func (pthis*MapData)searchHorVer(jpsMgr *JSPMgr, curNode *JPSNode, curPos Coord2
 
 				// add pos to open list
 				jpsMgr.addNode(jp, curNode)
-				pthis.DumpJPSMap("../resource/jumppath.bmp", nil, jpsMgr)
+				//pthis.DumpJPSMap("../resource/jumppath.bmp", nil, jpsMgr)
 			}
 			break
 		}
@@ -411,12 +411,12 @@ func (pthis*MapData)searchSlash(jpsMgr *JSPMgr, curNode *JPSNode, curPos Coord2d
 			}
 
 			jpsMgr.addNode(jp, curNode)
-			pthis.DumpJPSMap("../resource/jumppath.bmp", nil, jpsMgr)
+			//pthis.DumpJPSMap("../resource/jumppath.bmp", nil, jpsMgr)
 		}
 	}
 }
 
-func (pthis*MapData)PathJPS(src Coord2d, dst Coord2d) (path []Coord2d) {
+func (pthis*MapData)PathJPS(src Coord2d, dst Coord2d) (path []Coord2d, jpsMgr *JSPMgr) {
 
 	defer func() {
 		err := recover()
@@ -461,7 +461,7 @@ func (pthis*MapData)PathJPS(src Coord2d, dst Coord2d) (path []Coord2d) {
 	}
 	startNode.totalWeight = startNode.endWeight
 
-	jpsMgr := &JSPMgr{
+	jpsMgr = &JSPMgr{
 		pMapData:pthis,
 		root:startNode,
 		mapHistoryPath: make(MAP_JSP_HISTORY_PATH),
@@ -476,13 +476,14 @@ func (pthis*MapData)PathJPS(src Coord2d, dst Coord2d) (path []Coord2d) {
 		curNode := jpsMgr.getNearestNode()
 		if curNode == nil {
 			node = curNode
-			pthis.DumpJPSMap("../resource/jumppath.bmp", nil, jpsMgr)
+			//pthis.DumpJPSMap("../resource/jumppath.bmp", nil, jpsMgr)
 			break
 		}
 		curPos := curNode.pos
 
 		if curPos.isNear(&dst) {
-			pthis.DumpJPSMap("../resource/jumppath.bmp", nil, jpsMgr)
+			//pthis.DumpJPSMap("../resource/jumppath.bmp", nil, jpsMgr)
+			node = curNode
 			break
 		}
 
@@ -550,10 +551,10 @@ func (pthis*MapData)PathJPS(src Coord2d, dst Coord2d) (path []Coord2d) {
 			path = append(path, node.pos)
 			node = node.parent
 		}
-		return path
+		return
 	}
 
-	return nil
+	return
 }
 
 func (pthis*MapData)DumpNodeSub(searchMgr *JSPMgr, node *JPSNode, bmp * Bitmap) {
