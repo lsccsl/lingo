@@ -86,6 +86,12 @@ func (pthis*JSPMgr)addNode(node *JPSNode, parent *JPSNode) {
 	if node == nil {
 		return
 	}
+
+	if pthis.isInHistory(node.pos) {
+		LogErr("already in history")
+		return
+	}
+
 	node.totalWeight = node.startWeight + node.endWeight
 	pthis.nodes = append(pthis.nodes, node)
 	sort.Sort(pthis)
@@ -106,7 +112,7 @@ func (pthis*JSPMgr)addNode(node *JPSNode, parent *JPSNode) {
 	}
 
 	if node.parent != nil {
-		node.parent.subNode = append(pthis.root.subNode, node)
+		node.parent.subNode = append(node.parent.subNode, node)
 	}
 }
 func (pthis*JSPMgr)getNearestNode() *JPSNode {
