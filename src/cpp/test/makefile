@@ -19,7 +19,7 @@ all: test_client
 
 test_client: test.o channel.o msg.pb.o mylogex.o testclient_mgr.o os.o testclient.o
 	gcc -o $@ $? $(LIBDIR) $(LIB)
-
+	cp ./test_client ../../../output/
 
 clean:
 	rm -fr ./*.o
