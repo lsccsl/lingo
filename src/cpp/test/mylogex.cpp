@@ -27,8 +27,8 @@ extern "C"
 #ifdef WIN32
 #include <windows.h>
 #define vsnprintf _vsnprintf
-#include <assert.h>
 #endif
+#include <assert.h>
 
 static char g_acPre[128] = "log";
 void MYLOG_PRE(const char * pcPre)

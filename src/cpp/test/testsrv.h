@@ -9,6 +9,7 @@
 #include "msg.pb.h"
 #include "mylogex.h"
 #include "testclient.h"
+#include "os.h"
 
 class testsrv
 {

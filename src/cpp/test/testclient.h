@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <list>
 #include <memory>
 #include <sys/timeb.h>
 #include <stdint.h>

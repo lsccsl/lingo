@@ -66,6 +66,7 @@
 #include <errno.h>
 
 #include "mylogex.h"
+#include "os.h"
 
 typedef struct sockaddr SA;
 

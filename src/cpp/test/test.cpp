@@ -1,5 +1,7 @@
 #include <stdio.h>
+#ifdef WIN32
 #include <windows.h>
+#endif
 #include <string>
 #include <iostream>
 #include <sstream>
@@ -35,9 +37,10 @@ void test_cmd()
 			printf("dump:");
 			if (__tm_)
 				__tm_->dump();
-
+#ifdef WIN32
 			if (__tsm_)
 				__tsm_->dump();
+#endif
 		}
 	}
 }
@@ -81,16 +84,17 @@ int main(int argc, char* argv[])
 
 	int is_server = 0;
 	if (argc >= 2)
-		is_server = ::_atoi64(argv[1]);
+		is_server = ::atoll(argv[1]);
 
 	if (is_server)
 	{
+#ifdef WIN32
 		int64 srvid_base = 100;
 		int thread_count = 50;
 		int test_count = 1;
 		int srv_count = 100;
 		if (argc >= 3)
-			srvid_base = ::_atoi64(argv[2]);
+			srvid_base = ::atoll(argv[2]);
 		if (argc >= 4)
 			srv_count = atoi(argv[3]);
 		if (argc >= 5)
@@ -108,6 +112,7 @@ int main(int argc, char* argv[])
 				__global_cfg_.remote_ip_, 2003);
 		}
 		__tsm_->run_srv_thread();
+#endif
 	}
 	else // .\test.exe 0 1000 47.104.129.217 1000 10 50 
 	{
@@ -117,7 +122,7 @@ int main(int argc, char* argv[])
 		int thread_count = 50;
 		std::string srvIP;
 		if (argc >= 3)
-			id_base = ::_atoi64(argv[2]);
+			id_base = ::atoll(argv[2]);
 		if (argc >= 4)
 		{
 			srvIP = argv[3];

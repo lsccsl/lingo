@@ -1,7 +1,10 @@
 #include "testclient_mgr.h"
+#ifdef WIN32
 #include <windows.h>
+#endif
 #include "mylogex.h"
 #include "cfg.h"
+#include "os.h"
 
 
 void testclient_mgr::init(const int unit_count, const int test_count)
