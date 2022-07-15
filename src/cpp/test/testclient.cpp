@@ -1,6 +1,8 @@
 #include "testclient.h"
 #include <string>
+#ifdef WIN32
 #include <winsock2.h>
+#endif
 
 msgpackhelp::MAP_MSGTYPE_PROTOMSG msgpackhelp::map_msgtype_protomsg;
 void msgpackhelp::pack_to_bin(std::string& buf_out, int msg_typ, google::protobuf::Message* proto_msg)
@@ -256,7 +258,10 @@ bool testclient::recv_one_msg()
 		return true;
 
 	std::shared_ptr<google::protobuf::Message> proto_msg(msgpackhelp::parse_from_bin(this->read_buf_.data() + sizeof(msghead), body_len, this->mh_.msg_type));
-	this->lst_msg_recv_.push_back({ proto_msg, this->mh_.msg_type });
+	testclient::ProtoMsg pm;
+	pm.proto_msg = proto_msg;
+	pm.msg_type = this->mh_.msg_type;
+	this->lst_msg_recv_.push_back(pm);
 
 	this->read_buf_sz_ = 0;
 

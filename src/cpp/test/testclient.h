@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include "channel.h"
 #include "msg.pb.h"
+#include "os.h"
 #include "mylogex.h"
 
 #pragma pack(1)

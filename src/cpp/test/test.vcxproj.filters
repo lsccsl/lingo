@@ -10,6 +10,7 @@
     <ClCompile Include="testclient_mgr.cpp" />
     <ClCompile Include="testsrv.cpp" />
     <ClCompile Include="testsrv_mgr.cpp" />
+    <ClCompile Include="os.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="msg.pb.h" />
@@ -21,8 +22,10 @@
     <ClInclude Include="testsrv.h" />
     <ClInclude Include="testsrv_mgr.h" />
     <ClInclude Include="cfg.h" />
+    <ClInclude Include="os.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\lin\protodef\msg.proto" />
+    <None Include="makefile" />
   </ItemGroup>
 </Project>

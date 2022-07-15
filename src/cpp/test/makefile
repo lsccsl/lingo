@@ -15,13 +15,13 @@ FLAG=-fPIC -std=c++11
 	gcc $(INCL) ${FLAG} -c $<
 
 
-all: test
+all: test_client
 
-test: test.o channel.o msg.pb.o mylogex.o testclient_mgr.o os.o testclient.o
+test_client: test.o channel.o msg.pb.o mylogex.o testclient_mgr.o os.o testclient.o
 	gcc -o $@ $? $(LIBDIR) $(LIB)
 
 
 clean:
 	rm -fr ./*.o
 	rm -fr ./*.so
-	rm -fr ./test
+	rm -fr ./test_client
