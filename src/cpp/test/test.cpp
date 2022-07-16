@@ -1,6 +1,8 @@
 #include <stdio.h>
 #ifdef WIN32
 #include <windows.h>
+#else
+#include <signal.h>
 #endif
 #include <string>
 #include <iostream>
@@ -47,6 +49,9 @@ void test_cmd()
 
 int main(int argc, char* argv[])
 {
+#ifndef WIN32
+	signal(SIGPIPE, SIG_IGN);
+#endif
 	//CURLcode ret = curl_global_init(CURL_GLOBAL_ALL);
 	//if (CURLE_OK != ret)
 	//{

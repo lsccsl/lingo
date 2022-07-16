@@ -12,7 +12,7 @@ FLAG=-fPIC -std=c++11
 .cc.o:
 	g++ ${INCL} ${FLAG} -c $<
 .c.o:
-	gcc $(INCL) ${FLAG} -c $<
+	gcc ${INCL} ${FLAG} -c $<
 
 
 all: test_client
