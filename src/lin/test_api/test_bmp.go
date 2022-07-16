@@ -49,7 +49,7 @@ func test_map(){
 		t1 := time.Now().UnixMilli()
 		path, jpsMgr := testMap.PathJPS(src, dst)
 		t2 := time.Now().UnixMilli()
-		fmt.Println("end search:", t2 - t1)
+		fmt.Println("jps end search:", t2 - t1)
 		var pathConn []lin_common.Coord2d
 		for i := 0; i < len(path) - 1; i ++ {
 			pos1 := path[i]
@@ -76,9 +76,9 @@ func test_map(){
 				curPos = curPos.Add(&posDiff)
 			}
 		}
-		for _, val := range path {
+/*		for _, val := range path {
 			fmt.Println(val)
-		}
+		}*/
 		testMap.DumpMap("../resource/jump_path.bmp", pathConn, &src, &dst, nil)
 		testMap.DumpJPSMap("../resource/jump_tree_path.bmp", nil, jpsMgr)
 	}
@@ -88,7 +88,7 @@ func test_map(){
 		t1 := time.Now().UnixMilli()
 		path, searchMgr := testMap.PathSearch(src, dst)
 		t2 := time.Now().UnixMilli()
-		fmt.Println("end search:", t2 - t1)
+		fmt.Println("a* end search:", t2 - t1)
 		testMap.DumpMap("../resource/path.bmp", path, &src, &dst, searchMgr)
 	}
 }
