@@ -1,7 +1,6 @@
 package lin_common
 
 import (
-	"math"
 	"sort"
 )
 
@@ -78,14 +77,9 @@ func (pthis*SearchMgr)getNearestNode() *SearchNode {
 }
 
 
-func calEndWeight(src Coord2d, dst Coord2d) int {
-	//return int(math.Max(math.Abs(float64(src.X - dst.X)), math.Abs(float64(src.Y - dst.Y)))) * WEIGHT_scale
-	return int(math.Abs(float64(src.X - dst.X)) + math.Abs(float64(src.Y - dst.Y))) * WEIGHT_scale
-}
 
-func calChebyshevWeight(src Coord2d, dst Coord2d) int {
-	return int(math.Max(math.Abs(float64(src.X - dst.X)), math.Abs(float64(src.Y - dst.Y)))) * WEIGHT_scale
-}
+
+
 
 
 func (pthis*MapData)PathSearch(src Coord2d, dst Coord2d) (path []Coord2d, search * SearchMgr) {

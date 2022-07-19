@@ -8,6 +8,17 @@ const (
 	WEIGHT_scale = 10
 )
 
+func calEndWeight(src Coord2d, dst Coord2d) int {
+	//欧式
+	//return (src.X - dst.X) * (src.X - dst.X) + (src.Y - dst.Y) * (src.Y - dst.Y)
+
+	//chebyshev
+	//return (math.Max(math.Abs(float64(src.X - dst.X)), math.Abs(float64(src.Y - dst.Y)))) * WEIGHT_scale
+
+	//曼哈顿
+	return int(math.Abs(float64(src.X - dst.X)) + math.Abs(float64(src.Y - dst.Y))) * WEIGHT_scale
+}
+
 type Coord2d struct {
 	X int
 	Y int

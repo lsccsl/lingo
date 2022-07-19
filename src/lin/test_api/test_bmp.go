@@ -22,6 +22,7 @@ func test_bmp(){
 
 func test_map(){
 	testMap := &lin_common.MapData{}
+	//testMap.LoadMap("../resource/sample.bmp")
 	testMap.LoadMap("../resource/aa.bmp")
 
 	bret := testMap.IsBlock(0, 0)
