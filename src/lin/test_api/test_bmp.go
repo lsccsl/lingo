@@ -41,16 +41,18 @@ func test_map(){
 	testMap.DumpMap("../resource/dump.bmp", nil, nil, nil, nil)
 
 	src := lin_common.Coord2d{10, 290 - 261}
-	dst := lin_common.Coord2d{367,290 - 109}
+	dst := lin_common.Coord2d{338,290 - 18}
+	//src := lin_common.Coord2d{10, 290 - 261}
+	//dst := lin_common.Coord2d{367,290 - 109}
 	//src := lin_common.Coord2d{72, 342 - 158}
 	//dst := lin_common.Coord2d{252,342 - 157}
 
 	{
 		t1 := time.Now().UnixMilli()
-		path, jpsMgr := testMap.PathJPS(src, dst)
+		path, _ := testMap.PathJPS(src, dst)
 		t2 := time.Now().UnixMilli()
 		fmt.Println("jps end search:", t2 - t1)
-		var pathConn []lin_common.Coord2d
+/*		var pathConn []lin_common.Coord2d
 		for i := 0; i < len(path) - 1; i ++ {
 			pos1 := path[i]
 			pos2 := path[i + 1]
@@ -70,17 +72,15 @@ func test_map(){
 			curPos := pos2
 			for {
 				pathConn = append(pathConn, curPos)
-				if curPos.IsEqual(&pos1) {
+				if curPos.IsNear(&pos1) {
 					break
 				}
 				curPos = curPos.Add(&posDiff)
 			}
-		}
-/*		for _, val := range path {
-			fmt.Println(val)
 		}*/
-		testMap.DumpMap("../resource/jump_path.bmp", pathConn, &src, &dst, nil)
-		testMap.DumpJPSMap("../resource/jump_tree_path.bmp", nil, jpsMgr)
+
+		testMap.DumpMap("../resource/jump_path.bmp", path, &src, &dst, nil)
+		//testMap.DumpJPSMap("../resource/jump_tree_path.bmp", nil, jpsMgr)
 	}
 
 	{
