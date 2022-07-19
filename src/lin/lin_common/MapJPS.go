@@ -348,6 +348,16 @@ func (pthis*MapData)searchHorVer(jpsMgr *JSPMgr, curNode *JPSNode, curPos Coord2
 
 				// add pos to open list
 				jpsMgr.addNode(jp, curNode)
+
+				for _, val := range forceNeighbor {
+					neighborJP := &JPSNode{
+						pos:val,
+						endWeight:calEndWeight(val, jpsMgr.dst),
+						startWeight:curNode.startWeight + WEIGHT_slash,
+						forceNeighbor:nil,
+					}
+					jpsMgr.addNode(neighborJP, jp)
+				}
 				//pthis.DumpJPSMap("../resource/jumppath.bmp", nil, jpsMgr)
 			}
 			break
@@ -505,10 +515,10 @@ func (pthis*MapData)PathJPS(src Coord2d, dst Coord2d) (path []Coord2d, jpsMgr *J
 
 			relativeParentDir := curNode.pos.Dec(&curNode.parent.pos)
 			vecRelativeDir = append(vecRelativeDir, TmpRelativeData{relativeParentDir, curPos})
-			for _, val := range curNode.forceNeighbor {
+/*			for _, val := range curNode.forceNeighbor {
 				relativeDir := val.Dec(&curNode.pos)
 				vecRelativeDir = append(vecRelativeDir, TmpRelativeData{relativeDir,val})
-			}
+			}*/
 
 			for _, relativeData := range vecRelativeDir {
 				if relativeData.relativePos.X > 0 {
@@ -518,7 +528,7 @@ func (pthis*MapData)PathJPS(src Coord2d, dst Coord2d) (path []Coord2d, jpsMgr *J
 				}
 				if relativeData.relativePos.Y > 0 {
 					straightDir = append(straightDir, SearchDirData{JPS_DIR_down,relativeData.pos})
-				} else if relativeData.relativePos.Y > 0 {
+				} else if relativeData.relativePos.Y < 0 {
 					straightDir = append(straightDir, SearchDirData{JPS_DIR_up,relativeData.pos})
 				}
 
@@ -580,6 +590,9 @@ func (pthis*MapData)DumpNodeSub(searchMgr *JSPMgr, node *JPSNode, bmp * Bitmap) 
 		pos := node.pos.Add(&coordDiff)
 		for {
 			idx := pos.Y * widBytePitch + pos.X * 3
+			if idx < 0 || idx >= bmp.GetPitchByteWidth() * bmp.GetHeight() {
+				break
+			}
 			tmpBMP[idx + 0] = 0xff
 			tmpBMP[idx + 1] = 0
 			tmpBMP[idx + 2] = 0xff
