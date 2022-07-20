@@ -48,6 +48,8 @@ func test_map(){
 	//src := lin_common.Coord2d{72, 342 - 158}
 	//dst := lin_common.Coord2d{252,342 - 157}
 
+
+
 	{
 		t1 := time.Now().UnixMilli()
 		path, jpsMgr := testMap.PathJPS(src, dst)
@@ -87,7 +89,7 @@ func test_map(){
 	{
 		fmt.Println("begin search")
 		t1 := time.Now().UnixMilli()
-		path, searchMgr := testMap.PathSearch(src, dst)
+		path, searchMgr := testMap.PathSearchAStart(src, dst)
 		t2 := time.Now().UnixMilli()
 		fmt.Println("a* end search:", t2 - t1)
 		testMap.DumpMap("../resource/path.bmp", path, &src, &dst, searchMgr)

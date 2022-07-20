@@ -1,6 +1,7 @@
 package lin_common
 
 import (
+	"math"
 	"sort"
 )
 
@@ -17,6 +18,8 @@ const (
 
 	SEARCH_NEIGHBOR_MAX = 8
 )
+
+
 
 type SearchNode struct {
 	pos Coord2d
@@ -76,13 +79,26 @@ func (pthis*SearchMgr)getNearestNode() *SearchNode {
 	return node
 }
 
+const (
+	ASTAR_WEIGHT_slash = 14
+	ASTAR_WEIGHT_straight = 10
+	ASTAR_WEIGHT_scale = 10
+)
+
+func calAStarWeight(src Coord2d, dst Coord2d) int {
+	//欧式
+	//return (src.X - dst.X) * (src.X - dst.X) + (src.Y - dst.Y) * (src.Y - dst.Y)
+
+	//chebyshev
+	//return int(math.Max(math.Abs(float64(src.X - dst.X)), math.Abs(float64(src.Y - dst.Y)))) * ASTAR_WEIGHT_scale
+
+	//曼哈顿
+	return int(math.Abs(float64(src.X - dst.X)) + math.Abs(float64(src.Y - dst.Y))) * JPS_WEIGHT_scale
+}
 
 
 
-
-
-
-func (pthis*MapData)PathSearch(src Coord2d, dst Coord2d) (path []Coord2d, search * SearchMgr) {
+func (pthis*MapData)PathSearchAStart(src Coord2d, dst Coord2d) (path []Coord2d, search * SearchMgr) {
 
 	// search around by weight,
 	// weight = end_weight + start_weight,
@@ -91,7 +107,7 @@ func (pthis*MapData)PathSearch(src Coord2d, dst Coord2d) (path []Coord2d, search
 	startNode := &SearchNode{
 		pos:src,
 		startWeight:0,
-		endWeight:calEndWeight(src, dst),
+		endWeight:calAStarWeight(src, dst),
 		parent:nil,
 	}
 
@@ -118,33 +134,33 @@ func (pthis*MapData)PathSearch(src Coord2d, dst Coord2d) (path []Coord2d, search
 			switch i {
 			case SEARCH_NEIGHBOR_up:
 				curPos.Y -= 1
-				startWeight = WEIGHT_straight
+				startWeight = ASTAR_WEIGHT_straight
 			case SEARCH_NEIGHBOR_down:
 				curPos.Y += 1
-				startWeight = WEIGHT_straight
+				startWeight = ASTAR_WEIGHT_straight
 			case SEARCH_NEIGHBOR_left:
 				curPos.X -= 1
-				startWeight = WEIGHT_straight
+				startWeight = ASTAR_WEIGHT_straight
 			case SEARCH_NEIGHBOR_right:
 				curPos.X += 1
-				startWeight = WEIGHT_straight
+				startWeight = ASTAR_WEIGHT_straight
 
 			case SEARCH_NEIGHBOR_up_left:
 				curPos.X -= 1
 				curPos.Y -= 1
-				startWeight = WEIGHT_slash
+				startWeight = ASTAR_WEIGHT_slash
 			case SEARCH_NEIGHBOR_up_right:
 				curPos.X += 1
 				curPos.Y -= 1
-				startWeight = WEIGHT_slash
+				startWeight = ASTAR_WEIGHT_slash
 			case SEARCH_NEIGHBOR_down_left:
 				curPos.X -= 1
 				curPos.Y += 1
-				startWeight = WEIGHT_slash
+				startWeight = ASTAR_WEIGHT_slash
 			case SEARCH_NEIGHBOR_down_right:
 				curPos.X += 1
 				curPos.Y += 1
-				startWeight = WEIGHT_slash
+				startWeight = ASTAR_WEIGHT_slash
 			}
 
 			if curPos.X == dst.X && curPos.Y == dst.Y {
@@ -163,7 +179,7 @@ func (pthis*MapData)PathSearch(src Coord2d, dst Coord2d) (path []Coord2d, search
 			nodeNeighbor := &SearchNode{
 				pos:curPos,
 				startWeight:startWeight + node.startWeight,
-				endWeight:calEndWeight(curPos, dst),
+				endWeight:calAStarWeight(curPos, dst),
 				parent:node,
 			}
 			nodeNeighbor.totalWeight = nodeNeighbor.startWeight + nodeNeighbor.endWeight
