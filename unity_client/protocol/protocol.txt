@@ -1,0 +1,21 @@
+protobuf-csharp-3.19.1\protobuf-3.19.1\csharp\src
+找到工程编译
+protobuf-csharp-3.19.1\protobuf-3.19.1\csharp\src\Google.Protobuf\bin\Release\net45
+将此目录下的dll拷入unity工程
+
+生成proto
+protoc --csharp_out=./ --proto_path=./ ./*.proto
+
+using Google.Protobuf;
+
+//打包
+Msgpacket.MSG_TEST msg = new Msgpacket.MSG_TEST();
+msg.Id = 123;
+Debug.Log("msg:" + msg.ToString());
+byte[] datas = msg.ToByteArray();
+Debug.Log(datas);
+
+//解析
+IMessage msgParse = new Msgpacket.MSG_TEST();
+Msgpacket.MSG_TEST msgNew = (Msgpacket.MSG_TEST)msgParse.Descriptor.Parser.ParseFrom(datas);
+Debug.Log("parse:" + msgNew.ToString());

@@ -2,7 +2,7 @@ INCL=-I./. -I./protobuf-3.19.2/cmake/install/usr/local/include
 LIBDIR=-L./ -L../lib -L./protobuf-3.19.2/cmake
 LIB=-lstdc++ -lpthread -ldl -lprotobuf
 OUTPUT=./
-FLAG=-fPIC -std=c++11
+FLAG=-fPIC -std=c++11 -g3
 
 
 .SUFFIXES: .cpp .c .cc
