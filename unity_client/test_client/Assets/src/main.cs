@@ -5,6 +5,7 @@ using Google.Protobuf;
 
 public class main : MonoBehaviour
 {
+    TestClient client_;
     // Start is called before the first frame update
     void Start()
     {
@@ -18,6 +19,9 @@ public class main : MonoBehaviour
         IMessage msgParse = new Msgpacket.MSG_TEST();
         Msgpacket.MSG_TEST msgNew = (Msgpacket.MSG_TEST)msgParse.Descriptor.Parser.ParseFrom(datas);
         Debug.Log("parse:" + msgNew.ToString());
+
+        client_ = new TestClient();
+        client_.connect("192.168.2.129", 2003);
     }
 
     // Update is called once per frame
