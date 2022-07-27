@@ -4,7 +4,13 @@ using System.Net.Sockets;
 using System.Threading;
 using Google.Protobuf;
 using System.Runtime.InteropServices;
+using System.Collections.Generic;
 
+public struct InterMsg
+{
+    public IMessage msg;
+    public Msgpacket.MSG_TYPE msgtype;
+}
 public class TestClient
 {
     [StructLayoutAttribute(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
@@ -15,6 +21,108 @@ public class TestClient
         //sbyte、byte、short、ushort、int、uint、long、ulong
     }
     private Socket client_socket_ = null;
+
+    private Thread thread_send_ = null;
+    private Thread thread_recv_ = null;
+
+
+    private BlockQueue<InterMsg> send_que_ = null;
+    private BlockQueue<InterMsg> recv_que_ = null;
+
+    private Dictionary<Msgpacket.MSG_TYPE, Type> msg_parse_;
+
+    public TestClient()
+    {
+        initMsgParse();
+
+        send_que_ = new BlockQueue<InterMsg>(100);
+        recv_que_ = new BlockQueue<InterMsg>(100);
+
+        thread_send_ = new Thread(thread_send);
+        thread_recv_ = new Thread(thread_recv);
+    }
+
+    private void initMsgParse()
+    {
+        msg_parse_ = new Dictionary<Msgpacket.MSG_TYPE, Type>();
+        msg_parse_.Add(Msgpacket.MSG_TYPE.MsgTestRes, typeof(Msgpacket.MSG_TEST));
+        msg_parse_.Add(Msgpacket.MSG_TYPE.MsgLoginRes, typeof(Msgpacket.MSG_LOGIN_RES));
+    }
+
+    private Google.Protobuf.IMessage parseMessage(byte[] pbData, Msgpacket.MSG_TYPE msgtype)
+    {
+        Type msg_type;
+        msg_parse_.TryGetValue(msgtype, out msg_type);
+        Google.Protobuf.IMessage msgParse = (Google.Protobuf.IMessage)Activator.CreateInstance(msg_type);
+        return msgParse.Descriptor.Parser.ParseFrom(pbData);
+    }
+
+    private void thread_send()
+    {
+        while (true)
+        {
+            var msg = send_que_.Dequeue();
+
+            send_msg(msg.msgtype, msg.msg);
+        }
+    }
+
+    private void thread_recv()
+    {
+        int headLen = Marshal.SizeOf(typeof(MSG_HEAD));
+
+        byte[] byteRecvTmp = new byte[1024];
+
+        byte[] Buffer = new byte[65535];
+        
+        byte[] hdBuf = new byte[headLen];
+
+        int readIdx = 0;
+        int writeIdx = 0;
+
+        while (true)
+        {
+            int recvLen = client_socket_.Receive(byteRecvTmp, 0, byteRecvTmp.Length, SocketFlags.None);
+            Array.Copy(byteRecvTmp, 0, Buffer, writeIdx, recvLen);
+            writeIdx += recvLen;
+
+            while (true)
+            {
+                int realBufferLen = writeIdx - readIdx;
+                if (realBufferLen < headLen)
+                    break;
+
+                Array.Copy(Buffer, readIdx, hdBuf, 0, headLen);
+
+                var obj = BytesToStuct(hdBuf, typeof(MSG_HEAD));
+                if (obj == null)
+                    continue;
+                MSG_HEAD mh = (MSG_HEAD)obj;
+
+                if (mh.pack_len > realBufferLen)
+                    continue;
+
+                readIdx += (int)mh.pack_len;
+                int bodyLen = (int)mh.pack_len - headLen;
+                if (bodyLen > 0)
+                {
+                    byte[] bodyBuf = new byte[bodyLen];
+                    
+                    Array.Copy(Buffer, readIdx - bodyLen, bodyBuf, 0, bodyLen);
+                    InterMsg interMsg;
+                    interMsg.msgtype = (Msgpacket.MSG_TYPE)mh.msg_type;
+                    interMsg.msg = parseMessage(bodyBuf, (Msgpacket.MSG_TYPE)mh.msg_type);
+                    this.recv_que_.Enqueue(interMsg);
+                }
+
+                if (readIdx >= writeIdx)
+                {
+                    readIdx = 0;
+                    writeIdx = 0;
+                }
+            }
+        }
+    }
 
     public void connect(string ip, int port)
     {
@@ -30,10 +138,16 @@ public class TestClient
         Msgpacket.MSG_LOGIN msg = new Msgpacket.MSG_LOGIN();
         msg.Id = 1;
         send_msg(Msgpacket.MSG_TYPE.MsgLogin, msg);
+
+        thread_send_.Start();
+        thread_recv_.Start();
     }
 
     public void send_msg(Msgpacket.MSG_TYPE msgtype, IMessage msg)
     {
+        if (client_socket_ == null)
+            return;
+
         byte[] datas = msg.ToByteArray();
 
         MSG_HEAD mh = new MSG_HEAD();
@@ -63,5 +177,27 @@ public class TestClient
         Marshal.FreeHGlobal(structPtr);
         //返回byte数组
         return bytes;
+    }
+
+    public static object BytesToStuct(byte[] bytes, Type type)
+    {
+        //得到结构体的大小
+        int size = Marshal.SizeOf(type);
+        //byte数组长度小于结构体的大小
+        if (size > bytes.Length)
+        {
+            //返回空
+            return null;
+        }
+        //分配结构体大小的内存空间
+        IntPtr structPtr = Marshal.AllocHGlobal(size);
+        //将byte数组拷到分配好的内存空间
+        Marshal.Copy(bytes, 0, structPtr, size);
+        //将内存空间转换为目标结构体
+        object obj = Marshal.PtrToStructure(structPtr, type);
+        //释放内存空间
+        Marshal.FreeHGlobal(structPtr);
+        //返回结构体
+        return obj;
     }
 }
