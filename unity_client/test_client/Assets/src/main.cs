@@ -27,6 +27,10 @@ public class main : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (!client_.GetRecvQue().IsEmpty())
+        {
+            InterMsg msg = client_.GetRecvQue().Dequeue();
+            Debug.Log("msgtype:" + msg.msgtype + " msg:" + msg.msg.ToString());
+        }
     }
 }

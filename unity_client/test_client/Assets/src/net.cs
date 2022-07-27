@@ -42,6 +42,11 @@ public class TestClient
         thread_recv_ = new Thread(thread_recv);
     }
 
+    public BlockQueue<InterMsg> GetRecvQue()
+    {
+        return recv_que_;
+    }
+
     private void initMsgParse()
     {
         msg_parse_ = new Dictionary<Msgpacket.MSG_TYPE, Type>();
@@ -72,9 +77,7 @@ public class TestClient
         int headLen = Marshal.SizeOf(typeof(MSG_HEAD));
 
         byte[] byteRecvTmp = new byte[1024];
-
-        byte[] Buffer = new byte[65535];
-        
+        byte[] Buffer = new byte[65535];        
         byte[] hdBuf = new byte[headLen];
 
         int readIdx = 0;

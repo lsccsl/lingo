@@ -252,8 +252,34 @@ struct MSG_CLIENT_ENTER_RESDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MSG_CLIENT_ENTER_RESDefaultTypeInternal _MSG_CLIENT_ENTER_RES_default_instance_;
+constexpr MSG_GET_MAP::MSG_GET_MAP(
+  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+struct MSG_GET_MAPDefaultTypeInternal {
+  constexpr MSG_GET_MAPDefaultTypeInternal()
+    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  ~MSG_GET_MAPDefaultTypeInternal() {}
+  union {
+    MSG_GET_MAP _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MSG_GET_MAPDefaultTypeInternal _MSG_GET_MAP_default_instance_;
+constexpr MSG_GET_MAP_RES::MSG_GET_MAP_RES(
+  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+  : map_data_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
+  , map_wid_(0)
+  , map_high_(0)
+  , map_pitch_(0){}
+struct MSG_GET_MAP_RESDefaultTypeInternal {
+  constexpr MSG_GET_MAP_RESDefaultTypeInternal()
+    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  ~MSG_GET_MAP_RESDefaultTypeInternal() {}
+  union {
+    MSG_GET_MAP_RES _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MSG_GET_MAP_RESDefaultTypeInternal _MSG_GET_MAP_RES_default_instance_;
 }  // namespace msgpacket
-static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_msg_2eproto[17];
+static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_msg_2eproto[19];
 static const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* file_level_enum_descriptors_msg_2eproto[2];
 static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_msg_2eproto = nullptr;
 
@@ -410,6 +436,22 @@ const uint32_t TableStruct_msg_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(prot
   PROTOBUF_FIELD_OFFSET(::msgpacket::MSG_CLIENT_ENTER_RES, res_),
   PROTOBUF_FIELD_OFFSET(::msgpacket::MSG_CLIENT_ENTER_RES, redirect_ip_),
   PROTOBUF_FIELD_OFFSET(::msgpacket::MSG_CLIENT_ENTER_RES, redirect_port_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::msgpacket::MSG_GET_MAP, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::msgpacket::MSG_GET_MAP_RES, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::msgpacket::MSG_GET_MAP_RES, map_wid_),
+  PROTOBUF_FIELD_OFFSET(::msgpacket::MSG_GET_MAP_RES, map_high_),
+  PROTOBUF_FIELD_OFFSET(::msgpacket::MSG_GET_MAP_RES, map_pitch_),
+  PROTOBUF_FIELD_OFFSET(::msgpacket::MSG_GET_MAP_RES, map_data_),
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, -1, sizeof(::msgpacket::MSG_RPC)},
@@ -429,6 +471,8 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOB
   { 124, -1, -1, sizeof(::msgpacket::MSG_TCP_STATIC_RES)},
   { 135, -1, -1, sizeof(::msgpacket::MSG_CLIENT_ENTER)},
   { 142, -1, -1, sizeof(::msgpacket::MSG_CLIENT_ENTER_RES)},
+  { 152, -1, -1, sizeof(::msgpacket::MSG_GET_MAP)},
+  { 158, -1, -1, sizeof(::msgpacket::MSG_GET_MAP_RES)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -449,6 +493,8 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::msgpacket::_MSG_TCP_STATIC_RES_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::msgpacket::_MSG_CLIENT_ENTER_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::msgpacket::_MSG_CLIENT_ENTER_RES_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::msgpacket::_MSG_GET_MAP_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::msgpacket::_MSG_GET_MAP_RES_default_instance_),
 };
 
 const char descriptor_table_protodef_msg_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
@@ -484,26 +530,30 @@ const char descriptor_table_protodef_msg_2eproto[] PROTOBUF_SECTION_VARIABLE(pro
   "NTER\022\021\n\tclient_id\030\001 \001(\003\"|\n\024MSG_CLIENT_EN"
   "TER_RES\022\021\n\tclient_id\030\001 \001(\003\022%\n\003res\030\002 \001(\0162"
   "\030.msgpacket.RESPONSE_CODE\022\023\n\013redirect_ip"
-  "\030\004 \001(\t\022\025\n\rredirect_port\030\005 \001(\005*\211\003\n\010MSG_TY"
-  "PE\022\r\n\t_MSG_NULL\020\000\022\014\n\010_MSG_RPC\020\001\022\020\n\014_MSG_"
-  "RPC_RES\020\002\022\023\n\017_MSG_SRV_REPORT\020\003\022\027\n\023_MSG_S"
-  "RV_REPORT_RES\020\004\022\022\n\016_MSG_HEARTBEAT\020\005\022\026\n\022_"
-  "MSG_HEARTBEAT_RES\020\006\022\023\n\017_MSG_TCP_STATIC\020\007"
-  "\022\027\n\023_MSG_TCP_STATIC_RES\020\010\022\014\n\010_MSG_MAX\020d\022"
-  "\r\n\t_MSG_TEST\020e\022\021\n\r_MSG_TEST_RES\020f\022\016\n\n_MS"
-  "G_LOGIN\020g\022\022\n\016_MSG_LOGIN_RES\020h\022\021\n\r_MSG_TE"
-  "ST_RPC\020i\022\025\n\021_MSG_TEST_RPC_RES\020j\022\024\n\017_MSG_"
-  "SERVER_MAX\020\350\007\022\026\n\021_MSG_CLIENT_ENTER\020\351\007\022\032\n"
-  "\025_MSG_CLIENT_ENTER_RES\020\352\007*{\n\rRESPONSE_CO"
-  "DE\022\026\n\022RESPONSE_CODE_Fail\020\000\022\024\n\020RESPONSE_C"
-  "ODE_OK\020\001\022 \n\034RESPONSE_CODE_Rpc_not_accept"
-  "\020\002\022\032\n\026RESPONSE_CODE_redirect\020\003B\016Z\014./;msg"
-  "packetb\006proto3"
+  "\030\004 \001(\t\022\025\n\rredirect_port\030\005 \001(\005\"\r\n\013MSG_GET"
+  "_MAP\"Y\n\017MSG_GET_MAP_RES\022\017\n\007map_wid\030\001 \001(\005"
+  "\022\020\n\010map_high\030\002 \001(\005\022\021\n\tmap_pitch\030\003 \001(\005\022\020\n"
+  "\010map_data\030\004 \001(\014*\263\003\n\010MSG_TYPE\022\r\n\t_MSG_NUL"
+  "L\020\000\022\014\n\010_MSG_RPC\020\001\022\020\n\014_MSG_RPC_RES\020\002\022\023\n\017_"
+  "MSG_SRV_REPORT\020\003\022\027\n\023_MSG_SRV_REPORT_RES\020"
+  "\004\022\022\n\016_MSG_HEARTBEAT\020\005\022\026\n\022_MSG_HEARTBEAT_"
+  "RES\020\006\022\023\n\017_MSG_TCP_STATIC\020\007\022\027\n\023_MSG_TCP_S"
+  "TATIC_RES\020\010\022\014\n\010_MSG_MAX\020d\022\r\n\t_MSG_TEST\020e"
+  "\022\021\n\r_MSG_TEST_RES\020f\022\016\n\n_MSG_LOGIN\020g\022\022\n\016_"
+  "MSG_LOGIN_RES\020h\022\021\n\r_MSG_TEST_RPC\020i\022\025\n\021_M"
+  "SG_TEST_RPC_RES\020j\022\024\n\017_MSG_SERVER_MAX\020\350\007\022"
+  "\026\n\021_MSG_CLIENT_ENTER\020\351\007\022\032\n\025_MSG_CLIENT_E"
+  "NTER_RES\020\352\007\022\021\n\014_MSG_GET_MAP\020\353\007\022\025\n\020_MSG_G"
+  "ET_MAP_RES\020\354\007*{\n\rRESPONSE_CODE\022\026\n\022RESPON"
+  "SE_CODE_Fail\020\000\022\024\n\020RESPONSE_CODE_OK\020\001\022 \n\034"
+  "RESPONSE_CODE_Rpc_not_accept\020\002\022\032\n\026RESPON"
+  "SE_CODE_redirect\020\003B\016Z\014./;msgpacketb\006prot"
+  "o3"
   ;
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_msg_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_msg_2eproto = {
-  false, false, 1854, descriptor_table_protodef_msg_2eproto, "msg.proto", 
-  &descriptor_table_msg_2eproto_once, nullptr, 0, 17,
+  false, false, 2002, descriptor_table_protodef_msg_2eproto, "msg.proto", 
+  &descriptor_table_msg_2eproto_once, nullptr, 0, 19,
   schemas, file_default_instances, TableStruct_msg_2eproto::offsets,
   file_level_metadata_msg_2eproto, file_level_enum_descriptors_msg_2eproto, file_level_service_descriptors_msg_2eproto,
 };
@@ -539,6 +589,8 @@ bool MSG_TYPE_IsValid(int value) {
     case 1000:
     case 1001:
     case 1002:
+    case 1003:
+    case 1004:
       return true;
     default:
       return false;
@@ -4256,6 +4308,325 @@ void MSG_CLIENT_ENTER_RES::InternalSwap(MSG_CLIENT_ENTER_RES* other) {
       file_level_metadata_msg_2eproto[16]);
 }
 
+// ===================================================================
+
+class MSG_GET_MAP::_Internal {
+ public:
+};
+
+MSG_GET_MAP::MSG_GET_MAP(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase(arena, is_message_owned) {
+  // @@protoc_insertion_point(arena_constructor:msgpacket.MSG_GET_MAP)
+}
+MSG_GET_MAP::MSG_GET_MAP(const MSG_GET_MAP& from)
+  : ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase() {
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  // @@protoc_insertion_point(copy_constructor:msgpacket.MSG_GET_MAP)
+}
+
+
+
+
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData MSG_GET_MAP::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl,
+    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl,
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*MSG_GET_MAP::GetClassData() const { return &_class_data_; }
+
+
+
+
+
+
+
+::PROTOBUF_NAMESPACE_ID::Metadata MSG_GET_MAP::GetMetadata() const {
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
+      &descriptor_table_msg_2eproto_getter, &descriptor_table_msg_2eproto_once,
+      file_level_metadata_msg_2eproto[17]);
+}
+
+// ===================================================================
+
+class MSG_GET_MAP_RES::_Internal {
+ public:
+};
+
+MSG_GET_MAP_RES::MSG_GET_MAP_RES(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor();
+  if (!is_message_owned) {
+    RegisterArenaDtor(arena);
+  }
+  // @@protoc_insertion_point(arena_constructor:msgpacket.MSG_GET_MAP_RES)
+}
+MSG_GET_MAP_RES::MSG_GET_MAP_RES(const MSG_GET_MAP_RES& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  map_data_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    map_data_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (!from._internal_map_data().empty()) {
+    map_data_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_map_data(), 
+      GetArenaForAllocation());
+  }
+  ::memcpy(&map_wid_, &from.map_wid_,
+    static_cast<size_t>(reinterpret_cast<char*>(&map_pitch_) -
+    reinterpret_cast<char*>(&map_wid_)) + sizeof(map_pitch_));
+  // @@protoc_insertion_point(copy_constructor:msgpacket.MSG_GET_MAP_RES)
+}
+
+inline void MSG_GET_MAP_RES::SharedCtor() {
+map_data_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  map_data_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
+    reinterpret_cast<char*>(&map_wid_) - reinterpret_cast<char*>(this)),
+    0, static_cast<size_t>(reinterpret_cast<char*>(&map_pitch_) -
+    reinterpret_cast<char*>(&map_wid_)) + sizeof(map_pitch_));
+}
+
+MSG_GET_MAP_RES::~MSG_GET_MAP_RES() {
+  // @@protoc_insertion_point(destructor:msgpacket.MSG_GET_MAP_RES)
+  if (GetArenaForAllocation() != nullptr) return;
+  SharedDtor();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+inline void MSG_GET_MAP_RES::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+  map_data_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+
+void MSG_GET_MAP_RES::ArenaDtor(void* object) {
+  MSG_GET_MAP_RES* _this = reinterpret_cast< MSG_GET_MAP_RES* >(object);
+  (void)_this;
+}
+void MSG_GET_MAP_RES::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
+}
+void MSG_GET_MAP_RES::SetCachedSize(int size) const {
+  _cached_size_.Set(size);
+}
+
+void MSG_GET_MAP_RES::Clear() {
+// @@protoc_insertion_point(message_clear_start:msgpacket.MSG_GET_MAP_RES)
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  map_data_.ClearToEmpty();
+  ::memset(&map_wid_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&map_pitch_) -
+      reinterpret_cast<char*>(&map_wid_)) + sizeof(map_pitch_));
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* MSG_GET_MAP_RES::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    uint32_t tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // int32 map_wid = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+          map_wid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // int32 map_high = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
+          map_high_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // int32 map_pitch = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 24)) {
+          map_pitch_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // bytes map_data = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
+          auto str = _internal_mutable_map_data();
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+uint8_t* MSG_GET_MAP_RES::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:msgpacket.MSG_GET_MAP_RES)
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // int32 map_wid = 1;
+  if (this->_internal_map_wid() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_map_wid(), target);
+  }
+
+  // int32 map_high = 2;
+  if (this->_internal_map_high() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(2, this->_internal_map_high(), target);
+  }
+
+  // int32 map_pitch = 3;
+  if (this->_internal_map_pitch() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(3, this->_internal_map_pitch(), target);
+  }
+
+  // bytes map_data = 4;
+  if (!this->_internal_map_data().empty()) {
+    target = stream->WriteBytesMaybeAliased(
+        4, this->_internal_map_data(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:msgpacket.MSG_GET_MAP_RES)
+  return target;
+}
+
+size_t MSG_GET_MAP_RES::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:msgpacket.MSG_GET_MAP_RES)
+  size_t total_size = 0;
+
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // bytes map_data = 4;
+  if (!this->_internal_map_data().empty()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
+        this->_internal_map_data());
+  }
+
+  // int32 map_wid = 1;
+  if (this->_internal_map_wid() != 0) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_map_wid());
+  }
+
+  // int32 map_high = 2;
+  if (this->_internal_map_high() != 0) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_map_high());
+  }
+
+  // int32 map_pitch = 3;
+  if (this->_internal_map_pitch() != 0) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_map_pitch());
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData MSG_GET_MAP_RES::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
+    MSG_GET_MAP_RES::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*MSG_GET_MAP_RES::GetClassData() const { return &_class_data_; }
+
+void MSG_GET_MAP_RES::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
+                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+  static_cast<MSG_GET_MAP_RES *>(to)->MergeFrom(
+      static_cast<const MSG_GET_MAP_RES &>(from));
+}
+
+
+void MSG_GET_MAP_RES::MergeFrom(const MSG_GET_MAP_RES& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:msgpacket.MSG_GET_MAP_RES)
+  GOOGLE_DCHECK_NE(&from, this);
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (!from._internal_map_data().empty()) {
+    _internal_set_map_data(from._internal_map_data());
+  }
+  if (from._internal_map_wid() != 0) {
+    _internal_set_map_wid(from._internal_map_wid());
+  }
+  if (from._internal_map_high() != 0) {
+    _internal_set_map_high(from._internal_map_high());
+  }
+  if (from._internal_map_pitch() != 0) {
+    _internal_set_map_pitch(from._internal_map_pitch());
+  }
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void MSG_GET_MAP_RES::CopyFrom(const MSG_GET_MAP_RES& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:msgpacket.MSG_GET_MAP_RES)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool MSG_GET_MAP_RES::IsInitialized() const {
+  return true;
+}
+
+void MSG_GET_MAP_RES::InternalSwap(MSG_GET_MAP_RES* other) {
+  using std::swap;
+  auto* lhs_arena = GetArenaForAllocation();
+  auto* rhs_arena = other->GetArenaForAllocation();
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
+      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
+      &map_data_, lhs_arena,
+      &other->map_data_, rhs_arena
+  );
+  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(MSG_GET_MAP_RES, map_pitch_)
+      + sizeof(MSG_GET_MAP_RES::map_pitch_)
+      - PROTOBUF_FIELD_OFFSET(MSG_GET_MAP_RES, map_wid_)>(
+          reinterpret_cast<char*>(&map_wid_),
+          reinterpret_cast<char*>(&other->map_wid_));
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata MSG_GET_MAP_RES::GetMetadata() const {
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
+      &descriptor_table_msg_2eproto_getter, &descriptor_table_msg_2eproto_once,
+      file_level_metadata_msg_2eproto[18]);
+}
+
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace msgpacket
 PROTOBUF_NAMESPACE_OPEN
@@ -4309,6 +4680,12 @@ template<> PROTOBUF_NOINLINE ::msgpacket::MSG_CLIENT_ENTER* Arena::CreateMaybeMe
 }
 template<> PROTOBUF_NOINLINE ::msgpacket::MSG_CLIENT_ENTER_RES* Arena::CreateMaybeMessage< ::msgpacket::MSG_CLIENT_ENTER_RES >(Arena* arena) {
   return Arena::CreateMessageInternal< ::msgpacket::MSG_CLIENT_ENTER_RES >(arena);
+}
+template<> PROTOBUF_NOINLINE ::msgpacket::MSG_GET_MAP* Arena::CreateMaybeMessage< ::msgpacket::MSG_GET_MAP >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::msgpacket::MSG_GET_MAP >(arena);
+}
+template<> PROTOBUF_NOINLINE ::msgpacket::MSG_GET_MAP_RES* Arena::CreateMaybeMessage< ::msgpacket::MSG_GET_MAP_RES >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::msgpacket::MSG_GET_MAP_RES >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

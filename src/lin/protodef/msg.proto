@@ -26,6 +26,8 @@ enum MSG_TYPE
 
     _MSG_CLIENT_ENTER = 1001;
     _MSG_CLIENT_ENTER_RES = 1002;
+    _MSG_GET_MAP = 1003;
+    _MSG_GET_MAP_RES = 1004;
 }
 
 enum RESPONSE_CODE
@@ -139,4 +141,15 @@ message MSG_CLIENT_ENTER_RES
     RESPONSE_CODE res = 2;
     string redirect_ip = 4; // redirect to other server
     int32 redirect_port = 5;
+}
+
+message MSG_GET_MAP
+{
+}
+message MSG_GET_MAP_RES
+{
+    int32 map_wid = 1;
+    int32 map_high = 2;
+    int32 map_pitch = 3;
+    bytes map_data = 4;
 }

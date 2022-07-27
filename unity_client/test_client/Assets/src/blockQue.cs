@@ -84,4 +84,12 @@ public class BlockQueue<T>
             return true;
         }
     }
+
+    public bool IsEmpty()
+    {
+        lock (_queue)
+        {
+            return _queue.Count == 0;
+        }
+    }
 }
