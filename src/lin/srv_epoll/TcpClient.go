@@ -85,6 +85,12 @@ func (pthis*TcpClient)Process_MSG_HEARTBEAT(msg *msgpacket.MSG_HEARTBEAT) {
 	pthis.pu.eSrvMgr.SendProtoMsg(pthis.fd, msgpacket.MSG_TYPE__MSG_HEARTBEAT_RES, msgRes)
 }
 
+func (pthis*TcpClient)Process_MSG_GET_MAP(msg * msgpacket.MSG_GET_MAP){
+	msgRes := &msgpacket.MSG_GET_MAP_RES{}
+	pthis.pu.eSrvMgr.mapMgr.GetMapProtoMsg(msgRes)
+	pthis.pu.eSrvMgr.SendProtoMsg(pthis.fd, msgpacket.MSG_TYPE__MSG_GET_MAP_RES, msgRes)
+}
+
 func (pthis*TcpClient)Process_protoMsg(msg *msgClient) {
 	defer func() {
 		err := recover()
@@ -102,6 +108,8 @@ func (pthis*TcpClient)Process_protoMsg(msg *msgClient) {
 		pthis.Process_MSG_HEARTBEAT(t)
 	case *msgpacket.MSG_TCP_STATIC:
 		pthis.Process_MSG_TCP_STATIC(t)
+	case *msgpacket.MSG_GET_MAP:
+		pthis.Process_MSG_GET_MAP(t)
 	}
 }
 

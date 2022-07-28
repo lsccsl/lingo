@@ -50,6 +50,7 @@ type ServerMgr struct {
 	processUnit []*TcpClientMgrUnit
 
 	tcpSrvMgr *TcpSrvMgr
+	mapMgr *MapMgr
 
 	clientCloseTimeoutSec int
 	srvCloseTimeoutSec int
@@ -263,6 +264,7 @@ func ConstructorEpollServerMgr(addr string,
 		processUnit : make([]*TcpClientMgrUnit, 0, processUnitCount),
 		clientCloseTimeoutSec : clientCloseTimeoutSec,
 		srvCloseTimeoutSec : srvCloseTimeoutSec,
+		mapMgr : ConstructorMapMgr("../resource/dump.bmp"),
 	}
 	eSrvMgr.tcpSrvMgr = ConstructorTcpSrvMgr(eSrvMgr, srvProcessUnitCount)
 	lsn, err := lin_common.ConstructorEPollListener(eSrvMgr, addr, epollCoroutineCount, lin_common.ParamEPollListener{ParamET: bET})

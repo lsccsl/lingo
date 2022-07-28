@@ -64,7 +64,18 @@ func (pthis*MapData)IsBlock(x int, y int)bool{
 	return posBit == 0
 }
 
-
+func (pthis*MapData)GetWidReal()int{
+	return pthis.widReal
+}
+func (pthis*MapData)GetWidPitch()int{
+	return pthis.widBytePitch
+}
+func (pthis*MapData)GetHeight()int{
+	return pthis.hei
+}
+func (pthis*MapData)GetMapBit()*[]uint8{
+	return &pthis.mapBit
+}
 
 
 func (pthis*MapData)DumpMap(strMapFile string, path []Coord2d, src * Coord2d , dst * Coord2d, searchMgr *SearchMgr) {
