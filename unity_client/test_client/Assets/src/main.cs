@@ -5,6 +5,9 @@ using Google.Protobuf;
 
 public class main : MonoBehaviour
 {
+    public GameObject cube_block_;
+    public GameObject cube_no_block_;
+
     TestClient client_;
     // Start is called before the first frame update
     void Start()
