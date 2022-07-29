@@ -325,7 +325,6 @@ func (pthis*ePollConnection)EpollConnection_do_write(ti *tcpConnectionInfo) {
 		// if not support epoll et mode, can set read count limited, if support epoll et mode, maxReadcount must big enought
 		for i := 0; (i < maxWriteLoop) || (maxWriteLoop < 0); i ++ {
 			write_sz, err, bAgain := _tcpWrite(ti._fd.FD, ti._writeBuf.Bytes())
-			LogDebug("write:", write_sz, " err:", err, " bAgain:", bAgain)
 			if err != nil {
 				// write fail, will close tcp connection
 				pthis.EpollConnection_close_tcp(ti._fd, EN_TCP_CLOSE_REASON_write_err)
@@ -340,7 +339,6 @@ func (pthis*ePollConnection)EpollConnection_do_write(ti *tcpConnectionInfo) {
 
 			if ti._writeBuf.Len() == 0 {
 				// all data has been write to buffer, change mod to epoll wait read
-				LogDebug("write done")
 				break
 			}
 
@@ -595,7 +593,6 @@ func (pthis*EPollListener)EPollListenerCloseTcp(fd FD_DEF, reason EN_TCP_CLOSE_R
 }
 
 func (pthis*EPollListener)EPollListenerWrite(fd FD_DEF, binData []byte) {
-	LogDebug("write data len:", len(binData))
 	pthis._EPollListenerAddEvent(fd.FD, &event_TcpWrite{fd:fd, _binData:binData})
 }
 

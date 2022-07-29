@@ -5,6 +5,7 @@ using System.Threading;
 using Google.Protobuf;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
+using UnityEngine;
 
 public struct InterMsg
 {
@@ -109,7 +110,7 @@ public class TestClient
                 MSG_HEAD mh = (MSG_HEAD)obj;
 
                 if (mh.pack_len > realBufferLen)
-                    continue;
+                    break;
 
                 readIdx += (int)mh.pack_len;
                 int bodyLen = (int)mh.pack_len - headLen;
@@ -128,6 +129,10 @@ public class TestClient
                 {
                     readIdx = 0;
                     writeIdx = 0;
+
+                    Debug.Log("msg type:" + mh.msg_type + " msg len:" + mh.pack_len
+                        + " writeIdx:" + writeIdx
+                        + " readIdx:" + readIdx);
                 }
             }
         }

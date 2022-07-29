@@ -15,6 +15,10 @@ func ConstructorMapMgr(path string) *MapMgr {
 	mapMgr.mapData = &lin_common.MapData{}
 	mapMgr.mapData.LoadMap(path)
 
+	lin_common.LogDebug("wid:", mapMgr.mapData.GetWidReal(),
+		" hei:", mapMgr.mapData.GetHeight(),
+		" pitch:", mapMgr.mapData.GetWidPitch())
+
 	return mapMgr
 }
 
