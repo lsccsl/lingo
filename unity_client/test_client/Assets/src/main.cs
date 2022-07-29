@@ -31,6 +31,21 @@ public class main : MonoBehaviour
         {
             InterMsg msg = client_.GetRecvQue().Dequeue();
             Debug.Log("msgtype:" + msg.msgtype + " msg:" + msg.msg.ToString());
+
+            switch (msg.msgtype)
+            {
+                case Msgpacket.MSG_TYPE.MsgLoginRes:
+                    Debug.Log("Msgpacket.MSG_TYPE.MsgLoginRes");
+                    break;
+                case Msgpacket.MSG_TYPE.MsgGetMapRes:
+                    Debug.Log("Msgpacket.MSG_TYPE.MsgGetMapRes");
+                    break;
+            }
         }
+    }
+
+    void OnApplicationQuit()
+    {
+        client_.Close();
     }
 }

@@ -86,6 +86,7 @@ func (pthis*TcpClient)Process_MSG_HEARTBEAT(msg *msgpacket.MSG_HEARTBEAT) {
 }
 
 func (pthis*TcpClient)Process_MSG_GET_MAP(msg * msgpacket.MSG_GET_MAP){
+	lin_common.LogDebug("get map")
 	msgRes := &msgpacket.MSG_GET_MAP_RES{}
 	pthis.pu.eSrvMgr.mapMgr.GetMapProtoMsg(msgRes)
 	pthis.pu.eSrvMgr.SendProtoMsg(pthis.fd, msgpacket.MSG_TYPE__MSG_GET_MAP_RES, msgRes)

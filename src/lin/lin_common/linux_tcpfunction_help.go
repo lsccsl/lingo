@@ -149,12 +149,10 @@ func _tcpWrite(fd int, bin []byte) (write_sz int, err error, bAgain bool) {
 		if err != unix.EAGAIN {
 			return 0, GenErrNoERR_NUM(" unix.Write fail, fd:", fd, " err:", err), false
 		} else {
-			bAgain = true
+			return 0, nil, true
 		}
-	} else {
-		bAgain = false
 	}
-	return n, nil, bAgain
+	return n, nil, false
 }
 
 

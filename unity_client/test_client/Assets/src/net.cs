@@ -42,6 +42,11 @@ public class TestClient
         thread_recv_ = new Thread(thread_recv);
     }
 
+    public void Close()
+    {
+        client_socket_.Close();
+    }
+
     public BlockQueue<InterMsg> GetRecvQue()
     {
         return recv_que_;
@@ -52,6 +57,7 @@ public class TestClient
         msg_parse_ = new Dictionary<Msgpacket.MSG_TYPE, Type>();
         msg_parse_.Add(Msgpacket.MSG_TYPE.MsgTestRes, typeof(Msgpacket.MSG_TEST));
         msg_parse_.Add(Msgpacket.MSG_TYPE.MsgLoginRes, typeof(Msgpacket.MSG_LOGIN_RES));
+        msg_parse_.Add(Msgpacket.MSG_TYPE.MsgGetMapRes, typeof(Msgpacket.MSG_GET_MAP_RES));
     }
 
     private Google.Protobuf.IMessage parseMessage(byte[] pbData, Msgpacket.MSG_TYPE msgtype)
@@ -77,7 +83,7 @@ public class TestClient
         int headLen = Marshal.SizeOf(typeof(MSG_HEAD));
 
         byte[] byteRecvTmp = new byte[1024];
-        byte[] Buffer = new byte[65535];        
+        byte[] Buffer = new byte[655350];        
         byte[] hdBuf = new byte[headLen];
 
         int readIdx = 0;
@@ -141,6 +147,9 @@ public class TestClient
         Msgpacket.MSG_LOGIN msg = new Msgpacket.MSG_LOGIN();
         msg.Id = 1;
         send_msg(Msgpacket.MSG_TYPE.MsgLogin, msg);
+
+        Msgpacket.MSG_GET_MAP msgGetMap = new Msgpacket.MSG_GET_MAP();
+        send_msg(Msgpacket.MSG_TYPE.MsgGetMap, msg);
 
         thread_send_.Start();
         thread_recv_.Start();
