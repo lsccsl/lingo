@@ -51,6 +51,23 @@ public class main : MonoBehaviour
                     break;
             }
         }
+
+        if(Input.GetMouseButtonDown(0))
+            check_screen_ray_hit();
+    }
+
+    void check_screen_ray_hit()
+    {
+        Ray screen_ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit rh;
+
+        //LayerMask lay_terrain = (1 << LayerMask.NameToLayer("terrain"));
+        bool bhit = Physics.Raycast(screen_ray, out rh, 10000);
+        Debug.Log("hit:" + bhit + " mouse pos:" + Input.mousePosition + " ray:" + screen_ray);
+        if (bhit)
+        {
+            Debug.Log("hit" + rh.point);
+        }
     }
 
     void OnApplicationQuit()
