@@ -25,6 +25,7 @@ public class TestClient
 
     private Thread thread_send_ = null;
     private Thread thread_recv_ = null;
+    private bool b_close_ = false;
 
 
     private BlockQueue<InterMsg> send_que_ = null;
@@ -45,7 +46,9 @@ public class TestClient
 
     public void Close()
     {
+        b_close_ = true;
         client_socket_.Close();
+        thread_recv_.Join();
     }
 
     public BlockQueue<InterMsg> GetRecvQue()
@@ -71,7 +74,7 @@ public class TestClient
 
     private void thread_send()
     {
-        while (true)
+        while (!b_close_)
         {
             var msg = send_que_.Dequeue();
 
@@ -90,9 +93,13 @@ public class TestClient
         int readIdx = 0;
         int writeIdx = 0;
 
-        while (true)
+        while (!b_close_)
         {
             int recvLen = client_socket_.Receive(byteRecvTmp, 0, byteRecvTmp.Length, SocketFlags.None);
+            if (0 == recvLen)
+                continue;
+            if (recvLen < 0)
+                break;
             Array.Copy(byteRecvTmp, 0, Buffer, writeIdx, recvLen);
             writeIdx += recvLen;
 

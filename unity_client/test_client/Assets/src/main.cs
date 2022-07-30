@@ -8,10 +8,15 @@ public class main : MonoBehaviour
     public GameObject cube_block_;
     public GameObject cube_no_block_;
 
+    public GameObject[] cube_all_;
+
+    MapMgr map_mgr_;
+
     TestClient client_;
     // Start is called before the first frame update
     void Start()
     {
+        map_mgr_ = new MapMgr();
         Debug.Log("hello");
         Msgpacket.MSG_TEST msg = new Msgpacket.MSG_TEST();
         msg.Id = 123;
@@ -42,6 +47,7 @@ public class main : MonoBehaviour
                     break;
                 case Msgpacket.MSG_TYPE.MsgGetMapRes:
                     Debug.Log("Msgpacket.MSG_TYPE.MsgGetMapRes");
+                    process_map_load_msg(msg.msg);
                     break;
             }
         }
@@ -50,5 +56,32 @@ public class main : MonoBehaviour
     void OnApplicationQuit()
     {
         client_.Close();
+    }
+
+    void process_map_load_msg(IMessage msg)
+    {
+        map_mgr_.load_map((Msgpacket.MSG_GET_MAP_RES)msg);
+
+        cube_all_ = new GameObject[map_mgr_.hei * map_mgr_.wid];
+
+        for (int y = 0; y < map_mgr_.hei; y++)
+        {
+            for (int x = 0; x < map_mgr_.wid; x++)
+            {
+                var idx = y * map_mgr_.wid + x;
+                //var pos = new Vector3(x, 0, map_mgr_.hei - 1 - y);
+                var pos = new Vector3(x, 0, y);
+                if (map_mgr_.get_block(x, y))
+                {
+                    var new_obj = GameObject.Instantiate(cube_block_, pos, Quaternion.identity);
+                    cube_all_[idx] = new_obj;
+                }
+                else
+                {
+                    var new_obj = GameObject.Instantiate(cube_no_block_, pos, Quaternion.identity);
+                    cube_all_[idx] = new_obj;
+                }
+            }
+        }
     }
 }

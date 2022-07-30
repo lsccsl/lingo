@@ -410,6 +410,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cube_block_: {fileID: 6756228962173514500, guid: 221e801eabc886045a5df4fcf9481212, type: 3}
   cube_no_block_: {fileID: 6032797702851666044, guid: a9eb9e923d14c314aae56cb0b8ebd9fd, type: 3}
+  cube_all_: []
 --- !u!1001 &6032797703770944155
 PrefabInstance:
   m_ObjectHideFlags: 0
