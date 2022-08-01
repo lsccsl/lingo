@@ -28,6 +28,8 @@ enum MSG_TYPE
     _MSG_CLIENT_ENTER_RES = 1002;
     _MSG_GET_MAP = 1003;
     _MSG_GET_MAP_RES = 1004;
+    _MSG_PATH_SEARCH = 1005;
+    _MSG_PATH_SEARCH_RES = 1006;
 }
 
 enum RESPONSE_CODE
@@ -152,4 +154,20 @@ message MSG_GET_MAP_RES
     int32 map_high = 2;
     int32 map_pitch = 3;
     bytes map_data = 4;
+}
+
+message POS_T
+{
+    int32 pos_x = 1;
+    int32 pos_y = 2;
+}
+
+message MSG_PATH_SEARCH
+{
+    POS_T pos_src = 1;
+    POS_T pos_dst = 2;
+}
+message MSG_PATH_SEARCH_RES
+{
+    repeated POS_T path_pos = 1;
 }

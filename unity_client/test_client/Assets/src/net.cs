@@ -62,6 +62,7 @@ public class TestClient
         msg_parse_.Add(Msgpacket.MSG_TYPE.MsgTestRes, typeof(Msgpacket.MSG_TEST));
         msg_parse_.Add(Msgpacket.MSG_TYPE.MsgLoginRes, typeof(Msgpacket.MSG_LOGIN_RES));
         msg_parse_.Add(Msgpacket.MSG_TYPE.MsgGetMapRes, typeof(Msgpacket.MSG_GET_MAP_RES));
+        msg_parse_.Add(Msgpacket.MSG_TYPE.MsgPathSearchRes, typeof(Msgpacket.MSG_PATH_SEARCH_RES));
     }
 
     private Google.Protobuf.IMessage parseMessage(byte[] pbData, Msgpacket.MSG_TYPE msgtype)
@@ -72,13 +73,24 @@ public class TestClient
         return msgParse.Descriptor.Parser.ParseFrom(pbData);
     }
 
+    public void send_msg(Msgpacket.MSG_TYPE msgtype, IMessage proto_msg)
+    {
+        if (proto_msg == null)
+            return;
+        var inter_msg = new InterMsg();
+        inter_msg.msg = proto_msg;
+        inter_msg.msgtype = msgtype;
+
+        this.send_que_.Enqueue(inter_msg);
+    }
+
     private void thread_send()
     {
         while (!b_close_)
         {
             var msg = send_que_.Dequeue();
 
-            send_msg(msg.msgtype, msg.msg);
+            send_msg_inter(msg.msgtype, msg.msg);
         }
     }
 
@@ -158,16 +170,16 @@ public class TestClient
 
         Msgpacket.MSG_LOGIN msg = new Msgpacket.MSG_LOGIN();
         msg.Id = 1;
-        send_msg(Msgpacket.MSG_TYPE.MsgLogin, msg);
+        send_msg_inter(Msgpacket.MSG_TYPE.MsgLogin, msg);
 
         Msgpacket.MSG_GET_MAP msgGetMap = new Msgpacket.MSG_GET_MAP();
-        send_msg(Msgpacket.MSG_TYPE.MsgGetMap, msg);
+        send_msg_inter(Msgpacket.MSG_TYPE.MsgGetMap, msg);
 
         thread_send_.Start();
         thread_recv_.Start();
     }
 
-    public void send_msg(Msgpacket.MSG_TYPE msgtype, IMessage msg)
+    private void send_msg_inter(Msgpacket.MSG_TYPE msgtype, IMessage msg)
     {
         if (client_socket_ == null)
             return;

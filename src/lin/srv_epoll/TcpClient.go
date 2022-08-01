@@ -92,6 +92,51 @@ func (pthis*TcpClient)Process_MSG_GET_MAP(msg * msgpacket.MSG_GET_MAP){
 	pthis.pu.eSrvMgr.SendProtoMsg(pthis.fd, msgpacket.MSG_TYPE__MSG_GET_MAP_RES, msgRes)
 }
 
+func (pthis*TcpClient)Process_MSG_PATH_SEARCH(msg * msgpacket.MSG_PATH_SEARCH){
+	lin_common.LogDebug("path search")
+	mapData := pthis.pu.eSrvMgr.mapMgr.mapData
+	src := lin_common.Coord2d{int(msg.PosSrc.PosX), int(msg.PosSrc.PosY)}
+	dst := lin_common.Coord2d{int(msg.PosDst.PosX), int(msg.PosDst.PosY)}
+	path, jpsMgr := mapData.PathJPS(src, dst)
+
+	msgRes := &msgpacket.MSG_PATH_SEARCH_RES{}
+
+	var pathConn []lin_common.Coord2d
+	for i := 0; i < len(path) - 1; i ++ {
+
+		msgRes.PathPos = append(msgRes.PathPos, &msgpacket.POS_T{PosX:int32(path[i].X), PosY:int32(path[i].Y)})
+
+		pos1 := path[i]
+		pos2 := path[i + 1]
+		posDiff := pos1.Dec(&pos2)
+		if posDiff.X > 0 {
+			posDiff.X = 1
+		}
+		if posDiff.X < 0 {
+			posDiff.X = -1
+		}
+		if posDiff.Y > 0 {
+			posDiff.Y = 1
+		}
+		if posDiff.Y < 0 {
+			posDiff.Y = -1
+		}
+		curPos := pos2
+		for {
+			pathConn = append(pathConn, curPos)
+			if curPos.IsNear(&pos1) {
+				break
+			}
+			curPos = curPos.Add(&posDiff)
+		}
+	}
+
+	mapData.DumpMap("../resource/Process_MSG_PATH_SEARCH.bmp", pathConn, &src, &dst, nil)
+	mapData.DumpJPSMap("../resource/Process_MSG_PATH_SEARCH_tree.bmp", nil, jpsMgr)
+
+	pthis.pu.eSrvMgr.SendProtoMsg(pthis.fd, msgpacket.MSG_TYPE__MSG_PATH_SEARCH_RES, msgRes)
+}
+
 func (pthis*TcpClient)Process_protoMsg(msg *msgClient) {
 	defer func() {
 		err := recover()
@@ -111,6 +156,8 @@ func (pthis*TcpClient)Process_protoMsg(msg *msgClient) {
 		pthis.Process_MSG_TCP_STATIC(t)
 	case *msgpacket.MSG_GET_MAP:
 		pthis.Process_MSG_GET_MAP(t)
+	case *msgpacket.MSG_PATH_SEARCH:
+		pthis.Process_MSG_PATH_SEARCH(t)
 	}
 }
 

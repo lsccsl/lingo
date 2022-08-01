@@ -12,10 +12,16 @@ public class main : MonoBehaviour
 
     MapMgr map_mgr_;
 
+    Msgpacket.POS_T cur_pos_;
+
     TestClient client_;
     // Start is called before the first frame update
     void Start()
     {
+        cur_pos_ = new Msgpacket.POS_T();
+        cur_pos_.PosX = 0;
+        cur_pos_.PosY = 0;
+
         map_mgr_ = new MapMgr();
         Debug.Log("hello");
         Msgpacket.MSG_TEST msg = new Msgpacket.MSG_TEST();
@@ -49,6 +55,9 @@ public class main : MonoBehaviour
                     Debug.Log("Msgpacket.MSG_TYPE.MsgGetMapRes");
                     process_map_load_msg(msg.msg);
                     break;
+                case Msgpacket.MSG_TYPE.MsgPathSearchRes:
+                    Debug.Log("Msgpacket.MSG_TYPE.MsgPathSearchRes");
+                    break;
             }
         }
 
@@ -63,11 +72,20 @@ public class main : MonoBehaviour
 
         //LayerMask lay_terrain = (1 << LayerMask.NameToLayer("terrain"));
         bool bhit = Physics.Raycast(screen_ray, out rh, 10000);
-        Debug.Log("hit:" + bhit + " mouse pos:" + Input.mousePosition + " ray:" + screen_ray);
-        if (bhit)
-        {
-            Debug.Log("hit" + rh.point);
-        }
+        //Debug.Log("hit:" + bhit + " mouse pos:" + Input.mousePosition + " ray:" + screen_ray);
+        if (!bhit)
+            return;
+
+        Debug.Log("hit" + rh.point + " hit game obj:" + rh.collider.gameObject);
+
+        var block = rh.collider.gameObject.GetComponent<Mapblock>();
+
+        Msgpacket.MSG_PATH_SEARCH msg = new Msgpacket.MSG_PATH_SEARCH();
+        msg.PosSrc = cur_pos_;
+        msg.PosDst = new Msgpacket.POS_T();
+        msg.PosDst.PosX = block.X;
+        msg.PosDst.PosY = block.Y;
+        this.client_.send_msg(Msgpacket.MSG_TYPE.MsgPathSearch, msg);
     }
 
     void OnApplicationQuit()
@@ -88,16 +106,17 @@ public class main : MonoBehaviour
                 var idx = y * map_mgr_.wid + x;
                 //var pos = new Vector3(x, 0, map_mgr_.hei - 1 - y);
                 var pos = new Vector3(x, 0, y);
+
+                GameObject gobj = cube_no_block_;
                 if (map_mgr_.get_block(x, y))
-                {
-                    var new_obj = GameObject.Instantiate(cube_block_, pos, Quaternion.identity);
-                    cube_all_[idx] = new_obj;
-                }
-                else
-                {
-                    var new_obj = GameObject.Instantiate(cube_no_block_, pos, Quaternion.identity);
-                    cube_all_[idx] = new_obj;
-                }
+                    gobj = cube_block_;
+
+                var new_obj = GameObject.Instantiate(gobj, pos, Quaternion.identity);
+                cube_all_[idx] = new_obj;
+
+                var block = new_obj.GetComponent<Mapblock>();
+                block.X = x;
+                block.Y = y;
             }
         }
     }
