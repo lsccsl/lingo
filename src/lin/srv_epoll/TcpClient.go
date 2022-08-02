@@ -93,19 +93,18 @@ func (pthis*TcpClient)Process_MSG_GET_MAP(msg * msgpacket.MSG_GET_MAP){
 }
 
 func (pthis*TcpClient)Process_MSG_PATH_SEARCH(msg * msgpacket.MSG_PATH_SEARCH){
-	lin_common.LogDebug("path search")
+	lin_common.LogDebug("path search", msg)
 	mapData := pthis.pu.eSrvMgr.mapMgr.mapData
 	src := lin_common.Coord2d{int(msg.PosSrc.PosX), int(msg.PosSrc.PosY)}
 	dst := lin_common.Coord2d{int(msg.PosDst.PosX), int(msg.PosDst.PosY)}
 	path, jpsMgr := mapData.PathJPS(src, dst)
 
 	msgRes := &msgpacket.MSG_PATH_SEARCH_RES{}
+	msgRes.PosSrc = msg.PosSrc
+	msgRes.PosDst = msg.PosDst
 
 	var pathConn []lin_common.Coord2d
 	for i := 0; i < len(path) - 1; i ++ {
-
-		msgRes.PathPos = append(msgRes.PathPos, &msgpacket.POS_T{PosX:int32(path[i].X), PosY:int32(path[i].Y)})
-
 		pos1 := path[i]
 		pos2 := path[i + 1]
 		posDiff := pos1.Dec(&pos2)
@@ -124,6 +123,7 @@ func (pthis*TcpClient)Process_MSG_PATH_SEARCH(msg * msgpacket.MSG_PATH_SEARCH){
 		curPos := pos2
 		for {
 			pathConn = append(pathConn, curPos)
+			msgRes.PathPos = append(msgRes.PathPos, &msgpacket.POS_T{PosX:int32(curPos.X), PosY:int32(curPos.Y)})
 			if curPos.IsNear(&pos1) {
 				break
 			}

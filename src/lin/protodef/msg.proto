@@ -169,5 +169,7 @@ message MSG_PATH_SEARCH
 }
 message MSG_PATH_SEARCH_RES
 {
-    repeated POS_T path_pos = 1;
+    POS_T pos_src = 1;
+    POS_T pos_dst = 2;
+    repeated POS_T path_pos = 3;
 }

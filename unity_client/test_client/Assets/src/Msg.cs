@@ -58,22 +58,24 @@ namespace Msgpacket {
             "KAUSEAoIbWFwX2RhdGEYBCABKAwiJQoFUE9TX1QSDQoFcG9zX3gYASABKAUS",
             "DQoFcG9zX3kYAiABKAUiVwoPTVNHX1BBVEhfU0VBUkNIEiEKB3Bvc19zcmMY",
             "ASABKAsyEC5tc2dwYWNrZXQuUE9TX1QSIQoHcG9zX2RzdBgCIAEoCzIQLm1z",
-            "Z3BhY2tldC5QT1NfVCI5ChNNU0dfUEFUSF9TRUFSQ0hfUkVTEiIKCHBhdGhf",
-            "cG9zGAEgAygLMhAubXNncGFja2V0LlBPU19UKuUDCghNU0dfVFlQRRINCglf",
-            "TVNHX05VTEwQABIMCghfTVNHX1JQQxABEhAKDF9NU0dfUlBDX1JFUxACEhMK",
-            "D19NU0dfU1JWX1JFUE9SVBADEhcKE19NU0dfU1JWX1JFUE9SVF9SRVMQBBIS",
-            "Cg5fTVNHX0hFQVJUQkVBVBAFEhYKEl9NU0dfSEVBUlRCRUFUX1JFUxAGEhMK",
-            "D19NU0dfVENQX1NUQVRJQxAHEhcKE19NU0dfVENQX1NUQVRJQ19SRVMQCBIM",
-            "CghfTVNHX01BWBBkEg0KCV9NU0dfVEVTVBBlEhEKDV9NU0dfVEVTVF9SRVMQ",
-            "ZhIOCgpfTVNHX0xPR0lOEGcSEgoOX01TR19MT0dJTl9SRVMQaBIRCg1fTVNH",
-            "X1RFU1RfUlBDEGkSFQoRX01TR19URVNUX1JQQ19SRVMQahIUCg9fTVNHX1NF",
-            "UlZFUl9NQVgQ6AcSFgoRX01TR19DTElFTlRfRU5URVIQ6QcSGgoVX01TR19D",
-            "TElFTlRfRU5URVJfUkVTEOoHEhEKDF9NU0dfR0VUX01BUBDrBxIVChBfTVNH",
-            "X0dFVF9NQVBfUkVTEOwHEhUKEF9NU0dfUEFUSF9TRUFSQ0gQ7QcSGQoUX01T",
-            "R19QQVRIX1NFQVJDSF9SRVMQ7gcqewoNUkVTUE9OU0VfQ09ERRIWChJSRVNQ",
-            "T05TRV9DT0RFX0ZhaWwQABIUChBSRVNQT05TRV9DT0RFX09LEAESIAocUkVT",
-            "UE9OU0VfQ09ERV9ScGNfbm90X2FjY2VwdBACEhoKFlJFU1BPTlNFX0NPREVf",
-            "cmVkaXJlY3QQA0IOWgwuLzttc2dwYWNrZXRiBnByb3RvMw=="));
+            "Z3BhY2tldC5QT1NfVCJ/ChNNU0dfUEFUSF9TRUFSQ0hfUkVTEiEKB3Bvc19z",
+            "cmMYASABKAsyEC5tc2dwYWNrZXQuUE9TX1QSIQoHcG9zX2RzdBgCIAEoCzIQ",
+            "Lm1zZ3BhY2tldC5QT1NfVBIiCghwYXRoX3BvcxgDIAMoCzIQLm1zZ3BhY2tl",
+            "dC5QT1NfVCrlAwoITVNHX1RZUEUSDQoJX01TR19OVUxMEAASDAoIX01TR19S",
+            "UEMQARIQCgxfTVNHX1JQQ19SRVMQAhITCg9fTVNHX1NSVl9SRVBPUlQQAxIX",
+            "ChNfTVNHX1NSVl9SRVBPUlRfUkVTEAQSEgoOX01TR19IRUFSVEJFQVQQBRIW",
+            "ChJfTVNHX0hFQVJUQkVBVF9SRVMQBhITCg9fTVNHX1RDUF9TVEFUSUMQBxIX",
+            "ChNfTVNHX1RDUF9TVEFUSUNfUkVTEAgSDAoIX01TR19NQVgQZBINCglfTVNH",
+            "X1RFU1QQZRIRCg1fTVNHX1RFU1RfUkVTEGYSDgoKX01TR19MT0dJThBnEhIK",
+            "Dl9NU0dfTE9HSU5fUkVTEGgSEQoNX01TR19URVNUX1JQQxBpEhUKEV9NU0df",
+            "VEVTVF9SUENfUkVTEGoSFAoPX01TR19TRVJWRVJfTUFYEOgHEhYKEV9NU0df",
+            "Q0xJRU5UX0VOVEVSEOkHEhoKFV9NU0dfQ0xJRU5UX0VOVEVSX1JFUxDqBxIR",
+            "CgxfTVNHX0dFVF9NQVAQ6wcSFQoQX01TR19HRVRfTUFQX1JFUxDsBxIVChBf",
+            "TVNHX1BBVEhfU0VBUkNIEO0HEhkKFF9NU0dfUEFUSF9TRUFSQ0hfUkVTEO4H",
+            "KnsKDVJFU1BPTlNFX0NPREUSFgoSUkVTUE9OU0VfQ09ERV9GYWlsEAASFAoQ",
+            "UkVTUE9OU0VfQ09ERV9PSxABEiAKHFJFU1BPTlNFX0NPREVfUnBjX25vdF9h",
+            "Y2NlcHQQAhIaChZSRVNQT05TRV9DT0RFX3JlZGlyZWN0EANCDloMLi87bXNn",
+            "cGFja2V0YgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Msgpacket.MSG_TYPE), typeof(global::Msgpacket.RESPONSE_CODE), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -97,7 +99,7 @@ namespace Msgpacket {
             new pbr::GeneratedClrTypeInfo(typeof(global::Msgpacket.MSG_GET_MAP_RES), global::Msgpacket.MSG_GET_MAP_RES.Parser, new[]{ "MapWid", "MapHigh", "MapPitch", "MapData" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Msgpacket.POS_T), global::Msgpacket.POS_T.Parser, new[]{ "PosX", "PosY" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Msgpacket.MSG_PATH_SEARCH), global::Msgpacket.MSG_PATH_SEARCH.Parser, new[]{ "PosSrc", "PosDst" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Msgpacket.MSG_PATH_SEARCH_RES), global::Msgpacket.MSG_PATH_SEARCH_RES.Parser, new[]{ "PathPos" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Msgpacket.MSG_PATH_SEARCH_RES), global::Msgpacket.MSG_PATH_SEARCH_RES.Parser, new[]{ "PosSrc", "PosDst", "PathPos" }, null, null, null, null)
           }));
     }
     #endregion
@@ -5222,6 +5224,8 @@ namespace Msgpacket {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public MSG_PATH_SEARCH_RES(MSG_PATH_SEARCH_RES other) : this() {
+      posSrc_ = other.posSrc_ != null ? other.posSrc_.Clone() : null;
+      posDst_ = other.posDst_ != null ? other.posDst_.Clone() : null;
       pathPos_ = other.pathPos_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
@@ -5232,10 +5236,34 @@ namespace Msgpacket {
       return new MSG_PATH_SEARCH_RES(this);
     }
 
+    /// <summary>Field number for the "pos_src" field.</summary>
+    public const int PosSrcFieldNumber = 1;
+    private global::Msgpacket.POS_T posSrc_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Msgpacket.POS_T PosSrc {
+      get { return posSrc_; }
+      set {
+        posSrc_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "pos_dst" field.</summary>
+    public const int PosDstFieldNumber = 2;
+    private global::Msgpacket.POS_T posDst_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Msgpacket.POS_T PosDst {
+      get { return posDst_; }
+      set {
+        posDst_ = value;
+      }
+    }
+
     /// <summary>Field number for the "path_pos" field.</summary>
-    public const int PathPosFieldNumber = 1;
+    public const int PathPosFieldNumber = 3;
     private static readonly pb::FieldCodec<global::Msgpacket.POS_T> _repeated_pathPos_codec
-        = pb::FieldCodec.ForMessage(10, global::Msgpacket.POS_T.Parser);
+        = pb::FieldCodec.ForMessage(26, global::Msgpacket.POS_T.Parser);
     private readonly pbc::RepeatedField<global::Msgpacket.POS_T> pathPos_ = new pbc::RepeatedField<global::Msgpacket.POS_T>();
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -5258,6 +5286,8 @@ namespace Msgpacket {
       if (ReferenceEquals(other, this)) {
         return true;
       }
+      if (!object.Equals(PosSrc, other.PosSrc)) return false;
+      if (!object.Equals(PosDst, other.PosDst)) return false;
       if(!pathPos_.Equals(other.pathPos_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -5266,6 +5296,8 @@ namespace Msgpacket {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
+      if (posSrc_ != null) hash ^= PosSrc.GetHashCode();
+      if (posDst_ != null) hash ^= PosDst.GetHashCode();
       hash ^= pathPos_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -5285,6 +5317,14 @@ namespace Msgpacket {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
+      if (posSrc_ != null) {
+        output.WriteRawTag(10);
+        output.WriteMessage(PosSrc);
+      }
+      if (posDst_ != null) {
+        output.WriteRawTag(18);
+        output.WriteMessage(PosDst);
+      }
       pathPos_.WriteTo(output, _repeated_pathPos_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -5296,6 +5336,14 @@ namespace Msgpacket {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (posSrc_ != null) {
+        output.WriteRawTag(10);
+        output.WriteMessage(PosSrc);
+      }
+      if (posDst_ != null) {
+        output.WriteRawTag(18);
+        output.WriteMessage(PosDst);
+      }
       pathPos_.WriteTo(ref output, _repeated_pathPos_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
@@ -5307,6 +5355,12 @@ namespace Msgpacket {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
+      if (posSrc_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(PosSrc);
+      }
+      if (posDst_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(PosDst);
+      }
       size += pathPos_.CalculateSize(_repeated_pathPos_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -5319,6 +5373,18 @@ namespace Msgpacket {
     public void MergeFrom(MSG_PATH_SEARCH_RES other) {
       if (other == null) {
         return;
+      }
+      if (other.posSrc_ != null) {
+        if (posSrc_ == null) {
+          PosSrc = new global::Msgpacket.POS_T();
+        }
+        PosSrc.MergeFrom(other.PosSrc);
+      }
+      if (other.posDst_ != null) {
+        if (posDst_ == null) {
+          PosDst = new global::Msgpacket.POS_T();
+        }
+        PosDst.MergeFrom(other.PosDst);
       }
       pathPos_.Add(other.pathPos_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
@@ -5337,6 +5403,20 @@ namespace Msgpacket {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 10: {
+            if (posSrc_ == null) {
+              PosSrc = new global::Msgpacket.POS_T();
+            }
+            input.ReadMessage(PosSrc);
+            break;
+          }
+          case 18: {
+            if (posDst_ == null) {
+              PosDst = new global::Msgpacket.POS_T();
+            }
+            input.ReadMessage(PosDst);
+            break;
+          }
+          case 26: {
             pathPos_.AddEntriesFrom(input, _repeated_pathPos_codec);
             break;
           }
@@ -5356,6 +5436,20 @@ namespace Msgpacket {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
           case 10: {
+            if (posSrc_ == null) {
+              PosSrc = new global::Msgpacket.POS_T();
+            }
+            input.ReadMessage(PosSrc);
+            break;
+          }
+          case 18: {
+            if (posDst_ == null) {
+              PosDst = new global::Msgpacket.POS_T();
+            }
+            input.ReadMessage(PosDst);
+            break;
+          }
+          case 26: {
             pathPos_.AddEntriesFrom(ref input, _repeated_pathPos_codec);
             break;
           }

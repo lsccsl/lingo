@@ -306,7 +306,9 @@ struct MSG_PATH_SEARCHDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MSG_PATH_SEARCHDefaultTypeInternal _MSG_PATH_SEARCH_default_instance_;
 constexpr MSG_PATH_SEARCH_RES::MSG_PATH_SEARCH_RES(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : path_pos_(){}
+  : path_pos_()
+  , pos_src_(nullptr)
+  , pos_dst_(nullptr){}
 struct MSG_PATH_SEARCH_RESDefaultTypeInternal {
   constexpr MSG_PATH_SEARCH_RESDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -512,6 +514,8 @@ const uint32_t TableStruct_msg_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(prot
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::msgpacket::MSG_PATH_SEARCH_RES, pos_src_),
+  PROTOBUF_FIELD_OFFSET(::msgpacket::MSG_PATH_SEARCH_RES, pos_dst_),
   PROTOBUF_FIELD_OFFSET(::msgpacket::MSG_PATH_SEARCH_RES, path_pos_),
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
@@ -603,28 +607,30 @@ const char descriptor_table_protodef_msg_2eproto[] PROTOBUF_SECTION_VARIABLE(pro
   "\010map_data\030\004 \001(\014\"%\n\005POS_T\022\r\n\005pos_x\030\001 \001(\005\022"
   "\r\n\005pos_y\030\002 \001(\005\"W\n\017MSG_PATH_SEARCH\022!\n\007pos"
   "_src\030\001 \001(\0132\020.msgpacket.POS_T\022!\n\007pos_dst\030"
-  "\002 \001(\0132\020.msgpacket.POS_T\"9\n\023MSG_PATH_SEAR"
-  "CH_RES\022\"\n\010path_pos\030\001 \003(\0132\020.msgpacket.POS"
-  "_T*\345\003\n\010MSG_TYPE\022\r\n\t_MSG_NULL\020\000\022\014\n\010_MSG_R"
-  "PC\020\001\022\020\n\014_MSG_RPC_RES\020\002\022\023\n\017_MSG_SRV_REPOR"
-  "T\020\003\022\027\n\023_MSG_SRV_REPORT_RES\020\004\022\022\n\016_MSG_HEA"
-  "RTBEAT\020\005\022\026\n\022_MSG_HEARTBEAT_RES\020\006\022\023\n\017_MSG"
-  "_TCP_STATIC\020\007\022\027\n\023_MSG_TCP_STATIC_RES\020\010\022\014"
-  "\n\010_MSG_MAX\020d\022\r\n\t_MSG_TEST\020e\022\021\n\r_MSG_TEST"
-  "_RES\020f\022\016\n\n_MSG_LOGIN\020g\022\022\n\016_MSG_LOGIN_RES"
-  "\020h\022\021\n\r_MSG_TEST_RPC\020i\022\025\n\021_MSG_TEST_RPC_R"
-  "ES\020j\022\024\n\017_MSG_SERVER_MAX\020\350\007\022\026\n\021_MSG_CLIEN"
-  "T_ENTER\020\351\007\022\032\n\025_MSG_CLIENT_ENTER_RES\020\352\007\022\021"
-  "\n\014_MSG_GET_MAP\020\353\007\022\025\n\020_MSG_GET_MAP_RES\020\354\007"
-  "\022\025\n\020_MSG_PATH_SEARCH\020\355\007\022\031\n\024_MSG_PATH_SEA"
-  "RCH_RES\020\356\007*{\n\rRESPONSE_CODE\022\026\n\022RESPONSE_"
-  "CODE_Fail\020\000\022\024\n\020RESPONSE_CODE_OK\020\001\022 \n\034RES"
-  "PONSE_CODE_Rpc_not_accept\020\002\022\032\n\026RESPONSE_"
-  "CODE_redirect\020\003B\016Z\014./;msgpacketb\006proto3"
+  "\002 \001(\0132\020.msgpacket.POS_T\"\177\n\023MSG_PATH_SEAR"
+  "CH_RES\022!\n\007pos_src\030\001 \001(\0132\020.msgpacket.POS_"
+  "T\022!\n\007pos_dst\030\002 \001(\0132\020.msgpacket.POS_T\022\"\n\010"
+  "path_pos\030\003 \003(\0132\020.msgpacket.POS_T*\345\003\n\010MSG"
+  "_TYPE\022\r\n\t_MSG_NULL\020\000\022\014\n\010_MSG_RPC\020\001\022\020\n\014_M"
+  "SG_RPC_RES\020\002\022\023\n\017_MSG_SRV_REPORT\020\003\022\027\n\023_MS"
+  "G_SRV_REPORT_RES\020\004\022\022\n\016_MSG_HEARTBEAT\020\005\022\026"
+  "\n\022_MSG_HEARTBEAT_RES\020\006\022\023\n\017_MSG_TCP_STATI"
+  "C\020\007\022\027\n\023_MSG_TCP_STATIC_RES\020\010\022\014\n\010_MSG_MAX"
+  "\020d\022\r\n\t_MSG_TEST\020e\022\021\n\r_MSG_TEST_RES\020f\022\016\n\n"
+  "_MSG_LOGIN\020g\022\022\n\016_MSG_LOGIN_RES\020h\022\021\n\r_MSG"
+  "_TEST_RPC\020i\022\025\n\021_MSG_TEST_RPC_RES\020j\022\024\n\017_M"
+  "SG_SERVER_MAX\020\350\007\022\026\n\021_MSG_CLIENT_ENTER\020\351\007"
+  "\022\032\n\025_MSG_CLIENT_ENTER_RES\020\352\007\022\021\n\014_MSG_GET"
+  "_MAP\020\353\007\022\025\n\020_MSG_GET_MAP_RES\020\354\007\022\025\n\020_MSG_P"
+  "ATH_SEARCH\020\355\007\022\031\n\024_MSG_PATH_SEARCH_RES\020\356\007"
+  "*{\n\rRESPONSE_CODE\022\026\n\022RESPONSE_CODE_Fail\020"
+  "\000\022\024\n\020RESPONSE_CODE_OK\020\001\022 \n\034RESPONSE_CODE"
+  "_Rpc_not_accept\020\002\022\032\n\026RESPONSE_CODE_redir"
+  "ect\020\003B\016Z\014./;msgpacketb\006proto3"
   ;
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_msg_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_msg_2eproto = {
-  false, false, 2239, descriptor_table_protodef_msg_2eproto, "msg.proto", 
+  false, false, 2309, descriptor_table_protodef_msg_2eproto, "msg.proto", 
   &descriptor_table_msg_2eproto_once, nullptr, 0, 22,
   schemas, file_default_instances, TableStruct_msg_2eproto::offsets,
   file_level_metadata_msg_2eproto, file_level_enum_descriptors_msg_2eproto, file_level_service_descriptors_msg_2eproto,
@@ -5161,8 +5167,18 @@ void MSG_PATH_SEARCH::InternalSwap(MSG_PATH_SEARCH* other) {
 
 class MSG_PATH_SEARCH_RES::_Internal {
  public:
+  static const ::msgpacket::POS_T& pos_src(const MSG_PATH_SEARCH_RES* msg);
+  static const ::msgpacket::POS_T& pos_dst(const MSG_PATH_SEARCH_RES* msg);
 };
 
+const ::msgpacket::POS_T&
+MSG_PATH_SEARCH_RES::_Internal::pos_src(const MSG_PATH_SEARCH_RES* msg) {
+  return *msg->pos_src_;
+}
+const ::msgpacket::POS_T&
+MSG_PATH_SEARCH_RES::_Internal::pos_dst(const MSG_PATH_SEARCH_RES* msg) {
+  return *msg->pos_dst_;
+}
 MSG_PATH_SEARCH_RES::MSG_PATH_SEARCH_RES(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned),
@@ -5177,10 +5193,24 @@ MSG_PATH_SEARCH_RES::MSG_PATH_SEARCH_RES(const MSG_PATH_SEARCH_RES& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
       path_pos_(from.path_pos_) {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  if (from._internal_has_pos_src()) {
+    pos_src_ = new ::msgpacket::POS_T(*from.pos_src_);
+  } else {
+    pos_src_ = nullptr;
+  }
+  if (from._internal_has_pos_dst()) {
+    pos_dst_ = new ::msgpacket::POS_T(*from.pos_dst_);
+  } else {
+    pos_dst_ = nullptr;
+  }
   // @@protoc_insertion_point(copy_constructor:msgpacket.MSG_PATH_SEARCH_RES)
 }
 
 inline void MSG_PATH_SEARCH_RES::SharedCtor() {
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
+    reinterpret_cast<char*>(&pos_src_) - reinterpret_cast<char*>(this)),
+    0, static_cast<size_t>(reinterpret_cast<char*>(&pos_dst_) -
+    reinterpret_cast<char*>(&pos_src_)) + sizeof(pos_dst_));
 }
 
 MSG_PATH_SEARCH_RES::~MSG_PATH_SEARCH_RES() {
@@ -5192,6 +5222,8 @@ MSG_PATH_SEARCH_RES::~MSG_PATH_SEARCH_RES() {
 
 inline void MSG_PATH_SEARCH_RES::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+  if (this != internal_default_instance()) delete pos_src_;
+  if (this != internal_default_instance()) delete pos_dst_;
 }
 
 void MSG_PATH_SEARCH_RES::ArenaDtor(void* object) {
@@ -5211,6 +5243,14 @@ void MSG_PATH_SEARCH_RES::Clear() {
   (void) cached_has_bits;
 
   path_pos_.Clear();
+  if (GetArenaForAllocation() == nullptr && pos_src_ != nullptr) {
+    delete pos_src_;
+  }
+  pos_src_ = nullptr;
+  if (GetArenaForAllocation() == nullptr && pos_dst_ != nullptr) {
+    delete pos_dst_;
+  }
+  pos_dst_ = nullptr;
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -5220,16 +5260,32 @@ const char* MSG_PATH_SEARCH_RES::_InternalParse(const char* ptr, ::PROTOBUF_NAME
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // repeated .msgpacket.POS_T path_pos = 1;
+      // .msgpacket.POS_T pos_src = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
+          ptr = ctx->ParseMessage(_internal_mutable_pos_src(), ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // .msgpacket.POS_T pos_dst = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
+          ptr = ctx->ParseMessage(_internal_mutable_pos_dst(), ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // repeated .msgpacket.POS_T path_pos = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           ptr -= 1;
           do {
             ptr += 1;
             ptr = ctx->ParseMessage(_internal_add_path_pos(), ptr);
             CHK_(ptr);
             if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<10>(ptr));
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<26>(ptr));
         } else
           goto handle_unusual;
         continue;
@@ -5262,12 +5318,28 @@ uint8_t* MSG_PATH_SEARCH_RES::_InternalSerialize(
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // repeated .msgpacket.POS_T path_pos = 1;
+  // .msgpacket.POS_T pos_src = 1;
+  if (this->_internal_has_pos_src()) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      InternalWriteMessage(
+        1, _Internal::pos_src(this), target, stream);
+  }
+
+  // .msgpacket.POS_T pos_dst = 2;
+  if (this->_internal_has_pos_dst()) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      InternalWriteMessage(
+        2, _Internal::pos_dst(this), target, stream);
+  }
+
+  // repeated .msgpacket.POS_T path_pos = 3;
   for (unsigned int i = 0,
       n = static_cast<unsigned int>(this->_internal_path_pos_size()); i < n; i++) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(1, this->_internal_path_pos(i), target, stream);
+      InternalWriteMessage(3, this->_internal_path_pos(i), target, stream);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -5286,11 +5358,25 @@ size_t MSG_PATH_SEARCH_RES::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // repeated .msgpacket.POS_T path_pos = 1;
+  // repeated .msgpacket.POS_T path_pos = 3;
   total_size += 1UL * this->_internal_path_pos_size();
   for (const auto& msg : this->path_pos_) {
     total_size +=
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  }
+
+  // .msgpacket.POS_T pos_src = 1;
+  if (this->_internal_has_pos_src()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+        *pos_src_);
+  }
+
+  // .msgpacket.POS_T pos_dst = 2;
+  if (this->_internal_has_pos_dst()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+        *pos_dst_);
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -5316,6 +5402,12 @@ void MSG_PATH_SEARCH_RES::MergeFrom(const MSG_PATH_SEARCH_RES& from) {
   (void) cached_has_bits;
 
   path_pos_.MergeFrom(from.path_pos_);
+  if (from._internal_has_pos_src()) {
+    _internal_mutable_pos_src()->::msgpacket::POS_T::MergeFrom(from._internal_pos_src());
+  }
+  if (from._internal_has_pos_dst()) {
+    _internal_mutable_pos_dst()->::msgpacket::POS_T::MergeFrom(from._internal_pos_dst());
+  }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
@@ -5334,6 +5426,12 @@ void MSG_PATH_SEARCH_RES::InternalSwap(MSG_PATH_SEARCH_RES* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   path_pos_.InternalSwap(&other->path_pos_);
+  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(MSG_PATH_SEARCH_RES, pos_dst_)
+      + sizeof(MSG_PATH_SEARCH_RES::pos_dst_)
+      - PROTOBUF_FIELD_OFFSET(MSG_PATH_SEARCH_RES, pos_src_)>(
+          reinterpret_cast<char*>(&pos_src_),
+          reinterpret_cast<char*>(&other->pos_src_));
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata MSG_PATH_SEARCH_RES::GetMetadata() const {

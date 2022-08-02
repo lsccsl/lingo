@@ -3693,9 +3693,11 @@ class MSG_PATH_SEARCH_RES final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kPathPosFieldNumber = 1,
+    kPathPosFieldNumber = 3,
+    kPosSrcFieldNumber = 1,
+    kPosDstFieldNumber = 2,
   };
-  // repeated .msgpacket.POS_T path_pos = 1;
+  // repeated .msgpacket.POS_T path_pos = 3;
   int path_pos_size() const;
   private:
   int _internal_path_pos_size() const;
@@ -3713,6 +3715,42 @@ class MSG_PATH_SEARCH_RES final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::msgpacket::POS_T >&
       path_pos() const;
 
+  // .msgpacket.POS_T pos_src = 1;
+  bool has_pos_src() const;
+  private:
+  bool _internal_has_pos_src() const;
+  public:
+  void clear_pos_src();
+  const ::msgpacket::POS_T& pos_src() const;
+  PROTOBUF_NODISCARD ::msgpacket::POS_T* release_pos_src();
+  ::msgpacket::POS_T* mutable_pos_src();
+  void set_allocated_pos_src(::msgpacket::POS_T* pos_src);
+  private:
+  const ::msgpacket::POS_T& _internal_pos_src() const;
+  ::msgpacket::POS_T* _internal_mutable_pos_src();
+  public:
+  void unsafe_arena_set_allocated_pos_src(
+      ::msgpacket::POS_T* pos_src);
+  ::msgpacket::POS_T* unsafe_arena_release_pos_src();
+
+  // .msgpacket.POS_T pos_dst = 2;
+  bool has_pos_dst() const;
+  private:
+  bool _internal_has_pos_dst() const;
+  public:
+  void clear_pos_dst();
+  const ::msgpacket::POS_T& pos_dst() const;
+  PROTOBUF_NODISCARD ::msgpacket::POS_T* release_pos_dst();
+  ::msgpacket::POS_T* mutable_pos_dst();
+  void set_allocated_pos_dst(::msgpacket::POS_T* pos_dst);
+  private:
+  const ::msgpacket::POS_T& _internal_pos_dst() const;
+  ::msgpacket::POS_T* _internal_mutable_pos_dst();
+  public:
+  void unsafe_arena_set_allocated_pos_dst(
+      ::msgpacket::POS_T* pos_dst);
+  ::msgpacket::POS_T* unsafe_arena_release_pos_dst();
+
   // @@protoc_insertion_point(class_scope:msgpacket.MSG_PATH_SEARCH_RES)
  private:
   class _Internal;
@@ -3721,6 +3759,8 @@ class MSG_PATH_SEARCH_RES final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::msgpacket::POS_T > path_pos_;
+  ::msgpacket::POS_T* pos_src_;
+  ::msgpacket::POS_T* pos_dst_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_msg_2eproto;
 };
@@ -5232,7 +5272,187 @@ inline void MSG_PATH_SEARCH::set_allocated_pos_dst(::msgpacket::POS_T* pos_dst) 
 
 // MSG_PATH_SEARCH_RES
 
-// repeated .msgpacket.POS_T path_pos = 1;
+// .msgpacket.POS_T pos_src = 1;
+inline bool MSG_PATH_SEARCH_RES::_internal_has_pos_src() const {
+  return this != internal_default_instance() && pos_src_ != nullptr;
+}
+inline bool MSG_PATH_SEARCH_RES::has_pos_src() const {
+  return _internal_has_pos_src();
+}
+inline void MSG_PATH_SEARCH_RES::clear_pos_src() {
+  if (GetArenaForAllocation() == nullptr && pos_src_ != nullptr) {
+    delete pos_src_;
+  }
+  pos_src_ = nullptr;
+}
+inline const ::msgpacket::POS_T& MSG_PATH_SEARCH_RES::_internal_pos_src() const {
+  const ::msgpacket::POS_T* p = pos_src_;
+  return p != nullptr ? *p : reinterpret_cast<const ::msgpacket::POS_T&>(
+      ::msgpacket::_POS_T_default_instance_);
+}
+inline const ::msgpacket::POS_T& MSG_PATH_SEARCH_RES::pos_src() const {
+  // @@protoc_insertion_point(field_get:msgpacket.MSG_PATH_SEARCH_RES.pos_src)
+  return _internal_pos_src();
+}
+inline void MSG_PATH_SEARCH_RES::unsafe_arena_set_allocated_pos_src(
+    ::msgpacket::POS_T* pos_src) {
+  if (GetArenaForAllocation() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(pos_src_);
+  }
+  pos_src_ = pos_src;
+  if (pos_src) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:msgpacket.MSG_PATH_SEARCH_RES.pos_src)
+}
+inline ::msgpacket::POS_T* MSG_PATH_SEARCH_RES::release_pos_src() {
+  
+  ::msgpacket::POS_T* temp = pos_src_;
+  pos_src_ = nullptr;
+#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
+  auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
+  temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  if (GetArenaForAllocation() == nullptr) { delete old; }
+#else  // PROTOBUF_FORCE_COPY_IN_RELEASE
+  if (GetArenaForAllocation() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  }
+#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
+  return temp;
+}
+inline ::msgpacket::POS_T* MSG_PATH_SEARCH_RES::unsafe_arena_release_pos_src() {
+  // @@protoc_insertion_point(field_release:msgpacket.MSG_PATH_SEARCH_RES.pos_src)
+  
+  ::msgpacket::POS_T* temp = pos_src_;
+  pos_src_ = nullptr;
+  return temp;
+}
+inline ::msgpacket::POS_T* MSG_PATH_SEARCH_RES::_internal_mutable_pos_src() {
+  
+  if (pos_src_ == nullptr) {
+    auto* p = CreateMaybeMessage<::msgpacket::POS_T>(GetArenaForAllocation());
+    pos_src_ = p;
+  }
+  return pos_src_;
+}
+inline ::msgpacket::POS_T* MSG_PATH_SEARCH_RES::mutable_pos_src() {
+  ::msgpacket::POS_T* _msg = _internal_mutable_pos_src();
+  // @@protoc_insertion_point(field_mutable:msgpacket.MSG_PATH_SEARCH_RES.pos_src)
+  return _msg;
+}
+inline void MSG_PATH_SEARCH_RES::set_allocated_pos_src(::msgpacket::POS_T* pos_src) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
+  if (message_arena == nullptr) {
+    delete pos_src_;
+  }
+  if (pos_src) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::msgpacket::POS_T>::GetOwningArena(pos_src);
+    if (message_arena != submessage_arena) {
+      pos_src = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, pos_src, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  pos_src_ = pos_src;
+  // @@protoc_insertion_point(field_set_allocated:msgpacket.MSG_PATH_SEARCH_RES.pos_src)
+}
+
+// .msgpacket.POS_T pos_dst = 2;
+inline bool MSG_PATH_SEARCH_RES::_internal_has_pos_dst() const {
+  return this != internal_default_instance() && pos_dst_ != nullptr;
+}
+inline bool MSG_PATH_SEARCH_RES::has_pos_dst() const {
+  return _internal_has_pos_dst();
+}
+inline void MSG_PATH_SEARCH_RES::clear_pos_dst() {
+  if (GetArenaForAllocation() == nullptr && pos_dst_ != nullptr) {
+    delete pos_dst_;
+  }
+  pos_dst_ = nullptr;
+}
+inline const ::msgpacket::POS_T& MSG_PATH_SEARCH_RES::_internal_pos_dst() const {
+  const ::msgpacket::POS_T* p = pos_dst_;
+  return p != nullptr ? *p : reinterpret_cast<const ::msgpacket::POS_T&>(
+      ::msgpacket::_POS_T_default_instance_);
+}
+inline const ::msgpacket::POS_T& MSG_PATH_SEARCH_RES::pos_dst() const {
+  // @@protoc_insertion_point(field_get:msgpacket.MSG_PATH_SEARCH_RES.pos_dst)
+  return _internal_pos_dst();
+}
+inline void MSG_PATH_SEARCH_RES::unsafe_arena_set_allocated_pos_dst(
+    ::msgpacket::POS_T* pos_dst) {
+  if (GetArenaForAllocation() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(pos_dst_);
+  }
+  pos_dst_ = pos_dst;
+  if (pos_dst) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:msgpacket.MSG_PATH_SEARCH_RES.pos_dst)
+}
+inline ::msgpacket::POS_T* MSG_PATH_SEARCH_RES::release_pos_dst() {
+  
+  ::msgpacket::POS_T* temp = pos_dst_;
+  pos_dst_ = nullptr;
+#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
+  auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
+  temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  if (GetArenaForAllocation() == nullptr) { delete old; }
+#else  // PROTOBUF_FORCE_COPY_IN_RELEASE
+  if (GetArenaForAllocation() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  }
+#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
+  return temp;
+}
+inline ::msgpacket::POS_T* MSG_PATH_SEARCH_RES::unsafe_arena_release_pos_dst() {
+  // @@protoc_insertion_point(field_release:msgpacket.MSG_PATH_SEARCH_RES.pos_dst)
+  
+  ::msgpacket::POS_T* temp = pos_dst_;
+  pos_dst_ = nullptr;
+  return temp;
+}
+inline ::msgpacket::POS_T* MSG_PATH_SEARCH_RES::_internal_mutable_pos_dst() {
+  
+  if (pos_dst_ == nullptr) {
+    auto* p = CreateMaybeMessage<::msgpacket::POS_T>(GetArenaForAllocation());
+    pos_dst_ = p;
+  }
+  return pos_dst_;
+}
+inline ::msgpacket::POS_T* MSG_PATH_SEARCH_RES::mutable_pos_dst() {
+  ::msgpacket::POS_T* _msg = _internal_mutable_pos_dst();
+  // @@protoc_insertion_point(field_mutable:msgpacket.MSG_PATH_SEARCH_RES.pos_dst)
+  return _msg;
+}
+inline void MSG_PATH_SEARCH_RES::set_allocated_pos_dst(::msgpacket::POS_T* pos_dst) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
+  if (message_arena == nullptr) {
+    delete pos_dst_;
+  }
+  if (pos_dst) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::msgpacket::POS_T>::GetOwningArena(pos_dst);
+    if (message_arena != submessage_arena) {
+      pos_dst = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, pos_dst, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  pos_dst_ = pos_dst;
+  // @@protoc_insertion_point(field_set_allocated:msgpacket.MSG_PATH_SEARCH_RES.pos_dst)
+}
+
+// repeated .msgpacket.POS_T path_pos = 3;
 inline int MSG_PATH_SEARCH_RES::_internal_path_pos_size() const {
   return path_pos_.size();
 }
