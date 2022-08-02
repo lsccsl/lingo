@@ -23,32 +23,18 @@ func test_bmp(){
 func test_map(){
 	testMap := &lin_common.MapData{}
 	//testMap.LoadMap("../resource/sample.bmp")
-	testMap.LoadMap("../resource/aa.bmp")
-
-	bret := testMap.IsBlock(0, 0)
-	fmt.Println(bret)
-
-	bret = testMap.IsBlock(1, 0)
-	fmt.Println(bret)
-
-	bret = testMap.IsBlock(0, 1)
-	fmt.Println(bret)
-	bret = testMap.IsBlock(0, 2)
-	fmt.Println(bret)
-
-	bret = testMap.IsBlock(1, 1)
-	fmt.Println(bret)
+	testMap.LoadMap("../resource/aa_old.bmp")
 
 	testMap.DumpMap("../resource/dump.bmp", nil, nil, nil, nil)
 
 	//src := lin_common.Coord2d{10, 290 - 261}
 	//dst := lin_common.Coord2d{338,290 - 18}
-	src := lin_common.Coord2d{10, 290 - 261}
-	dst := lin_common.Coord2d{367,290 - 109}
+	//src := lin_common.Coord2d{10, 290 - 261}
+	//dst := lin_common.Coord2d{367,290 - 109}
 	//src := lin_common.Coord2d{72, 342 - 158}
 	//dst := lin_common.Coord2d{252,342 - 157}
-
-
+	src := lin_common.Coord2d{317,236}
+	dst := lin_common.Coord2d{103,227}
 
 	{
 		t1 := time.Now().UnixMilli()

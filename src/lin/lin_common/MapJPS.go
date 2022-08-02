@@ -364,7 +364,7 @@ func (pthis*MapData)searchHorVer(jpsMgr *JSPMgr, curNode *JPSNode, curPos Coord2
 					neighborJP := &JPSNode{
 						pos:val,
 						endWeight:calJPSEndWeight(val, jpsMgr.dst),
-						startWeight:curNode.startWeight + JPS_WEIGHT_slash,
+						startWeight:jp.startWeight + JPS_WEIGHT_slash,
 						forceNeighbor:nil,
 					}
 					jpsMgr.addNode(neighborJP, jp)
@@ -383,6 +383,18 @@ func (pthis*MapData)searchSlash(jpsMgr *JSPMgr, curNode *JPSNode, curPos Coord2d
 	bFindForceNeighbor, forceNeighbor := pthis.hasForceNeighbor(jpsMgr, curPos, enDir)
 	if bFindForceNeighbor {
 		curNode.forceNeighbor = append(curNode.forceNeighbor, forceNeighbor...)
+
+		if forceNeighbor != nil {
+			for _, val := range forceNeighbor {
+				neighborJP := &JPSNode{
+					pos:val,
+					endWeight:calJPSEndWeight(val, jpsMgr.dst),
+					startWeight:curNode.startWeight + JPS_WEIGHT_slash,
+					forceNeighbor:nil,
+				}
+				jpsMgr.addNode(neighborJP, curNode)
+			}
+		}
 	}
 
 	dir := getDirVector(enDir)
@@ -393,6 +405,32 @@ func (pthis*MapData)searchSlash(jpsMgr *JSPMgr, curNode *JPSNode, curPos Coord2d
 		curWeightAdd += JPS_WEIGHT_slash
 
 		if pthis.CoordIsBlock(newPos) {
+			break
+		}
+
+		bFindForceNeighbor, forceNeighbor := pthis.hasForceNeighbor(jpsMgr, newPos, enDir)
+		if bFindForceNeighbor && !jpsMgr.isInHistory(newPos){
+			jp := &JPSNode{
+				pos:newPos,
+				endWeight:calJPSEndWeight(newPos, jpsMgr.dst),
+				startWeight:curNode.startWeight + curWeightAdd,
+				forceNeighbor:forceNeighbor,
+			}
+
+			// add pos to open list
+			jpsMgr.addNode(jp, curNode)
+
+			if forceNeighbor != nil {
+				for _, val := range forceNeighbor {
+					neighborJP := &JPSNode{
+						pos:val,
+						endWeight:calJPSEndWeight(val, jpsMgr.dst),
+						startWeight:jp.startWeight + JPS_WEIGHT_slash,
+						forceNeighbor:nil,
+					}
+					jpsMgr.addNode(neighborJP, jp)
+				}
+			}
 			break
 		}
 
