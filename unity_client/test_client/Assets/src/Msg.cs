@@ -58,24 +58,25 @@ namespace Msgpacket {
             "KAUSEAoIbWFwX2RhdGEYBCABKAwiJQoFUE9TX1QSDQoFcG9zX3gYASABKAUS",
             "DQoFcG9zX3kYAiABKAUiVwoPTVNHX1BBVEhfU0VBUkNIEiEKB3Bvc19zcmMY",
             "ASABKAsyEC5tc2dwYWNrZXQuUE9TX1QSIQoHcG9zX2RzdBgCIAEoCzIQLm1z",
-            "Z3BhY2tldC5QT1NfVCJ/ChNNU0dfUEFUSF9TRUFSQ0hfUkVTEiEKB3Bvc19z",
-            "cmMYASABKAsyEC5tc2dwYWNrZXQuUE9TX1QSIQoHcG9zX2RzdBgCIAEoCzIQ",
-            "Lm1zZ3BhY2tldC5QT1NfVBIiCghwYXRoX3BvcxgDIAMoCzIQLm1zZ3BhY2tl",
-            "dC5QT1NfVCrlAwoITVNHX1RZUEUSDQoJX01TR19OVUxMEAASDAoIX01TR19S",
-            "UEMQARIQCgxfTVNHX1JQQ19SRVMQAhITCg9fTVNHX1NSVl9SRVBPUlQQAxIX",
-            "ChNfTVNHX1NSVl9SRVBPUlRfUkVTEAQSEgoOX01TR19IRUFSVEJFQVQQBRIW",
-            "ChJfTVNHX0hFQVJUQkVBVF9SRVMQBhITCg9fTVNHX1RDUF9TVEFUSUMQBxIX",
-            "ChNfTVNHX1RDUF9TVEFUSUNfUkVTEAgSDAoIX01TR19NQVgQZBINCglfTVNH",
-            "X1RFU1QQZRIRCg1fTVNHX1RFU1RfUkVTEGYSDgoKX01TR19MT0dJThBnEhIK",
-            "Dl9NU0dfTE9HSU5fUkVTEGgSEQoNX01TR19URVNUX1JQQxBpEhUKEV9NU0df",
-            "VEVTVF9SUENfUkVTEGoSFAoPX01TR19TRVJWRVJfTUFYEOgHEhYKEV9NU0df",
-            "Q0xJRU5UX0VOVEVSEOkHEhoKFV9NU0dfQ0xJRU5UX0VOVEVSX1JFUxDqBxIR",
-            "CgxfTVNHX0dFVF9NQVAQ6wcSFQoQX01TR19HRVRfTUFQX1JFUxDsBxIVChBf",
-            "TVNHX1BBVEhfU0VBUkNIEO0HEhkKFF9NU0dfUEFUSF9TRUFSQ0hfUkVTEO4H",
-            "KnsKDVJFU1BPTlNFX0NPREUSFgoSUkVTUE9OU0VfQ09ERV9GYWlsEAASFAoQ",
-            "UkVTUE9OU0VfQ09ERV9PSxABEiAKHFJFU1BPTlNFX0NPREVfUnBjX25vdF9h",
-            "Y2NlcHQQAhIaChZSRVNQT05TRV9DT0RFX3JlZGlyZWN0EANCDloMLi87bXNn",
-            "cGFja2V0YgZwcm90bzM="));
+            "Z3BhY2tldC5QT1NfVCKnAQoTTVNHX1BBVEhfU0VBUkNIX1JFUxIhCgdwb3Nf",
+            "c3JjGAEgASgLMhAubXNncGFja2V0LlBPU19UEiEKB3Bvc19kc3QYAiABKAsy",
+            "EC5tc2dwYWNrZXQuUE9TX1QSIgoIcGF0aF9wb3MYAyADKAsyEC5tc2dwYWNr",
+            "ZXQuUE9TX1QSJgoMcGF0aF9rZXlfcG9zGAQgAygLMhAubXNncGFja2V0LlBP",
+            "U19UKuUDCghNU0dfVFlQRRINCglfTVNHX05VTEwQABIMCghfTVNHX1JQQxAB",
+            "EhAKDF9NU0dfUlBDX1JFUxACEhMKD19NU0dfU1JWX1JFUE9SVBADEhcKE19N",
+            "U0dfU1JWX1JFUE9SVF9SRVMQBBISCg5fTVNHX0hFQVJUQkVBVBAFEhYKEl9N",
+            "U0dfSEVBUlRCRUFUX1JFUxAGEhMKD19NU0dfVENQX1NUQVRJQxAHEhcKE19N",
+            "U0dfVENQX1NUQVRJQ19SRVMQCBIMCghfTVNHX01BWBBkEg0KCV9NU0dfVEVT",
+            "VBBlEhEKDV9NU0dfVEVTVF9SRVMQZhIOCgpfTVNHX0xPR0lOEGcSEgoOX01T",
+            "R19MT0dJTl9SRVMQaBIRCg1fTVNHX1RFU1RfUlBDEGkSFQoRX01TR19URVNU",
+            "X1JQQ19SRVMQahIUCg9fTVNHX1NFUlZFUl9NQVgQ6AcSFgoRX01TR19DTElF",
+            "TlRfRU5URVIQ6QcSGgoVX01TR19DTElFTlRfRU5URVJfUkVTEOoHEhEKDF9N",
+            "U0dfR0VUX01BUBDrBxIVChBfTVNHX0dFVF9NQVBfUkVTEOwHEhUKEF9NU0df",
+            "UEFUSF9TRUFSQ0gQ7QcSGQoUX01TR19QQVRIX1NFQVJDSF9SRVMQ7gcqewoN",
+            "UkVTUE9OU0VfQ09ERRIWChJSRVNQT05TRV9DT0RFX0ZhaWwQABIUChBSRVNQ",
+            "T05TRV9DT0RFX09LEAESIAocUkVTUE9OU0VfQ09ERV9ScGNfbm90X2FjY2Vw",
+            "dBACEhoKFlJFU1BPTlNFX0NPREVfcmVkaXJlY3QQA0IOWgwuLzttc2dwYWNr",
+            "ZXRiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Msgpacket.MSG_TYPE), typeof(global::Msgpacket.RESPONSE_CODE), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -99,7 +100,7 @@ namespace Msgpacket {
             new pbr::GeneratedClrTypeInfo(typeof(global::Msgpacket.MSG_GET_MAP_RES), global::Msgpacket.MSG_GET_MAP_RES.Parser, new[]{ "MapWid", "MapHigh", "MapPitch", "MapData" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Msgpacket.POS_T), global::Msgpacket.POS_T.Parser, new[]{ "PosX", "PosY" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Msgpacket.MSG_PATH_SEARCH), global::Msgpacket.MSG_PATH_SEARCH.Parser, new[]{ "PosSrc", "PosDst" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Msgpacket.MSG_PATH_SEARCH_RES), global::Msgpacket.MSG_PATH_SEARCH_RES.Parser, new[]{ "PosSrc", "PosDst", "PathPos" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Msgpacket.MSG_PATH_SEARCH_RES), global::Msgpacket.MSG_PATH_SEARCH_RES.Parser, new[]{ "PosSrc", "PosDst", "PathPos", "PathKeyPos" }, null, null, null, null)
           }));
     }
     #endregion
@@ -5227,6 +5228,7 @@ namespace Msgpacket {
       posSrc_ = other.posSrc_ != null ? other.posSrc_.Clone() : null;
       posDst_ = other.posDst_ != null ? other.posDst_.Clone() : null;
       pathPos_ = other.pathPos_.Clone();
+      pathKeyPos_ = other.pathKeyPos_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -5271,6 +5273,17 @@ namespace Msgpacket {
       get { return pathPos_; }
     }
 
+    /// <summary>Field number for the "path_key_pos" field.</summary>
+    public const int PathKeyPosFieldNumber = 4;
+    private static readonly pb::FieldCodec<global::Msgpacket.POS_T> _repeated_pathKeyPos_codec
+        = pb::FieldCodec.ForMessage(34, global::Msgpacket.POS_T.Parser);
+    private readonly pbc::RepeatedField<global::Msgpacket.POS_T> pathKeyPos_ = new pbc::RepeatedField<global::Msgpacket.POS_T>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<global::Msgpacket.POS_T> PathKeyPos {
+      get { return pathKeyPos_; }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -5289,6 +5302,7 @@ namespace Msgpacket {
       if (!object.Equals(PosSrc, other.PosSrc)) return false;
       if (!object.Equals(PosDst, other.PosDst)) return false;
       if(!pathPos_.Equals(other.pathPos_)) return false;
+      if(!pathKeyPos_.Equals(other.pathKeyPos_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -5299,6 +5313,7 @@ namespace Msgpacket {
       if (posSrc_ != null) hash ^= PosSrc.GetHashCode();
       if (posDst_ != null) hash ^= PosDst.GetHashCode();
       hash ^= pathPos_.GetHashCode();
+      hash ^= pathKeyPos_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -5326,6 +5341,7 @@ namespace Msgpacket {
         output.WriteMessage(PosDst);
       }
       pathPos_.WriteTo(output, _repeated_pathPos_codec);
+      pathKeyPos_.WriteTo(output, _repeated_pathKeyPos_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -5345,6 +5361,7 @@ namespace Msgpacket {
         output.WriteMessage(PosDst);
       }
       pathPos_.WriteTo(ref output, _repeated_pathPos_codec);
+      pathKeyPos_.WriteTo(ref output, _repeated_pathKeyPos_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -5362,6 +5379,7 @@ namespace Msgpacket {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(PosDst);
       }
       size += pathPos_.CalculateSize(_repeated_pathPos_codec);
+      size += pathKeyPos_.CalculateSize(_repeated_pathKeyPos_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -5387,6 +5405,7 @@ namespace Msgpacket {
         PosDst.MergeFrom(other.PosDst);
       }
       pathPos_.Add(other.pathPos_);
+      pathKeyPos_.Add(other.pathKeyPos_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -5420,6 +5439,10 @@ namespace Msgpacket {
             pathPos_.AddEntriesFrom(input, _repeated_pathPos_codec);
             break;
           }
+          case 34: {
+            pathKeyPos_.AddEntriesFrom(input, _repeated_pathKeyPos_codec);
+            break;
+          }
         }
       }
     #endif
@@ -5451,6 +5474,10 @@ namespace Msgpacket {
           }
           case 26: {
             pathPos_.AddEntriesFrom(ref input, _repeated_pathPos_codec);
+            break;
+          }
+          case 34: {
+            pathKeyPos_.AddEntriesFrom(ref input, _repeated_pathKeyPos_codec);
             break;
           }
         }

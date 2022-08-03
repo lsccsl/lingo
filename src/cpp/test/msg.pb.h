@@ -3694,6 +3694,7 @@ class MSG_PATH_SEARCH_RES final :
 
   enum : int {
     kPathPosFieldNumber = 3,
+    kPathKeyPosFieldNumber = 4,
     kPosSrcFieldNumber = 1,
     kPosDstFieldNumber = 2,
   };
@@ -3714,6 +3715,24 @@ class MSG_PATH_SEARCH_RES final :
   ::msgpacket::POS_T* add_path_pos();
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::msgpacket::POS_T >&
       path_pos() const;
+
+  // repeated .msgpacket.POS_T path_key_pos = 4;
+  int path_key_pos_size() const;
+  private:
+  int _internal_path_key_pos_size() const;
+  public:
+  void clear_path_key_pos();
+  ::msgpacket::POS_T* mutable_path_key_pos(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::msgpacket::POS_T >*
+      mutable_path_key_pos();
+  private:
+  const ::msgpacket::POS_T& _internal_path_key_pos(int index) const;
+  ::msgpacket::POS_T* _internal_add_path_key_pos();
+  public:
+  const ::msgpacket::POS_T& path_key_pos(int index) const;
+  ::msgpacket::POS_T* add_path_key_pos();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::msgpacket::POS_T >&
+      path_key_pos() const;
 
   // .msgpacket.POS_T pos_src = 1;
   bool has_pos_src() const;
@@ -3759,6 +3778,7 @@ class MSG_PATH_SEARCH_RES final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::msgpacket::POS_T > path_pos_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::msgpacket::POS_T > path_key_pos_;
   ::msgpacket::POS_T* pos_src_;
   ::msgpacket::POS_T* pos_dst_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -5490,6 +5510,46 @@ inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::msgpacket::POS_T >&
 MSG_PATH_SEARCH_RES::path_pos() const {
   // @@protoc_insertion_point(field_list:msgpacket.MSG_PATH_SEARCH_RES.path_pos)
   return path_pos_;
+}
+
+// repeated .msgpacket.POS_T path_key_pos = 4;
+inline int MSG_PATH_SEARCH_RES::_internal_path_key_pos_size() const {
+  return path_key_pos_.size();
+}
+inline int MSG_PATH_SEARCH_RES::path_key_pos_size() const {
+  return _internal_path_key_pos_size();
+}
+inline void MSG_PATH_SEARCH_RES::clear_path_key_pos() {
+  path_key_pos_.Clear();
+}
+inline ::msgpacket::POS_T* MSG_PATH_SEARCH_RES::mutable_path_key_pos(int index) {
+  // @@protoc_insertion_point(field_mutable:msgpacket.MSG_PATH_SEARCH_RES.path_key_pos)
+  return path_key_pos_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::msgpacket::POS_T >*
+MSG_PATH_SEARCH_RES::mutable_path_key_pos() {
+  // @@protoc_insertion_point(field_mutable_list:msgpacket.MSG_PATH_SEARCH_RES.path_key_pos)
+  return &path_key_pos_;
+}
+inline const ::msgpacket::POS_T& MSG_PATH_SEARCH_RES::_internal_path_key_pos(int index) const {
+  return path_key_pos_.Get(index);
+}
+inline const ::msgpacket::POS_T& MSG_PATH_SEARCH_RES::path_key_pos(int index) const {
+  // @@protoc_insertion_point(field_get:msgpacket.MSG_PATH_SEARCH_RES.path_key_pos)
+  return _internal_path_key_pos(index);
+}
+inline ::msgpacket::POS_T* MSG_PATH_SEARCH_RES::_internal_add_path_key_pos() {
+  return path_key_pos_.Add();
+}
+inline ::msgpacket::POS_T* MSG_PATH_SEARCH_RES::add_path_key_pos() {
+  ::msgpacket::POS_T* _add = _internal_add_path_key_pos();
+  // @@protoc_insertion_point(field_add:msgpacket.MSG_PATH_SEARCH_RES.path_key_pos)
+  return _add;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::msgpacket::POS_T >&
+MSG_PATH_SEARCH_RES::path_key_pos() const {
+  // @@protoc_insertion_point(field_list:msgpacket.MSG_PATH_SEARCH_RES.path_key_pos)
+  return path_key_pos_;
 }
 
 #ifdef __GNUC__

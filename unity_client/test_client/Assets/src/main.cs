@@ -7,6 +7,7 @@ public class main : MonoBehaviour
 {
     public GameObject cube_block_;
     public GameObject ground_;
+    public char_ctrl char_ctrl_;
 
     public GameObject[] cube_all_;
 
@@ -78,23 +79,34 @@ public class main : MonoBehaviour
             GameObject.Destroy(it);
         lst_path_.Clear();
 
-        var new_obj = GameObject.Instantiate(cube_block_, new Vector3(msg.PosSrc.PosX + 0.5f, 0, msg.PosSrc.PosY + 0.5f), Quaternion.identity);
+/*        var pos_start = new Vector3(msg.PosSrc.PosX + 0.5f, 0, msg.PosSrc.PosY + 0.5f);
+        char_ctrl_.add_target_pos(pos_start);
+        var new_obj = GameObject.Instantiate(cube_block_, pos_start, Quaternion.identity);
         var block = new_obj.GetComponent<Mapblock>();
         block.set_clr(new Color(1,0,1));
         lst_path_.Add(new_obj);
 
-        new_obj = GameObject.Instantiate(cube_block_, new Vector3(msg.PosDst.PosX + 0.5f, 0, msg.PosDst.PosY + 0.5f), Quaternion.identity);
+        var pos_end = new Vector3(msg.PosDst.PosX + 0.5f, 0, msg.PosDst.PosY + 0.5f);
+        char_ctrl_.add_target_pos(pos_end);
+        new_obj = GameObject.Instantiate(cube_block_, pos_end, Quaternion.identity);
         block = new_obj.GetComponent<Mapblock>();
         block.set_clr(new Color(1, 0, 1));
         lst_path_.Add(new_obj);
-
+*/
         foreach (var it in msg.PathPos)
         {
-            new_obj = GameObject.Instantiate(cube_block_, new Vector3(it.PosX + 0.5f, 0, it.PosY + 0.5f), Quaternion.identity);
-            new_obj.transform.localScale = new Vector3(1, 1, 1);
-            block = new_obj.GetComponent<Mapblock>();
-            block.set_clr(new Color(1, 0, 0));
-            lst_path_.Add(new_obj);
+            var pos_path = new Vector3(it.PosX + 0.5f, 0, it.PosY + 0.5f);
+            var path_obj = GameObject.Instantiate(cube_block_, pos_path, Quaternion.identity);
+            path_obj.transform.localScale = new Vector3(1, 1, 1);
+            var path_block = path_obj.GetComponent<Mapblock>();
+            path_block.set_clr(new Color(1, 0, 0));
+            lst_path_.Add(path_obj);
+        }
+
+        foreach (var it in msg.PathKeyPos)
+        {
+            var pos_key_path = new Vector3(it.PosX + 0.5f, 0, it.PosY + 0.5f);
+            char_ctrl_.add_target_pos(pos_key_path);
         }
     }
 
@@ -108,6 +120,8 @@ public class main : MonoBehaviour
         //Debug.Log("hit:" + bhit + " mouse pos:" + Input.mousePosition + " ray:" + screen_ray);
         if (!bhit)
             return;
+
+        //char_ctrl_.TargetPos = new Vector3((int)rh.point.x, 0, (int)rh.point.z);
 
         Debug.Log("hit" + rh.point + " hit game obj:" + rh.collider.gameObject);
 

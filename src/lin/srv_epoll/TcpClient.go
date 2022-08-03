@@ -104,9 +104,12 @@ func (pthis*TcpClient)Process_MSG_PATH_SEARCH(msg * msgpacket.MSG_PATH_SEARCH){
 	msgRes.PosDst = msg.PosDst
 
 	var pathConn []lin_common.Coord2d
-	for i := 0; i < len(path) - 1; i ++ {
-		pos1 := path[i]
-		pos2 := path[i + 1]
+	for i := len(path) - 1; i > 0; i -- {
+		pos1 := path[i - 1]
+		pos2 := path[i]
+
+		msgRes.PathKeyPos = append(msgRes.PathKeyPos, &msgpacket.POS_T{PosX:int32(pos2.X), PosY:int32(pos2.Y)})
+
 		posDiff := pos1.Dec(&pos2)
 		if posDiff.X > 0 {
 			posDiff.X = 1
@@ -130,6 +133,7 @@ func (pthis*TcpClient)Process_MSG_PATH_SEARCH(msg * msgpacket.MSG_PATH_SEARCH){
 			curPos = curPos.Add(&posDiff)
 		}
 	}
+	msgRes.PathKeyPos = append(msgRes.PathKeyPos, &msgpacket.POS_T{PosX:int32(path[0].X), PosY:int32(path[0].Y)})
 
 	mapData.DumpMap("../resource/Process_MSG_PATH_SEARCH.bmp", pathConn, &src, &dst, nil)
 	mapData.DumpJPSMap("../resource/Process_MSG_PATH_SEARCH_tree.bmp", nil, jpsMgr)
