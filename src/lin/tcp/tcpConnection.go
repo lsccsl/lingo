@@ -283,8 +283,8 @@ func (pthis *TcpConnection)go_tcpConnRead() {
 		}
 	}()
 
-	TmpBuf := make([]byte, G_MTU)
-	recvBuf := bytes.NewBuffer(make([]byte, 0, MAX_PACK_LEN))
+	TmpBuf := make([]byte, 1024/*G_MTU*/)
+	recvBuf := bytes.NewBuffer(make([]byte, 0, 1024/*MAX_PACK_LEN*/))
 
 /*	var TimerConnClose * time.Timer = nil
 	expireInterval := time.Second * time.Duration(pthis.closeExpireSec)

@@ -1,0 +1,5 @@
+map_path: "../resource/aa.bmp"
+mob_cfg:
+    1:
+        pos_x: 269
+        pos_y: 202

@@ -16,6 +16,7 @@ public class main : MonoBehaviour
     Msgpacket.POS_T cur_pos_;
 
     TestClient client_;
+    private float t_heart_beat_ = 0;
 
     //Dictionary<Msgpacket.POS_T, GameObject> map_path_;
     System.Collections.Generic.List<GameObject> lst_path_;
@@ -43,6 +44,7 @@ public class main : MonoBehaviour
 
         client_ = new TestClient();
         client_.connect("192.168.2.129", 2003);
+        //client_.connect("117.78.3.242", 2003);
     }
 
     // Update is called once per frame
@@ -69,7 +71,15 @@ public class main : MonoBehaviour
             }
         }
 
-        if(Input.GetMouseButtonDown(0))
+        t_heart_beat_ += Time.deltaTime;
+        if (t_heart_beat_ > 30)
+        {
+            t_heart_beat_ = 0;
+            Msgpacket.MSG_HEARTBEAT msgHB = new Msgpacket.MSG_HEARTBEAT();
+            this.client_.send_msg(Msgpacket.MSG_TYPE.MsgHeartbeat, msgHB);
+        }
+
+        if (Input.GetMouseButtonDown(0))
             check_screen_ray_hit();
     }
 

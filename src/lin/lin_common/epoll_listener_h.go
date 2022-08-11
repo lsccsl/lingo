@@ -255,7 +255,7 @@ func ConstructorEPollListener(cb EPollCallback, addr string, epollCoroutineCount
 		el._paramTmpReadBufLen = MTU
 	}
 	if el._paramTcpRWBuffLen <=0 {
-		el._paramTcpRWBuffLen = 8192
+		el._paramTcpRWBuffLen = 1024
 	}
 	if el._paramMaxTcpRead <= 0 {
 		el._paramMaxTcpRead = 100

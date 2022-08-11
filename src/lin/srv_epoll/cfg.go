@@ -16,10 +16,19 @@ type ServerOneCfg struct {
 	Cluster string `yaml:"cluster"`
 	LogEnableConsolePrint bool `yaml:"log_enable_console_print"`
 }
-
 type ServerCfg struct {
 	MapServer map[string]ServerOneCfg `yaml:"server"`
 	Msgdef string `yaml:"msgdef"`
+}
+
+
+type MobCfg struct {
+	PosX int `yaml:"pos_x"`
+	PosY int `yaml:"pos_y"`
+}
+type MapCfg struct {
+	MapPath string `yaml:"map_path"`
+	MobCfg map[int]MobCfg `yaml:"mob_cfg"`
 }
 
 var Global_ServerCfg ServerCfg
