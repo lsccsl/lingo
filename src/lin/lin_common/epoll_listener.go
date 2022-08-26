@@ -385,7 +385,8 @@ func (pthis*ePollConnection)_go_EpollConnection_epollwait() {
 		LogErr("_go_EpollConnection_epollwait quit")
 	}()
 
-	events := make([]unix.EpollEvent, pthis._lsn._paramMaxEpollEventCount) // todo: change the events array size by epoll wait ret count
+	// todo: change the events array size by epoll wait ret count
+	events := make([]unix.EpollEvent, pthis._lsn._paramMaxEpollEventCount)
 	for {
 		count, err := unix.EpollWait(pthis._epollFD, events, pthis._lsn._paramEpollWaitTimeoutMills)
 		if count == 0 || (count < 0 && err == unix.EINTR) {
@@ -461,7 +462,6 @@ func (pthis*ePollAccept)_go_EpollAccept_epollwait() {
 				continue
 			}
 			// tcp accept
-
 			for i:= 0; (i < maxReadcount) || (maxReadcount < 0); i ++ {
 				fd, addr, err := _tcpAccept(triggerFD)
 				if fd < 0 {
@@ -470,7 +470,6 @@ func (pthis*ePollAccept)_go_EpollAccept_epollwait() {
 					}
 					break
 				}
-
 				//LogDebug("new tcp connection, fd:", fd, " addr:", addr)
 				pthis._lsn._EPollListenerAddEvent(fd, &event_NewConnection{_fdConn: fd, addr:addr})
 			}

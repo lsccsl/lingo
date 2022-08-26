@@ -19,7 +19,8 @@ const (
 	_epoll_WRITE_EVENTS = unix.EPOLLOUT
 )
 func unixEpollCreate()(int, error) {
-	return unix.EpollCreate1(unix.EPOLL_CLOEXEC)
+	return unix.EpollCreate(1)
+	//return unix.EpollCreate1(unix.EPOLL_CLOEXEC)
 }
 
 func unixEpollAdd(efd int, fd int, evtInput EPOLL_EVENT, userData int32, bET bool) error {
