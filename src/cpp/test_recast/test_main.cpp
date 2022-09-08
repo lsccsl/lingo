@@ -1,14 +1,14 @@
-#include "NavWrapper.h"
+#include "RecastWrapper.h"
 
-#include "NavTemplate.h"
-#include "NavInstance.h"
-#include "NavCommon.h"
+#include "RecastTemplate.h"
+#include "RecastInstance.h"
+#include "RecastCommon.h"
 #include <Windows.h>
 
 void test_1()
 {
 	printf("test_1\r\n");
-	NavWrapper nw;
+	RecastWrapper nw;
 	nw.buildFromObj("./test_mesh/nav_test.obj");
 
 	float startpos[3] = { 40.5650635f, -1.71816540f, 22.0546188f };
@@ -23,20 +23,20 @@ void test_1()
 void test_template()
 {
 	printf("test_template\r\n");
-	NavTemplate navTmp;
+	RecastTemplate navTmp;
 	navTmp.LoadTemplate("./test_mesh/nav_test.obj");
 
 	float startpos[3] = { 40.5650635f, -1.71816540f, 22.0546188f };
 	float endpos[3] = { 49.6740074f, -2.50520134f, -6.56286621f };
 
-	NavInstance navIns_1;
+	RecastInstance navIns_1;
 	{
 		printf("\r\ninstance 1 find path\r\n");
 		navIns_1.LoadFromTemplate(navTmp.GetGeom(), navTmp.GetNavTemplateMem());
 		navIns_1.FindPath(startpos, endpos);
 	}
 
-	NavInstance navIns_2;
+	RecastInstance navIns_2;
 	int objObstalce = 0;
 	{
 		auto tStart = ::getPerfTime();

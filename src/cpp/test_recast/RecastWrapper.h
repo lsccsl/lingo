@@ -3,30 +3,22 @@
 #include <string>
 #include <memory>
 #include "DetourNavMeshQuery.h"
-#include "NavCommon.h"
+#include "RecastCommon.h"
 
-class NavInstance
+class RecastWrapper
 {
-	friend class NavTemplate;
 public:
 
-	NavInstance();
-	~NavInstance();
+	RecastWrapper();
+	~RecastWrapper();
 
-	void UpdateNavInstance();
 
-	void LoadFromTemplate(InputGeom* geom, const NavTemplateMem& tmpMem);
-	void SaveToTemplate(NavTemplateMem& tmpMem);
+	bool buildFromObj(const std::string& objFilePath);
 
-	void FindPath(const float startPos[3], const float endPos[3], bool bprint = true);
+	void loadFromBin(const std::string& binFilePath);
+	void saveToBin(const std::string& binFilePath);
 
-	int AddBlockObject(const float posCenter[3], float sizeX, float sizeY, float sizeZ);
-	void DelBlockObject(int idObj);
-	bool IsWalkAble(float PosX, float PosY, float PosZ);
-
-protected:
-
-	bool buildFromGeom(InputGeom* geom);
+	void FindPath(const float startPos[3], const float endPos[3]);
 
 private:
 
@@ -68,6 +60,12 @@ private:
 	int m_maxTiles;
 	int m_maxPolysPerTile;
 	float m_tileSize;
+
+	float m_cacheBuildTimeMs;
+	int m_cacheCompressedSize;
+	int m_cacheRawSize;
+	int m_cacheLayerCount;
+	unsigned int m_cacheBuildMemUsage;
 
 	bool m_filterLowHangingObstacles;
 	bool m_filterLedgeSpans;

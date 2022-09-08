@@ -1,6 +1,6 @@
-#include "NavWrapper.h"
+#include "RecastWrapper.h"
 
-NavWrapper::NavWrapper():
+RecastWrapper::RecastWrapper():
 	m_keepInterResults(false),
 	m_tileCache(0),
 	m_cacheBuildTimeMs(0),
@@ -42,12 +42,12 @@ NavWrapper::NavWrapper():
 	m_polyPickExt[2] = 2;
 }
 
-NavWrapper::~NavWrapper()
+RecastWrapper::~RecastWrapper()
 {
 	// todo free
 }
 
-void NavWrapper::resetCommonSettings()
+void RecastWrapper::resetCommonSettings()
 {
 	m_cellSize = 0.3f;
 	m_cellHeight = 0.2f;
@@ -65,7 +65,7 @@ void NavWrapper::resetCommonSettings()
 	m_partitionType = SAMPLE_PARTITION_WATERSHED;
 }
 
-void NavWrapper::initSettings()
+void RecastWrapper::initSettings()
 {
 	int gridSize = 1;
 	if (m_geom)
@@ -96,7 +96,7 @@ void NavWrapper::initSettings()
 	const float compressionRatio = (float)m_cacheCompressedSize / (float)(m_cacheRawSize + 1);
 }
 
-int NavWrapper::rasterizeTileLayers(
+int RecastWrapper::rasterizeTileLayers(
 	const int tx, const int ty,
 	const rcConfig& cfg,
 	TileCacheData* tiles,
@@ -287,7 +287,7 @@ static int calcLayerBufferSize(const int gridWidth, const int gridHeight)
 	return headerSize + gridSize * 4;
 }
 
-bool NavWrapper::buildFromObj(const std::string& objFilePath)
+bool RecastWrapper::buildFromObj(const std::string& objFilePath)
 {
 	//BuildContext ctx;
 
@@ -487,7 +487,7 @@ bool NavWrapper::buildFromObj(const std::string& objFilePath)
 
 }
 
-void NavWrapper::FindPath(const float startPos[3], const float endPos[3])
+void RecastWrapper::FindPath(const float startPos[3], const float endPos[3])
 {
 	if (!m_navMesh)
 		return;
@@ -539,7 +539,7 @@ void NavWrapper::FindPath(const float startPos[3], const float endPos[3])
 }
 
 
-void NavWrapper::loadFromBin(const std::string& binFilePath)
+void RecastWrapper::loadFromBin(const std::string& binFilePath)
 {
 	FILE* fp = fopen(binFilePath.c_str(), "rb");
 	if (!fp) return;
@@ -630,7 +630,7 @@ void NavWrapper::loadFromBin(const std::string& binFilePath)
 	fclose(fp);
 }
 
-void NavWrapper::saveToBin(const std::string& binFilePath)
+void RecastWrapper::saveToBin(const std::string& binFilePath)
 {
 	if (!m_tileCache) return;
 

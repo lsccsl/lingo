@@ -1,6 +1,6 @@
-#include "NavInstance.h"
+#include "RecastInstance.h"
 
-NavInstance::NavInstance() :
+RecastInstance::RecastInstance() :
 	m_keepInterResults(false),
 	m_tileCache(0),
 	m_maxTiles(0),
@@ -40,7 +40,7 @@ NavInstance::NavInstance() :
 	m_polyPickExt[2] = 1;
 }
 
-NavInstance::~NavInstance()
+RecastInstance::~RecastInstance()
 {
 	// todo free
 	if(m_tcomp)
@@ -61,7 +61,7 @@ NavInstance::~NavInstance()
 		delete m_talloc;
 }
 
-void NavInstance::resetCommonSettings()
+void RecastInstance::resetCommonSettings()
 {
 	m_cellSize = 0.3f;
 	m_cellHeight = 0.2f;
@@ -79,7 +79,7 @@ void NavInstance::resetCommonSettings()
 	m_partitionType = SAMPLE_PARTITION_WATERSHED;
 }
 
-void NavInstance::initSettings()
+void RecastInstance::initSettings()
 {
 	int gridSize = 1;
 	if (m_geom)
@@ -108,7 +108,7 @@ void NavInstance::initSettings()
 	}
 }
 
-int NavInstance::rasterizeTileLayers(
+int RecastInstance::rasterizeTileLayers(
 	const int tx, const int ty,
 	const rcConfig& cfg,
 	TileCacheData* tiles,
@@ -299,7 +299,7 @@ static int calcLayerBufferSize(const int gridWidth, const int gridHeight)
 	return headerSize + gridSize * 4;
 }
 
-bool NavInstance::buildFromGeom(InputGeom* geom)
+bool RecastInstance::buildFromGeom(InputGeom* geom)
 {
 	m_geom = geom;
 	dtStatus status;
@@ -477,7 +477,7 @@ bool NavInstance::buildFromGeom(InputGeom* geom)
 
 }
 
-void NavInstance::FindPath(const float startPos[3], const float endPos[3], bool bprint)
+void RecastInstance::FindPath(const float startPos[3], const float endPos[3], bool bprint)
 {
 	if (!m_navMesh)
 		return;
@@ -534,7 +534,7 @@ void NavInstance::FindPath(const float startPos[3], const float endPos[3], bool 
 	}
 }
 
-void NavInstance::LoadFromTemplate(InputGeom* geom, const NavTemplateMem& tmpMem)
+void RecastInstance::LoadFromTemplate(InputGeom* geom, const NavTemplateMem& tmpMem)
 {
 	m_geom = geom;
 
@@ -626,7 +626,7 @@ void NavInstance::LoadFromTemplate(InputGeom* geom, const NavTemplateMem& tmpMem
 	}
 }
 
-void NavInstance::SaveToTemplate(NavTemplateMem& tmpMem)
+void RecastInstance::SaveToTemplate(NavTemplateMem& tmpMem)
 {
 	if (!m_tileCache) return;
 
@@ -659,7 +659,7 @@ void NavInstance::SaveToTemplate(NavTemplateMem& tmpMem)
 	}
 }
 
-int NavInstance::AddBlockObject(const float posCenter[3], float sizeX, float sizeY, float sizeZ)
+int RecastInstance::AddBlockObject(const float posCenter[3], float sizeX, float sizeY, float sizeZ)
 {
 	if (!m_tileCache)
 		return -1;
@@ -677,14 +677,14 @@ int NavInstance::AddBlockObject(const float posCenter[3], float sizeX, float siz
 	return result;
 }
 
-void NavInstance::DelBlockObject(int idObj)
+void RecastInstance::DelBlockObject(int idObj)
 {
 	if (!m_tileCache)
 		return;
 	m_tileCache->removeObstacle(idObj);
 }
 
-bool NavInstance::IsWalkAble(float PosX, float PosY, float PosZ)
+bool RecastInstance::IsWalkAble(float PosX, float PosY, float PosZ)
 {
 	float pos[3] = { PosX, PosY, PosZ };
 
@@ -701,7 +701,7 @@ bool NavInstance::IsWalkAble(float PosX, float PosY, float PosZ)
 	return true;
 }
 
-void NavInstance::UpdateNavInstance()
+void RecastInstance::UpdateNavInstance()
 {
 	if (!m_navMesh)
 		return;

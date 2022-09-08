@@ -1,13 +1,13 @@
 #pragma once
 
-#include "NavCommon.h"
+#include "RecastCommon.h"
 
-class NavTemplate
+class RecastTemplate
 {
 public:
 
-	NavTemplate();
-	~NavTemplate();
+	RecastTemplate();
+	~RecastTemplate();
 
 	bool LoadTemplate(const std::string objFilePath);
 

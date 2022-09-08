@@ -57,7 +57,6 @@
     <ClInclude Include="Recast\Include\RecastAssert.h">
       <Filter>Recast</Filter>
     </ClInclude>
-    <ClInclude Include="NavWrapper.h" />
     <ClInclude Include="RecastDemo\InputGeom.h">
       <Filter>RecastDemo</Filter>
     </ClInclude>
@@ -76,9 +75,10 @@
     <ClInclude Include="RecastDemo\fastlz.h">
       <Filter>RecastDemo</Filter>
     </ClInclude>
-    <ClInclude Include="NavCommon.h" />
-    <ClInclude Include="NavTemplate.h" />
-    <ClInclude Include="NavInstance.h" />
+    <ClInclude Include="RecastCommon.h" />
+    <ClInclude Include="RecastInstance.h" />
+    <ClInclude Include="RecastTemplate.h" />
+    <ClInclude Include="RecastWrapper.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Detour\Source\DetourAlloc.cpp">
@@ -142,7 +142,6 @@
       <Filter>Recast</Filter>
     </ClCompile>
     <ClCompile Include="test_main.cpp" />
-    <ClCompile Include="NavWrapper.cpp" />
     <ClCompile Include="RecastDemo\InputGeom.cpp">
       <Filter>RecastDemo</Filter>
     </ClCompile>
@@ -161,8 +160,9 @@
     <ClCompile Include="RecastDemo\fastlz.c">
       <Filter>RecastDemo</Filter>
     </ClCompile>
-    <ClCompile Include="NavCommon.cpp" />
-    <ClCompile Include="NavTemplate.cpp" />
-    <ClCompile Include="NavInstance.cpp" />
+    <ClCompile Include="RecastCommon.cpp" />
+    <ClCompile Include="RecastInstance.cpp" />
+    <ClCompile Include="RecastTemplate.cpp" />
+    <ClCompile Include="RecastWrapper.cpp" />
   </ItemGroup>
 </Project>

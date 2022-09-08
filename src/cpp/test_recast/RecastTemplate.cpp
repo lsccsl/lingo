@@ -1,16 +1,16 @@
-#include "NavTemplate.h"
-#include "NavCommon.h"
-#include "NavInstance.h"
+#include "RecastTemplate.h"
+#include "RecastCommon.h"
+#include "RecastInstance.h"
 
-NavTemplate::NavTemplate()
+RecastTemplate::RecastTemplate()
 {}
 
-NavTemplate::~NavTemplate()
+RecastTemplate::~RecastTemplate()
 {
 	// todo free all
 }
 
-bool NavTemplate::LoadTemplate(const std::string objFilePath)
+bool RecastTemplate::LoadTemplate(const std::string objFilePath)
 {
 	m_geom = new InputGeom;
 	if (!m_geom->load(&m_ctx, objFilePath))
@@ -27,7 +27,7 @@ bool NavTemplate::LoadTemplate(const std::string objFilePath)
 		return false;
 	}
 
-	NavInstance navIns;
+	RecastInstance navIns;
 	navIns.buildFromGeom(m_geom);
 	navIns.SaveToTemplate(m_NavTemplateMem);
 
