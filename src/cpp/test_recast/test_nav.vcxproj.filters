@@ -1,0 +1,168 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Detour">
+      <UniqueIdentifier>{81acbdf1-6400-4e14-b01a-cec0058160b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DetourTileCache">
+      <UniqueIdentifier>{27765d40-7c2d-4cf2-aad2-a5152de42065}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Recast">
+      <UniqueIdentifier>{77a74768-4d79-4094-8988-e3568d6e25d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RecastDemo">
+      <UniqueIdentifier>{272a9e09-fbc5-4ea3-84e2-7f95fe64a0c5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Detour\Include\DetourAlloc.h">
+      <Filter>Detour</Filter>
+    </ClInclude>
+    <ClInclude Include="Detour\Include\DetourAssert.h">
+      <Filter>Detour</Filter>
+    </ClInclude>
+    <ClInclude Include="Detour\Include\DetourCommon.h">
+      <Filter>Detour</Filter>
+    </ClInclude>
+    <ClInclude Include="Detour\Include\DetourMath.h">
+      <Filter>Detour</Filter>
+    </ClInclude>
+    <ClInclude Include="Detour\Include\DetourNavMesh.h">
+      <Filter>Detour</Filter>
+    </ClInclude>
+    <ClInclude Include="Detour\Include\DetourNavMeshBuilder.h">
+      <Filter>Detour</Filter>
+    </ClInclude>
+    <ClInclude Include="Detour\Include\DetourNavMeshQuery.h">
+      <Filter>Detour</Filter>
+    </ClInclude>
+    <ClInclude Include="Detour\Include\DetourNode.h">
+      <Filter>Detour</Filter>
+    </ClInclude>
+    <ClInclude Include="Detour\Include\DetourStatus.h">
+      <Filter>Detour</Filter>
+    </ClInclude>
+    <ClInclude Include="DetourTileCache\Include\DetourTileCache.h">
+      <Filter>DetourTileCache</Filter>
+    </ClInclude>
+    <ClInclude Include="DetourTileCache\Include\DetourTileCacheBuilder.h">
+      <Filter>DetourTileCache</Filter>
+    </ClInclude>
+    <ClInclude Include="Recast\Include\Recast.h">
+      <Filter>Recast</Filter>
+    </ClInclude>
+    <ClInclude Include="Recast\Include\RecastAlloc.h">
+      <Filter>Recast</Filter>
+    </ClInclude>
+    <ClInclude Include="Recast\Include\RecastAssert.h">
+      <Filter>Recast</Filter>
+    </ClInclude>
+    <ClInclude Include="NavWrapper.h" />
+    <ClInclude Include="RecastDemo\InputGeom.h">
+      <Filter>RecastDemo</Filter>
+    </ClInclude>
+    <ClInclude Include="RecastDemo\ChunkyTriMesh.h">
+      <Filter>RecastDemo</Filter>
+    </ClInclude>
+    <ClInclude Include="RecastDemo\MeshLoaderObj.h">
+      <Filter>RecastDemo</Filter>
+    </ClInclude>
+    <ClInclude Include="RecastDemo\SampleInterfaces.h">
+      <Filter>RecastDemo</Filter>
+    </ClInclude>
+    <ClInclude Include="RecastDemo\PerfTimer.h">
+      <Filter>RecastDemo</Filter>
+    </ClInclude>
+    <ClInclude Include="RecastDemo\fastlz.h">
+      <Filter>RecastDemo</Filter>
+    </ClInclude>
+    <ClInclude Include="NavCommon.h" />
+    <ClInclude Include="NavTemplate.h" />
+    <ClInclude Include="NavInstance.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Detour\Source\DetourAlloc.cpp">
+      <Filter>Detour</Filter>
+    </ClCompile>
+    <ClCompile Include="Detour\Source\DetourAssert.cpp">
+      <Filter>Detour</Filter>
+    </ClCompile>
+    <ClCompile Include="Detour\Source\DetourCommon.cpp">
+      <Filter>Detour</Filter>
+    </ClCompile>
+    <ClCompile Include="Detour\Source\DetourNavMesh.cpp">
+      <Filter>Detour</Filter>
+    </ClCompile>
+    <ClCompile Include="Detour\Source\DetourNavMeshBuilder.cpp">
+      <Filter>Detour</Filter>
+    </ClCompile>
+    <ClCompile Include="Detour\Source\DetourNavMeshQuery.cpp">
+      <Filter>Detour</Filter>
+    </ClCompile>
+    <ClCompile Include="Detour\Source\DetourNode.cpp">
+      <Filter>Detour</Filter>
+    </ClCompile>
+    <ClCompile Include="DetourTileCache\Source\DetourTileCache.cpp">
+      <Filter>DetourTileCache</Filter>
+    </ClCompile>
+    <ClCompile Include="DetourTileCache\Source\DetourTileCacheBuilder.cpp">
+      <Filter>DetourTileCache</Filter>
+    </ClCompile>
+    <ClCompile Include="Recast\Source\Recast.cpp">
+      <Filter>Recast</Filter>
+    </ClCompile>
+    <ClCompile Include="Recast\Source\RecastAlloc.cpp">
+      <Filter>Recast</Filter>
+    </ClCompile>
+    <ClCompile Include="Recast\Source\RecastArea.cpp">
+      <Filter>Recast</Filter>
+    </ClCompile>
+    <ClCompile Include="Recast\Source\RecastAssert.cpp">
+      <Filter>Recast</Filter>
+    </ClCompile>
+    <ClCompile Include="Recast\Source\RecastContour.cpp">
+      <Filter>Recast</Filter>
+    </ClCompile>
+    <ClCompile Include="Recast\Source\RecastFilter.cpp">
+      <Filter>Recast</Filter>
+    </ClCompile>
+    <ClCompile Include="Recast\Source\RecastLayers.cpp">
+      <Filter>Recast</Filter>
+    </ClCompile>
+    <ClCompile Include="Recast\Source\RecastMesh.cpp">
+      <Filter>Recast</Filter>
+    </ClCompile>
+    <ClCompile Include="Recast\Source\RecastMeshDetail.cpp">
+      <Filter>Recast</Filter>
+    </ClCompile>
+    <ClCompile Include="Recast\Source\RecastRasterization.cpp">
+      <Filter>Recast</Filter>
+    </ClCompile>
+    <ClCompile Include="Recast\Source\RecastRegion.cpp">
+      <Filter>Recast</Filter>
+    </ClCompile>
+    <ClCompile Include="test_main.cpp" />
+    <ClCompile Include="NavWrapper.cpp" />
+    <ClCompile Include="RecastDemo\InputGeom.cpp">
+      <Filter>RecastDemo</Filter>
+    </ClCompile>
+    <ClCompile Include="RecastDemo\ChunkyTriMesh.cpp">
+      <Filter>RecastDemo</Filter>
+    </ClCompile>
+    <ClCompile Include="RecastDemo\MeshLoaderObj.cpp">
+      <Filter>RecastDemo</Filter>
+    </ClCompile>
+    <ClCompile Include="RecastDemo\SampleInterfaces.cpp">
+      <Filter>RecastDemo</Filter>
+    </ClCompile>
+    <ClCompile Include="RecastDemo\PerfTimer.cpp">
+      <Filter>RecastDemo</Filter>
+    </ClCompile>
+    <ClCompile Include="RecastDemo\fastlz.c">
+      <Filter>RecastDemo</Filter>
+    </ClCompile>
+    <ClCompile Include="NavCommon.cpp" />
+    <ClCompile Include="NavTemplate.cpp" />
+    <ClCompile Include="NavInstance.cpp" />
+  </ItemGroup>
+</Project>

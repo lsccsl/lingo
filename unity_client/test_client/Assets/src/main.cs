@@ -43,8 +43,8 @@ public class main : MonoBehaviour
         Debug.Log("parse:" + msgNew.ToString());
 
         client_ = new TestClient();
-        client_.connect("192.168.2.129", 2003);
-        //client_.connect("117.78.3.242", 2003);
+        //client_.connect("192.168.2.129", 2003);
+        client_.connect("117.78.3.242", 2003);
     }
 
     // Update is called once per frame
