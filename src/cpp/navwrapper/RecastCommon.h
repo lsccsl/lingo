@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string.h>
+#include <vector>
 #include "InputGeom.h"
 #include "SampleInterfaces.h"
 #include "DetourNavMesh.h"
@@ -10,7 +12,6 @@
 #include "DetourNavMeshBuilder.h"
 #include "Recast.h"
 #include "SampleInterfaces.h"
-#include <vector>
 
 const int MAX_POLYS = 256;
 
