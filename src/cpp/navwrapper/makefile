@@ -3,6 +3,7 @@ LIBDIR=-L./ -L./bin
 LIB=-lstdc++ -lpthread -ldl
 OUTPUT=./
 FLAG=-fPIC -std=c++11 -g3
+CFLAG=-fPIC -g3
 
 
 .SUFFIXES: .cpp .c .cc
@@ -12,7 +13,7 @@ FLAG=-fPIC -std=c++11 -g3
 .cc.o:
 	g++ ${INCL} ${FLAG} -c $< -o $@
 .c.o:
-	gcc ${INCL} ${FLAG} -c $< -o $@
+	gcc ${INCL} ${CFLAG} -c $< -o $@
 
 SRC_Detour = $(wildcard ./Detour/Source/*.cpp)
 SRC_DetourTileCache = $(wildcard ./DetourTileCache/Source/*.cpp)
