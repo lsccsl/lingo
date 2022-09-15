@@ -53,7 +53,7 @@ void test_template()
 
 		printf("\r\ninstance 2 add obstacle:%fs %dmicroseconds\r\n", getPerfTimeUsec(tEnd - tStart) / 1000000.f, getPerfTimeUsec(tEnd - tStart));
 		tStart = ::getPerfTime();
-		navIns_2.FindPath(startpos, endpos, false);
+		navIns_2.FindPath(startpos, endpos, true);
 		tEnd = ::getPerfTime();
 		printf("\r\ninstance 2 find path:%fs %dmicroseconds\r\n", getPerfTimeUsec(tEnd - tStart) / 1000000.f, getPerfTimeUsec(tEnd - tStart));
 
