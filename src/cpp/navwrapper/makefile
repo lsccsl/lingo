@@ -18,21 +18,27 @@ SRC_Detour = $(wildcard ./Detour/Source/*.cpp)
 SRC_DetourTileCache = $(wildcard ./DetourTileCache/Source/*.cpp)
 SRC_Recast = $(wildcard ./Recast/Source/*.cpp)
 SRC_RecastDemo = $(wildcard ./RecastDemo/*.cpp)
+SRC_RecastDemoC = $(wildcard ./RecastDemo/*.c)
 
 OBJ_Detour = $(patsubst %.cpp, %.o, $(SRC_Detour))
 OBJ_DetourTileCache = $(patsubst %.cpp, %.o, $(SRC_DetourTileCache))
 OBJ_Recast = $(patsubst %.cpp, %.o, $(SRC_Recast))
 OBJ_RecastDemo = $(patsubst %.cpp, %.o, $(SRC_RecastDemo))
+OBJ_RecastDemoC = $(patsubst %.c, %.o, $(SRC_RecastDemoC))
 
-TARGETS = $(OBJ_Detour) $(OBJ_DetourTileCache) $(OBJ_Recast) $(OBJ_RecastDemo) RecastCommon.o RecastInstance.o RecastTemplate.o RecastWrapper.o
+TARGETS = $(OBJ_Detour) $(OBJ_DetourTileCache) $(OBJ_Recast) $(OBJ_RecastDemo) $(OBJ_RecastDemoC) RecastCommon.o RecastInstance.o RecastTemplate.o RecastWrapper.o
 
-all: libnavwrapper.so
+all: libnavwrapper.so test_nav
 
 libnavwrapper.so: $(TARGETS)
 	gcc -o $@ -shared $? $(LIBDIR) $(LIB)
-	mv libnavwrapper.so ./bin/
+	cp libnavwrapper.so ./bin/
+
+test_nav: ./test/test_main.o
+	gcc -o $@ $? $(LIBDIR) $(LIB) -lnavwrapper
+	cp test_nav ./bin/test_nav
 
 clean:
-	$(warning ==== build files: $(TARGETS) ====)
 	rm -fr $(TARGETS)
 	rm -fr libnavwrapper.so
+	rm -fr test_nav
