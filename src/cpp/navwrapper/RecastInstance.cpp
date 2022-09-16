@@ -534,6 +534,44 @@ void RecastInstance::FindPath(const float startPos[3], const float endPos[3], bo
 	}
 }
 
+void RecastInstance::FindPath(const float startPos[3], const float endPos[3],
+	std::vector<RecastPos>& vPos,
+	bool bprint)
+{
+	if (!m_navMesh)
+		return;
+
+	dtVcopy(m_spos, startPos);
+	dtVcopy(m_epos, endPos);
+
+	m_navQuery->findNearestPoly(m_spos, m_polyPickExt, &m_filter, &m_startRef, 0);
+	m_navQuery->findNearestPoly(m_epos, m_polyPickExt, &m_filter, &m_endRef, 0);
+
+	m_navQuery->findPath(m_startRef, m_endRef, m_spos, m_epos, &m_filter, m_polys, &m_npolys, MAX_POLYS);//lsc 按网格邻接查找网格路径,类A*算法
+	m_nstraightPath = 0;
+	if (m_npolys)
+	{
+		// In case of partial path, make sure the end point is clamped to the last polygon.
+		float epos[3];
+		dtVcopy(epos, m_epos);
+		if (m_polys[m_npolys - 1] != m_endRef)
+			m_navQuery->closestPointOnPoly(m_polys[m_npolys - 1], m_epos, epos, 0);//lsc 目标点不可达的情况
+
+		m_navQuery->findStraightPath(m_spos, epos, m_polys, m_npolys,
+			m_straightPath, m_straightPathFlags,
+			m_straightPathPolys, &m_nstraightPath, MAX_POLYS, m_straightPathOptions);//lsc 寻找拐点,生成路径点
+
+		RecastPos pos;
+		for (int i = 0; i < m_nstraightPath; i++)
+		{
+			pos.x = m_straightPath[i * 3];
+			pos.y = m_straightPath[i * 3 + 1];
+			pos.z = m_straightPath[i * 3 + 2];
+			vPos.push_back(pos);
+		}
+	}
+}
+
 void RecastInstance::LoadFromTemplate(InputGeom* geom, const NavTemplateMem& tmpMem)
 {
 	m_geom = geom;

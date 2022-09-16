@@ -2,9 +2,11 @@
 
 #include <string>
 #include <memory>
+#include <vector>
 #include "DetourNavMeshQuery.h"
 #include "RecastCommon.h"
 #include "dllexport.h"
+#include "RecastWrapperDef.h"
 
 class DLL_EXPORT RecastInstance
 {
@@ -21,7 +23,11 @@ public:
 	void LoadFromTemplate(InputGeom* geom, const NavTemplateMem& tmpMem);
 	void SaveToTemplate(NavTemplateMem& tmpMem);
 
-	void FindPath(const float startPos[3], const float endPos[3], bool bprint = true);
+	void FindPath(const float startPos[3], const float endPos[3],
+		bool bprint = true);
+	void FindPath(const float startPos[3], const float endPos[3],
+		std::vector<RecastPos>& vPos,
+		bool bprint = true);
 
 	int AddBlockObject(const float posCenter[3], float sizeX, float sizeY, float sizeZ);
 	void DelBlockObject(int idObj);

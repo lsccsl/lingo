@@ -42,6 +42,7 @@
     <ClInclude Include="..\RecastInstance.h" />
     <ClInclude Include="..\RecastTemplate.h" />
     <ClInclude Include="..\RecastWrapper.h" />
+    <ClInclude Include="..\RecastWrapperDef.h" />
     <ClInclude Include="..\Recast\Include\Recast.h" />
     <ClInclude Include="..\Recast\Include\RecastAlloc.h" />
     <ClInclude Include="..\Recast\Include\RecastAssert.h" />
@@ -207,7 +208,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>../Detour/Include;../DetourTileCache/Include;../Recast/Include;../RecastDemo;../</AdditionalIncludeDirectories>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>Disabled</Optimization>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

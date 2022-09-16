@@ -27,7 +27,7 @@ void nav_findpath1(void* ins_ptr, const float startPos[3], const float endPos[3]
 	ins->FindPath(startPos, endPos, bprint);
 }
 
-void nav_findpath(void* ins_ptr, RecastPos* p_startPos, RecastPos* p_endPos, bool bprint)
+void nav_findpath(void* ins_ptr, RecastPos* p_startPos, RecastPos* p_endPos, struct RecastPos** pos_path, int* pos_path_sz, bool bprint)
 {
 	if (NULL == ins_ptr)
 		return;
@@ -39,5 +39,17 @@ void nav_findpath(void* ins_ptr, RecastPos* p_startPos, RecastPos* p_endPos, boo
 	float startPos[3] = {p_startPos->x, p_startPos->y, p_startPos->z};
 	float endPos[3] = { p_endPos->x, p_endPos->y, p_endPos->z };
 
-	ins->FindPath(startPos, endPos, bprint);
+	std::vector<RecastPos> vPos;
+	ins->FindPath(startPos, endPos, vPos, bprint);
+	if (vPos.empty())
+		return;
+	RecastPos * pos = *pos_path = (RecastPos*)malloc(sizeof(RecastPos) * vPos.size());
+	for (auto& it : vPos)
+	{
+		pos->x = it.x;
+		pos->y = it.y;
+		pos->z = it.z;
+		pos++;
+	}
+	*pos_path_sz = vPos.size();
 }

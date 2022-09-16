@@ -35,9 +35,23 @@ void test_cwrapper()
 {
 	printf("test_cwrapper\r\n");
 	void * ins_ptr = nav_create("./test_mesh/nav_test.obj");
-	float startpos[3] = { 40.5650635f, -1.71816540f, 22.0546188f };
-	float endpos[3] = { 49.6740074f, -2.50520134f, -6.56286621f };
-	nav_findpath1(ins_ptr, startpos, endpos, true);
+	RecastPos startpos;
+	startpos.x = 40.5650635f;
+	startpos.y = -1.71816540f;
+	startpos.z = 22.0546188f;
+	RecastPos endpos;
+	endpos.x = 49.6740074f;
+	endpos.y = -2.50520134f;
+	endpos.z = -6.56286621f;
+	RecastPos* pos_path = NULL;
+	int pos_path_sz = 0;
+	nav_findpath(ins_ptr, &startpos, &endpos, &pos_path, &pos_path_sz, true);
+	printf("\r\n");
+	for (int i = 0; i < pos_path_sz; i++)
+	{
+		printf("{%f,%f,%f}\r\n",
+			pos_path[i].x, pos_path[i].y, pos_path[i].z);
+	}
 	printf("end test_cwrapper\r\n\r\n");
 }
 

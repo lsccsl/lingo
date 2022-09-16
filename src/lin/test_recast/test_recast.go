@@ -34,5 +34,10 @@ func main() {
 	end_pos.x = 49.6740074
 	end_pos.y = -2.50520134
 	end_pos.z = -6.56286621
-	C.nav_findpath(ins, &start_pos, &end_pos, true)
+	var pos *C.RecastPosT
+	var pos_sz C.int
+	C.nav_findpath(ins, &start_pos, &end_pos, &pos, &pos_sz, true)
+	fmt.Println("pos_sz:", pos_sz)
+	for i:=0; i < int(pos_sz); i ++ {
+	}
 }
