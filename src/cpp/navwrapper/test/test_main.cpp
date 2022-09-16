@@ -37,7 +37,7 @@ void test_cwrapper()
 	void * ins_ptr = nav_create("./test_mesh/nav_test.obj");
 	float startpos[3] = { 40.5650635f, -1.71816540f, 22.0546188f };
 	float endpos[3] = { 49.6740074f, -2.50520134f, -6.56286621f };
-	nav_findpath(ins_ptr, startpos, endpos, true);
+	nav_findpath1(ins_ptr, startpos, endpos, true);
 	printf("end test_cwrapper\r\n\r\n");
 }
 

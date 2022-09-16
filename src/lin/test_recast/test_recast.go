@@ -5,6 +5,7 @@ package main
 #cgo LDFLAGS: -L../../cpp/navwrapper/bin -lnavwrapper
 #include "RecastCWrapper.h"
 typedef void * VoidPtr;
+typedef struct RecastPos RecastPosT;
 */
 import "C"
 import (
@@ -19,8 +20,19 @@ func main() {
 
 	bin_file_path := []byte(str_file_path)
 
+	ins1 := C.nav_create(C.CString("./test_mesh/nav_test.obj"))
+	fmt.Println("ins1 addr:", ins1)
+
 	ins := unsafe.Pointer(C.nav_create((*C.char)( unsafe.Pointer(&bin_file_path[0]) ) ) )
 	fmt.Println("ins addr:", ins)
 
-	//C.nav_findpath(ins)
+	var start_pos C.struct_RecastPos
+	start_pos.x = 40.5650635
+	start_pos.y = -1.71816540
+	start_pos.z = 22.0546188
+	var end_pos C.RecastPosT
+	end_pos.x = 49.6740074
+	end_pos.y = -2.50520134
+	end_pos.z = -6.56286621
+	C.nav_findpath(ins, &start_pos, &end_pos, true)
 }
