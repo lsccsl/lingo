@@ -32,6 +32,7 @@
     <ClInclude Include="..\Detour\Include\DetourStatus.h" />
     <ClInclude Include="..\dllexport.h" />
     <ClInclude Include="..\RecastCommon.h" />
+    <ClInclude Include="..\RecastCWrapper.h" />
     <ClInclude Include="..\RecastDemo\ChunkyTriMesh.h" />
     <ClInclude Include="..\RecastDemo\fastlz.h" />
     <ClInclude Include="..\RecastDemo\InputGeom.h" />
@@ -56,6 +57,7 @@
     <ClCompile Include="..\Detour\Source\DetourNavMeshQuery.cpp" />
     <ClCompile Include="..\Detour\Source\DetourNode.cpp" />
     <ClCompile Include="..\RecastCommon.cpp" />
+    <ClCompile Include="..\RecastCWrapper.cpp" />
     <ClCompile Include="..\RecastDemo\ChunkyTriMesh.cpp" />
     <ClCompile Include="..\RecastDemo\fastlz.c" />
     <ClCompile Include="..\RecastDemo\InputGeom.cpp" />

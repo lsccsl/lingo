@@ -16,6 +16,8 @@ public:
 
 	void UpdateNavInstance();
 
+	bool LoadFromObj(const std::string objFilePath);
+
 	void LoadFromTemplate(InputGeom* geom, const NavTemplateMem& tmpMem);
 	void SaveToTemplate(NavTemplateMem& tmpMem);
 

@@ -710,3 +710,23 @@ void RecastInstance::UpdateNavInstance()
 
 	m_tileCache->update(1, m_navMesh);
 }
+
+bool RecastInstance::LoadFromObj(const std::string objFilePath)
+{
+	m_geom = new InputGeom;
+	if (!m_geom->load(m_ctx, objFilePath))
+	{
+		printf("fail load:%s", objFilePath.c_str());
+		delete m_geom;
+		m_geom = NULL;
+		return false;
+	}
+
+	if (!m_geom || !m_geom->getMesh())
+	{
+		m_ctx->log(RC_LOG_ERROR, "buildTiledNavigation: No vertices and triangles.");
+		return false;
+	}
+
+	return this->buildFromGeom(m_geom);
+}

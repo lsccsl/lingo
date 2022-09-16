@@ -1,5 +1,4 @@
-#ifndef __DLLEXPORT_H_06457146_757F_49CA_97CD_BB5B563FE66B
-#define __DLLEXPORT_H_06457146_757F_49CA_97CD_BB5B563FE66B
+#pragma once
 
 #ifdef _WINDOWS
 
@@ -12,7 +11,5 @@
 #else
 
 	#define DLL_EXPORT
-
-#endif
 
 #endif

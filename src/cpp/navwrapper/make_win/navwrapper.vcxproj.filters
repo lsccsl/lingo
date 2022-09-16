@@ -80,6 +80,7 @@
     <ClInclude Include="..\RecastTemplate.h" />
     <ClInclude Include="..\RecastWrapper.h" />
     <ClInclude Include="..\dllexport.h" />
+    <ClInclude Include="..\RecastCWrapper.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Detour\Source\DetourAlloc.cpp">
@@ -164,5 +165,6 @@
     <ClCompile Include="..\RecastInstance.cpp" />
     <ClCompile Include="..\RecastTemplate.cpp" />
     <ClCompile Include="..\RecastWrapper.cpp" />
+    <ClCompile Include="..\RecastCWrapper.cpp" />
   </ItemGroup>
 </Project>
