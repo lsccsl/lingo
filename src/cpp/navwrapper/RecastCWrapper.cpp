@@ -53,3 +53,9 @@ void nav_findpath(void* ins_ptr, RecastPos* p_startPos, RecastPos* p_endPos, str
 	}
 	*pos_path_sz = vPos.size();
 }
+
+void nav_freepath(RecastPos* pos_path)
+{
+	printf("\r\nnav_freepath\r\n");
+	free(pos_path);
+}

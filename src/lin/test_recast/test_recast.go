@@ -39,5 +39,10 @@ func main() {
 	C.nav_findpath(ins, &start_pos, &end_pos, &pos, &pos_sz, true)
 	fmt.Println("pos_sz:", pos_sz)
 	for i:=0; i < int(pos_sz); i ++ {
+		fmt.Println(uintptr(i)*unsafe.Sizeof(*pos))
+		tmp_v := uintptr(unsafe.Pointer(pos))  + uintptr(i)*unsafe.Sizeof(*pos)
+		tmp_pos_ptr := (*C.RecastPosT)( unsafe.Pointer(tmp_v) )
+		fmt.Println(tmp_pos_ptr.x, tmp_pos_ptr.y, tmp_pos_ptr.z)
 	}
+	C.nav_freepath(pos)
 }
