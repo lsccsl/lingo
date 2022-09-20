@@ -30,6 +30,9 @@ enum MSG_TYPE
     _MSG_GET_MAP_RES = 1004;
     _MSG_PATH_SEARCH = 1005;
     _MSG_PATH_SEARCH_RES = 1006;
+
+    _MSG_NAV_SEARCH = 1007;
+    _MSG_NAV_SEARCH_RES = 1008;
 }
 
 enum RESPONSE_CODE
@@ -173,4 +176,21 @@ message MSG_PATH_SEARCH_RES
     POS_T pos_dst = 2;
     repeated POS_T path_pos = 3;
     repeated POS_T path_key_pos = 4;
+}
+
+message POS_3F
+{
+    float pos_x = 1;
+    float pos_y = 2;
+    float pos_z = 3;
+}
+
+message MSG_NAV_SEARCH
+{
+    POS_3F pos_src = 1;
+    POS_3F pos_dst = 2;
+}
+message MSG_NAV_SEARCH_RES
+{
+    repeated POS_3F path_pos = 1;
 }

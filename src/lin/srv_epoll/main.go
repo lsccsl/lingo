@@ -1,5 +1,6 @@
 package main
 
+import "C"
 import (
 	"encoding/json"
 	"flag"
@@ -22,8 +23,6 @@ type ServerFromHttp struct {
 const TCP_READ_CLOSE_EXPIRE = 600
 
 func main() {
-
-	ConstructorNavMapMgr()
 	rand.Seed(time.Now().Unix())
 	fd := lin_common.FD_DEF{}
 	fmt.Println("fd:", fd.String())
@@ -45,6 +44,9 @@ func main() {
 	lin_common.ProfileInit(true, 6060)
 
 	lin_common.LogErr("test err log")
+
+	nav_map := ConstructorNavMapMgr("../resource/nav_test.obj")
+	nav_map.path_find(Coord3f{40.5650635,-1.71816540,22.0546188}, Coord3f{49.6740074,-2.50520134,-6.56286621})
 
 	fmt.Println("begin epoll listen, ip:", srvCfg.BindAddr)
 

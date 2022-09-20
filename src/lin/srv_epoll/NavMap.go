@@ -9,48 +9,47 @@ typedef struct RecastPos RecastPosT;
 */
 import "C"
 import (
-	"fmt"
+	"lin/lin_common"
 	"unsafe"
 )
 
-type NavMap struct {
-
+type Coord3f struct {
+	X float32
+	Y float32
+	Z float32
 }
 
-func ConstructorNavMapMgr() *NavMap {
+type NavMap struct {
+	handle_nav_map_ unsafe.Pointer
+}
+
+func ConstructorNavMapMgr(path string) *NavMap {
 	nav_map := &NavMap{}
 
-	fmt.Println("test_nav")
-
-	str_file_path := "../resource/nav_test.obj"
-
-	bin_file_path := []byte(str_file_path)
-
-	ins1 := C.nav_create(C.CString("./test_mesh/nav_test.obj"))
-	fmt.Println("ins1 addr:", ins1)
-
-	ins := unsafe.Pointer(C.nav_create((*C.char)( unsafe.Pointer(&bin_file_path[0]) ) ) )
-	fmt.Println("ins addr:", ins)
-
-	var start_pos C.struct_RecastPos
-	start_pos.x = 40.5650635
-	start_pos.y = -1.71816540
-	start_pos.z = 22.0546188
-	var end_pos C.RecastPosT
-	end_pos.x = 49.6740074
-	end_pos.y = -2.50520134
-	end_pos.z = -6.56286621
-	var pos *C.RecastPosT
-	var pos_sz C.int
-	C.nav_findpath(ins, &start_pos, &end_pos, &pos, &pos_sz, true)
-	fmt.Println("pos_sz:", pos_sz)
-	for i:=0; i < int(pos_sz); i ++ {
-		fmt.Println(uintptr(i)*unsafe.Sizeof(*pos))
-		tmp_v := uintptr(unsafe.Pointer(pos))  + uintptr(i)*unsafe.Sizeof(*pos)
-		tmp_pos_ptr := (*C.RecastPosT)( unsafe.Pointer(tmp_v) )
-		fmt.Println(tmp_pos_ptr.x, tmp_pos_ptr.y, tmp_pos_ptr.z)
-	}
-	C.nav_freepath(pos)
+	nav_map.handle_nav_map_ = C.nav_create(C.CString(path))
 
 	return nav_map
+}
+
+func (pthis*NavMap)path_find(src Coord3f, dst Coord3f) (path []Coord3f){
+	var start_pos C.struct_RecastPos
+	start_pos.x = C.float(src.X)
+	start_pos.y = C.float(src.Y)
+	start_pos.z = C.float(src.Z)
+	var end_pos C.RecastPosT
+	end_pos.x = C.float(dst.X)
+	end_pos.y = C.float(dst.Y)
+	end_pos.z = C.float(dst.Z)
+	var pos *C.RecastPosT
+	var pos_sz C.int
+	C.nav_findpath(pthis.handle_nav_map_, &start_pos, &end_pos, &pos, &pos_sz, true)
+	lin_common.LogDebug("pos_sz:", pos_sz)
+	for i:=0; i < int(pos_sz); i ++ {
+		tmp_v := uintptr(unsafe.Pointer(pos))  + uintptr(i)*unsafe.Sizeof(*pos)
+		tmp_pos_ptr := (*C.RecastPosT)( unsafe.Pointer(tmp_v) )
+		lin_common.LogDebug(tmp_pos_ptr.x, tmp_pos_ptr.y, tmp_pos_ptr.z)
+		path = append(path, Coord3f{float32(tmp_pos_ptr.x), float32(tmp_pos_ptr.y), float32(tmp_pos_ptr.z)})
+	}
+	C.nav_freepath(pos)
+	return
 }

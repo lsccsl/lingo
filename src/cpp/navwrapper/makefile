@@ -34,6 +34,7 @@ all: libnavwrapper.so test_nav
 libnavwrapper.so: $(TARGETS)
 	gcc -o $@ -shared $? $(LIBDIR) $(LIB)
 	cp libnavwrapper.so ./bin/
+	cp libnavwrapper.so ../../../output/
 
 test_nav: ./test/test_main.o
 	gcc -o $@ $? $(LIBDIR) $(LIB) -lnavwrapper
