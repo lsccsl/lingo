@@ -34,15 +34,16 @@ void test_instance()
 void test_cwrapper()
 {
 	printf("test_cwrapper\r\n");
-	void * ins_ptr = nav_create("./test_mesh/nav_test.obj");
+	///void * ins_ptr = nav_create("./test_mesh/nav_test.obj");
+	void* ins_ptr = nav_create("../../../../resource/test_scene.obj");
 	RecastPos startpos;
-	startpos.x = 40.5650635f;
-	startpos.y = -1.71816540f;
-	startpos.z = 22.0546188f;
+	startpos.x = 702.190918f; // 40.5650635f;
+	startpos.y = 1.53082275f; // -1.71816540f;
+	startpos.z = 635.378662f; // 22.0546188f;
 	RecastPos endpos;
-	endpos.x = 49.6740074f;
-	endpos.y = -2.50520134f;
-	endpos.z = -6.56286621f;
+	endpos.x = 710.805664f;// 49.6740074f;
+	endpos.y = 1.00000000f;// -2.50520134f;
+	endpos.z = 851.753296f;// -6.56286621f;
 	RecastPos* pos_path = NULL;
 	int pos_path_sz = 0;
 	nav_findpath(ins_ptr, &startpos, &endpos, &pos_path, &pos_path_sz, true);

@@ -141,6 +141,31 @@ func (pthis*TcpClient)Process_MSG_PATH_SEARCH(msg * msgpacket.MSG_PATH_SEARCH){
 	pthis.pu.eSrvMgr.SendProtoMsg(pthis.fd, msgpacket.MSG_TYPE__MSG_PATH_SEARCH_RES, msgRes)
 }
 
+func (pthis*TcpClient)Process_MSG_NAV_SEARCH(msg *msgpacket.MSG_NAV_SEARCH) {
+	lin_common.LogDebug("path search", msg)
+	navMap := pthis.pu.eSrvMgr.navMap
+
+	src := Coord3f{0, 0, 0}
+	dst := Coord3f{0, 0, 0}
+	if msg.PosSrc != nil {
+		src = Coord3f{msg.PosSrc.PosX, msg.PosSrc.PosY, msg.PosSrc.PosZ}
+	}
+	if msg.PosDst != nil {
+		dst = Coord3f{msg.PosDst.PosX, msg.PosDst.PosY, msg.PosDst.PosZ}
+	}
+	path := navMap.path_find(src, dst)
+
+	lin_common.LogDebug(path)
+
+	msg_ret := &msgpacket.MSG_NAV_SEARCH_RES{}
+	for _, val := range path {
+		lin_common.LogDebug(val.X, val.Y, val.Z)
+		msg_ret.PathPos = append(msg_ret.PathPos, &msgpacket.POS_3F{PosX:val.X, PosY:val.Y, PosZ:val.Z})
+	}
+
+	pthis.pu.eSrvMgr.SendProtoMsg(pthis.fd, msgpacket.MSG_TYPE__MSG_NAV_SEARCH_RES, msg_ret)
+}
+
 func (pthis*TcpClient)Process_protoMsg(msg *msgClient) {
 	defer func() {
 		err := recover()
@@ -162,6 +187,8 @@ func (pthis*TcpClient)Process_protoMsg(msg *msgClient) {
 		pthis.Process_MSG_GET_MAP(t)
 	case *msgpacket.MSG_PATH_SEARCH:
 		pthis.Process_MSG_PATH_SEARCH(t)
+	case *msgpacket.MSG_NAV_SEARCH:
+		pthis.Process_MSG_NAV_SEARCH(t)
 	}
 }
 

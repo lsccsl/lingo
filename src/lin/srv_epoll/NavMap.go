@@ -23,10 +23,20 @@ type NavMap struct {
 	handle_nav_map_ unsafe.Pointer
 }
 
-func ConstructorNavMapMgr(path string) *NavMap {
+func ConstructorNavMapMgr(file_path string) *NavMap {
 	nav_map := &NavMap{}
 
-	nav_map.handle_nav_map_ = C.nav_create(C.CString(path))
+	nav_map.handle_nav_map_ = C.nav_create(C.CString(file_path))
+	if nav_map.handle_nav_map_ == nil {
+		lin_common.LogErr("fail load", file_path)
+		return nil
+	}
+	lin_common.LogDebug("load success", file_path)
+
+	src := Coord3f{	702.190918, 1.53082275, 635.378662}
+	dst := Coord3f{710.805664, 1.00000000, 851.753296}
+	path := nav_map.path_find(src, dst)
+	lin_common.LogDebug(path)
 
 	return nav_map
 }
