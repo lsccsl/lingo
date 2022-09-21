@@ -33,10 +33,10 @@ func ConstructorNavMapMgr(file_path string) *NavMap {
 	}
 	lin_common.LogDebug("load success", file_path)
 
-	src := Coord3f{	702.190918, 1.53082275, 635.378662}
+	src := Coord3f{702.190918, 1.53082275, 635.378662}
 	dst := Coord3f{710.805664, 1.00000000, 851.753296}
 	path := nav_map.path_find(src, dst)
-	lin_common.LogDebug(path)
+	lin_common.LogDebug(len(path), " path:", path)
 
 	return nav_map
 }
@@ -53,11 +53,9 @@ func (pthis*NavMap)path_find(src Coord3f, dst Coord3f) (path []Coord3f){
 	var pos *C.RecastPosT
 	var pos_sz C.int
 	C.nav_findpath(pthis.handle_nav_map_, &start_pos, &end_pos, &pos, &pos_sz, true)
-	lin_common.LogDebug("pos_sz:", pos_sz)
 	for i:=0; i < int(pos_sz); i ++ {
 		tmp_v := uintptr(unsafe.Pointer(pos))  + uintptr(i)*unsafe.Sizeof(*pos)
 		tmp_pos_ptr := (*C.RecastPosT)( unsafe.Pointer(tmp_v) )
-		lin_common.LogDebug(tmp_pos_ptr.x, tmp_pos_ptr.y, tmp_pos_ptr.z)
 		path = append(path, Coord3f{float32(tmp_pos_ptr.x), float32(tmp_pos_ptr.y), float32(tmp_pos_ptr.z)})
 	}
 	C.nav_freepath(pos)

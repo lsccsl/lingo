@@ -72,6 +72,15 @@ public class main_nav : MonoBehaviour
         msg.PosDst.PosX = rh.point.x;
         msg.PosDst.PosY = rh.point.y;
         msg.PosDst.PosZ = rh.point.z;
+
+        msg.PosSrc = new Msgpacket.POS_3F();
+        msg.PosSrc.PosX = 702.190918f;
+        msg.PosSrc.PosY = 1.53082275f;
+        msg.PosSrc.PosZ = 635.378662f;
+        msg.PosDst = new Msgpacket.POS_3F();
+        msg.PosDst.PosX = 710.805664f; 
+        msg.PosDst.PosY = 1.00000000f;
+        msg.PosDst.PosZ = 851.753296f;
         this.client_.send_msg(Msgpacket.MSG_TYPE.MsgNavSearch, msg);
 
         cur_pos_ = msg.PosDst;
