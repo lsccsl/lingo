@@ -65,10 +65,16 @@ void RecastInstance::resetCommonSettings()
 {
 	m_cellSize = 0.3f;
 	m_cellHeight = 0.2f;
-	m_agentHeight = 2.0f;
-	m_agentRadius = 0.6f;
-	m_agentMaxClimb = 0.9f;
+	
+	//m_agentHeight = 2.0f;
+	//m_agentRadius = 0.6f;
+	//m_agentMaxClimb = 0.9f;
+	//m_agentMaxSlope = 45.0f;
+	m_agentHeight = 6.0f;
+	m_agentRadius = 4.f;
+	m_agentMaxClimb = 4.0f;
 	m_agentMaxSlope = 45.0f;
+
 	m_regionMinSize = 8;
 	m_regionMergeSize = 20;
 	m_edgeMaxLen = 12.0f;
@@ -547,7 +553,7 @@ void RecastInstance::FindPath(const float startPos[3], const float endPos[3],
 	m_navQuery->findNearestPoly(m_spos, m_polyPickExt, &m_filter, &m_startRef, 0);
 	m_navQuery->findNearestPoly(m_epos, m_polyPickExt, &m_filter, &m_endRef, 0);
 
-	m_navQuery->findPath(m_startRef, m_endRef, m_spos, m_epos, &m_filter, m_polys, &m_npolys, MAX_POLYS);//lsc 按网格邻接查找网格路径,类A*算法
+	m_navQuery->findPath(m_startRef, m_endRef, m_spos, m_epos, &m_filter, m_polys, &m_npolys, MAX_POLYS * 10);//lsc 按网格邻接查找网格路径,类A*算法
 	m_nstraightPath = 0;
 	if (m_npolys)
 	{
