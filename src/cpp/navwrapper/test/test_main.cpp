@@ -38,11 +38,11 @@ void test_cwrapper()
 	void* ins_ptr = nav_create("../../../../resource/test_scene.obj");
 	RecastPos startpos;
 	startpos.x = 702.190918f; // 40.5650635f;
-	startpos.y = 1.53082275f; // -1.71816540f;
+	startpos.y = 0.0f;// 1.53082275f; // -1.71816540f;
 	startpos.z = 635.378662f; // 22.0546188f;
 	RecastPos endpos;
 	endpos.x = 710.805664f;// 49.6740074f;
-	endpos.y = 1.00000000f;// -2.50520134f;
+	endpos.y = 0.0f;// 1.00000000f;// -2.50520134f;
 	endpos.z = 851.753296f;// -6.56286621f;
 	RecastPos* pos_path = NULL;
 	int pos_path_sz = 0;

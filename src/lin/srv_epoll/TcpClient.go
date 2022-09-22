@@ -142,7 +142,7 @@ func (pthis*TcpClient)Process_MSG_PATH_SEARCH(msg * msgpacket.MSG_PATH_SEARCH){
 }
 
 func (pthis*TcpClient)Process_MSG_NAV_SEARCH(msg *msgpacket.MSG_NAV_SEARCH) {
-	lin_common.LogDebug("path search", msg)
+	lin_common.LogDebug("nav search", msg)
 	navMap := pthis.pu.eSrvMgr.navMap
 
 	src := Coord3f{0, 0, 0}

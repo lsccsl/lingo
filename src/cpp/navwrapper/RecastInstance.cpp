@@ -36,7 +36,7 @@ RecastInstance::RecastInstance() :
 	//m_polyPickExt[1] = 4;
 	//m_polyPickExt[2] = 2;
 	m_polyPickExt[0] = 1;
-	m_polyPickExt[1] = 1;
+	m_polyPickExt[1] = 4;
 	m_polyPickExt[2] = 1;
 }
 

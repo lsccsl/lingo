@@ -8,9 +8,15 @@ public class main_nav : MonoBehaviour
     private float t_heart_beat_ = 0;
     Msgpacket.POS_3F cur_pos_;
 
+    public LineRenderer m_lineRenderer;
+
     // Start is called before the first frame update
     void Start()
     {
+        m_lineRenderer = this.gameObject.GetComponent<LineRenderer>();
+        m_lineRenderer.startColor = Color.blue;
+        m_lineRenderer.endColor = Color.red;
+
         cur_pos_ = new Msgpacket.POS_3F();
         cur_pos_.PosX = 0;
         cur_pos_.PosY = 0;
@@ -37,7 +43,7 @@ public class main_nav : MonoBehaviour
                     Debug.Log("Msgpacket.MSG_TYPE.MsgLoginRes");
                     break;
                 case Msgpacket.MSG_TYPE.MsgNavSearchRes:
-                    Debug.Log("Msgpacket.MSG_TYPE.MsgNavSearchRes");
+                    process_nav_search_res((Msgpacket.MSG_NAV_SEARCH_RES)msg.msg);
                     break;
             }
         }
@@ -54,6 +60,21 @@ public class main_nav : MonoBehaviour
             check_screen_ray_hit();
     }
 
+    void process_nav_search_res(Msgpacket.MSG_NAV_SEARCH_RES msg)
+    {
+        Debug.Log("process_nav_search_res");
+        {
+            m_lineRenderer.positionCount = msg.PathPos.Count;
+
+            int idx = 0;
+            foreach (var it in msg.PathPos)
+            {
+                m_lineRenderer.SetPosition(idx, new Vector3(it.PosX, it.PosY, it.PosZ));
+                idx++;
+            }
+        }
+    }
+
     void check_screen_ray_hit()
     {
         Ray screen_ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -68,19 +89,20 @@ public class main_nav : MonoBehaviour
 
         Msgpacket.MSG_NAV_SEARCH msg = new Msgpacket.MSG_NAV_SEARCH();
         msg.PosSrc = cur_pos_;
+        msg.PosSrc.PosY = 1.0f;
         msg.PosDst = new Msgpacket.POS_3F();
         msg.PosDst.PosX = rh.point.x;
-        msg.PosDst.PosY = rh.point.y;
+        msg.PosDst.PosY = 1.0f;// rh.point.y;
         msg.PosDst.PosZ = rh.point.z;
 
-        msg.PosSrc = new Msgpacket.POS_3F();
+/*        msg.PosSrc = new Msgpacket.POS_3F();
         msg.PosSrc.PosX = 702.190918f;
         msg.PosSrc.PosY = 1.53082275f;
         msg.PosSrc.PosZ = 635.378662f;
         msg.PosDst = new Msgpacket.POS_3F();
         msg.PosDst.PosX = 710.805664f; 
         msg.PosDst.PosY = 1.00000000f;
-        msg.PosDst.PosZ = 851.753296f;
+        msg.PosDst.PosZ = 851.753296f;*/
         this.client_.send_msg(Msgpacket.MSG_TYPE.MsgNavSearch, msg);
 
         cur_pos_ = msg.PosDst;
