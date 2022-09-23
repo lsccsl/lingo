@@ -32,12 +32,12 @@ RecastInstance::RecastInstance() :
 	m_filter.setIncludeFlags(SAMPLE_POLYFLAGS_ALL ^ SAMPLE_POLYFLAGS_DISABLED);
 	m_filter.setExcludeFlags(0);
 
-	//m_polyPickExt[0] = 2;
-	//m_polyPickExt[1] = 4;
-	//m_polyPickExt[2] = 2;
-	m_polyPickExt[0] = 1;
+	m_polyPickExt[0] = 2;
 	m_polyPickExt[1] = 4;
-	m_polyPickExt[2] = 1;
+	m_polyPickExt[2] = 2;
+	//m_polyPickExt[0] = 1;
+	//m_polyPickExt[1] = 4;
+	//m_polyPickExt[2] = 1;
 }
 
 RecastInstance::~RecastInstance()
@@ -541,7 +541,7 @@ void RecastInstance::FindPath(const float startPos[3], const float endPos[3], bo
 }
 
 void RecastInstance::FindPath(const float startPos[3], const float endPos[3],
-	std::vector<RecastPos>& vPos,
+	std::vector<RecastVec3f>& vPos,
 	bool bprint)
 {
 	if (!m_navMesh)
@@ -567,7 +567,7 @@ void RecastInstance::FindPath(const float startPos[3], const float endPos[3],
 			m_straightPath, m_straightPathFlags,
 			m_straightPathPolys, &m_nstraightPath, MAX_POLYS, m_straightPathOptions);//lsc 寻找拐点,生成路径点
 
-		RecastPos pos;
+		RecastVec3f pos;
 		for (int i = 0; i < m_nstraightPath; i++)
 		{
 			pos.x = m_straightPath[i * 3];
@@ -703,25 +703,41 @@ void RecastInstance::SaveToTemplate(NavTemplateMem& tmpMem)
 	}
 }
 
-int RecastInstance::AddBlockObject(const float posCenter[3], float sizeX, float sizeY, float sizeZ)
+unsigned int RecastInstance::add_obstacle(RecastVec3f* center, RecastVec3f* halfExtents)
 {
-	if (!m_tileCache)
-		return -1;
+	if (!m_tileCache || !halfExtents || !center)
+		return 0;
 
 	float bmin[3];
 	float bmax[3];
-	const float ext[3] = { sizeX, sizeY, sizeZ };//{ 1.0f, 1.5f, 2.0f };
+	const float ext[3] = { halfExtents->x, halfExtents->y, halfExtents->z };
+	float posCenter[3] = {center->x, center->y, center->z};
 	dtVadd(bmax, posCenter, ext);
 	dtVsub(bmin, posCenter, ext);
 	dtObstacleRef result;
 	dtStatus ret = m_tileCache->addBoxObstacle(bmin, bmax, &result);
 	if (DT_SUCCESS != ret)
-		return -1;
+		return 0;
 
 	return result;
 }
 
-void RecastInstance::DelBlockObject(int idObj)
+unsigned int RecastInstance::add_obstacle_with_y_rotation(RecastVec3f* center, RecastVec3f* halfExtents, float rotation_y)
+{
+	if (!m_tileCache || !halfExtents || !center)
+		return 0;
+
+	const float ext[3] = { halfExtents->x, halfExtents->y, halfExtents->z };
+	float posCenter[3] = { center->x, center->y, center->z };
+	dtObstacleRef result;
+	dtStatus ret = m_tileCache->addBoxObstacle(posCenter, ext, rotation_y, &result);
+	if (DT_SUCCESS != ret)
+		return 0;
+
+	return result;
+}
+
+void RecastInstance::del_obstacle(int idObj)
 {
 	if (!m_tileCache)
 		return;

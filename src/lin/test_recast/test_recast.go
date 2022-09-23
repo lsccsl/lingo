@@ -5,7 +5,7 @@ package main
 #cgo LDFLAGS: -L../../cpp/navwrapper/bin -lnavwrapper
 #include "RecastCWrapper.h"
 typedef void * VoidPtr;
-typedef struct RecastPos RecastPosT;
+typedef struct RecastVec3f RecastPosT;
 */
 import "C"
 import (
@@ -20,13 +20,22 @@ func main() {
 
 	bin_file_path := []byte(str_file_path)
 
-	ins1 := C.nav_create(C.CString("./test_mesh/nav_test.obj"))
-	fmt.Println("ins1 addr:", ins1)
+	//ins1 := C.nav_create(C.CString("./test_mesh/nav_test.obj"))
+	//fmt.Println("ins1 addr:", ins1)
 
-	ins := unsafe.Pointer(C.nav_create((*C.char)( unsafe.Pointer(&bin_file_path[0]) ) ) )
+	ins := unsafe.Pointer(C.nav_new())
+	C.nav_reset_agent(ins, 2.0, 0.6, 0.9, 45.0)
+	C.nav_load(ins, (*C.char)( unsafe.Pointer(&bin_file_path[0]) ) )
 	fmt.Println("ins addr:", ins)
 
-	var start_pos C.struct_RecastPos
+	id := C.nav_add_obstacle(ins, &C.struct_RecastVec3f{48.2378387, -1.40648651, 8.61733246},
+		&C.RecastPosT{2.0, 2.0, 2.0},
+		(45.0 / 360.0) * 2.0 * 3.14)
+	C.nav_update(ins)
+	C.nav_update(ins)
+	fmt.Println("obstacle id:", id)
+
+	var start_pos C.struct_RecastVec3f
 	start_pos.x = 40.5650635
 	start_pos.y = -1.71816540
 	start_pos.z = 22.0546188

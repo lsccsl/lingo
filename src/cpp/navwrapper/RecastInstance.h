@@ -26,12 +26,21 @@ public:
 	void FindPath(const float startPos[3], const float endPos[3],
 		bool bprint = true);
 	void FindPath(const float startPos[3], const float endPos[3],
-		std::vector<RecastPos>& vPos,
+		std::vector<RecastVec3f>& vPos,
 		bool bprint = true);
 
-	int AddBlockObject(const float posCenter[3], float sizeX, float sizeY, float sizeZ);
-	void DelBlockObject(int idObj);
+	unsigned int add_obstacle(RecastVec3f* center, RecastVec3f* halfExtents);
+	unsigned int add_obstacle_with_y_rotation(RecastVec3f* center, RecastVec3f* halfExtents, float rotation_y = 0.0f);
+	void del_obstacle(int idObj);
 	bool IsWalkAble(float PosX, float PosY, float PosZ);
+
+	void reset_agent(float agentHeight = 2.0f, float agentRadius = 0.6f, float agentMaxClimb = 0.9f, float agentMaxSlope = 45.0f)
+	{
+		m_agentHeight = agentHeight;
+		m_agentRadius = agentRadius;
+		m_agentMaxClimb = agentMaxClimb;
+		m_agentMaxSlope = agentMaxSlope;
+	}
 
 protected:
 

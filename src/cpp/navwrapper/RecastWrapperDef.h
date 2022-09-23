@@ -1,6 +1,6 @@
 #pragma once
 
-struct RecastPos
+struct RecastVec3f
 {
 	float x;
 	float y;

@@ -15,7 +15,47 @@ void* nav_create(const char* file_path)
 	return ins;
 }
 
-void nav_findpath(void* ins_ptr, RecastPos* p_startPos, RecastPos* p_endPos, struct RecastPos** pos_path, int* pos_path_sz, bool bprint)
+void* nav_new()
+{
+	return new RecastInstance;
+}
+void nav_delete(void* ins_ptr)
+{
+	if (NULL == ins_ptr)
+		return;
+
+	RecastInstance* ins = static_cast<RecastInstance*>(ins_ptr);
+	if (NULL == ins)
+		return;
+
+	delete ins;
+}
+
+bool nav_load(void* ins_ptr, const char* file_path)
+{
+	if (NULL == ins_ptr)
+		return false;
+
+	RecastInstance* ins = static_cast<RecastInstance*>(ins_ptr);
+	if (NULL == ins)
+		return false;
+
+	return ins->LoadFromObj(file_path);
+}
+
+void nav_reset_agent(void* ins_ptr, float agentHeight, float agentRadius, float agentMaxClimb, float agentMaxSlope)
+{
+	if (NULL == ins_ptr)
+		return;
+
+	RecastInstance* ins = static_cast<RecastInstance*>(ins_ptr);
+	if (NULL == ins)
+		return;
+
+	ins->reset_agent(agentHeight, agentRadius, agentMaxClimb, agentMaxSlope);
+}
+
+void nav_findpath(void* ins_ptr, RecastVec3f* p_startPos, RecastVec3f* p_endPos, struct RecastVec3f** pos_path, int* pos_path_sz, bool bprint)
 {
 	if (NULL == ins_ptr)
 		return;
@@ -27,11 +67,11 @@ void nav_findpath(void* ins_ptr, RecastPos* p_startPos, RecastPos* p_endPos, str
 	float startPos[3] = {p_startPos->x, p_startPos->y, p_startPos->z};
 	float endPos[3] = { p_endPos->x, p_endPos->y, p_endPos->z };
 
-	std::vector<RecastPos> vPos;
+	std::vector<RecastVec3f> vPos;
 	ins->FindPath(startPos, endPos, vPos, bprint);
 	if (vPos.empty())
 		return;
-	RecastPos * pos = *pos_path = (RecastPos*)malloc(sizeof(RecastPos) * vPos.size());
+	RecastVec3f* pos = *pos_path = (RecastVec3f*)malloc(sizeof(RecastVec3f) * vPos.size());
 	for (auto& it : vPos)
 	{
 		pos->x = it.x;
@@ -42,8 +82,44 @@ void nav_findpath(void* ins_ptr, RecastPos* p_startPos, RecastPos* p_endPos, str
 	*pos_path_sz = vPos.size();
 }
 
-void nav_freepath(RecastPos* pos_path)
+void nav_freepath(RecastVec3f* pos_path)
 {
 	printf("\r\nnav_freepath\r\n");
 	free(pos_path);
+}
+
+unsigned int nav_add_obstacle(void* ins_ptr, RecastVec3f* center, RecastVec3f* halfExtents, const float yRadians)
+{
+	if (NULL == ins_ptr)
+		return 0;
+
+	RecastInstance* ins = static_cast<RecastInstance*>(ins_ptr);
+	if (NULL == ins)
+		return 0;
+
+	return ins->add_obstacle_with_y_rotation(center, halfExtents, yRadians);
+}
+
+void nav_del_obstacle(void* ins_ptr, unsigned int obj_id)
+{
+	if (NULL == ins_ptr)
+		return;
+
+	RecastInstance* ins = static_cast<RecastInstance*>(ins_ptr);
+	if (NULL == ins)
+		return;
+
+	ins->del_obstacle(obj_id);
+}
+
+void nav_update(void* ins_ptr)
+{
+	if (NULL == ins_ptr)
+		return;
+
+	RecastInstance* ins = static_cast<RecastInstance*>(ins_ptr);
+	if (NULL == ins)
+		return;
+
+	ins->UpdateNavInstance();
 }
