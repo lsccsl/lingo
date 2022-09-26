@@ -45,9 +45,6 @@ func main() {
 
 	lin_common.LogErr("test err log")
 
-	nav_map := ConstructorNavMapMgr("../resource/nav_test.obj")
-	nav_map.path_find(Coord3f{40.5650635,-1.71816540,22.0546188}, Coord3f{49.6740074,-2.50520134,-6.56286621})
-
 	fmt.Println("begin epoll listen, ip:", srvCfg.BindAddr)
 
 	msgpacket.InitMsgParseVirtualTable(Global_ServerCfg.Msgdef)

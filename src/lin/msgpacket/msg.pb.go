@@ -23,31 +23,35 @@ const (
 type MSG_TYPE int32
 
 const (
-	MSG_TYPE__MSG_NULL             MSG_TYPE = 0
-	MSG_TYPE__MSG_RPC              MSG_TYPE = 1
-	MSG_TYPE__MSG_RPC_RES          MSG_TYPE = 2
-	MSG_TYPE__MSG_SRV_REPORT       MSG_TYPE = 3
-	MSG_TYPE__MSG_SRV_REPORT_RES   MSG_TYPE = 4
-	MSG_TYPE__MSG_HEARTBEAT        MSG_TYPE = 5
-	MSG_TYPE__MSG_HEARTBEAT_RES    MSG_TYPE = 6
-	MSG_TYPE__MSG_TCP_STATIC       MSG_TYPE = 7
-	MSG_TYPE__MSG_TCP_STATIC_RES   MSG_TYPE = 8
-	MSG_TYPE__MSG_MAX              MSG_TYPE = 100
-	MSG_TYPE__MSG_TEST             MSG_TYPE = 101
-	MSG_TYPE__MSG_TEST_RES         MSG_TYPE = 102
-	MSG_TYPE__MSG_LOGIN            MSG_TYPE = 103
-	MSG_TYPE__MSG_LOGIN_RES        MSG_TYPE = 104
-	MSG_TYPE__MSG_TEST_RPC         MSG_TYPE = 105
-	MSG_TYPE__MSG_TEST_RPC_RES     MSG_TYPE = 106
-	MSG_TYPE__MSG_SERVER_MAX       MSG_TYPE = 1000
-	MSG_TYPE__MSG_CLIENT_ENTER     MSG_TYPE = 1001
-	MSG_TYPE__MSG_CLIENT_ENTER_RES MSG_TYPE = 1002
-	MSG_TYPE__MSG_GET_MAP          MSG_TYPE = 1003
-	MSG_TYPE__MSG_GET_MAP_RES      MSG_TYPE = 1004
-	MSG_TYPE__MSG_PATH_SEARCH      MSG_TYPE = 1005
-	MSG_TYPE__MSG_PATH_SEARCH_RES  MSG_TYPE = 1006
-	MSG_TYPE__MSG_NAV_SEARCH       MSG_TYPE = 1007
-	MSG_TYPE__MSG_NAV_SEARCH_RES   MSG_TYPE = 1008
+	MSG_TYPE__MSG_NULL                 MSG_TYPE = 0
+	MSG_TYPE__MSG_RPC                  MSG_TYPE = 1
+	MSG_TYPE__MSG_RPC_RES              MSG_TYPE = 2
+	MSG_TYPE__MSG_SRV_REPORT           MSG_TYPE = 3
+	MSG_TYPE__MSG_SRV_REPORT_RES       MSG_TYPE = 4
+	MSG_TYPE__MSG_HEARTBEAT            MSG_TYPE = 5
+	MSG_TYPE__MSG_HEARTBEAT_RES        MSG_TYPE = 6
+	MSG_TYPE__MSG_TCP_STATIC           MSG_TYPE = 7
+	MSG_TYPE__MSG_TCP_STATIC_RES       MSG_TYPE = 8
+	MSG_TYPE__MSG_MAX                  MSG_TYPE = 100
+	MSG_TYPE__MSG_TEST                 MSG_TYPE = 101
+	MSG_TYPE__MSG_TEST_RES             MSG_TYPE = 102
+	MSG_TYPE__MSG_LOGIN                MSG_TYPE = 103
+	MSG_TYPE__MSG_LOGIN_RES            MSG_TYPE = 104
+	MSG_TYPE__MSG_TEST_RPC             MSG_TYPE = 105
+	MSG_TYPE__MSG_TEST_RPC_RES         MSG_TYPE = 106
+	MSG_TYPE__MSG_SERVER_MAX           MSG_TYPE = 1000
+	MSG_TYPE__MSG_CLIENT_ENTER         MSG_TYPE = 1001
+	MSG_TYPE__MSG_CLIENT_ENTER_RES     MSG_TYPE = 1002
+	MSG_TYPE__MSG_GET_MAP              MSG_TYPE = 1003
+	MSG_TYPE__MSG_GET_MAP_RES          MSG_TYPE = 1004
+	MSG_TYPE__MSG_PATH_SEARCH          MSG_TYPE = 1005
+	MSG_TYPE__MSG_PATH_SEARCH_RES      MSG_TYPE = 1006
+	MSG_TYPE__MSG_NAV_SEARCH           MSG_TYPE = 1007
+	MSG_TYPE__MSG_NAV_SEARCH_RES       MSG_TYPE = 1008
+	MSG_TYPE__MSG_NAV_ADD_OBSTACLE     MSG_TYPE = 1009
+	MSG_TYPE__MSG_NAV_ADD_OBSTACLE_RES MSG_TYPE = 1010
+	MSG_TYPE__MSG_NAV_DEL_OBSTACLE     MSG_TYPE = 1011
+	MSG_TYPE__MSG_NAV_DEL_OBSTACLE_RES MSG_TYPE = 1012
 )
 
 // Enum value maps for MSG_TYPE.
@@ -78,33 +82,41 @@ var (
 		1006: "_MSG_PATH_SEARCH_RES",
 		1007: "_MSG_NAV_SEARCH",
 		1008: "_MSG_NAV_SEARCH_RES",
+		1009: "_MSG_NAV_ADD_OBSTACLE",
+		1010: "_MSG_NAV_ADD_OBSTACLE_RES",
+		1011: "_MSG_NAV_DEL_OBSTACLE",
+		1012: "_MSG_NAV_DEL_OBSTACLE_RES",
 	}
 	MSG_TYPE_value = map[string]int32{
-		"_MSG_NULL":             0,
-		"_MSG_RPC":              1,
-		"_MSG_RPC_RES":          2,
-		"_MSG_SRV_REPORT":       3,
-		"_MSG_SRV_REPORT_RES":   4,
-		"_MSG_HEARTBEAT":        5,
-		"_MSG_HEARTBEAT_RES":    6,
-		"_MSG_TCP_STATIC":       7,
-		"_MSG_TCP_STATIC_RES":   8,
-		"_MSG_MAX":              100,
-		"_MSG_TEST":             101,
-		"_MSG_TEST_RES":         102,
-		"_MSG_LOGIN":            103,
-		"_MSG_LOGIN_RES":        104,
-		"_MSG_TEST_RPC":         105,
-		"_MSG_TEST_RPC_RES":     106,
-		"_MSG_SERVER_MAX":       1000,
-		"_MSG_CLIENT_ENTER":     1001,
-		"_MSG_CLIENT_ENTER_RES": 1002,
-		"_MSG_GET_MAP":          1003,
-		"_MSG_GET_MAP_RES":      1004,
-		"_MSG_PATH_SEARCH":      1005,
-		"_MSG_PATH_SEARCH_RES":  1006,
-		"_MSG_NAV_SEARCH":       1007,
-		"_MSG_NAV_SEARCH_RES":   1008,
+		"_MSG_NULL":                 0,
+		"_MSG_RPC":                  1,
+		"_MSG_RPC_RES":              2,
+		"_MSG_SRV_REPORT":           3,
+		"_MSG_SRV_REPORT_RES":       4,
+		"_MSG_HEARTBEAT":            5,
+		"_MSG_HEARTBEAT_RES":        6,
+		"_MSG_TCP_STATIC":           7,
+		"_MSG_TCP_STATIC_RES":       8,
+		"_MSG_MAX":                  100,
+		"_MSG_TEST":                 101,
+		"_MSG_TEST_RES":             102,
+		"_MSG_LOGIN":                103,
+		"_MSG_LOGIN_RES":            104,
+		"_MSG_TEST_RPC":             105,
+		"_MSG_TEST_RPC_RES":         106,
+		"_MSG_SERVER_MAX":           1000,
+		"_MSG_CLIENT_ENTER":         1001,
+		"_MSG_CLIENT_ENTER_RES":     1002,
+		"_MSG_GET_MAP":              1003,
+		"_MSG_GET_MAP_RES":          1004,
+		"_MSG_PATH_SEARCH":          1005,
+		"_MSG_PATH_SEARCH_RES":      1006,
+		"_MSG_NAV_SEARCH":           1007,
+		"_MSG_NAV_SEARCH_RES":       1008,
+		"_MSG_NAV_ADD_OBSTACLE":     1009,
+		"_MSG_NAV_ADD_OBSTACLE_RES": 1010,
+		"_MSG_NAV_DEL_OBSTACLE":     1011,
+		"_MSG_NAV_DEL_OBSTACLE_RES": 1012,
 	}
 )
 
@@ -1468,18 +1480,18 @@ func (x *MSG_PATH_SEARCH_RES) GetPathKeyPos() []*POS_T {
 	return nil
 }
 
-type POS_3F struct {
+type PROTO_VEC_3F struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	PosX float32 `protobuf:"fixed32,1,opt,name=pos_x,json=posX,proto3" json:"pos_x,omitempty"`
-	PosY float32 `protobuf:"fixed32,2,opt,name=pos_y,json=posY,proto3" json:"pos_y,omitempty"`
-	PosZ float32 `protobuf:"fixed32,3,opt,name=pos_z,json=posZ,proto3" json:"pos_z,omitempty"`
+	X float32 `protobuf:"fixed32,1,opt,name=x,proto3" json:"x,omitempty"`
+	Y float32 `protobuf:"fixed32,2,opt,name=y,proto3" json:"y,omitempty"`
+	Z float32 `protobuf:"fixed32,3,opt,name=z,proto3" json:"z,omitempty"`
 }
 
-func (x *POS_3F) Reset() {
-	*x = POS_3F{}
+func (x *PROTO_VEC_3F) Reset() {
+	*x = PROTO_VEC_3F{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_msg_proto_msgTypes[21]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1487,13 +1499,13 @@ func (x *POS_3F) Reset() {
 	}
 }
 
-func (x *POS_3F) String() string {
+func (x *PROTO_VEC_3F) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*POS_3F) ProtoMessage() {}
+func (*PROTO_VEC_3F) ProtoMessage() {}
 
-func (x *POS_3F) ProtoReflect() protoreflect.Message {
+func (x *PROTO_VEC_3F) ProtoReflect() protoreflect.Message {
 	mi := &file_msg_proto_msgTypes[21]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1505,28 +1517,28 @@ func (x *POS_3F) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use POS_3F.ProtoReflect.Descriptor instead.
-func (*POS_3F) Descriptor() ([]byte, []int) {
+// Deprecated: Use PROTO_VEC_3F.ProtoReflect.Descriptor instead.
+func (*PROTO_VEC_3F) Descriptor() ([]byte, []int) {
 	return file_msg_proto_rawDescGZIP(), []int{21}
 }
 
-func (x *POS_3F) GetPosX() float32 {
+func (x *PROTO_VEC_3F) GetX() float32 {
 	if x != nil {
-		return x.PosX
+		return x.X
 	}
 	return 0
 }
 
-func (x *POS_3F) GetPosY() float32 {
+func (x *PROTO_VEC_3F) GetY() float32 {
 	if x != nil {
-		return x.PosY
+		return x.Y
 	}
 	return 0
 }
 
-func (x *POS_3F) GetPosZ() float32 {
+func (x *PROTO_VEC_3F) GetZ() float32 {
 	if x != nil {
-		return x.PosZ
+		return x.Z
 	}
 	return 0
 }
@@ -1536,8 +1548,8 @@ type MSG_NAV_SEARCH struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	PosSrc *POS_3F `protobuf:"bytes,1,opt,name=pos_src,json=posSrc,proto3" json:"pos_src,omitempty"`
-	PosDst *POS_3F `protobuf:"bytes,2,opt,name=pos_dst,json=posDst,proto3" json:"pos_dst,omitempty"`
+	PosSrc *PROTO_VEC_3F `protobuf:"bytes,1,opt,name=pos_src,json=posSrc,proto3" json:"pos_src,omitempty"`
+	PosDst *PROTO_VEC_3F `protobuf:"bytes,2,opt,name=pos_dst,json=posDst,proto3" json:"pos_dst,omitempty"`
 }
 
 func (x *MSG_NAV_SEARCH) Reset() {
@@ -1572,14 +1584,14 @@ func (*MSG_NAV_SEARCH) Descriptor() ([]byte, []int) {
 	return file_msg_proto_rawDescGZIP(), []int{22}
 }
 
-func (x *MSG_NAV_SEARCH) GetPosSrc() *POS_3F {
+func (x *MSG_NAV_SEARCH) GetPosSrc() *PROTO_VEC_3F {
 	if x != nil {
 		return x.PosSrc
 	}
 	return nil
 }
 
-func (x *MSG_NAV_SEARCH) GetPosDst() *POS_3F {
+func (x *MSG_NAV_SEARCH) GetPosDst() *PROTO_VEC_3F {
 	if x != nil {
 		return x.PosDst
 	}
@@ -1591,7 +1603,7 @@ type MSG_NAV_SEARCH_RES struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	PathPos []*POS_3F `protobuf:"bytes,1,rep,name=path_pos,json=pathPos,proto3" json:"path_pos,omitempty"`
+	PathPos []*PROTO_VEC_3F `protobuf:"bytes,1,rep,name=path_pos,json=pathPos,proto3" json:"path_pos,omitempty"`
 }
 
 func (x *MSG_NAV_SEARCH_RES) Reset() {
@@ -1626,11 +1638,239 @@ func (*MSG_NAV_SEARCH_RES) Descriptor() ([]byte, []int) {
 	return file_msg_proto_rawDescGZIP(), []int{23}
 }
 
-func (x *MSG_NAV_SEARCH_RES) GetPathPos() []*POS_3F {
+func (x *MSG_NAV_SEARCH_RES) GetPathPos() []*PROTO_VEC_3F {
 	if x != nil {
 		return x.PathPos
 	}
 	return nil
+}
+
+type MSG_NAV_ADD_OBSTACLE struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Center  *PROTO_VEC_3F `protobuf:"bytes,1,opt,name=center,proto3" json:"center,omitempty"`
+	HalfExt *PROTO_VEC_3F `protobuf:"bytes,2,opt,name=half_ext,json=halfExt,proto3" json:"half_ext,omitempty"`
+	YRadian float32       `protobuf:"fixed32,3,opt,name=y_radian,json=yRadian,proto3" json:"y_radian,omitempty"`
+}
+
+func (x *MSG_NAV_ADD_OBSTACLE) Reset() {
+	*x = MSG_NAV_ADD_OBSTACLE{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_msg_proto_msgTypes[24]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *MSG_NAV_ADD_OBSTACLE) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MSG_NAV_ADD_OBSTACLE) ProtoMessage() {}
+
+func (x *MSG_NAV_ADD_OBSTACLE) ProtoReflect() protoreflect.Message {
+	mi := &file_msg_proto_msgTypes[24]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MSG_NAV_ADD_OBSTACLE.ProtoReflect.Descriptor instead.
+func (*MSG_NAV_ADD_OBSTACLE) Descriptor() ([]byte, []int) {
+	return file_msg_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *MSG_NAV_ADD_OBSTACLE) GetCenter() *PROTO_VEC_3F {
+	if x != nil {
+		return x.Center
+	}
+	return nil
+}
+
+func (x *MSG_NAV_ADD_OBSTACLE) GetHalfExt() *PROTO_VEC_3F {
+	if x != nil {
+		return x.HalfExt
+	}
+	return nil
+}
+
+func (x *MSG_NAV_ADD_OBSTACLE) GetYRadian() float32 {
+	if x != nil {
+		return x.YRadian
+	}
+	return 0
+}
+
+type MSG_NAV_ADD_OBSTACLE_RES struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ObstacleId uint32        `protobuf:"varint,1,opt,name=obstacle_id,json=obstacleId,proto3" json:"obstacle_id,omitempty"`
+	Center     *PROTO_VEC_3F `protobuf:"bytes,2,opt,name=center,proto3" json:"center,omitempty"`
+	HalfExt    *PROTO_VEC_3F `protobuf:"bytes,3,opt,name=half_ext,json=halfExt,proto3" json:"half_ext,omitempty"`
+	YRadian    float32       `protobuf:"fixed32,4,opt,name=y_radian,json=yRadian,proto3" json:"y_radian,omitempty"`
+}
+
+func (x *MSG_NAV_ADD_OBSTACLE_RES) Reset() {
+	*x = MSG_NAV_ADD_OBSTACLE_RES{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_msg_proto_msgTypes[25]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *MSG_NAV_ADD_OBSTACLE_RES) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MSG_NAV_ADD_OBSTACLE_RES) ProtoMessage() {}
+
+func (x *MSG_NAV_ADD_OBSTACLE_RES) ProtoReflect() protoreflect.Message {
+	mi := &file_msg_proto_msgTypes[25]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MSG_NAV_ADD_OBSTACLE_RES.ProtoReflect.Descriptor instead.
+func (*MSG_NAV_ADD_OBSTACLE_RES) Descriptor() ([]byte, []int) {
+	return file_msg_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *MSG_NAV_ADD_OBSTACLE_RES) GetObstacleId() uint32 {
+	if x != nil {
+		return x.ObstacleId
+	}
+	return 0
+}
+
+func (x *MSG_NAV_ADD_OBSTACLE_RES) GetCenter() *PROTO_VEC_3F {
+	if x != nil {
+		return x.Center
+	}
+	return nil
+}
+
+func (x *MSG_NAV_ADD_OBSTACLE_RES) GetHalfExt() *PROTO_VEC_3F {
+	if x != nil {
+		return x.HalfExt
+	}
+	return nil
+}
+
+func (x *MSG_NAV_ADD_OBSTACLE_RES) GetYRadian() float32 {
+	if x != nil {
+		return x.YRadian
+	}
+	return 0
+}
+
+type MSG_NAV_DEL_OBSTACLE struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ObstacleId uint32 `protobuf:"varint,1,opt,name=obstacle_id,json=obstacleId,proto3" json:"obstacle_id,omitempty"`
+}
+
+func (x *MSG_NAV_DEL_OBSTACLE) Reset() {
+	*x = MSG_NAV_DEL_OBSTACLE{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_msg_proto_msgTypes[26]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *MSG_NAV_DEL_OBSTACLE) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MSG_NAV_DEL_OBSTACLE) ProtoMessage() {}
+
+func (x *MSG_NAV_DEL_OBSTACLE) ProtoReflect() protoreflect.Message {
+	mi := &file_msg_proto_msgTypes[26]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MSG_NAV_DEL_OBSTACLE.ProtoReflect.Descriptor instead.
+func (*MSG_NAV_DEL_OBSTACLE) Descriptor() ([]byte, []int) {
+	return file_msg_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *MSG_NAV_DEL_OBSTACLE) GetObstacleId() uint32 {
+	if x != nil {
+		return x.ObstacleId
+	}
+	return 0
+}
+
+type MSG_NAV_DEL_OBSTACLE_RES struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ObstacleId uint32 `protobuf:"varint,1,opt,name=obstacle_id,json=obstacleId,proto3" json:"obstacle_id,omitempty"`
+}
+
+func (x *MSG_NAV_DEL_OBSTACLE_RES) Reset() {
+	*x = MSG_NAV_DEL_OBSTACLE_RES{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_msg_proto_msgTypes[27]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *MSG_NAV_DEL_OBSTACLE_RES) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MSG_NAV_DEL_OBSTACLE_RES) ProtoMessage() {}
+
+func (x *MSG_NAV_DEL_OBSTACLE_RES) ProtoReflect() protoreflect.Message {
+	mi := &file_msg_proto_msgTypes[27]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MSG_NAV_DEL_OBSTACLE_RES.ProtoReflect.Descriptor instead.
+func (*MSG_NAV_DEL_OBSTACLE_RES) Descriptor() ([]byte, []int) {
+	return file_msg_proto_rawDescGZIP(), []int{27}
+}
+
+func (x *MSG_NAV_DEL_OBSTACLE_RES) GetObstacleId() uint32 {
+	if x != nil {
+		return x.ObstacleId
+	}
+	return 0
 }
 
 var File_msg_proto protoreflect.FileDescriptor
@@ -1777,23 +2017,52 @@ var file_msg_proto_rawDesc = []byte{
 	0x54, 0x52, 0x07, 0x70, 0x61, 0x74, 0x68, 0x50, 0x6f, 0x73, 0x12, 0x32, 0x0a, 0x0c, 0x70, 0x61,
 	0x74, 0x68, 0x5f, 0x6b, 0x65, 0x79, 0x5f, 0x70, 0x6f, 0x73, 0x18, 0x04, 0x20, 0x03, 0x28, 0x0b,
 	0x32, 0x10, 0x2e, 0x6d, 0x73, 0x67, 0x70, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x2e, 0x50, 0x4f, 0x53,
-	0x5f, 0x54, 0x52, 0x0a, 0x70, 0x61, 0x74, 0x68, 0x4b, 0x65, 0x79, 0x50, 0x6f, 0x73, 0x22, 0x47,
-	0x0a, 0x06, 0x50, 0x4f, 0x53, 0x5f, 0x33, 0x46, 0x12, 0x13, 0x0a, 0x05, 0x70, 0x6f, 0x73, 0x5f,
-	0x78, 0x18, 0x01, 0x20, 0x01, 0x28, 0x02, 0x52, 0x04, 0x70, 0x6f, 0x73, 0x58, 0x12, 0x13, 0x0a,
-	0x05, 0x70, 0x6f, 0x73, 0x5f, 0x79, 0x18, 0x02, 0x20, 0x01, 0x28, 0x02, 0x52, 0x04, 0x70, 0x6f,
-	0x73, 0x59, 0x12, 0x13, 0x0a, 0x05, 0x70, 0x6f, 0x73, 0x5f, 0x7a, 0x18, 0x03, 0x20, 0x01, 0x28,
-	0x02, 0x52, 0x04, 0x70, 0x6f, 0x73, 0x5a, 0x22, 0x68, 0x0a, 0x0e, 0x4d, 0x53, 0x47, 0x5f, 0x4e,
-	0x41, 0x56, 0x5f, 0x53, 0x45, 0x41, 0x52, 0x43, 0x48, 0x12, 0x2a, 0x0a, 0x07, 0x70, 0x6f, 0x73,
-	0x5f, 0x73, 0x72, 0x63, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x11, 0x2e, 0x6d, 0x73, 0x67,
-	0x70, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x2e, 0x50, 0x4f, 0x53, 0x5f, 0x33, 0x46, 0x52, 0x06, 0x70,
-	0x6f, 0x73, 0x53, 0x72, 0x63, 0x12, 0x2a, 0x0a, 0x07, 0x70, 0x6f, 0x73, 0x5f, 0x64, 0x73, 0x74,
-	0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x11, 0x2e, 0x6d, 0x73, 0x67, 0x70, 0x61, 0x63, 0x6b,
-	0x65, 0x74, 0x2e, 0x50, 0x4f, 0x53, 0x5f, 0x33, 0x46, 0x52, 0x06, 0x70, 0x6f, 0x73, 0x44, 0x73,
-	0x74, 0x22, 0x42, 0x0a, 0x12, 0x4d, 0x53, 0x47, 0x5f, 0x4e, 0x41, 0x56, 0x5f, 0x53, 0x45, 0x41,
-	0x52, 0x43, 0x48, 0x5f, 0x52, 0x45, 0x53, 0x12, 0x2c, 0x0a, 0x08, 0x70, 0x61, 0x74, 0x68, 0x5f,
-	0x70, 0x6f, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x11, 0x2e, 0x6d, 0x73, 0x67, 0x70,
-	0x61, 0x63, 0x6b, 0x65, 0x74, 0x2e, 0x50, 0x4f, 0x53, 0x5f, 0x33, 0x46, 0x52, 0x07, 0x70, 0x61,
-	0x74, 0x68, 0x50, 0x6f, 0x73, 0x2a, 0x95, 0x04, 0x0a, 0x08, 0x4d, 0x53, 0x47, 0x5f, 0x54, 0x59,
+	0x5f, 0x54, 0x52, 0x0a, 0x70, 0x61, 0x74, 0x68, 0x4b, 0x65, 0x79, 0x50, 0x6f, 0x73, 0x22, 0x38,
+	0x0a, 0x0c, 0x50, 0x52, 0x4f, 0x54, 0x4f, 0x5f, 0x56, 0x45, 0x43, 0x5f, 0x33, 0x46, 0x12, 0x0c,
+	0x0a, 0x01, 0x78, 0x18, 0x01, 0x20, 0x01, 0x28, 0x02, 0x52, 0x01, 0x78, 0x12, 0x0c, 0x0a, 0x01,
+	0x79, 0x18, 0x02, 0x20, 0x01, 0x28, 0x02, 0x52, 0x01, 0x79, 0x12, 0x0c, 0x0a, 0x01, 0x7a, 0x18,
+	0x03, 0x20, 0x01, 0x28, 0x02, 0x52, 0x01, 0x7a, 0x22, 0x74, 0x0a, 0x0e, 0x4d, 0x53, 0x47, 0x5f,
+	0x4e, 0x41, 0x56, 0x5f, 0x53, 0x45, 0x41, 0x52, 0x43, 0x48, 0x12, 0x30, 0x0a, 0x07, 0x70, 0x6f,
+	0x73, 0x5f, 0x73, 0x72, 0x63, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x17, 0x2e, 0x6d, 0x73,
+	0x67, 0x70, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x2e, 0x50, 0x52, 0x4f, 0x54, 0x4f, 0x5f, 0x56, 0x45,
+	0x43, 0x5f, 0x33, 0x46, 0x52, 0x06, 0x70, 0x6f, 0x73, 0x53, 0x72, 0x63, 0x12, 0x30, 0x0a, 0x07,
+	0x70, 0x6f, 0x73, 0x5f, 0x64, 0x73, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x17, 0x2e,
+	0x6d, 0x73, 0x67, 0x70, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x2e, 0x50, 0x52, 0x4f, 0x54, 0x4f, 0x5f,
+	0x56, 0x45, 0x43, 0x5f, 0x33, 0x46, 0x52, 0x06, 0x70, 0x6f, 0x73, 0x44, 0x73, 0x74, 0x22, 0x48,
+	0x0a, 0x12, 0x4d, 0x53, 0x47, 0x5f, 0x4e, 0x41, 0x56, 0x5f, 0x53, 0x45, 0x41, 0x52, 0x43, 0x48,
+	0x5f, 0x52, 0x45, 0x53, 0x12, 0x32, 0x0a, 0x08, 0x70, 0x61, 0x74, 0x68, 0x5f, 0x70, 0x6f, 0x73,
+	0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x17, 0x2e, 0x6d, 0x73, 0x67, 0x70, 0x61, 0x63, 0x6b,
+	0x65, 0x74, 0x2e, 0x50, 0x52, 0x4f, 0x54, 0x4f, 0x5f, 0x56, 0x45, 0x43, 0x5f, 0x33, 0x46, 0x52,
+	0x07, 0x70, 0x61, 0x74, 0x68, 0x50, 0x6f, 0x73, 0x22, 0x96, 0x01, 0x0a, 0x14, 0x4d, 0x53, 0x47,
+	0x5f, 0x4e, 0x41, 0x56, 0x5f, 0x41, 0x44, 0x44, 0x5f, 0x4f, 0x42, 0x53, 0x54, 0x41, 0x43, 0x4c,
+	0x45, 0x12, 0x2f, 0x0a, 0x06, 0x63, 0x65, 0x6e, 0x74, 0x65, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x0b, 0x32, 0x17, 0x2e, 0x6d, 0x73, 0x67, 0x70, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x2e, 0x50, 0x52,
+	0x4f, 0x54, 0x4f, 0x5f, 0x56, 0x45, 0x43, 0x5f, 0x33, 0x46, 0x52, 0x06, 0x63, 0x65, 0x6e, 0x74,
+	0x65, 0x72, 0x12, 0x32, 0x0a, 0x08, 0x68, 0x61, 0x6c, 0x66, 0x5f, 0x65, 0x78, 0x74, 0x18, 0x02,
+	0x20, 0x01, 0x28, 0x0b, 0x32, 0x17, 0x2e, 0x6d, 0x73, 0x67, 0x70, 0x61, 0x63, 0x6b, 0x65, 0x74,
+	0x2e, 0x50, 0x52, 0x4f, 0x54, 0x4f, 0x5f, 0x56, 0x45, 0x43, 0x5f, 0x33, 0x46, 0x52, 0x07, 0x68,
+	0x61, 0x6c, 0x66, 0x45, 0x78, 0x74, 0x12, 0x19, 0x0a, 0x08, 0x79, 0x5f, 0x72, 0x61, 0x64, 0x69,
+	0x61, 0x6e, 0x18, 0x03, 0x20, 0x01, 0x28, 0x02, 0x52, 0x07, 0x79, 0x52, 0x61, 0x64, 0x69, 0x61,
+	0x6e, 0x22, 0xbb, 0x01, 0x0a, 0x18, 0x4d, 0x53, 0x47, 0x5f, 0x4e, 0x41, 0x56, 0x5f, 0x41, 0x44,
+	0x44, 0x5f, 0x4f, 0x42, 0x53, 0x54, 0x41, 0x43, 0x4c, 0x45, 0x5f, 0x52, 0x45, 0x53, 0x12, 0x1f,
+	0x0a, 0x0b, 0x6f, 0x62, 0x73, 0x74, 0x61, 0x63, 0x6c, 0x65, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x0d, 0x52, 0x0a, 0x6f, 0x62, 0x73, 0x74, 0x61, 0x63, 0x6c, 0x65, 0x49, 0x64, 0x12,
+	0x2f, 0x0a, 0x06, 0x63, 0x65, 0x6e, 0x74, 0x65, 0x72, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32,
+	0x17, 0x2e, 0x6d, 0x73, 0x67, 0x70, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x2e, 0x50, 0x52, 0x4f, 0x54,
+	0x4f, 0x5f, 0x56, 0x45, 0x43, 0x5f, 0x33, 0x46, 0x52, 0x06, 0x63, 0x65, 0x6e, 0x74, 0x65, 0x72,
+	0x12, 0x32, 0x0a, 0x08, 0x68, 0x61, 0x6c, 0x66, 0x5f, 0x65, 0x78, 0x74, 0x18, 0x03, 0x20, 0x01,
+	0x28, 0x0b, 0x32, 0x17, 0x2e, 0x6d, 0x73, 0x67, 0x70, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x2e, 0x50,
+	0x52, 0x4f, 0x54, 0x4f, 0x5f, 0x56, 0x45, 0x43, 0x5f, 0x33, 0x46, 0x52, 0x07, 0x68, 0x61, 0x6c,
+	0x66, 0x45, 0x78, 0x74, 0x12, 0x19, 0x0a, 0x08, 0x79, 0x5f, 0x72, 0x61, 0x64, 0x69, 0x61, 0x6e,
+	0x18, 0x04, 0x20, 0x01, 0x28, 0x02, 0x52, 0x07, 0x79, 0x52, 0x61, 0x64, 0x69, 0x61, 0x6e, 0x22,
+	0x37, 0x0a, 0x14, 0x4d, 0x53, 0x47, 0x5f, 0x4e, 0x41, 0x56, 0x5f, 0x44, 0x45, 0x4c, 0x5f, 0x4f,
+	0x42, 0x53, 0x54, 0x41, 0x43, 0x4c, 0x45, 0x12, 0x1f, 0x0a, 0x0b, 0x6f, 0x62, 0x73, 0x74, 0x61,
+	0x63, 0x6c, 0x65, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x0a, 0x6f, 0x62,
+	0x73, 0x74, 0x61, 0x63, 0x6c, 0x65, 0x49, 0x64, 0x22, 0x3b, 0x0a, 0x18, 0x4d, 0x53, 0x47, 0x5f,
+	0x4e, 0x41, 0x56, 0x5f, 0x44, 0x45, 0x4c, 0x5f, 0x4f, 0x42, 0x53, 0x54, 0x41, 0x43, 0x4c, 0x45,
+	0x5f, 0x52, 0x45, 0x53, 0x12, 0x1f, 0x0a, 0x0b, 0x6f, 0x62, 0x73, 0x74, 0x61, 0x63, 0x6c, 0x65,
+	0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x0a, 0x6f, 0x62, 0x73, 0x74, 0x61,
+	0x63, 0x6c, 0x65, 0x49, 0x64, 0x2a, 0x8d, 0x05, 0x0a, 0x08, 0x4d, 0x53, 0x47, 0x5f, 0x54, 0x59,
 	0x50, 0x45, 0x12, 0x0d, 0x0a, 0x09, 0x5f, 0x4d, 0x53, 0x47, 0x5f, 0x4e, 0x55, 0x4c, 0x4c, 0x10,
 	0x00, 0x12, 0x0c, 0x0a, 0x08, 0x5f, 0x4d, 0x53, 0x47, 0x5f, 0x52, 0x50, 0x43, 0x10, 0x01, 0x12,
 	0x10, 0x0a, 0x0c, 0x5f, 0x4d, 0x53, 0x47, 0x5f, 0x52, 0x50, 0x43, 0x5f, 0x52, 0x45, 0x53, 0x10,
@@ -1826,17 +2095,24 @@ var file_msg_proto_rawDesc = []byte{
 	0x53, 0x45, 0x41, 0x52, 0x43, 0x48, 0x5f, 0x52, 0x45, 0x53, 0x10, 0xee, 0x07, 0x12, 0x14, 0x0a,
 	0x0f, 0x5f, 0x4d, 0x53, 0x47, 0x5f, 0x4e, 0x41, 0x56, 0x5f, 0x53, 0x45, 0x41, 0x52, 0x43, 0x48,
 	0x10, 0xef, 0x07, 0x12, 0x18, 0x0a, 0x13, 0x5f, 0x4d, 0x53, 0x47, 0x5f, 0x4e, 0x41, 0x56, 0x5f,
-	0x53, 0x45, 0x41, 0x52, 0x43, 0x48, 0x5f, 0x52, 0x45, 0x53, 0x10, 0xf0, 0x07, 0x2a, 0x7b, 0x0a,
-	0x0d, 0x52, 0x45, 0x53, 0x50, 0x4f, 0x4e, 0x53, 0x45, 0x5f, 0x43, 0x4f, 0x44, 0x45, 0x12, 0x16,
-	0x0a, 0x12, 0x52, 0x45, 0x53, 0x50, 0x4f, 0x4e, 0x53, 0x45, 0x5f, 0x43, 0x4f, 0x44, 0x45, 0x5f,
-	0x46, 0x61, 0x69, 0x6c, 0x10, 0x00, 0x12, 0x14, 0x0a, 0x10, 0x52, 0x45, 0x53, 0x50, 0x4f, 0x4e,
-	0x53, 0x45, 0x5f, 0x43, 0x4f, 0x44, 0x45, 0x5f, 0x4f, 0x4b, 0x10, 0x01, 0x12, 0x20, 0x0a, 0x1c,
-	0x52, 0x45, 0x53, 0x50, 0x4f, 0x4e, 0x53, 0x45, 0x5f, 0x43, 0x4f, 0x44, 0x45, 0x5f, 0x52, 0x70,
-	0x63, 0x5f, 0x6e, 0x6f, 0x74, 0x5f, 0x61, 0x63, 0x63, 0x65, 0x70, 0x74, 0x10, 0x02, 0x12, 0x1a,
-	0x0a, 0x16, 0x52, 0x45, 0x53, 0x50, 0x4f, 0x4e, 0x53, 0x45, 0x5f, 0x43, 0x4f, 0x44, 0x45, 0x5f,
-	0x72, 0x65, 0x64, 0x69, 0x72, 0x65, 0x63, 0x74, 0x10, 0x03, 0x42, 0x0e, 0x5a, 0x0c, 0x2e, 0x2f,
-	0x3b, 0x6d, 0x73, 0x67, 0x70, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74,
-	0x6f, 0x33,
+	0x53, 0x45, 0x41, 0x52, 0x43, 0x48, 0x5f, 0x52, 0x45, 0x53, 0x10, 0xf0, 0x07, 0x12, 0x1a, 0x0a,
+	0x15, 0x5f, 0x4d, 0x53, 0x47, 0x5f, 0x4e, 0x41, 0x56, 0x5f, 0x41, 0x44, 0x44, 0x5f, 0x4f, 0x42,
+	0x53, 0x54, 0x41, 0x43, 0x4c, 0x45, 0x10, 0xf1, 0x07, 0x12, 0x1e, 0x0a, 0x19, 0x5f, 0x4d, 0x53,
+	0x47, 0x5f, 0x4e, 0x41, 0x56, 0x5f, 0x41, 0x44, 0x44, 0x5f, 0x4f, 0x42, 0x53, 0x54, 0x41, 0x43,
+	0x4c, 0x45, 0x5f, 0x52, 0x45, 0x53, 0x10, 0xf2, 0x07, 0x12, 0x1a, 0x0a, 0x15, 0x5f, 0x4d, 0x53,
+	0x47, 0x5f, 0x4e, 0x41, 0x56, 0x5f, 0x44, 0x45, 0x4c, 0x5f, 0x4f, 0x42, 0x53, 0x54, 0x41, 0x43,
+	0x4c, 0x45, 0x10, 0xf3, 0x07, 0x12, 0x1e, 0x0a, 0x19, 0x5f, 0x4d, 0x53, 0x47, 0x5f, 0x4e, 0x41,
+	0x56, 0x5f, 0x44, 0x45, 0x4c, 0x5f, 0x4f, 0x42, 0x53, 0x54, 0x41, 0x43, 0x4c, 0x45, 0x5f, 0x52,
+	0x45, 0x53, 0x10, 0xf4, 0x07, 0x2a, 0x7b, 0x0a, 0x0d, 0x52, 0x45, 0x53, 0x50, 0x4f, 0x4e, 0x53,
+	0x45, 0x5f, 0x43, 0x4f, 0x44, 0x45, 0x12, 0x16, 0x0a, 0x12, 0x52, 0x45, 0x53, 0x50, 0x4f, 0x4e,
+	0x53, 0x45, 0x5f, 0x43, 0x4f, 0x44, 0x45, 0x5f, 0x46, 0x61, 0x69, 0x6c, 0x10, 0x00, 0x12, 0x14,
+	0x0a, 0x10, 0x52, 0x45, 0x53, 0x50, 0x4f, 0x4e, 0x53, 0x45, 0x5f, 0x43, 0x4f, 0x44, 0x45, 0x5f,
+	0x4f, 0x4b, 0x10, 0x01, 0x12, 0x20, 0x0a, 0x1c, 0x52, 0x45, 0x53, 0x50, 0x4f, 0x4e, 0x53, 0x45,
+	0x5f, 0x43, 0x4f, 0x44, 0x45, 0x5f, 0x52, 0x70, 0x63, 0x5f, 0x6e, 0x6f, 0x74, 0x5f, 0x61, 0x63,
+	0x63, 0x65, 0x70, 0x74, 0x10, 0x02, 0x12, 0x1a, 0x0a, 0x16, 0x52, 0x45, 0x53, 0x50, 0x4f, 0x4e,
+	0x53, 0x45, 0x5f, 0x43, 0x4f, 0x44, 0x45, 0x5f, 0x72, 0x65, 0x64, 0x69, 0x72, 0x65, 0x63, 0x74,
+	0x10, 0x03, 0x42, 0x0e, 0x5a, 0x0c, 0x2e, 0x2f, 0x3b, 0x6d, 0x73, 0x67, 0x70, 0x61, 0x63, 0x6b,
+	0x65, 0x74, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -1852,39 +2128,43 @@ func file_msg_proto_rawDescGZIP() []byte {
 }
 
 var file_msg_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_msg_proto_msgTypes = make([]protoimpl.MessageInfo, 25)
+var file_msg_proto_msgTypes = make([]protoimpl.MessageInfo, 29)
 var file_msg_proto_goTypes = []interface{}{
-	(MSG_TYPE)(0),                // 0: msgpacket.MSG_TYPE
-	(RESPONSE_CODE)(0),           // 1: msgpacket.RESPONSE_CODE
-	(*MSG_RPC)(nil),              // 2: msgpacket.MSG_RPC
-	(*MSG_RPC_RES)(nil),          // 3: msgpacket.MSG_RPC_RES
-	(*MSG_SRV_REPORT)(nil),       // 4: msgpacket.MSG_SRV_REPORT
-	(*MSG_SRV_REPORT_RES)(nil),   // 5: msgpacket.MSG_SRV_REPORT_RES
-	(*MSG_HEARTBEAT)(nil),        // 6: msgpacket.MSG_HEARTBEAT
-	(*MSG_HEARTBEAT_RES)(nil),    // 7: msgpacket.MSG_HEARTBEAT_RES
-	(*MSG_TEST)(nil),             // 8: msgpacket.MSG_TEST
-	(*MSG_TEST_RES)(nil),         // 9: msgpacket.MSG_TEST_RES
-	(*MSG_TEST_RPC)(nil),         // 10: msgpacket.MSG_TEST_RPC
-	(*MSG_TEST_RPC_RES)(nil),     // 11: msgpacket.MSG_TEST_RPC_RES
-	(*MSG_LOGIN)(nil),            // 12: msgpacket.MSG_LOGIN
-	(*MSG_LOGIN_RES)(nil),        // 13: msgpacket.MSG_LOGIN_RES
-	(*MSG_TCP_STATIC)(nil),       // 14: msgpacket.MSG_TCP_STATIC
-	(*MSG_TCP_STATIC_RES)(nil),   // 15: msgpacket.MSG_TCP_STATIC_RES
-	(*MSG_CLIENT_ENTER)(nil),     // 16: msgpacket.MSG_CLIENT_ENTER
-	(*MSG_CLIENT_ENTER_RES)(nil), // 17: msgpacket.MSG_CLIENT_ENTER_RES
-	(*MSG_GET_MAP)(nil),          // 18: msgpacket.MSG_GET_MAP
-	(*MSG_GET_MAP_RES)(nil),      // 19: msgpacket.MSG_GET_MAP_RES
-	(*POS_T)(nil),                // 20: msgpacket.POS_T
-	(*MSG_PATH_SEARCH)(nil),      // 21: msgpacket.MSG_PATH_SEARCH
-	(*MSG_PATH_SEARCH_RES)(nil),  // 22: msgpacket.MSG_PATH_SEARCH_RES
-	(*POS_3F)(nil),               // 23: msgpacket.POS_3F
-	(*MSG_NAV_SEARCH)(nil),       // 24: msgpacket.MSG_NAV_SEARCH
-	(*MSG_NAV_SEARCH_RES)(nil),   // 25: msgpacket.MSG_NAV_SEARCH_RES
-	nil,                          // 26: msgpacket.MSG_TCP_STATIC_RES.MapStaticMsgRecvEntry
+	(MSG_TYPE)(0),                    // 0: msgpacket.MSG_TYPE
+	(RESPONSE_CODE)(0),               // 1: msgpacket.RESPONSE_CODE
+	(*MSG_RPC)(nil),                  // 2: msgpacket.MSG_RPC
+	(*MSG_RPC_RES)(nil),              // 3: msgpacket.MSG_RPC_RES
+	(*MSG_SRV_REPORT)(nil),           // 4: msgpacket.MSG_SRV_REPORT
+	(*MSG_SRV_REPORT_RES)(nil),       // 5: msgpacket.MSG_SRV_REPORT_RES
+	(*MSG_HEARTBEAT)(nil),            // 6: msgpacket.MSG_HEARTBEAT
+	(*MSG_HEARTBEAT_RES)(nil),        // 7: msgpacket.MSG_HEARTBEAT_RES
+	(*MSG_TEST)(nil),                 // 8: msgpacket.MSG_TEST
+	(*MSG_TEST_RES)(nil),             // 9: msgpacket.MSG_TEST_RES
+	(*MSG_TEST_RPC)(nil),             // 10: msgpacket.MSG_TEST_RPC
+	(*MSG_TEST_RPC_RES)(nil),         // 11: msgpacket.MSG_TEST_RPC_RES
+	(*MSG_LOGIN)(nil),                // 12: msgpacket.MSG_LOGIN
+	(*MSG_LOGIN_RES)(nil),            // 13: msgpacket.MSG_LOGIN_RES
+	(*MSG_TCP_STATIC)(nil),           // 14: msgpacket.MSG_TCP_STATIC
+	(*MSG_TCP_STATIC_RES)(nil),       // 15: msgpacket.MSG_TCP_STATIC_RES
+	(*MSG_CLIENT_ENTER)(nil),         // 16: msgpacket.MSG_CLIENT_ENTER
+	(*MSG_CLIENT_ENTER_RES)(nil),     // 17: msgpacket.MSG_CLIENT_ENTER_RES
+	(*MSG_GET_MAP)(nil),              // 18: msgpacket.MSG_GET_MAP
+	(*MSG_GET_MAP_RES)(nil),          // 19: msgpacket.MSG_GET_MAP_RES
+	(*POS_T)(nil),                    // 20: msgpacket.POS_T
+	(*MSG_PATH_SEARCH)(nil),          // 21: msgpacket.MSG_PATH_SEARCH
+	(*MSG_PATH_SEARCH_RES)(nil),      // 22: msgpacket.MSG_PATH_SEARCH_RES
+	(*PROTO_VEC_3F)(nil),             // 23: msgpacket.PROTO_VEC_3F
+	(*MSG_NAV_SEARCH)(nil),           // 24: msgpacket.MSG_NAV_SEARCH
+	(*MSG_NAV_SEARCH_RES)(nil),       // 25: msgpacket.MSG_NAV_SEARCH_RES
+	(*MSG_NAV_ADD_OBSTACLE)(nil),     // 26: msgpacket.MSG_NAV_ADD_OBSTACLE
+	(*MSG_NAV_ADD_OBSTACLE_RES)(nil), // 27: msgpacket.MSG_NAV_ADD_OBSTACLE_RES
+	(*MSG_NAV_DEL_OBSTACLE)(nil),     // 28: msgpacket.MSG_NAV_DEL_OBSTACLE
+	(*MSG_NAV_DEL_OBSTACLE_RES)(nil), // 29: msgpacket.MSG_NAV_DEL_OBSTACLE_RES
+	nil,                              // 30: msgpacket.MSG_TCP_STATIC_RES.MapStaticMsgRecvEntry
 }
 var file_msg_proto_depIdxs = []int32{
 	1,  // 0: msgpacket.MSG_RPC_RES.res_code:type_name -> msgpacket.RESPONSE_CODE
-	26, // 1: msgpacket.MSG_TCP_STATIC_RES.map_static_msg_recv:type_name -> msgpacket.MSG_TCP_STATIC_RES.MapStaticMsgRecvEntry
+	30, // 1: msgpacket.MSG_TCP_STATIC_RES.map_static_msg_recv:type_name -> msgpacket.MSG_TCP_STATIC_RES.MapStaticMsgRecvEntry
 	1,  // 2: msgpacket.MSG_CLIENT_ENTER_RES.res:type_name -> msgpacket.RESPONSE_CODE
 	20, // 3: msgpacket.MSG_PATH_SEARCH.pos_src:type_name -> msgpacket.POS_T
 	20, // 4: msgpacket.MSG_PATH_SEARCH.pos_dst:type_name -> msgpacket.POS_T
@@ -1892,14 +2172,18 @@ var file_msg_proto_depIdxs = []int32{
 	20, // 6: msgpacket.MSG_PATH_SEARCH_RES.pos_dst:type_name -> msgpacket.POS_T
 	20, // 7: msgpacket.MSG_PATH_SEARCH_RES.path_pos:type_name -> msgpacket.POS_T
 	20, // 8: msgpacket.MSG_PATH_SEARCH_RES.path_key_pos:type_name -> msgpacket.POS_T
-	23, // 9: msgpacket.MSG_NAV_SEARCH.pos_src:type_name -> msgpacket.POS_3F
-	23, // 10: msgpacket.MSG_NAV_SEARCH.pos_dst:type_name -> msgpacket.POS_3F
-	23, // 11: msgpacket.MSG_NAV_SEARCH_RES.path_pos:type_name -> msgpacket.POS_3F
-	12, // [12:12] is the sub-list for method output_type
-	12, // [12:12] is the sub-list for method input_type
-	12, // [12:12] is the sub-list for extension type_name
-	12, // [12:12] is the sub-list for extension extendee
-	0,  // [0:12] is the sub-list for field type_name
+	23, // 9: msgpacket.MSG_NAV_SEARCH.pos_src:type_name -> msgpacket.PROTO_VEC_3F
+	23, // 10: msgpacket.MSG_NAV_SEARCH.pos_dst:type_name -> msgpacket.PROTO_VEC_3F
+	23, // 11: msgpacket.MSG_NAV_SEARCH_RES.path_pos:type_name -> msgpacket.PROTO_VEC_3F
+	23, // 12: msgpacket.MSG_NAV_ADD_OBSTACLE.center:type_name -> msgpacket.PROTO_VEC_3F
+	23, // 13: msgpacket.MSG_NAV_ADD_OBSTACLE.half_ext:type_name -> msgpacket.PROTO_VEC_3F
+	23, // 14: msgpacket.MSG_NAV_ADD_OBSTACLE_RES.center:type_name -> msgpacket.PROTO_VEC_3F
+	23, // 15: msgpacket.MSG_NAV_ADD_OBSTACLE_RES.half_ext:type_name -> msgpacket.PROTO_VEC_3F
+	16, // [16:16] is the sub-list for method output_type
+	16, // [16:16] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_msg_proto_init() }
@@ -2161,7 +2445,7 @@ func file_msg_proto_init() {
 			}
 		}
 		file_msg_proto_msgTypes[21].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*POS_3F); i {
+			switch v := v.(*PROTO_VEC_3F); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2196,6 +2480,54 @@ func file_msg_proto_init() {
 				return nil
 			}
 		}
+		file_msg_proto_msgTypes[24].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*MSG_NAV_ADD_OBSTACLE); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_msg_proto_msgTypes[25].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*MSG_NAV_ADD_OBSTACLE_RES); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_msg_proto_msgTypes[26].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*MSG_NAV_DEL_OBSTACLE); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_msg_proto_msgTypes[27].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*MSG_NAV_DEL_OBSTACLE_RES); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -2203,7 +2535,7 @@ func file_msg_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_msg_proto_rawDesc,
 			NumEnums:      2,
-			NumMessages:   25,
+			NumMessages:   29,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

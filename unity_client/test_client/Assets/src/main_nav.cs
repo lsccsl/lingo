@@ -6,7 +6,7 @@ public class main_nav : MonoBehaviour
 {
     TestClient client_;
     private float t_heart_beat_ = 0;
-    Msgpacket.POS_3F cur_pos_;
+    Msgpacket.PROTO_VEC_3F cur_pos_;
 
     public LineRenderer m_lineRenderer;
 
@@ -17,9 +17,9 @@ public class main_nav : MonoBehaviour
         m_lineRenderer.startColor = Color.blue;
         m_lineRenderer.endColor = Color.red;
 
-        cur_pos_ = new Msgpacket.POS_3F();
-        cur_pos_.PosX = 0;
-        cur_pos_.PosY = 0;
+        cur_pos_ = new Msgpacket.PROTO_VEC_3F();
+        cur_pos_.X = 0;
+        cur_pos_.Y = 0;
 
         client_ = new TestClient();
         client_.connect("192.168.2.129", 2003);
@@ -58,6 +58,8 @@ public class main_nav : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
             check_screen_ray_hit();
+        if (Input.GetMouseButtonDown(1))
+            check_add_obstacle();
     }
 
     void process_nav_search_res(Msgpacket.MSG_NAV_SEARCH_RES msg)
@@ -69,10 +71,34 @@ public class main_nav : MonoBehaviour
             int idx = 0;
             foreach (var it in msg.PathPos)
             {
-                m_lineRenderer.SetPosition(idx, new Vector3(it.PosX, it.PosY, it.PosZ));
+                m_lineRenderer.SetPosition(idx, new Vector3(it.X, it.Y, it.Z));
                 idx++;
             }
         }
+    }
+
+    void check_add_obstacle()
+    {
+        Ray screen_ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit rh;
+
+        bool bhit = Physics.Raycast(screen_ray, out rh, 10000);
+        if (!bhit)
+            return;
+
+        Msgpacket.MSG_NAV_ADD_OBSTACLE msg = new Msgpacket.MSG_NAV_ADD_OBSTACLE();
+        msg.Center = new Msgpacket.PROTO_VEC_3F();
+        msg.Center.X = rh.point.x;
+        msg.Center.Y = rh.point.y;
+        msg.Center.Z = rh.point.z;
+        msg.HalfExt = new Msgpacket.PROTO_VEC_3F();
+        msg.HalfExt.X = 10;
+        msg.HalfExt.Y = 10;
+        msg.HalfExt.Z = 10;
+
+        msg.YRadian = 0;
+
+        this.client_.send_msg(Msgpacket.MSG_TYPE.MsgNavAddObstacle, msg);
     }
 
     void check_screen_ray_hit()
@@ -89,11 +115,11 @@ public class main_nav : MonoBehaviour
 
         Msgpacket.MSG_NAV_SEARCH msg = new Msgpacket.MSG_NAV_SEARCH();
         msg.PosSrc = cur_pos_;
-        msg.PosSrc.PosY = 1.0f;
-        msg.PosDst = new Msgpacket.POS_3F();
-        msg.PosDst.PosX = rh.point.x;
-        msg.PosDst.PosY = 1.0f;// rh.point.y;
-        msg.PosDst.PosZ = rh.point.z;
+        msg.PosSrc.Y = 1.0f;
+        msg.PosDst = new Msgpacket.PROTO_VEC_3F();
+        msg.PosDst.X = rh.point.x;
+        msg.PosDst.Y = 1.0f;// rh.point.y;
+        msg.PosDst.Z = rh.point.z;
 
 /*        msg.PosSrc = new Msgpacket.POS_3F();
         msg.PosSrc.PosX = 702.190918f;

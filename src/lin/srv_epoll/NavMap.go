@@ -5,7 +5,7 @@ package main
 #cgo LDFLAGS: -L../../cpp/navwrapper/bin -lnavwrapper
 #include "RecastCWrapper.h"
 typedef void * VoidPtr;
-typedef struct RecastPos RecastPosT;
+typedef struct RecastVec3f RecastPosT;
 */
 import "C"
 import (
@@ -35,14 +35,14 @@ func ConstructorNavMapMgr(file_path string) *NavMap {
 
 	src := Coord3f{702.190918, 1.53082275, 635.378662}
 	dst := Coord3f{710.805664, 1.00000000, 851.753296}
-	path := nav_map.path_find(src, dst)
+	path := nav_map.path_find(&src, &dst)
 	lin_common.LogDebug(len(path), " path:", path)
 
 	return nav_map
 }
 
-func (pthis*NavMap)path_find(src Coord3f, dst Coord3f) (path []Coord3f){
-	var start_pos C.struct_RecastPos
+func (pthis*NavMap)path_find(src * Coord3f, dst * Coord3f) (path []Coord3f){
+	var start_pos C.struct_RecastVec3f
 	start_pos.x = C.float(src.X)
 	start_pos.y = C.float(src.Y)
 	start_pos.z = C.float(src.Z)
@@ -60,4 +60,34 @@ func (pthis*NavMap)path_find(src Coord3f, dst Coord3f) (path []Coord3f){
 	}
 	C.nav_freepath(pos)
 	return
+}
+
+func (pthis*NavMap)add_obstacle(center * Coord3f, halfExtents * Coord3f, yRadians float32) (obstacle_id uint32) {
+	obstacle_id = uint32(C.nav_add_obstacle(pthis.handle_nav_map_, &C.struct_RecastVec3f{C.float(center.X), C.float(center.Y), C.float(center.Z)},
+		&C.RecastPosT{C.float(halfExtents.X), C.float(halfExtents.Y), C.float(halfExtents.Z)},
+		C.float(yRadians)))
+	C.nav_update(pthis.handle_nav_map_)
+	C.nav_update(pthis.handle_nav_map_)
+	C.nav_update(pthis.handle_nav_map_)
+	C.nav_update(pthis.handle_nav_map_)
+	C.nav_update(pthis.handle_nav_map_)
+	C.nav_update(pthis.handle_nav_map_)
+	C.nav_update(pthis.handle_nav_map_)
+	C.nav_update(pthis.handle_nav_map_)
+	C.nav_update(pthis.handle_nav_map_)
+	C.nav_update(pthis.handle_nav_map_)
+	C.nav_update(pthis.handle_nav_map_)
+	C.nav_update(pthis.handle_nav_map_)
+	C.nav_update(pthis.handle_nav_map_)
+	C.nav_update(pthis.handle_nav_map_)
+	C.nav_update(pthis.handle_nav_map_)
+	C.nav_update(pthis.handle_nav_map_)
+
+	return
+}
+
+func (pthis*NavMap)del_obstacle(obstacle_id uint32)  {
+	C.nav_del_obstacle(pthis.handle_nav_map_, C.uint(obstacle_id))
+	C.nav_update(pthis.handle_nav_map_)
+	C.nav_update(pthis.handle_nav_map_)
 }

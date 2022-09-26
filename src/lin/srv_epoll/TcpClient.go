@@ -148,23 +148,52 @@ func (pthis*TcpClient)Process_MSG_NAV_SEARCH(msg *msgpacket.MSG_NAV_SEARCH) {
 	src := Coord3f{0, 0, 0}
 	dst := Coord3f{0, 0, 0}
 	if msg.PosSrc != nil {
-		src = Coord3f{msg.PosSrc.PosX, msg.PosSrc.PosY, msg.PosSrc.PosZ}
+		src = Coord3f{msg.PosSrc.X, msg.PosSrc.Y, msg.PosSrc.Z}
 	}
 	if msg.PosDst != nil {
-		dst = Coord3f{msg.PosDst.PosX, msg.PosDst.PosY, msg.PosDst.PosZ}
+		dst = Coord3f{msg.PosDst.X, msg.PosDst.Y, msg.PosDst.Z}
 	}
-	path := navMap.path_find(src, dst)
+	path := navMap.path_find(&src, &dst)
 
 	lin_common.LogDebug(path)
 
 	msg_ret := &msgpacket.MSG_NAV_SEARCH_RES{}
 	for _, val := range path {
 		lin_common.LogDebug(val.X, val.Y, val.Z)
-		msg_ret.PathPos = append(msg_ret.PathPos, &msgpacket.POS_3F{PosX:val.X, PosY:val.Y, PosZ:val.Z})
+		msg_ret.PathPos = append(msg_ret.PathPos, &msgpacket.PROTO_VEC_3F{X:val.X, Y:val.Y, Z:val.Z})
 	}
 
 	pthis.pu.eSrvMgr.SendProtoMsg(pthis.fd, msgpacket.MSG_TYPE__MSG_NAV_SEARCH_RES, msg_ret)
 }
+
+func (pthis*TcpClient)Process_MSG_NAV_ADD_OBSTACLE(msg * msgpacket.MSG_NAV_ADD_OBSTACLE) {
+	lin_common.LogDebug("add obstacle", msg)
+	navMap := pthis.pu.eSrvMgr.navMap
+
+	obstacle_id := navMap.add_obstacle(&Coord3f{msg.Center.X,msg.Center.Y, msg.Center.Z},
+		&Coord3f{msg.HalfExt.X,msg.HalfExt.Y, msg.HalfExt.Z},
+		msg.YRadian)
+
+	msg_ret := &msgpacket.MSG_NAV_ADD_OBSTACLE_RES{}
+	msg_ret.ObstacleId = obstacle_id
+	msg_ret.Center = msg.Center
+	msg_ret.HalfExt = msg.HalfExt
+	msg_ret.YRadian = msg.YRadian
+
+	pthis.pu.eSrvMgr.SendProtoMsg(pthis.fd, msgpacket.MSG_TYPE__MSG_NAV_ADD_OBSTACLE_RES, msg_ret)
+}
+
+func (pthis*TcpClient)Process_MSG_NAV_DEL_OBSTACLE(msg * msgpacket.MSG_NAV_DEL_OBSTACLE) {
+	lin_common.LogDebug("del obstacle", msg)
+	navMap := pthis.pu.eSrvMgr.navMap
+
+	navMap.del_obstacle(msg.ObstacleId)
+
+	msg_ret := &msgpacket.MSG_NAV_DEL_OBSTACLE_RES{}
+	msg_ret.ObstacleId = msg.ObstacleId
+	pthis.pu.eSrvMgr.SendProtoMsg(pthis.fd, msgpacket.MSG_TYPE__MSG_NAV_DEL_OBSTACLE_RES, msg_ret)
+}
+
 
 func (pthis*TcpClient)Process_protoMsg(msg *msgClient) {
 	defer func() {
@@ -189,6 +218,10 @@ func (pthis*TcpClient)Process_protoMsg(msg *msgClient) {
 		pthis.Process_MSG_PATH_SEARCH(t)
 	case *msgpacket.MSG_NAV_SEARCH:
 		pthis.Process_MSG_NAV_SEARCH(t)
+	case *msgpacket.MSG_NAV_ADD_OBSTACLE:
+		pthis.Process_MSG_NAV_ADD_OBSTACLE(t)
+	case *msgpacket.MSG_NAV_DEL_OBSTACLE:
+		pthis.Process_MSG_NAV_DEL_OBSTACLE(t)
 	}
 }
 
