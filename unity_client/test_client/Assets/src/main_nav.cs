@@ -85,7 +85,7 @@ public class main_nav : MonoBehaviour
     void process_MSG_NAV_ADD_OBSTACLE_RES(Msgpacket.MSG_NAV_ADD_OBSTACLE_RES msg)
     {
         Debug.Log("process_MSG_NAV_ADD_OBSTACLE_RES");
-        var gobj_obstacle = GameObject.Instantiate(pref_obstacle_, new Vector3(msg.Center.X, msg.Center.Y, msg.Center.Z), Quaternion.identity);
+        var gobj_obstacle = GameObject.Instantiate(pref_obstacle_, new Vector3(msg.Center.X, msg.Center.Y, msg.Center.Z), Quaternion.EulerRotation(0,(float)(30.0/360.0 * 2.0 * 3.14),0));
         var com_obstacle = gobj_obstacle.GetComponent<obstacle>();
         com_obstacle.set_scale(new Vector3(msg.HalfExt.X, msg.HalfExt.Y, msg.HalfExt.Z) * 2);
     }
@@ -107,9 +107,9 @@ public class main_nav : MonoBehaviour
         msg.HalfExt = new Msgpacket.PROTO_VEC_3F();
         msg.HalfExt.X = 10;
         msg.HalfExt.Y = 10;
-        msg.HalfExt.Z = 10;
+        msg.HalfExt.Z = 5;
 
-        msg.YRadian = 0;
+        msg.YRadian = (float)(30.0 / 360.0 * 2.0 * 3.14);
 
         this.client_.send_msg(Msgpacket.MSG_TYPE.MsgNavAddObstacle, msg);
     }
