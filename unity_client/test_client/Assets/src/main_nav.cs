@@ -10,6 +10,8 @@ public class main_nav : MonoBehaviour
 
     public LineRenderer m_lineRenderer;
 
+    public GameObject pref_obstacle_;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -45,6 +47,9 @@ public class main_nav : MonoBehaviour
                 case Msgpacket.MSG_TYPE.MsgNavSearchRes:
                     process_nav_search_res((Msgpacket.MSG_NAV_SEARCH_RES)msg.msg);
                     break;
+                case Msgpacket.MSG_TYPE.MsgNavAddObstacleRes:
+                    process_MSG_NAV_ADD_OBSTACLE_RES((Msgpacket.MSG_NAV_ADD_OBSTACLE_RES)msg.msg);
+                    break;
             }
         }
 
@@ -75,6 +80,14 @@ public class main_nav : MonoBehaviour
                 idx++;
             }
         }
+    }
+
+    void process_MSG_NAV_ADD_OBSTACLE_RES(Msgpacket.MSG_NAV_ADD_OBSTACLE_RES msg)
+    {
+        Debug.Log("process_MSG_NAV_ADD_OBSTACLE_RES");
+        var gobj_obstacle = GameObject.Instantiate(pref_obstacle_, new Vector3(msg.Center.X, msg.Center.Y, msg.Center.Z), Quaternion.identity);
+        var com_obstacle = gobj_obstacle.GetComponent<obstacle>();
+        com_obstacle.set_scale(new Vector3(msg.HalfExt.X, msg.HalfExt.Y, msg.HalfExt.Z) * 2);
     }
 
     void check_add_obstacle()

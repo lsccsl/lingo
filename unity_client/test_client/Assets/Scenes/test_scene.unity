@@ -432,6 +432,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_lineRenderer: {fileID: 0}
+  pref_obstacle_: {fileID: 8197964763825130954, guid: be0c42617994ea74dac657056a0bb945, type: 3}
 --- !u!120 &785230726
 LineRenderer:
   m_ObjectHideFlags: 0

@@ -16,7 +16,7 @@ public:
 	RecastInstance();
 	~RecastInstance();
 
-	void UpdateNavInstance();
+	void UpdateNavInstance(const int max_count = 100);
 
 	bool LoadFromObj(const std::string objFilePath);
 

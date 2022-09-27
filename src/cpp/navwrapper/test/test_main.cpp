@@ -44,7 +44,6 @@ void test_cwrapper()
 
 	nav_add_obstacle(ins_ptr, &posCenter, &halfExt, (45.0f / 360.0f) * 2.0f * 3.14f);
 	nav_update(ins_ptr);
-	nav_update(ins_ptr);
 	//void* ins_ptr = nav_create("../../../../resource/test_scene.obj");
 	RecastVec3f startpos;
 	startpos.x = 40.5650635f;//702.190918f; 

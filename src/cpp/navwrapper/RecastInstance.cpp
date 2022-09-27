@@ -761,14 +761,21 @@ bool RecastInstance::IsWalkAble(float PosX, float PosY, float PosZ)
 	return true;
 }
 
-void RecastInstance::UpdateNavInstance()
+void RecastInstance::UpdateNavInstance(const int max_count)
 {
 	if (!m_navMesh)
 		return;
 	if (!m_tileCache)
 		return;
 
-	m_tileCache->update(1, m_navMesh);
+	int max_loop_count = max_count;
+	if (max_loop_count > 100)
+		max_loop_count = 100;
+	bool bupdate = false;
+	do {
+		m_tileCache->update(1, m_navMesh, &bupdate);
+		max_loop_count--;
+	} while (!bupdate && max_loop_count > 0);
 }
 
 bool RecastInstance::LoadFromObj(const std::string objFilePath)
