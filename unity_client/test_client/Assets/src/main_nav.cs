@@ -50,6 +50,9 @@ public class main_nav : MonoBehaviour
                 case Msgpacket.MSG_TYPE.MsgNavAddObstacleRes:
                     process_MSG_NAV_ADD_OBSTACLE_RES((Msgpacket.MSG_NAV_ADD_OBSTACLE_RES)msg.msg);
                     break;
+                case Msgpacket.MSG_TYPE.MsgNavDelObstacleRes:
+                    process_MSG_NAV_DEL_OBSTACLE_RES((Msgpacket.MSG_NAV_DEL_OBSTACLE_RES)msg.msg);
+                    break;
             }
         }
 
@@ -64,7 +67,13 @@ public class main_nav : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
             check_screen_ray_hit();
         if (Input.GetMouseButtonDown(1))
-            check_add_obstacle();
+        {
+            Debug.Log("shift down:" + Input.GetKeyDown(KeyCode.LeftShift) + " shift:" + Input.GetKey(KeyCode.LeftShift));
+            if (Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKey(KeyCode.LeftShift))
+                check_del_obstacle();
+            else
+                check_add_obstacle();
+        }
     }
 
     void process_nav_search_res(Msgpacket.MSG_NAV_SEARCH_RES msg)
@@ -88,6 +97,35 @@ public class main_nav : MonoBehaviour
         var gobj_obstacle = GameObject.Instantiate(pref_obstacle_, new Vector3(msg.Center.X, msg.Center.Y, msg.Center.Z), Quaternion.EulerRotation(0,(float)(30.0/360.0 * 2.0 * 3.14),0));
         var com_obstacle = gobj_obstacle.GetComponent<obstacle>();
         com_obstacle.set_scale(new Vector3(msg.HalfExt.X, msg.HalfExt.Y, msg.HalfExt.Z) * 2);
+        com_obstacle.obstacle_id = msg.ObstacleId;
+    }
+
+    void process_MSG_NAV_DEL_OBSTACLE_RES(Msgpacket.MSG_NAV_DEL_OBSTACLE_RES msg)
+    {
+        Debug.Log("process_MSG_NAV_DEL_OBSTACLE_RES");
+    }
+
+    void check_del_obstacle()
+    {
+        Ray screen_ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit rh;
+
+        bool bhit = Physics.Raycast(screen_ray, out rh, 10000);
+        if (!bhit)
+            return;
+
+        if (rh.collider.gameObject == null)
+            return;
+
+        var com_obstacle = rh.collider.gameObject.GetComponent<obstacle>();
+        if (com_obstacle == null)
+            return;
+
+        Msgpacket.MSG_NAV_DEL_OBSTACLE msg = new Msgpacket.MSG_NAV_DEL_OBSTACLE();
+        msg.ObstacleId = com_obstacle.obstacle_id;
+        this.client_.send_msg(Msgpacket.MSG_TYPE.MsgNavDelObstacle, msg);
+
+        GameObject.Destroy(rh.collider.gameObject);
     }
 
     void check_add_obstacle()

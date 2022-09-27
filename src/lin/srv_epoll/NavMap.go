@@ -67,12 +67,10 @@ func (pthis*NavMap)add_obstacle(center * Coord3f, halfExtents * Coord3f, yRadian
 		&C.RecastPosT{C.float(halfExtents.X), C.float(halfExtents.Y), C.float(halfExtents.Z)},
 		C.float(yRadians)))
 	C.nav_update(pthis.handle_nav_map_)
-	
 	return
 }
 
 func (pthis*NavMap)del_obstacle(obstacle_id uint32)  {
 	C.nav_del_obstacle(pthis.handle_nav_map_, C.uint(obstacle_id))
-	C.nav_update(pthis.handle_nav_map_)
 	C.nav_update(pthis.handle_nav_map_)
 }
