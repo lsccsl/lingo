@@ -105,6 +105,8 @@ func (pthis*NavMap)del_obstacle(obstacle_id uint32)  {
 	pthis.nav_lock_.Lock()
 	defer pthis.nav_lock_.Unlock()
 
+	delete(pthis.map_obstacle_, obstacle_id)
+
 	C.nav_del_obstacle(pthis.handle_nav_map_, C.uint(obstacle_id))
 	C.nav_update(pthis.handle_nav_map_)
 }
