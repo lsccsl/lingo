@@ -170,15 +170,16 @@ func (pthis*TcpClient)Process_MSG_NAV_ADD_OBSTACLE(msg * msgpacket.MSG_NAV_ADD_O
 	lin_common.LogDebug("add obstacle", msg)
 	navMap := pthis.pu.eSrvMgr.navMap
 
-	obstacle_id := navMap.add_obstacle(&Coord3f{msg.Center.X,msg.Center.Y, msg.Center.Z},
-		&Coord3f{msg.HalfExt.X,msg.HalfExt.Y, msg.HalfExt.Z},
-		msg.YRadian)
+	obstacle_id := navMap.add_obstacle(&Coord3f{msg.Obstacle.Center.X,msg.Obstacle.Center.Y, msg.Obstacle.Center.Z},
+		&Coord3f{msg.Obstacle.HalfExt.X,msg.Obstacle.HalfExt.Y, msg.Obstacle.HalfExt.Z},
+		msg.Obstacle.YRadian)
 
 	msg_ret := &msgpacket.MSG_NAV_ADD_OBSTACLE_RES{}
-	msg_ret.ObstacleId = obstacle_id
-	msg_ret.Center = msg.Center
-	msg_ret.HalfExt = msg.HalfExt
-	msg_ret.YRadian = msg.YRadian
+	msg_ret.Obstacle = &msgpacket.NAV_OBSTACLE{}
+	msg_ret.Obstacle.ObstacleId = obstacle_id
+	msg_ret.Obstacle.Center = msg.Obstacle.Center
+	msg_ret.Obstacle.HalfExt = msg.Obstacle.HalfExt
+	msg_ret.Obstacle.YRadian = msg.Obstacle.YRadian
 
 	pthis.pu.eSrvMgr.SendProtoMsg(pthis.fd, msgpacket.MSG_TYPE__MSG_NAV_ADD_OBSTACLE_RES, msg_ret)
 }
@@ -194,6 +195,24 @@ func (pthis*TcpClient)Process_MSG_NAV_DEL_OBSTACLE(msg * msgpacket.MSG_NAV_DEL_O
 	pthis.pu.eSrvMgr.SendProtoMsg(pthis.fd, msgpacket.MSG_TYPE__MSG_NAV_DEL_OBSTACLE_RES, msg_ret)
 }
 
+func (pthis*TcpClient)Process_MSG_NAV_GET_ALL_OBSTACLE(msg * msgpacket.MSG_NAV_GET_ALL_OBSTACLE){
+	lin_common.LogDebug("get obstacle", msg)
+
+	navMap := pthis.pu.eSrvMgr.navMap
+
+	map_obstacle := navMap.get_all_obstacle()
+
+	msg_ret := &msgpacket.MSG_NAV_GET_ALL_OBSTACLE_RES{}
+	for k,v := range map_obstacle {
+		ob := &msgpacket.NAV_OBSTACLE{}
+		ob.ObstacleId = k
+		ob.Center = &msgpacket.PROTO_VEC_3F{X:v.center.X, Y:v.center.Y, Z:v.center.Z}
+		ob.HalfExt = &msgpacket.PROTO_VEC_3F{X:v.half_ext.X, Y:v.half_ext.Y, Z:v.half_ext.Z}
+		ob.YRadian = v.y_radian
+		msg_ret.Obstacle = append(msg_ret.Obstacle, ob)
+	}
+	pthis.pu.eSrvMgr.SendProtoMsg(pthis.fd, msgpacket.MSG_TYPE__MSG_NAV_GET_ALL_OBSTACLE_RES, msg_ret)
+}
 
 func (pthis*TcpClient)Process_protoMsg(msg *msgClient) {
 	defer func() {
@@ -222,7 +241,10 @@ func (pthis*TcpClient)Process_protoMsg(msg *msgClient) {
 		pthis.Process_MSG_NAV_ADD_OBSTACLE(t)
 	case *msgpacket.MSG_NAV_DEL_OBSTACLE:
 		pthis.Process_MSG_NAV_DEL_OBSTACLE(t)
+	case *msgpacket.MSG_NAV_GET_ALL_OBSTACLE:
+		pthis.Process_MSG_NAV_GET_ALL_OBSTACLE(t)
 	}
 }
+
 
 

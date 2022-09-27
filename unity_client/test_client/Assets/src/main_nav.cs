@@ -53,6 +53,9 @@ public class main_nav : MonoBehaviour
                 case Msgpacket.MSG_TYPE.MsgNavDelObstacleRes:
                     process_MSG_NAV_DEL_OBSTACLE_RES((Msgpacket.MSG_NAV_DEL_OBSTACLE_RES)msg.msg);
                     break;
+                case Msgpacket.MSG_TYPE.MsgNavGetAllObstacleRes:
+                    process_MSG_NAV_GET_ALL_OBSTACLE_RES((Msgpacket.MSG_NAV_GET_ALL_OBSTACLE_RES)msg.msg);
+                    break;
             }
         }
 
@@ -76,6 +79,19 @@ public class main_nav : MonoBehaviour
         }
     }
 
+    void process_MSG_NAV_GET_ALL_OBSTACLE_RES(Msgpacket.MSG_NAV_GET_ALL_OBSTACLE_RES msg)
+    {
+        Debug.Log("process_MSG_NAV_GET_ALL_OBSTACLE_RES");
+
+        foreach (var it in msg.Obstacle)
+        {
+            var gobj_obstacle = GameObject.Instantiate(pref_obstacle_, new Vector3(it.Center.X, it.Center.Y, it.Center.Z), Quaternion.EulerRotation(0, it.YRadian, 0));
+            var com_obstacle = gobj_obstacle.GetComponent<obstacle>();
+            com_obstacle.set_scale(new Vector3(it.HalfExt.X, it.HalfExt.Y, it.HalfExt.Z) * 2);
+            com_obstacle.obstacle_id = it.ObstacleId;
+        }
+    }
+
     void process_nav_search_res(Msgpacket.MSG_NAV_SEARCH_RES msg)
     {
         Debug.Log("process_nav_search_res");
@@ -94,10 +110,10 @@ public class main_nav : MonoBehaviour
     void process_MSG_NAV_ADD_OBSTACLE_RES(Msgpacket.MSG_NAV_ADD_OBSTACLE_RES msg)
     {
         Debug.Log("process_MSG_NAV_ADD_OBSTACLE_RES");
-        var gobj_obstacle = GameObject.Instantiate(pref_obstacle_, new Vector3(msg.Center.X, msg.Center.Y, msg.Center.Z), Quaternion.EulerRotation(0,(float)(30.0/360.0 * 2.0 * 3.14),0));
+        var gobj_obstacle = GameObject.Instantiate(pref_obstacle_, new Vector3(msg.Obstacle.Center.X, msg.Obstacle.Center.Y, msg.Obstacle.Center.Z), Quaternion.EulerRotation(0, msg.Obstacle.YRadian, 0));
         var com_obstacle = gobj_obstacle.GetComponent<obstacle>();
-        com_obstacle.set_scale(new Vector3(msg.HalfExt.X, msg.HalfExt.Y, msg.HalfExt.Z) * 2);
-        com_obstacle.obstacle_id = msg.ObstacleId;
+        com_obstacle.set_scale(new Vector3(msg.Obstacle.HalfExt.X, msg.Obstacle.HalfExt.Y, msg.Obstacle.HalfExt.Z) * 2);
+        com_obstacle.obstacle_id = msg.Obstacle.ObstacleId;
     }
 
     void process_MSG_NAV_DEL_OBSTACLE_RES(Msgpacket.MSG_NAV_DEL_OBSTACLE_RES msg)
@@ -138,16 +154,17 @@ public class main_nav : MonoBehaviour
             return;
 
         Msgpacket.MSG_NAV_ADD_OBSTACLE msg = new Msgpacket.MSG_NAV_ADD_OBSTACLE();
-        msg.Center = new Msgpacket.PROTO_VEC_3F();
-        msg.Center.X = rh.point.x;
-        msg.Center.Y = rh.point.y;
-        msg.Center.Z = rh.point.z;
-        msg.HalfExt = new Msgpacket.PROTO_VEC_3F();
-        msg.HalfExt.X = 10;
-        msg.HalfExt.Y = 10;
-        msg.HalfExt.Z = 5;
+        msg.Obstacle = new Msgpacket.NAV_OBSTACLE();
+        msg.Obstacle.Center = new Msgpacket.PROTO_VEC_3F();
+        msg.Obstacle.Center.X = rh.point.x;
+        msg.Obstacle.Center.Y = rh.point.y;
+        msg.Obstacle.Center.Z = rh.point.z;
+        msg.Obstacle.HalfExt = new Msgpacket.PROTO_VEC_3F();
+        msg.Obstacle.HalfExt.X = 10;
+        msg.Obstacle.HalfExt.Y = 10;
+        msg.Obstacle.HalfExt.Z = 5;
 
-        msg.YRadian = (float)(30.0 / 360.0 * 2.0 * 3.14);
+        msg.Obstacle.YRadian = (float)(30.0 / 360.0 * 2.0 * 3.14);
 
         this.client_.send_msg(Msgpacket.MSG_TYPE.MsgNavAddObstacle, msg);
     }

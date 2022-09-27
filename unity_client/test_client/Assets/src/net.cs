@@ -66,6 +66,7 @@ public class TestClient
         msg_parse_.Add(Msgpacket.MSG_TYPE.MsgNavSearchRes, typeof(Msgpacket.MSG_NAV_SEARCH_RES));
         msg_parse_.Add(Msgpacket.MSG_TYPE.MsgNavAddObstacleRes, typeof(Msgpacket.MSG_NAV_ADD_OBSTACLE_RES));
         msg_parse_.Add(Msgpacket.MSG_TYPE.MsgNavDelObstacleRes, typeof(Msgpacket.MSG_NAV_DEL_OBSTACLE_RES));
+        msg_parse_.Add(Msgpacket.MSG_TYPE.MsgNavGetAllObstacleRes, typeof(Msgpacket.MSG_NAV_GET_ALL_OBSTACLE_RES));
     }
 
     private Google.Protobuf.IMessage parseMessage(byte[] pbData, Msgpacket.MSG_TYPE msgtype)
@@ -177,6 +178,9 @@ public class TestClient
 
         Msgpacket.MSG_GET_MAP msgGetMap = new Msgpacket.MSG_GET_MAP();
         send_msg_inter(Msgpacket.MSG_TYPE.MsgGetMap, msg);
+
+        Msgpacket.MSG_NAV_GET_ALL_OBSTACLE_RES msgGetAllObstacle = new Msgpacket.MSG_NAV_GET_ALL_OBSTACLE_RES();
+        send_msg_inter(Msgpacket.MSG_TYPE.MsgNavGetAllObstacle, msgGetAllObstacle);
 
         thread_send_.Start();
         thread_recv_.Start();

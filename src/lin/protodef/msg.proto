@@ -37,6 +37,8 @@ enum MSG_TYPE
     _MSG_NAV_ADD_OBSTACLE_RES = 1010;
     _MSG_NAV_DEL_OBSTACLE = 1011;
     _MSG_NAV_DEL_OBSTACLE_RES = 1012;
+    _MSG_NAV_GET_ALL_OBSTACLE = 1013;
+    _MSG_NAV_GET_ALL_OBSTACLE_RES = 1014;
 }
 
 enum RESPONSE_CODE
@@ -199,18 +201,20 @@ message MSG_NAV_SEARCH_RES
     repeated PROTO_VEC_3F path_pos = 1;
 }
 
-message MSG_NAV_ADD_OBSTACLE
-{
-    PROTO_VEC_3F center = 1;
-    PROTO_VEC_3F half_ext = 2;
-    float y_radian = 3;
-}
-message MSG_NAV_ADD_OBSTACLE_RES
+message NAV_OBSTACLE
 {
     uint32 obstacle_id = 1;
     PROTO_VEC_3F center = 2;
     PROTO_VEC_3F half_ext = 3;
     float y_radian = 4;
+}
+message MSG_NAV_ADD_OBSTACLE
+{
+    NAV_OBSTACLE obstacle = 1;
+}
+message MSG_NAV_ADD_OBSTACLE_RES
+{
+    NAV_OBSTACLE obstacle = 2;
 }
 
 message MSG_NAV_DEL_OBSTACLE
@@ -221,3 +225,12 @@ message MSG_NAV_DEL_OBSTACLE_RES
 {
     uint32 obstacle_id = 1;
 }
+
+message MSG_NAV_GET_ALL_OBSTACLE
+{}
+message MSG_NAV_GET_ALL_OBSTACLE_RES
+{
+    repeated NAV_OBSTACLE obstacle = 1;
+}
+
+

@@ -51,7 +51,7 @@ struct TableStruct_msg_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxiliaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[29]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[32]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -95,6 +95,12 @@ extern MSG_NAV_DEL_OBSTACLEDefaultTypeInternal _MSG_NAV_DEL_OBSTACLE_default_ins
 class MSG_NAV_DEL_OBSTACLE_RES;
 struct MSG_NAV_DEL_OBSTACLE_RESDefaultTypeInternal;
 extern MSG_NAV_DEL_OBSTACLE_RESDefaultTypeInternal _MSG_NAV_DEL_OBSTACLE_RES_default_instance_;
+class MSG_NAV_GET_ALL_OBSTACLE;
+struct MSG_NAV_GET_ALL_OBSTACLEDefaultTypeInternal;
+extern MSG_NAV_GET_ALL_OBSTACLEDefaultTypeInternal _MSG_NAV_GET_ALL_OBSTACLE_default_instance_;
+class MSG_NAV_GET_ALL_OBSTACLE_RES;
+struct MSG_NAV_GET_ALL_OBSTACLE_RESDefaultTypeInternal;
+extern MSG_NAV_GET_ALL_OBSTACLE_RESDefaultTypeInternal _MSG_NAV_GET_ALL_OBSTACLE_RES_default_instance_;
 class MSG_NAV_SEARCH;
 struct MSG_NAV_SEARCHDefaultTypeInternal;
 extern MSG_NAV_SEARCHDefaultTypeInternal _MSG_NAV_SEARCH_default_instance_;
@@ -140,6 +146,9 @@ extern MSG_TEST_RPCDefaultTypeInternal _MSG_TEST_RPC_default_instance_;
 class MSG_TEST_RPC_RES;
 struct MSG_TEST_RPC_RESDefaultTypeInternal;
 extern MSG_TEST_RPC_RESDefaultTypeInternal _MSG_TEST_RPC_RES_default_instance_;
+class NAV_OBSTACLE;
+struct NAV_OBSTACLEDefaultTypeInternal;
+extern NAV_OBSTACLEDefaultTypeInternal _NAV_OBSTACLE_default_instance_;
 class POS_T;
 struct POS_TDefaultTypeInternal;
 extern POS_TDefaultTypeInternal _POS_T_default_instance_;
@@ -160,6 +169,8 @@ template<> ::msgpacket::MSG_NAV_ADD_OBSTACLE* Arena::CreateMaybeMessage<::msgpac
 template<> ::msgpacket::MSG_NAV_ADD_OBSTACLE_RES* Arena::CreateMaybeMessage<::msgpacket::MSG_NAV_ADD_OBSTACLE_RES>(Arena*);
 template<> ::msgpacket::MSG_NAV_DEL_OBSTACLE* Arena::CreateMaybeMessage<::msgpacket::MSG_NAV_DEL_OBSTACLE>(Arena*);
 template<> ::msgpacket::MSG_NAV_DEL_OBSTACLE_RES* Arena::CreateMaybeMessage<::msgpacket::MSG_NAV_DEL_OBSTACLE_RES>(Arena*);
+template<> ::msgpacket::MSG_NAV_GET_ALL_OBSTACLE* Arena::CreateMaybeMessage<::msgpacket::MSG_NAV_GET_ALL_OBSTACLE>(Arena*);
+template<> ::msgpacket::MSG_NAV_GET_ALL_OBSTACLE_RES* Arena::CreateMaybeMessage<::msgpacket::MSG_NAV_GET_ALL_OBSTACLE_RES>(Arena*);
 template<> ::msgpacket::MSG_NAV_SEARCH* Arena::CreateMaybeMessage<::msgpacket::MSG_NAV_SEARCH>(Arena*);
 template<> ::msgpacket::MSG_NAV_SEARCH_RES* Arena::CreateMaybeMessage<::msgpacket::MSG_NAV_SEARCH_RES>(Arena*);
 template<> ::msgpacket::MSG_PATH_SEARCH* Arena::CreateMaybeMessage<::msgpacket::MSG_PATH_SEARCH>(Arena*);
@@ -175,6 +186,7 @@ template<> ::msgpacket::MSG_TEST* Arena::CreateMaybeMessage<::msgpacket::MSG_TES
 template<> ::msgpacket::MSG_TEST_RES* Arena::CreateMaybeMessage<::msgpacket::MSG_TEST_RES>(Arena*);
 template<> ::msgpacket::MSG_TEST_RPC* Arena::CreateMaybeMessage<::msgpacket::MSG_TEST_RPC>(Arena*);
 template<> ::msgpacket::MSG_TEST_RPC_RES* Arena::CreateMaybeMessage<::msgpacket::MSG_TEST_RPC_RES>(Arena*);
+template<> ::msgpacket::NAV_OBSTACLE* Arena::CreateMaybeMessage<::msgpacket::NAV_OBSTACLE>(Arena*);
 template<> ::msgpacket::POS_T* Arena::CreateMaybeMessage<::msgpacket::POS_T>(Arena*);
 template<> ::msgpacket::PROTO_VEC_3F* Arena::CreateMaybeMessage<::msgpacket::PROTO_VEC_3F>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
@@ -210,12 +222,14 @@ enum MSG_TYPE : int {
   _MSG_NAV_ADD_OBSTACLE_RES = 1010,
   _MSG_NAV_DEL_OBSTACLE = 1011,
   _MSG_NAV_DEL_OBSTACLE_RES = 1012,
+  _MSG_NAV_GET_ALL_OBSTACLE = 1013,
+  _MSG_NAV_GET_ALL_OBSTACLE_RES = 1014,
   MSG_TYPE_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::min(),
   MSG_TYPE_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::max()
 };
 bool MSG_TYPE_IsValid(int value);
 constexpr MSG_TYPE MSG_TYPE_MIN = _MSG_NULL;
-constexpr MSG_TYPE MSG_TYPE_MAX = _MSG_NAV_DEL_OBSTACLE_RES;
+constexpr MSG_TYPE MSG_TYPE_MAX = _MSG_NAV_GET_ALL_OBSTACLE_RES;
 constexpr int MSG_TYPE_ARRAYSIZE = MSG_TYPE_MAX + 1;
 
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* MSG_TYPE_descriptor();
@@ -4318,24 +4332,24 @@ class MSG_NAV_SEARCH_RES final :
 };
 // -------------------------------------------------------------------
 
-class MSG_NAV_ADD_OBSTACLE final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:msgpacket.MSG_NAV_ADD_OBSTACLE) */ {
+class NAV_OBSTACLE final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:msgpacket.NAV_OBSTACLE) */ {
  public:
-  inline MSG_NAV_ADD_OBSTACLE() : MSG_NAV_ADD_OBSTACLE(nullptr) {}
-  ~MSG_NAV_ADD_OBSTACLE() override;
-  explicit constexpr MSG_NAV_ADD_OBSTACLE(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  inline NAV_OBSTACLE() : NAV_OBSTACLE(nullptr) {}
+  ~NAV_OBSTACLE() override;
+  explicit constexpr NAV_OBSTACLE(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
-  MSG_NAV_ADD_OBSTACLE(const MSG_NAV_ADD_OBSTACLE& from);
-  MSG_NAV_ADD_OBSTACLE(MSG_NAV_ADD_OBSTACLE&& from) noexcept
-    : MSG_NAV_ADD_OBSTACLE() {
+  NAV_OBSTACLE(const NAV_OBSTACLE& from);
+  NAV_OBSTACLE(NAV_OBSTACLE&& from) noexcept
+    : NAV_OBSTACLE() {
     *this = ::std::move(from);
   }
 
-  inline MSG_NAV_ADD_OBSTACLE& operator=(const MSG_NAV_ADD_OBSTACLE& from) {
+  inline NAV_OBSTACLE& operator=(const NAV_OBSTACLE& from) {
     CopyFrom(from);
     return *this;
   }
-  inline MSG_NAV_ADD_OBSTACLE& operator=(MSG_NAV_ADD_OBSTACLE&& from) noexcept {
+  inline NAV_OBSTACLE& operator=(NAV_OBSTACLE&& from) noexcept {
     if (this == &from) return *this;
     if (GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -4358,20 +4372,20 @@ class MSG_NAV_ADD_OBSTACLE final :
   static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
-  static const MSG_NAV_ADD_OBSTACLE& default_instance() {
+  static const NAV_OBSTACLE& default_instance() {
     return *internal_default_instance();
   }
-  static inline const MSG_NAV_ADD_OBSTACLE* internal_default_instance() {
-    return reinterpret_cast<const MSG_NAV_ADD_OBSTACLE*>(
-               &_MSG_NAV_ADD_OBSTACLE_default_instance_);
+  static inline const NAV_OBSTACLE* internal_default_instance() {
+    return reinterpret_cast<const NAV_OBSTACLE*>(
+               &_NAV_OBSTACLE_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
     25;
 
-  friend void swap(MSG_NAV_ADD_OBSTACLE& a, MSG_NAV_ADD_OBSTACLE& b) {
+  friend void swap(NAV_OBSTACLE& a, NAV_OBSTACLE& b) {
     a.Swap(&b);
   }
-  inline void Swap(MSG_NAV_ADD_OBSTACLE* other) {
+  inline void Swap(NAV_OBSTACLE* other) {
     if (other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
     if (GetOwningArena() != nullptr &&
@@ -4384,7 +4398,7 @@ class MSG_NAV_ADD_OBSTACLE final :
       ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(MSG_NAV_ADD_OBSTACLE* other) {
+  void UnsafeArenaSwap(NAV_OBSTACLE* other) {
     if (other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
@@ -4392,13 +4406,13 @@ class MSG_NAV_ADD_OBSTACLE final :
 
   // implements Message ----------------------------------------------
 
-  MSG_NAV_ADD_OBSTACLE* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
-    return CreateMaybeMessage<MSG_NAV_ADD_OBSTACLE>(arena);
+  NAV_OBSTACLE* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<NAV_OBSTACLE>(arena);
   }
   using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
-  void CopyFrom(const MSG_NAV_ADD_OBSTACLE& from);
+  void CopyFrom(const NAV_OBSTACLE& from);
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
-  void MergeFrom(const MSG_NAV_ADD_OBSTACLE& from);
+  void MergeFrom(const NAV_OBSTACLE& from);
   private:
   static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from);
   public:
@@ -4415,201 +4429,15 @@ class MSG_NAV_ADD_OBSTACLE final :
   void SharedCtor();
   void SharedDtor();
   void SetCachedSize(int size) const final;
-  void InternalSwap(MSG_NAV_ADD_OBSTACLE* other);
+  void InternalSwap(NAV_OBSTACLE* other);
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "msgpacket.MSG_NAV_ADD_OBSTACLE";
+    return "msgpacket.NAV_OBSTACLE";
   }
   protected:
-  explicit MSG_NAV_ADD_OBSTACLE(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
-  private:
-  static void ArenaDtor(void* object);
-  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
-  public:
-
-  static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
-
-  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  enum : int {
-    kCenterFieldNumber = 1,
-    kHalfExtFieldNumber = 2,
-    kYRadianFieldNumber = 3,
-  };
-  // .msgpacket.PROTO_VEC_3F center = 1;
-  bool has_center() const;
-  private:
-  bool _internal_has_center() const;
-  public:
-  void clear_center();
-  const ::msgpacket::PROTO_VEC_3F& center() const;
-  PROTOBUF_NODISCARD ::msgpacket::PROTO_VEC_3F* release_center();
-  ::msgpacket::PROTO_VEC_3F* mutable_center();
-  void set_allocated_center(::msgpacket::PROTO_VEC_3F* center);
-  private:
-  const ::msgpacket::PROTO_VEC_3F& _internal_center() const;
-  ::msgpacket::PROTO_VEC_3F* _internal_mutable_center();
-  public:
-  void unsafe_arena_set_allocated_center(
-      ::msgpacket::PROTO_VEC_3F* center);
-  ::msgpacket::PROTO_VEC_3F* unsafe_arena_release_center();
-
-  // .msgpacket.PROTO_VEC_3F half_ext = 2;
-  bool has_half_ext() const;
-  private:
-  bool _internal_has_half_ext() const;
-  public:
-  void clear_half_ext();
-  const ::msgpacket::PROTO_VEC_3F& half_ext() const;
-  PROTOBUF_NODISCARD ::msgpacket::PROTO_VEC_3F* release_half_ext();
-  ::msgpacket::PROTO_VEC_3F* mutable_half_ext();
-  void set_allocated_half_ext(::msgpacket::PROTO_VEC_3F* half_ext);
-  private:
-  const ::msgpacket::PROTO_VEC_3F& _internal_half_ext() const;
-  ::msgpacket::PROTO_VEC_3F* _internal_mutable_half_ext();
-  public:
-  void unsafe_arena_set_allocated_half_ext(
-      ::msgpacket::PROTO_VEC_3F* half_ext);
-  ::msgpacket::PROTO_VEC_3F* unsafe_arena_release_half_ext();
-
-  // float y_radian = 3;
-  void clear_y_radian();
-  float y_radian() const;
-  void set_y_radian(float value);
-  private:
-  float _internal_y_radian() const;
-  void _internal_set_y_radian(float value);
-  public:
-
-  // @@protoc_insertion_point(class_scope:msgpacket.MSG_NAV_ADD_OBSTACLE)
- private:
-  class _Internal;
-
-  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
-  typedef void InternalArenaConstructable_;
-  typedef void DestructorSkippable_;
-  ::msgpacket::PROTO_VEC_3F* center_;
-  ::msgpacket::PROTO_VEC_3F* half_ext_;
-  float y_radian_;
-  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
-  friend struct ::TableStruct_msg_2eproto;
-};
-// -------------------------------------------------------------------
-
-class MSG_NAV_ADD_OBSTACLE_RES final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:msgpacket.MSG_NAV_ADD_OBSTACLE_RES) */ {
- public:
-  inline MSG_NAV_ADD_OBSTACLE_RES() : MSG_NAV_ADD_OBSTACLE_RES(nullptr) {}
-  ~MSG_NAV_ADD_OBSTACLE_RES() override;
-  explicit constexpr MSG_NAV_ADD_OBSTACLE_RES(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
-
-  MSG_NAV_ADD_OBSTACLE_RES(const MSG_NAV_ADD_OBSTACLE_RES& from);
-  MSG_NAV_ADD_OBSTACLE_RES(MSG_NAV_ADD_OBSTACLE_RES&& from) noexcept
-    : MSG_NAV_ADD_OBSTACLE_RES() {
-    *this = ::std::move(from);
-  }
-
-  inline MSG_NAV_ADD_OBSTACLE_RES& operator=(const MSG_NAV_ADD_OBSTACLE_RES& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline MSG_NAV_ADD_OBSTACLE_RES& operator=(MSG_NAV_ADD_OBSTACLE_RES&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
-  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
-        && GetOwningArena() != nullptr
-  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
-    ) {
-      InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const MSG_NAV_ADD_OBSTACLE_RES& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const MSG_NAV_ADD_OBSTACLE_RES* internal_default_instance() {
-    return reinterpret_cast<const MSG_NAV_ADD_OBSTACLE_RES*>(
-               &_MSG_NAV_ADD_OBSTACLE_RES_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    26;
-
-  friend void swap(MSG_NAV_ADD_OBSTACLE_RES& a, MSG_NAV_ADD_OBSTACLE_RES& b) {
-    a.Swap(&b);
-  }
-  inline void Swap(MSG_NAV_ADD_OBSTACLE_RES* other) {
-    if (other == this) return;
-  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
-   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
-  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
-      InternalSwap(other);
-    } else {
-      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
-    }
-  }
-  void UnsafeArenaSwap(MSG_NAV_ADD_OBSTACLE_RES* other) {
-    if (other == this) return;
-    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  MSG_NAV_ADD_OBSTACLE_RES* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
-    return CreateMaybeMessage<MSG_NAV_ADD_OBSTACLE_RES>(arena);
-  }
-  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
-  void CopyFrom(const MSG_NAV_ADD_OBSTACLE_RES& from);
-  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
-  void MergeFrom(const MSG_NAV_ADD_OBSTACLE_RES& from);
-  private:
-  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from);
-  public:
-  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
-  bool IsInitialized() const final;
-
-  size_t ByteSizeLong() const final;
-  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  int GetCachedSize() const final { return _cached_size_.Get(); }
-
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const final;
-  void InternalSwap(MSG_NAV_ADD_OBSTACLE_RES* other);
-
-  private:
-  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "msgpacket.MSG_NAV_ADD_OBSTACLE_RES";
-  }
-  protected:
-  explicit MSG_NAV_ADD_OBSTACLE_RES(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+  explicit NAV_OBSTACLE(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                        bool is_message_owned = false);
   private:
   static void ArenaDtor(void* object);
@@ -4685,7 +4513,7 @@ class MSG_NAV_ADD_OBSTACLE_RES final :
   void _internal_set_y_radian(float value);
   public:
 
-  // @@protoc_insertion_point(class_scope:msgpacket.MSG_NAV_ADD_OBSTACLE_RES)
+  // @@protoc_insertion_point(class_scope:msgpacket.NAV_OBSTACLE)
  private:
   class _Internal;
 
@@ -4696,6 +4524,316 @@ class MSG_NAV_ADD_OBSTACLE_RES final :
   ::msgpacket::PROTO_VEC_3F* half_ext_;
   uint32_t obstacle_id_;
   float y_radian_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_msg_2eproto;
+};
+// -------------------------------------------------------------------
+
+class MSG_NAV_ADD_OBSTACLE final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:msgpacket.MSG_NAV_ADD_OBSTACLE) */ {
+ public:
+  inline MSG_NAV_ADD_OBSTACLE() : MSG_NAV_ADD_OBSTACLE(nullptr) {}
+  ~MSG_NAV_ADD_OBSTACLE() override;
+  explicit constexpr MSG_NAV_ADD_OBSTACLE(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  MSG_NAV_ADD_OBSTACLE(const MSG_NAV_ADD_OBSTACLE& from);
+  MSG_NAV_ADD_OBSTACLE(MSG_NAV_ADD_OBSTACLE&& from) noexcept
+    : MSG_NAV_ADD_OBSTACLE() {
+    *this = ::std::move(from);
+  }
+
+  inline MSG_NAV_ADD_OBSTACLE& operator=(const MSG_NAV_ADD_OBSTACLE& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline MSG_NAV_ADD_OBSTACLE& operator=(MSG_NAV_ADD_OBSTACLE&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const MSG_NAV_ADD_OBSTACLE& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const MSG_NAV_ADD_OBSTACLE* internal_default_instance() {
+    return reinterpret_cast<const MSG_NAV_ADD_OBSTACLE*>(
+               &_MSG_NAV_ADD_OBSTACLE_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    26;
+
+  friend void swap(MSG_NAV_ADD_OBSTACLE& a, MSG_NAV_ADD_OBSTACLE& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(MSG_NAV_ADD_OBSTACLE* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(MSG_NAV_ADD_OBSTACLE* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  MSG_NAV_ADD_OBSTACLE* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<MSG_NAV_ADD_OBSTACLE>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const MSG_NAV_ADD_OBSTACLE& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom(const MSG_NAV_ADD_OBSTACLE& from);
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(MSG_NAV_ADD_OBSTACLE* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "msgpacket.MSG_NAV_ADD_OBSTACLE";
+  }
+  protected:
+  explicit MSG_NAV_ADD_OBSTACLE(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kObstacleFieldNumber = 1,
+  };
+  // .msgpacket.NAV_OBSTACLE obstacle = 1;
+  bool has_obstacle() const;
+  private:
+  bool _internal_has_obstacle() const;
+  public:
+  void clear_obstacle();
+  const ::msgpacket::NAV_OBSTACLE& obstacle() const;
+  PROTOBUF_NODISCARD ::msgpacket::NAV_OBSTACLE* release_obstacle();
+  ::msgpacket::NAV_OBSTACLE* mutable_obstacle();
+  void set_allocated_obstacle(::msgpacket::NAV_OBSTACLE* obstacle);
+  private:
+  const ::msgpacket::NAV_OBSTACLE& _internal_obstacle() const;
+  ::msgpacket::NAV_OBSTACLE* _internal_mutable_obstacle();
+  public:
+  void unsafe_arena_set_allocated_obstacle(
+      ::msgpacket::NAV_OBSTACLE* obstacle);
+  ::msgpacket::NAV_OBSTACLE* unsafe_arena_release_obstacle();
+
+  // @@protoc_insertion_point(class_scope:msgpacket.MSG_NAV_ADD_OBSTACLE)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::msgpacket::NAV_OBSTACLE* obstacle_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_msg_2eproto;
+};
+// -------------------------------------------------------------------
+
+class MSG_NAV_ADD_OBSTACLE_RES final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:msgpacket.MSG_NAV_ADD_OBSTACLE_RES) */ {
+ public:
+  inline MSG_NAV_ADD_OBSTACLE_RES() : MSG_NAV_ADD_OBSTACLE_RES(nullptr) {}
+  ~MSG_NAV_ADD_OBSTACLE_RES() override;
+  explicit constexpr MSG_NAV_ADD_OBSTACLE_RES(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  MSG_NAV_ADD_OBSTACLE_RES(const MSG_NAV_ADD_OBSTACLE_RES& from);
+  MSG_NAV_ADD_OBSTACLE_RES(MSG_NAV_ADD_OBSTACLE_RES&& from) noexcept
+    : MSG_NAV_ADD_OBSTACLE_RES() {
+    *this = ::std::move(from);
+  }
+
+  inline MSG_NAV_ADD_OBSTACLE_RES& operator=(const MSG_NAV_ADD_OBSTACLE_RES& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline MSG_NAV_ADD_OBSTACLE_RES& operator=(MSG_NAV_ADD_OBSTACLE_RES&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const MSG_NAV_ADD_OBSTACLE_RES& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const MSG_NAV_ADD_OBSTACLE_RES* internal_default_instance() {
+    return reinterpret_cast<const MSG_NAV_ADD_OBSTACLE_RES*>(
+               &_MSG_NAV_ADD_OBSTACLE_RES_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    27;
+
+  friend void swap(MSG_NAV_ADD_OBSTACLE_RES& a, MSG_NAV_ADD_OBSTACLE_RES& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(MSG_NAV_ADD_OBSTACLE_RES* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(MSG_NAV_ADD_OBSTACLE_RES* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  MSG_NAV_ADD_OBSTACLE_RES* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<MSG_NAV_ADD_OBSTACLE_RES>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const MSG_NAV_ADD_OBSTACLE_RES& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom(const MSG_NAV_ADD_OBSTACLE_RES& from);
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(MSG_NAV_ADD_OBSTACLE_RES* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "msgpacket.MSG_NAV_ADD_OBSTACLE_RES";
+  }
+  protected:
+  explicit MSG_NAV_ADD_OBSTACLE_RES(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kObstacleFieldNumber = 2,
+  };
+  // .msgpacket.NAV_OBSTACLE obstacle = 2;
+  bool has_obstacle() const;
+  private:
+  bool _internal_has_obstacle() const;
+  public:
+  void clear_obstacle();
+  const ::msgpacket::NAV_OBSTACLE& obstacle() const;
+  PROTOBUF_NODISCARD ::msgpacket::NAV_OBSTACLE* release_obstacle();
+  ::msgpacket::NAV_OBSTACLE* mutable_obstacle();
+  void set_allocated_obstacle(::msgpacket::NAV_OBSTACLE* obstacle);
+  private:
+  const ::msgpacket::NAV_OBSTACLE& _internal_obstacle() const;
+  ::msgpacket::NAV_OBSTACLE* _internal_mutable_obstacle();
+  public:
+  void unsafe_arena_set_allocated_obstacle(
+      ::msgpacket::NAV_OBSTACLE* obstacle);
+  ::msgpacket::NAV_OBSTACLE* unsafe_arena_release_obstacle();
+
+  // @@protoc_insertion_point(class_scope:msgpacket.MSG_NAV_ADD_OBSTACLE_RES)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::msgpacket::NAV_OBSTACLE* obstacle_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_msg_2eproto;
 };
@@ -4749,7 +4887,7 @@ class MSG_NAV_DEL_OBSTACLE final :
                &_MSG_NAV_DEL_OBSTACLE_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    27;
+    28;
 
   friend void swap(MSG_NAV_DEL_OBSTACLE& a, MSG_NAV_DEL_OBSTACLE& b) {
     a.Swap(&b);
@@ -4895,7 +5033,7 @@ class MSG_NAV_DEL_OBSTACLE_RES final :
                &_MSG_NAV_DEL_OBSTACLE_RES_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    28;
+    29;
 
   friend void swap(MSG_NAV_DEL_OBSTACLE_RES& a, MSG_NAV_DEL_OBSTACLE_RES& b) {
     a.Swap(&b);
@@ -4988,6 +5126,279 @@ class MSG_NAV_DEL_OBSTACLE_RES final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   uint32_t obstacle_id_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_msg_2eproto;
+};
+// -------------------------------------------------------------------
+
+class MSG_NAV_GET_ALL_OBSTACLE final :
+    public ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase /* @@protoc_insertion_point(class_definition:msgpacket.MSG_NAV_GET_ALL_OBSTACLE) */ {
+ public:
+  inline MSG_NAV_GET_ALL_OBSTACLE() : MSG_NAV_GET_ALL_OBSTACLE(nullptr) {}
+  explicit constexpr MSG_NAV_GET_ALL_OBSTACLE(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  MSG_NAV_GET_ALL_OBSTACLE(const MSG_NAV_GET_ALL_OBSTACLE& from);
+  MSG_NAV_GET_ALL_OBSTACLE(MSG_NAV_GET_ALL_OBSTACLE&& from) noexcept
+    : MSG_NAV_GET_ALL_OBSTACLE() {
+    *this = ::std::move(from);
+  }
+
+  inline MSG_NAV_GET_ALL_OBSTACLE& operator=(const MSG_NAV_GET_ALL_OBSTACLE& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline MSG_NAV_GET_ALL_OBSTACLE& operator=(MSG_NAV_GET_ALL_OBSTACLE&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const MSG_NAV_GET_ALL_OBSTACLE& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const MSG_NAV_GET_ALL_OBSTACLE* internal_default_instance() {
+    return reinterpret_cast<const MSG_NAV_GET_ALL_OBSTACLE*>(
+               &_MSG_NAV_GET_ALL_OBSTACLE_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    30;
+
+  friend void swap(MSG_NAV_GET_ALL_OBSTACLE& a, MSG_NAV_GET_ALL_OBSTACLE& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(MSG_NAV_GET_ALL_OBSTACLE* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(MSG_NAV_GET_ALL_OBSTACLE* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  MSG_NAV_GET_ALL_OBSTACLE* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<MSG_NAV_GET_ALL_OBSTACLE>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyFrom;
+  inline void CopyFrom(const MSG_NAV_GET_ALL_OBSTACLE& from) {
+    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::CopyImpl(this, from);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeFrom;
+  void MergeFrom(const MSG_NAV_GET_ALL_OBSTACLE& from) {
+    ::PROTOBUF_NAMESPACE_ID::internal::ZeroFieldsBase::MergeImpl(this, from);
+  }
+  public:
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "msgpacket.MSG_NAV_GET_ALL_OBSTACLE";
+  }
+  protected:
+  explicit MSG_NAV_GET_ALL_OBSTACLE(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  private:
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // @@protoc_insertion_point(class_scope:msgpacket.MSG_NAV_GET_ALL_OBSTACLE)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_msg_2eproto;
+};
+// -------------------------------------------------------------------
+
+class MSG_NAV_GET_ALL_OBSTACLE_RES final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:msgpacket.MSG_NAV_GET_ALL_OBSTACLE_RES) */ {
+ public:
+  inline MSG_NAV_GET_ALL_OBSTACLE_RES() : MSG_NAV_GET_ALL_OBSTACLE_RES(nullptr) {}
+  ~MSG_NAV_GET_ALL_OBSTACLE_RES() override;
+  explicit constexpr MSG_NAV_GET_ALL_OBSTACLE_RES(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  MSG_NAV_GET_ALL_OBSTACLE_RES(const MSG_NAV_GET_ALL_OBSTACLE_RES& from);
+  MSG_NAV_GET_ALL_OBSTACLE_RES(MSG_NAV_GET_ALL_OBSTACLE_RES&& from) noexcept
+    : MSG_NAV_GET_ALL_OBSTACLE_RES() {
+    *this = ::std::move(from);
+  }
+
+  inline MSG_NAV_GET_ALL_OBSTACLE_RES& operator=(const MSG_NAV_GET_ALL_OBSTACLE_RES& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline MSG_NAV_GET_ALL_OBSTACLE_RES& operator=(MSG_NAV_GET_ALL_OBSTACLE_RES&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const MSG_NAV_GET_ALL_OBSTACLE_RES& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const MSG_NAV_GET_ALL_OBSTACLE_RES* internal_default_instance() {
+    return reinterpret_cast<const MSG_NAV_GET_ALL_OBSTACLE_RES*>(
+               &_MSG_NAV_GET_ALL_OBSTACLE_RES_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    31;
+
+  friend void swap(MSG_NAV_GET_ALL_OBSTACLE_RES& a, MSG_NAV_GET_ALL_OBSTACLE_RES& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(MSG_NAV_GET_ALL_OBSTACLE_RES* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(MSG_NAV_GET_ALL_OBSTACLE_RES* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  MSG_NAV_GET_ALL_OBSTACLE_RES* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<MSG_NAV_GET_ALL_OBSTACLE_RES>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const MSG_NAV_GET_ALL_OBSTACLE_RES& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom(const MSG_NAV_GET_ALL_OBSTACLE_RES& from);
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(MSG_NAV_GET_ALL_OBSTACLE_RES* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "msgpacket.MSG_NAV_GET_ALL_OBSTACLE_RES";
+  }
+  protected:
+  explicit MSG_NAV_GET_ALL_OBSTACLE_RES(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kObstacleFieldNumber = 1,
+  };
+  // repeated .msgpacket.NAV_OBSTACLE obstacle = 1;
+  int obstacle_size() const;
+  private:
+  int _internal_obstacle_size() const;
+  public:
+  void clear_obstacle();
+  ::msgpacket::NAV_OBSTACLE* mutable_obstacle(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::msgpacket::NAV_OBSTACLE >*
+      mutable_obstacle();
+  private:
+  const ::msgpacket::NAV_OBSTACLE& _internal_obstacle(int index) const;
+  ::msgpacket::NAV_OBSTACLE* _internal_add_obstacle();
+  public:
+  const ::msgpacket::NAV_OBSTACLE& obstacle(int index) const;
+  ::msgpacket::NAV_OBSTACLE* add_obstacle();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::msgpacket::NAV_OBSTACLE >&
+      obstacle() const;
+
+  // @@protoc_insertion_point(class_scope:msgpacket.MSG_NAV_GET_ALL_OBSTACLE_RES)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::msgpacket::NAV_OBSTACLE > obstacle_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_msg_2eproto;
 };
@@ -7053,31 +7464,51 @@ MSG_NAV_SEARCH_RES::path_pos() const {
 
 // -------------------------------------------------------------------
 
-// MSG_NAV_ADD_OBSTACLE
+// NAV_OBSTACLE
 
-// .msgpacket.PROTO_VEC_3F center = 1;
-inline bool MSG_NAV_ADD_OBSTACLE::_internal_has_center() const {
+// uint32 obstacle_id = 1;
+inline void NAV_OBSTACLE::clear_obstacle_id() {
+  obstacle_id_ = 0u;
+}
+inline uint32_t NAV_OBSTACLE::_internal_obstacle_id() const {
+  return obstacle_id_;
+}
+inline uint32_t NAV_OBSTACLE::obstacle_id() const {
+  // @@protoc_insertion_point(field_get:msgpacket.NAV_OBSTACLE.obstacle_id)
+  return _internal_obstacle_id();
+}
+inline void NAV_OBSTACLE::_internal_set_obstacle_id(uint32_t value) {
+  
+  obstacle_id_ = value;
+}
+inline void NAV_OBSTACLE::set_obstacle_id(uint32_t value) {
+  _internal_set_obstacle_id(value);
+  // @@protoc_insertion_point(field_set:msgpacket.NAV_OBSTACLE.obstacle_id)
+}
+
+// .msgpacket.PROTO_VEC_3F center = 2;
+inline bool NAV_OBSTACLE::_internal_has_center() const {
   return this != internal_default_instance() && center_ != nullptr;
 }
-inline bool MSG_NAV_ADD_OBSTACLE::has_center() const {
+inline bool NAV_OBSTACLE::has_center() const {
   return _internal_has_center();
 }
-inline void MSG_NAV_ADD_OBSTACLE::clear_center() {
+inline void NAV_OBSTACLE::clear_center() {
   if (GetArenaForAllocation() == nullptr && center_ != nullptr) {
     delete center_;
   }
   center_ = nullptr;
 }
-inline const ::msgpacket::PROTO_VEC_3F& MSG_NAV_ADD_OBSTACLE::_internal_center() const {
+inline const ::msgpacket::PROTO_VEC_3F& NAV_OBSTACLE::_internal_center() const {
   const ::msgpacket::PROTO_VEC_3F* p = center_;
   return p != nullptr ? *p : reinterpret_cast<const ::msgpacket::PROTO_VEC_3F&>(
       ::msgpacket::_PROTO_VEC_3F_default_instance_);
 }
-inline const ::msgpacket::PROTO_VEC_3F& MSG_NAV_ADD_OBSTACLE::center() const {
-  // @@protoc_insertion_point(field_get:msgpacket.MSG_NAV_ADD_OBSTACLE.center)
+inline const ::msgpacket::PROTO_VEC_3F& NAV_OBSTACLE::center() const {
+  // @@protoc_insertion_point(field_get:msgpacket.NAV_OBSTACLE.center)
   return _internal_center();
 }
-inline void MSG_NAV_ADD_OBSTACLE::unsafe_arena_set_allocated_center(
+inline void NAV_OBSTACLE::unsafe_arena_set_allocated_center(
     ::msgpacket::PROTO_VEC_3F* center) {
   if (GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(center_);
@@ -7088,9 +7519,9 @@ inline void MSG_NAV_ADD_OBSTACLE::unsafe_arena_set_allocated_center(
   } else {
     
   }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:msgpacket.MSG_NAV_ADD_OBSTACLE.center)
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:msgpacket.NAV_OBSTACLE.center)
 }
-inline ::msgpacket::PROTO_VEC_3F* MSG_NAV_ADD_OBSTACLE::release_center() {
+inline ::msgpacket::PROTO_VEC_3F* NAV_OBSTACLE::release_center() {
   
   ::msgpacket::PROTO_VEC_3F* temp = center_;
   center_ = nullptr;
@@ -7105,14 +7536,14 @@ inline ::msgpacket::PROTO_VEC_3F* MSG_NAV_ADD_OBSTACLE::release_center() {
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
   return temp;
 }
-inline ::msgpacket::PROTO_VEC_3F* MSG_NAV_ADD_OBSTACLE::unsafe_arena_release_center() {
-  // @@protoc_insertion_point(field_release:msgpacket.MSG_NAV_ADD_OBSTACLE.center)
+inline ::msgpacket::PROTO_VEC_3F* NAV_OBSTACLE::unsafe_arena_release_center() {
+  // @@protoc_insertion_point(field_release:msgpacket.NAV_OBSTACLE.center)
   
   ::msgpacket::PROTO_VEC_3F* temp = center_;
   center_ = nullptr;
   return temp;
 }
-inline ::msgpacket::PROTO_VEC_3F* MSG_NAV_ADD_OBSTACLE::_internal_mutable_center() {
+inline ::msgpacket::PROTO_VEC_3F* NAV_OBSTACLE::_internal_mutable_center() {
   
   if (center_ == nullptr) {
     auto* p = CreateMaybeMessage<::msgpacket::PROTO_VEC_3F>(GetArenaForAllocation());
@@ -7120,12 +7551,12 @@ inline ::msgpacket::PROTO_VEC_3F* MSG_NAV_ADD_OBSTACLE::_internal_mutable_center
   }
   return center_;
 }
-inline ::msgpacket::PROTO_VEC_3F* MSG_NAV_ADD_OBSTACLE::mutable_center() {
+inline ::msgpacket::PROTO_VEC_3F* NAV_OBSTACLE::mutable_center() {
   ::msgpacket::PROTO_VEC_3F* _msg = _internal_mutable_center();
-  // @@protoc_insertion_point(field_mutable:msgpacket.MSG_NAV_ADD_OBSTACLE.center)
+  // @@protoc_insertion_point(field_mutable:msgpacket.NAV_OBSTACLE.center)
   return _msg;
 }
-inline void MSG_NAV_ADD_OBSTACLE::set_allocated_center(::msgpacket::PROTO_VEC_3F* center) {
+inline void NAV_OBSTACLE::set_allocated_center(::msgpacket::PROTO_VEC_3F* center) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
   if (message_arena == nullptr) {
     delete center_;
@@ -7142,32 +7573,32 @@ inline void MSG_NAV_ADD_OBSTACLE::set_allocated_center(::msgpacket::PROTO_VEC_3F
     
   }
   center_ = center;
-  // @@protoc_insertion_point(field_set_allocated:msgpacket.MSG_NAV_ADD_OBSTACLE.center)
+  // @@protoc_insertion_point(field_set_allocated:msgpacket.NAV_OBSTACLE.center)
 }
 
-// .msgpacket.PROTO_VEC_3F half_ext = 2;
-inline bool MSG_NAV_ADD_OBSTACLE::_internal_has_half_ext() const {
+// .msgpacket.PROTO_VEC_3F half_ext = 3;
+inline bool NAV_OBSTACLE::_internal_has_half_ext() const {
   return this != internal_default_instance() && half_ext_ != nullptr;
 }
-inline bool MSG_NAV_ADD_OBSTACLE::has_half_ext() const {
+inline bool NAV_OBSTACLE::has_half_ext() const {
   return _internal_has_half_ext();
 }
-inline void MSG_NAV_ADD_OBSTACLE::clear_half_ext() {
+inline void NAV_OBSTACLE::clear_half_ext() {
   if (GetArenaForAllocation() == nullptr && half_ext_ != nullptr) {
     delete half_ext_;
   }
   half_ext_ = nullptr;
 }
-inline const ::msgpacket::PROTO_VEC_3F& MSG_NAV_ADD_OBSTACLE::_internal_half_ext() const {
+inline const ::msgpacket::PROTO_VEC_3F& NAV_OBSTACLE::_internal_half_ext() const {
   const ::msgpacket::PROTO_VEC_3F* p = half_ext_;
   return p != nullptr ? *p : reinterpret_cast<const ::msgpacket::PROTO_VEC_3F&>(
       ::msgpacket::_PROTO_VEC_3F_default_instance_);
 }
-inline const ::msgpacket::PROTO_VEC_3F& MSG_NAV_ADD_OBSTACLE::half_ext() const {
-  // @@protoc_insertion_point(field_get:msgpacket.MSG_NAV_ADD_OBSTACLE.half_ext)
+inline const ::msgpacket::PROTO_VEC_3F& NAV_OBSTACLE::half_ext() const {
+  // @@protoc_insertion_point(field_get:msgpacket.NAV_OBSTACLE.half_ext)
   return _internal_half_ext();
 }
-inline void MSG_NAV_ADD_OBSTACLE::unsafe_arena_set_allocated_half_ext(
+inline void NAV_OBSTACLE::unsafe_arena_set_allocated_half_ext(
     ::msgpacket::PROTO_VEC_3F* half_ext) {
   if (GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(half_ext_);
@@ -7178,9 +7609,9 @@ inline void MSG_NAV_ADD_OBSTACLE::unsafe_arena_set_allocated_half_ext(
   } else {
     
   }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:msgpacket.MSG_NAV_ADD_OBSTACLE.half_ext)
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:msgpacket.NAV_OBSTACLE.half_ext)
 }
-inline ::msgpacket::PROTO_VEC_3F* MSG_NAV_ADD_OBSTACLE::release_half_ext() {
+inline ::msgpacket::PROTO_VEC_3F* NAV_OBSTACLE::release_half_ext() {
   
   ::msgpacket::PROTO_VEC_3F* temp = half_ext_;
   half_ext_ = nullptr;
@@ -7195,14 +7626,14 @@ inline ::msgpacket::PROTO_VEC_3F* MSG_NAV_ADD_OBSTACLE::release_half_ext() {
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
   return temp;
 }
-inline ::msgpacket::PROTO_VEC_3F* MSG_NAV_ADD_OBSTACLE::unsafe_arena_release_half_ext() {
-  // @@protoc_insertion_point(field_release:msgpacket.MSG_NAV_ADD_OBSTACLE.half_ext)
+inline ::msgpacket::PROTO_VEC_3F* NAV_OBSTACLE::unsafe_arena_release_half_ext() {
+  // @@protoc_insertion_point(field_release:msgpacket.NAV_OBSTACLE.half_ext)
   
   ::msgpacket::PROTO_VEC_3F* temp = half_ext_;
   half_ext_ = nullptr;
   return temp;
 }
-inline ::msgpacket::PROTO_VEC_3F* MSG_NAV_ADD_OBSTACLE::_internal_mutable_half_ext() {
+inline ::msgpacket::PROTO_VEC_3F* NAV_OBSTACLE::_internal_mutable_half_ext() {
   
   if (half_ext_ == nullptr) {
     auto* p = CreateMaybeMessage<::msgpacket::PROTO_VEC_3F>(GetArenaForAllocation());
@@ -7210,12 +7641,12 @@ inline ::msgpacket::PROTO_VEC_3F* MSG_NAV_ADD_OBSTACLE::_internal_mutable_half_e
   }
   return half_ext_;
 }
-inline ::msgpacket::PROTO_VEC_3F* MSG_NAV_ADD_OBSTACLE::mutable_half_ext() {
+inline ::msgpacket::PROTO_VEC_3F* NAV_OBSTACLE::mutable_half_ext() {
   ::msgpacket::PROTO_VEC_3F* _msg = _internal_mutable_half_ext();
-  // @@protoc_insertion_point(field_mutable:msgpacket.MSG_NAV_ADD_OBSTACLE.half_ext)
+  // @@protoc_insertion_point(field_mutable:msgpacket.NAV_OBSTACLE.half_ext)
   return _msg;
 }
-inline void MSG_NAV_ADD_OBSTACLE::set_allocated_half_ext(::msgpacket::PROTO_VEC_3F* half_ext) {
+inline void NAV_OBSTACLE::set_allocated_half_ext(::msgpacket::PROTO_VEC_3F* half_ext) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
   if (message_arena == nullptr) {
     delete half_ext_;
@@ -7232,92 +7663,166 @@ inline void MSG_NAV_ADD_OBSTACLE::set_allocated_half_ext(::msgpacket::PROTO_VEC_
     
   }
   half_ext_ = half_ext;
-  // @@protoc_insertion_point(field_set_allocated:msgpacket.MSG_NAV_ADD_OBSTACLE.half_ext)
+  // @@protoc_insertion_point(field_set_allocated:msgpacket.NAV_OBSTACLE.half_ext)
 }
 
-// float y_radian = 3;
-inline void MSG_NAV_ADD_OBSTACLE::clear_y_radian() {
+// float y_radian = 4;
+inline void NAV_OBSTACLE::clear_y_radian() {
   y_radian_ = 0;
 }
-inline float MSG_NAV_ADD_OBSTACLE::_internal_y_radian() const {
+inline float NAV_OBSTACLE::_internal_y_radian() const {
   return y_radian_;
 }
-inline float MSG_NAV_ADD_OBSTACLE::y_radian() const {
-  // @@protoc_insertion_point(field_get:msgpacket.MSG_NAV_ADD_OBSTACLE.y_radian)
+inline float NAV_OBSTACLE::y_radian() const {
+  // @@protoc_insertion_point(field_get:msgpacket.NAV_OBSTACLE.y_radian)
   return _internal_y_radian();
 }
-inline void MSG_NAV_ADD_OBSTACLE::_internal_set_y_radian(float value) {
+inline void NAV_OBSTACLE::_internal_set_y_radian(float value) {
   
   y_radian_ = value;
 }
-inline void MSG_NAV_ADD_OBSTACLE::set_y_radian(float value) {
+inline void NAV_OBSTACLE::set_y_radian(float value) {
   _internal_set_y_radian(value);
-  // @@protoc_insertion_point(field_set:msgpacket.MSG_NAV_ADD_OBSTACLE.y_radian)
+  // @@protoc_insertion_point(field_set:msgpacket.NAV_OBSTACLE.y_radian)
+}
+
+// -------------------------------------------------------------------
+
+// MSG_NAV_ADD_OBSTACLE
+
+// .msgpacket.NAV_OBSTACLE obstacle = 1;
+inline bool MSG_NAV_ADD_OBSTACLE::_internal_has_obstacle() const {
+  return this != internal_default_instance() && obstacle_ != nullptr;
+}
+inline bool MSG_NAV_ADD_OBSTACLE::has_obstacle() const {
+  return _internal_has_obstacle();
+}
+inline void MSG_NAV_ADD_OBSTACLE::clear_obstacle() {
+  if (GetArenaForAllocation() == nullptr && obstacle_ != nullptr) {
+    delete obstacle_;
+  }
+  obstacle_ = nullptr;
+}
+inline const ::msgpacket::NAV_OBSTACLE& MSG_NAV_ADD_OBSTACLE::_internal_obstacle() const {
+  const ::msgpacket::NAV_OBSTACLE* p = obstacle_;
+  return p != nullptr ? *p : reinterpret_cast<const ::msgpacket::NAV_OBSTACLE&>(
+      ::msgpacket::_NAV_OBSTACLE_default_instance_);
+}
+inline const ::msgpacket::NAV_OBSTACLE& MSG_NAV_ADD_OBSTACLE::obstacle() const {
+  // @@protoc_insertion_point(field_get:msgpacket.MSG_NAV_ADD_OBSTACLE.obstacle)
+  return _internal_obstacle();
+}
+inline void MSG_NAV_ADD_OBSTACLE::unsafe_arena_set_allocated_obstacle(
+    ::msgpacket::NAV_OBSTACLE* obstacle) {
+  if (GetArenaForAllocation() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(obstacle_);
+  }
+  obstacle_ = obstacle;
+  if (obstacle) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:msgpacket.MSG_NAV_ADD_OBSTACLE.obstacle)
+}
+inline ::msgpacket::NAV_OBSTACLE* MSG_NAV_ADD_OBSTACLE::release_obstacle() {
+  
+  ::msgpacket::NAV_OBSTACLE* temp = obstacle_;
+  obstacle_ = nullptr;
+#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
+  auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
+  temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  if (GetArenaForAllocation() == nullptr) { delete old; }
+#else  // PROTOBUF_FORCE_COPY_IN_RELEASE
+  if (GetArenaForAllocation() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  }
+#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
+  return temp;
+}
+inline ::msgpacket::NAV_OBSTACLE* MSG_NAV_ADD_OBSTACLE::unsafe_arena_release_obstacle() {
+  // @@protoc_insertion_point(field_release:msgpacket.MSG_NAV_ADD_OBSTACLE.obstacle)
+  
+  ::msgpacket::NAV_OBSTACLE* temp = obstacle_;
+  obstacle_ = nullptr;
+  return temp;
+}
+inline ::msgpacket::NAV_OBSTACLE* MSG_NAV_ADD_OBSTACLE::_internal_mutable_obstacle() {
+  
+  if (obstacle_ == nullptr) {
+    auto* p = CreateMaybeMessage<::msgpacket::NAV_OBSTACLE>(GetArenaForAllocation());
+    obstacle_ = p;
+  }
+  return obstacle_;
+}
+inline ::msgpacket::NAV_OBSTACLE* MSG_NAV_ADD_OBSTACLE::mutable_obstacle() {
+  ::msgpacket::NAV_OBSTACLE* _msg = _internal_mutable_obstacle();
+  // @@protoc_insertion_point(field_mutable:msgpacket.MSG_NAV_ADD_OBSTACLE.obstacle)
+  return _msg;
+}
+inline void MSG_NAV_ADD_OBSTACLE::set_allocated_obstacle(::msgpacket::NAV_OBSTACLE* obstacle) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
+  if (message_arena == nullptr) {
+    delete obstacle_;
+  }
+  if (obstacle) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::msgpacket::NAV_OBSTACLE>::GetOwningArena(obstacle);
+    if (message_arena != submessage_arena) {
+      obstacle = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, obstacle, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  obstacle_ = obstacle;
+  // @@protoc_insertion_point(field_set_allocated:msgpacket.MSG_NAV_ADD_OBSTACLE.obstacle)
 }
 
 // -------------------------------------------------------------------
 
 // MSG_NAV_ADD_OBSTACLE_RES
 
-// uint32 obstacle_id = 1;
-inline void MSG_NAV_ADD_OBSTACLE_RES::clear_obstacle_id() {
-  obstacle_id_ = 0u;
+// .msgpacket.NAV_OBSTACLE obstacle = 2;
+inline bool MSG_NAV_ADD_OBSTACLE_RES::_internal_has_obstacle() const {
+  return this != internal_default_instance() && obstacle_ != nullptr;
 }
-inline uint32_t MSG_NAV_ADD_OBSTACLE_RES::_internal_obstacle_id() const {
-  return obstacle_id_;
+inline bool MSG_NAV_ADD_OBSTACLE_RES::has_obstacle() const {
+  return _internal_has_obstacle();
 }
-inline uint32_t MSG_NAV_ADD_OBSTACLE_RES::obstacle_id() const {
-  // @@protoc_insertion_point(field_get:msgpacket.MSG_NAV_ADD_OBSTACLE_RES.obstacle_id)
-  return _internal_obstacle_id();
-}
-inline void MSG_NAV_ADD_OBSTACLE_RES::_internal_set_obstacle_id(uint32_t value) {
-  
-  obstacle_id_ = value;
-}
-inline void MSG_NAV_ADD_OBSTACLE_RES::set_obstacle_id(uint32_t value) {
-  _internal_set_obstacle_id(value);
-  // @@protoc_insertion_point(field_set:msgpacket.MSG_NAV_ADD_OBSTACLE_RES.obstacle_id)
-}
-
-// .msgpacket.PROTO_VEC_3F center = 2;
-inline bool MSG_NAV_ADD_OBSTACLE_RES::_internal_has_center() const {
-  return this != internal_default_instance() && center_ != nullptr;
-}
-inline bool MSG_NAV_ADD_OBSTACLE_RES::has_center() const {
-  return _internal_has_center();
-}
-inline void MSG_NAV_ADD_OBSTACLE_RES::clear_center() {
-  if (GetArenaForAllocation() == nullptr && center_ != nullptr) {
-    delete center_;
+inline void MSG_NAV_ADD_OBSTACLE_RES::clear_obstacle() {
+  if (GetArenaForAllocation() == nullptr && obstacle_ != nullptr) {
+    delete obstacle_;
   }
-  center_ = nullptr;
+  obstacle_ = nullptr;
 }
-inline const ::msgpacket::PROTO_VEC_3F& MSG_NAV_ADD_OBSTACLE_RES::_internal_center() const {
-  const ::msgpacket::PROTO_VEC_3F* p = center_;
-  return p != nullptr ? *p : reinterpret_cast<const ::msgpacket::PROTO_VEC_3F&>(
-      ::msgpacket::_PROTO_VEC_3F_default_instance_);
+inline const ::msgpacket::NAV_OBSTACLE& MSG_NAV_ADD_OBSTACLE_RES::_internal_obstacle() const {
+  const ::msgpacket::NAV_OBSTACLE* p = obstacle_;
+  return p != nullptr ? *p : reinterpret_cast<const ::msgpacket::NAV_OBSTACLE&>(
+      ::msgpacket::_NAV_OBSTACLE_default_instance_);
 }
-inline const ::msgpacket::PROTO_VEC_3F& MSG_NAV_ADD_OBSTACLE_RES::center() const {
-  // @@protoc_insertion_point(field_get:msgpacket.MSG_NAV_ADD_OBSTACLE_RES.center)
-  return _internal_center();
+inline const ::msgpacket::NAV_OBSTACLE& MSG_NAV_ADD_OBSTACLE_RES::obstacle() const {
+  // @@protoc_insertion_point(field_get:msgpacket.MSG_NAV_ADD_OBSTACLE_RES.obstacle)
+  return _internal_obstacle();
 }
-inline void MSG_NAV_ADD_OBSTACLE_RES::unsafe_arena_set_allocated_center(
-    ::msgpacket::PROTO_VEC_3F* center) {
+inline void MSG_NAV_ADD_OBSTACLE_RES::unsafe_arena_set_allocated_obstacle(
+    ::msgpacket::NAV_OBSTACLE* obstacle) {
   if (GetArenaForAllocation() == nullptr) {
-    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(center_);
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(obstacle_);
   }
-  center_ = center;
-  if (center) {
+  obstacle_ = obstacle;
+  if (obstacle) {
     
   } else {
     
   }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:msgpacket.MSG_NAV_ADD_OBSTACLE_RES.center)
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:msgpacket.MSG_NAV_ADD_OBSTACLE_RES.obstacle)
 }
-inline ::msgpacket::PROTO_VEC_3F* MSG_NAV_ADD_OBSTACLE_RES::release_center() {
+inline ::msgpacket::NAV_OBSTACLE* MSG_NAV_ADD_OBSTACLE_RES::release_obstacle() {
   
-  ::msgpacket::PROTO_VEC_3F* temp = center_;
-  center_ = nullptr;
+  ::msgpacket::NAV_OBSTACLE* temp = obstacle_;
+  obstacle_ = nullptr;
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
@@ -7329,154 +7834,44 @@ inline ::msgpacket::PROTO_VEC_3F* MSG_NAV_ADD_OBSTACLE_RES::release_center() {
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
   return temp;
 }
-inline ::msgpacket::PROTO_VEC_3F* MSG_NAV_ADD_OBSTACLE_RES::unsafe_arena_release_center() {
-  // @@protoc_insertion_point(field_release:msgpacket.MSG_NAV_ADD_OBSTACLE_RES.center)
+inline ::msgpacket::NAV_OBSTACLE* MSG_NAV_ADD_OBSTACLE_RES::unsafe_arena_release_obstacle() {
+  // @@protoc_insertion_point(field_release:msgpacket.MSG_NAV_ADD_OBSTACLE_RES.obstacle)
   
-  ::msgpacket::PROTO_VEC_3F* temp = center_;
-  center_ = nullptr;
+  ::msgpacket::NAV_OBSTACLE* temp = obstacle_;
+  obstacle_ = nullptr;
   return temp;
 }
-inline ::msgpacket::PROTO_VEC_3F* MSG_NAV_ADD_OBSTACLE_RES::_internal_mutable_center() {
+inline ::msgpacket::NAV_OBSTACLE* MSG_NAV_ADD_OBSTACLE_RES::_internal_mutable_obstacle() {
   
-  if (center_ == nullptr) {
-    auto* p = CreateMaybeMessage<::msgpacket::PROTO_VEC_3F>(GetArenaForAllocation());
-    center_ = p;
+  if (obstacle_ == nullptr) {
+    auto* p = CreateMaybeMessage<::msgpacket::NAV_OBSTACLE>(GetArenaForAllocation());
+    obstacle_ = p;
   }
-  return center_;
+  return obstacle_;
 }
-inline ::msgpacket::PROTO_VEC_3F* MSG_NAV_ADD_OBSTACLE_RES::mutable_center() {
-  ::msgpacket::PROTO_VEC_3F* _msg = _internal_mutable_center();
-  // @@protoc_insertion_point(field_mutable:msgpacket.MSG_NAV_ADD_OBSTACLE_RES.center)
+inline ::msgpacket::NAV_OBSTACLE* MSG_NAV_ADD_OBSTACLE_RES::mutable_obstacle() {
+  ::msgpacket::NAV_OBSTACLE* _msg = _internal_mutable_obstacle();
+  // @@protoc_insertion_point(field_mutable:msgpacket.MSG_NAV_ADD_OBSTACLE_RES.obstacle)
   return _msg;
 }
-inline void MSG_NAV_ADD_OBSTACLE_RES::set_allocated_center(::msgpacket::PROTO_VEC_3F* center) {
+inline void MSG_NAV_ADD_OBSTACLE_RES::set_allocated_obstacle(::msgpacket::NAV_OBSTACLE* obstacle) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
   if (message_arena == nullptr) {
-    delete center_;
+    delete obstacle_;
   }
-  if (center) {
+  if (obstacle) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
-        ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::msgpacket::PROTO_VEC_3F>::GetOwningArena(center);
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::msgpacket::NAV_OBSTACLE>::GetOwningArena(obstacle);
     if (message_arena != submessage_arena) {
-      center = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, center, submessage_arena);
+      obstacle = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, obstacle, submessage_arena);
     }
     
   } else {
     
   }
-  center_ = center;
-  // @@protoc_insertion_point(field_set_allocated:msgpacket.MSG_NAV_ADD_OBSTACLE_RES.center)
-}
-
-// .msgpacket.PROTO_VEC_3F half_ext = 3;
-inline bool MSG_NAV_ADD_OBSTACLE_RES::_internal_has_half_ext() const {
-  return this != internal_default_instance() && half_ext_ != nullptr;
-}
-inline bool MSG_NAV_ADD_OBSTACLE_RES::has_half_ext() const {
-  return _internal_has_half_ext();
-}
-inline void MSG_NAV_ADD_OBSTACLE_RES::clear_half_ext() {
-  if (GetArenaForAllocation() == nullptr && half_ext_ != nullptr) {
-    delete half_ext_;
-  }
-  half_ext_ = nullptr;
-}
-inline const ::msgpacket::PROTO_VEC_3F& MSG_NAV_ADD_OBSTACLE_RES::_internal_half_ext() const {
-  const ::msgpacket::PROTO_VEC_3F* p = half_ext_;
-  return p != nullptr ? *p : reinterpret_cast<const ::msgpacket::PROTO_VEC_3F&>(
-      ::msgpacket::_PROTO_VEC_3F_default_instance_);
-}
-inline const ::msgpacket::PROTO_VEC_3F& MSG_NAV_ADD_OBSTACLE_RES::half_ext() const {
-  // @@protoc_insertion_point(field_get:msgpacket.MSG_NAV_ADD_OBSTACLE_RES.half_ext)
-  return _internal_half_ext();
-}
-inline void MSG_NAV_ADD_OBSTACLE_RES::unsafe_arena_set_allocated_half_ext(
-    ::msgpacket::PROTO_VEC_3F* half_ext) {
-  if (GetArenaForAllocation() == nullptr) {
-    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(half_ext_);
-  }
-  half_ext_ = half_ext;
-  if (half_ext) {
-    
-  } else {
-    
-  }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:msgpacket.MSG_NAV_ADD_OBSTACLE_RES.half_ext)
-}
-inline ::msgpacket::PROTO_VEC_3F* MSG_NAV_ADD_OBSTACLE_RES::release_half_ext() {
-  
-  ::msgpacket::PROTO_VEC_3F* temp = half_ext_;
-  half_ext_ = nullptr;
-#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
-  auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
-  temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
-#else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
-    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  }
-#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
-  return temp;
-}
-inline ::msgpacket::PROTO_VEC_3F* MSG_NAV_ADD_OBSTACLE_RES::unsafe_arena_release_half_ext() {
-  // @@protoc_insertion_point(field_release:msgpacket.MSG_NAV_ADD_OBSTACLE_RES.half_ext)
-  
-  ::msgpacket::PROTO_VEC_3F* temp = half_ext_;
-  half_ext_ = nullptr;
-  return temp;
-}
-inline ::msgpacket::PROTO_VEC_3F* MSG_NAV_ADD_OBSTACLE_RES::_internal_mutable_half_ext() {
-  
-  if (half_ext_ == nullptr) {
-    auto* p = CreateMaybeMessage<::msgpacket::PROTO_VEC_3F>(GetArenaForAllocation());
-    half_ext_ = p;
-  }
-  return half_ext_;
-}
-inline ::msgpacket::PROTO_VEC_3F* MSG_NAV_ADD_OBSTACLE_RES::mutable_half_ext() {
-  ::msgpacket::PROTO_VEC_3F* _msg = _internal_mutable_half_ext();
-  // @@protoc_insertion_point(field_mutable:msgpacket.MSG_NAV_ADD_OBSTACLE_RES.half_ext)
-  return _msg;
-}
-inline void MSG_NAV_ADD_OBSTACLE_RES::set_allocated_half_ext(::msgpacket::PROTO_VEC_3F* half_ext) {
-  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
-    delete half_ext_;
-  }
-  if (half_ext) {
-    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
-        ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::msgpacket::PROTO_VEC_3F>::GetOwningArena(half_ext);
-    if (message_arena != submessage_arena) {
-      half_ext = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, half_ext, submessage_arena);
-    }
-    
-  } else {
-    
-  }
-  half_ext_ = half_ext;
-  // @@protoc_insertion_point(field_set_allocated:msgpacket.MSG_NAV_ADD_OBSTACLE_RES.half_ext)
-}
-
-// float y_radian = 4;
-inline void MSG_NAV_ADD_OBSTACLE_RES::clear_y_radian() {
-  y_radian_ = 0;
-}
-inline float MSG_NAV_ADD_OBSTACLE_RES::_internal_y_radian() const {
-  return y_radian_;
-}
-inline float MSG_NAV_ADD_OBSTACLE_RES::y_radian() const {
-  // @@protoc_insertion_point(field_get:msgpacket.MSG_NAV_ADD_OBSTACLE_RES.y_radian)
-  return _internal_y_radian();
-}
-inline void MSG_NAV_ADD_OBSTACLE_RES::_internal_set_y_radian(float value) {
-  
-  y_radian_ = value;
-}
-inline void MSG_NAV_ADD_OBSTACLE_RES::set_y_radian(float value) {
-  _internal_set_y_radian(value);
-  // @@protoc_insertion_point(field_set:msgpacket.MSG_NAV_ADD_OBSTACLE_RES.y_radian)
+  obstacle_ = obstacle;
+  // @@protoc_insertion_point(field_set_allocated:msgpacket.MSG_NAV_ADD_OBSTACLE_RES.obstacle)
 }
 
 // -------------------------------------------------------------------
@@ -7527,9 +7922,63 @@ inline void MSG_NAV_DEL_OBSTACLE_RES::set_obstacle_id(uint32_t value) {
   // @@protoc_insertion_point(field_set:msgpacket.MSG_NAV_DEL_OBSTACLE_RES.obstacle_id)
 }
 
+// -------------------------------------------------------------------
+
+// MSG_NAV_GET_ALL_OBSTACLE
+
+// -------------------------------------------------------------------
+
+// MSG_NAV_GET_ALL_OBSTACLE_RES
+
+// repeated .msgpacket.NAV_OBSTACLE obstacle = 1;
+inline int MSG_NAV_GET_ALL_OBSTACLE_RES::_internal_obstacle_size() const {
+  return obstacle_.size();
+}
+inline int MSG_NAV_GET_ALL_OBSTACLE_RES::obstacle_size() const {
+  return _internal_obstacle_size();
+}
+inline void MSG_NAV_GET_ALL_OBSTACLE_RES::clear_obstacle() {
+  obstacle_.Clear();
+}
+inline ::msgpacket::NAV_OBSTACLE* MSG_NAV_GET_ALL_OBSTACLE_RES::mutable_obstacle(int index) {
+  // @@protoc_insertion_point(field_mutable:msgpacket.MSG_NAV_GET_ALL_OBSTACLE_RES.obstacle)
+  return obstacle_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::msgpacket::NAV_OBSTACLE >*
+MSG_NAV_GET_ALL_OBSTACLE_RES::mutable_obstacle() {
+  // @@protoc_insertion_point(field_mutable_list:msgpacket.MSG_NAV_GET_ALL_OBSTACLE_RES.obstacle)
+  return &obstacle_;
+}
+inline const ::msgpacket::NAV_OBSTACLE& MSG_NAV_GET_ALL_OBSTACLE_RES::_internal_obstacle(int index) const {
+  return obstacle_.Get(index);
+}
+inline const ::msgpacket::NAV_OBSTACLE& MSG_NAV_GET_ALL_OBSTACLE_RES::obstacle(int index) const {
+  // @@protoc_insertion_point(field_get:msgpacket.MSG_NAV_GET_ALL_OBSTACLE_RES.obstacle)
+  return _internal_obstacle(index);
+}
+inline ::msgpacket::NAV_OBSTACLE* MSG_NAV_GET_ALL_OBSTACLE_RES::_internal_add_obstacle() {
+  return obstacle_.Add();
+}
+inline ::msgpacket::NAV_OBSTACLE* MSG_NAV_GET_ALL_OBSTACLE_RES::add_obstacle() {
+  ::msgpacket::NAV_OBSTACLE* _add = _internal_add_obstacle();
+  // @@protoc_insertion_point(field_add:msgpacket.MSG_NAV_GET_ALL_OBSTACLE_RES.obstacle)
+  return _add;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::msgpacket::NAV_OBSTACLE >&
+MSG_NAV_GET_ALL_OBSTACLE_RES::obstacle() const {
+  // @@protoc_insertion_point(field_list:msgpacket.MSG_NAV_GET_ALL_OBSTACLE_RES.obstacle)
+  return obstacle_;
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------
