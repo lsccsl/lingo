@@ -184,17 +184,17 @@ public class main_nav : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKey(KeyCode.LeftShift))
         {
             cur_pos_.X = rh.point.x;
-            cur_pos_.Y = 1.0f;// rh.point.y;
+            cur_pos_.Y = rh.point.y;
             cur_pos_.Z = rh.point.z;
         }
         else
         {
             Msgpacket.MSG_NAV_SEARCH msg = new Msgpacket.MSG_NAV_SEARCH();
             msg.PosSrc = cur_pos_;
-            msg.PosSrc.Y = 1.0f;
+            //msg.PosSrc.Y = 1.0f;
             msg.PosDst = new Msgpacket.PROTO_VEC_3F();
             msg.PosDst.X = rh.point.x;
-            msg.PosDst.Y = 1.0f;// rh.point.y;
+            msg.PosDst.Y = rh.point.y;
             msg.PosDst.Z = rh.point.z;
 
             /*        msg.PosSrc = new Msgpacket.POS_3F();

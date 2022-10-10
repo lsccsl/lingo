@@ -159,7 +159,6 @@ func (pthis*TcpClient)Process_MSG_NAV_SEARCH(msg *msgpacket.MSG_NAV_SEARCH) {
 
 	msg_ret := &msgpacket.MSG_NAV_SEARCH_RES{}
 	for _, val := range path {
-		lin_common.LogDebug(val.X, val.Y, val.Z)
 		msg_ret.PathPos = append(msg_ret.PathPos, &msgpacket.PROTO_VEC_3F{X:val.X, Y:val.Y, Z:val.Z})
 	}
 
