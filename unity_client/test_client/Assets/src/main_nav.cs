@@ -25,6 +25,7 @@ public class main_nav : MonoBehaviour
 
         client_ = new TestClient();
         client_.connect("192.168.2.129", 2003);
+        //client_.connect("117.78.3.242", 2003);
     }
 
     void OnApplicationQuit()
