@@ -1,189 +1,189 @@
 package lin_common
 
-type CROSS_LINK_NODE_TYPE int
+type CROSSLINK_NODE_TYPE int
 const (
-	CROSS_LINK_NODE_TYPE_node        CROSS_LINK_NODE_TYPE = 1
-	CROSS_LINK_NODE_TYPE_front_guard CROSS_LINK_NODE_TYPE = 2
-	CROSS_LINK_NODE_TYPE_back_guard  CROSS_LINK_NODE_TYPE = 3
+	CROSSLINK_NODE_TYPE_node        CROSSLINK_NODE_TYPE = 1
+	CROSSLINK_NODE_TYPE_front_guard CROSSLINK_NODE_TYPE = 2
+	CROSSLINK_NODE_TYPE_back_guard  CROSSLINK_NODE_TYPE = 3
 )
 
-type Cross_link_interface interface {
+type Crosslink_interface interface {
 	Ntf_node_in_view(node_id int, node_id_in_viewed int)
 	Ntf_node_out_view(node_id int, node_id_out_view int)
 }
 
-type Cross_link_node_if interface {
+type Crosslink_node_if interface {
 	Get_node_x()float32
 	Get_node_y()float32
 	Get_node_data()interface{}
 	Get_view_range()float32
 }
 
-type cross_linker_inf interface {
-	get_prev() cross_linker_inf
-	set_prev(prev cross_linker_inf)
+type crosslinker_inf interface {
+	get_prev() crosslinker_inf
+	set_prev(prev crosslinker_inf)
 
-	get_next() cross_linker_inf
-	set_next(next cross_linker_inf)
+	get_next() crosslinker_inf
+	set_next(next crosslinker_inf)
 
 	get_coord()float32 // x or y
 	get_view_range()float32
 
-	get_node_type() CROSS_LINK_NODE_TYPE
+	get_node_type() CROSSLINK_NODE_TYPE
 
 	get_node_id()int
 }
 
 type MAP_NODE_ID map[int]int
-type cross_linker_node struct {
-	prev_ cross_linker_inf
-	next_ cross_linker_inf
+type crosslinker_node struct {
+	prev_ crosslinker_inf
+	next_ crosslinker_inf
 
-	front_ *cross_linker_front_guard
-	back_  *cross_linker_back_guard
+	front_ *crosslinker_front_guard
+	back_  *crosslinker_back_guard
 
 	coord_ float32
 	view_range_ float32
 
-	node_type_ CROSS_LINK_NODE_TYPE
+	node_type_ CROSSLINK_NODE_TYPE
 
 	node_id_ int
 }
 type cross_node struct {
-	x_node_ *cross_linker_node
-	y_node_ *cross_linker_node
+	x_node_ *crosslinker_node
+	y_node_ *crosslinker_node
 
 	node_id_ int
-	node_if_ Cross_link_node_if
+	node_if_ Crosslink_node_if
 
 	map_view_by_ MAP_NODE_ID // view by
 	map_view_    MAP_NODE_ID // view
 }
-func (pthis*cross_linker_node)get_prev() cross_linker_inf {
+func (pthis*crosslinker_node)get_prev() crosslinker_inf {
 	return pthis.prev_
 }
-func (pthis*cross_linker_node)set_prev(prev cross_linker_inf) {
+func (pthis*crosslinker_node)set_prev(prev crosslinker_inf) {
 	pthis.prev_ = prev
 }
 
-func (pthis*cross_linker_node)get_next() cross_linker_inf {
+func (pthis*crosslinker_node)get_next() crosslinker_inf {
 	return pthis.next_
 }
-func (pthis*cross_linker_node)set_next(next cross_linker_inf) {
+func (pthis*crosslinker_node)set_next(next crosslinker_inf) {
 	pthis.next_ = next
 }
 
-func (pthis*cross_linker_node)get_coord()float32 {
+func (pthis*crosslinker_node)get_coord()float32 {
 	return pthis.coord_
 }
-func (pthis*cross_linker_node)get_view_range()float32 {
+func (pthis*crosslinker_node)get_view_range()float32 {
 	return pthis.view_range_
 }
 
-func (pthis*cross_linker_node)get_node_type() CROSS_LINK_NODE_TYPE {
+func (pthis*crosslinker_node)get_node_type() CROSSLINK_NODE_TYPE {
 	return pthis.node_type_
 }
 
-func (pthis*cross_linker_node)get_node_id()int {
+func (pthis*crosslinker_node)get_node_id()int {
 	return pthis.node_id_
 }
 
 
-type cross_linker_front_guard struct {
-	prev_ cross_linker_inf
-	next_ cross_linker_inf
+type crosslinker_front_guard struct {
+	prev_ crosslinker_inf
+	next_ crosslinker_inf
 
 	coord_ float32
 
-	node_type_ CROSS_LINK_NODE_TYPE
+	node_type_ CROSSLINK_NODE_TYPE
 	node_id_ int
 }
-func (pthis*cross_linker_front_guard)get_prev() cross_linker_inf {
+func (pthis*crosslinker_front_guard)get_prev() crosslinker_inf {
 	return pthis.prev_
 }
-func (pthis*cross_linker_front_guard)set_prev(prev cross_linker_inf) {
+func (pthis*crosslinker_front_guard)set_prev(prev crosslinker_inf) {
 	pthis.prev_ = prev
 }
 
-func (pthis*cross_linker_front_guard)get_next() cross_linker_inf {
+func (pthis*crosslinker_front_guard)get_next() crosslinker_inf {
 	return pthis.next_
 }
-func (pthis*cross_linker_front_guard)set_next(next cross_linker_inf) {
+func (pthis*crosslinker_front_guard)set_next(next crosslinker_inf) {
 	pthis.next_ = next
 }
 
-func (pthis*cross_linker_front_guard)get_coord()float32 {
+func (pthis*crosslinker_front_guard)get_coord()float32 {
 	return pthis.coord_
 }
-func (pthis*cross_linker_front_guard)get_view_range()float32 {
+func (pthis*crosslinker_front_guard)get_view_range()float32 {
 	return 0
 }
 
-func (pthis*cross_linker_front_guard)get_node_type() CROSS_LINK_NODE_TYPE {
+func (pthis*crosslinker_front_guard)get_node_type() CROSSLINK_NODE_TYPE {
 	return pthis.node_type_
 }
 
-func (pthis*cross_linker_front_guard)get_node_id()int {
+func (pthis*crosslinker_front_guard)get_node_id()int {
 	return pthis.node_id_
 }
 
 
-type cross_linker_back_guard struct {
-	prev_ cross_linker_inf
-	next_ cross_linker_inf
+type crosslinker_back_guard struct {
+	prev_ crosslinker_inf
+	next_ crosslinker_inf
 
 	coord_ float32
 
-	node_type_ CROSS_LINK_NODE_TYPE
+	node_type_ CROSSLINK_NODE_TYPE
 	node_id_ int
 }
-func (pthis*cross_linker_back_guard)get_prev() cross_linker_inf {
+func (pthis*crosslinker_back_guard)get_prev() crosslinker_inf {
 	return pthis.prev_
 }
-func (pthis*cross_linker_back_guard)set_prev(prev cross_linker_inf) {
+func (pthis*crosslinker_back_guard)set_prev(prev crosslinker_inf) {
 	pthis.prev_ = prev
 }
 
-func (pthis*cross_linker_back_guard)get_next() cross_linker_inf {
+func (pthis*crosslinker_back_guard)get_next() crosslinker_inf {
 	return pthis.next_
 }
-func (pthis*cross_linker_back_guard)set_next(next cross_linker_inf) {
+func (pthis*crosslinker_back_guard)set_next(next crosslinker_inf) {
 	pthis.next_ = next
 }
 
-func (pthis*cross_linker_back_guard)get_coord()float32 {
+func (pthis*crosslinker_back_guard)get_coord()float32 {
 	return pthis.coord_
 }
-func (pthis*cross_linker_back_guard)get_view_range()float32 {
+func (pthis*crosslinker_back_guard)get_view_range()float32 {
 	return 0
 }
 
-func (pthis*cross_linker_back_guard)get_node_type() CROSS_LINK_NODE_TYPE {
+func (pthis*crosslinker_back_guard)get_node_type() CROSSLINK_NODE_TYPE {
 	return pthis.node_type_
 }
 
-func (pthis*cross_linker_back_guard)get_node_id()int {
+func (pthis*crosslinker_back_guard)get_node_id()int {
 	return pthis.node_id_
 }
 
 
 type MAP_CROSS_LINK_NODE map[int]*cross_node
 
-type cross_link_lst struct {
-	head_ cross_linker_inf
-	tail_ cross_linker_inf
+type crosslink_lst struct {
+	head_ crosslinker_inf
+	tail_ crosslinker_inf
 }
-type cross_link_mgr struct {
-	link_x_ cross_link_lst
-	link_y_ cross_link_lst
+type crosslink_mgr struct {
+	link_x_ crosslink_lst
+	link_y_ crosslink_lst
 
 	cur_node_id_ int
 	map_node_    MAP_CROSS_LINK_NODE
 
-	crs_lnk_if_ Cross_link_interface
+	crs_lnk_if_ Crosslink_interface
 }
 
-func (pthis*cross_link_lst)_inter_cross_link_add_before(new_node cross_linker_inf, node_pos cross_linker_inf) {
+func (pthis*crosslink_lst)_inter_crosslink_add_before(new_node crosslinker_inf, node_pos crosslinker_inf) {
 	if node_pos == nil {
 		// add before head
 		if pthis.head_ != nil {
@@ -208,7 +208,7 @@ func (pthis*cross_link_lst)_inter_cross_link_add_before(new_node cross_linker_in
 		}
 	}
 }
-func (pthis*cross_link_lst)_inter_cross_link_add_after(new_node cross_linker_inf, node_pos cross_linker_inf) {
+func (pthis*crosslink_lst)_inter_crosslink_add_after(new_node crosslinker_inf, node_pos crosslinker_inf) {
 	if node_pos == nil {
 		// add after tail
 		if pthis.tail_ != nil {
@@ -234,7 +234,7 @@ func (pthis*cross_link_lst)_inter_cross_link_add_after(new_node cross_linker_inf
 	}
 }
 
-func (pthis*cross_link_lst)_inter_cross_link_del(node cross_linker_inf) {
+func (pthis*crosslink_lst)_inter_crosslink_del(node crosslinker_inf) {
 	if node.get_prev() != nil {
 		node.get_prev().set_next(node.get_next())
 	} else {
@@ -246,17 +246,17 @@ func (pthis*cross_link_lst)_inter_cross_link_del(node cross_linker_inf) {
 		pthis.tail_ = node.get_prev()
 	}
 }
-func (pthis*cross_link_lst)_inter_cross_link_empty() bool {
+func (pthis*crosslink_lst)_inter_crosslink_empty() bool {
 	if pthis.head_ == nil {
 		return true
 	}
 	return false
 }
 
-func Cross_link_mgr_constructor(crs_lnk_if Cross_link_interface) *cross_link_mgr {
-	crs_lnk := &cross_link_mgr{
-		link_x_ :      cross_link_lst{head_: nil,tail_:nil},
-		link_y_ :      cross_link_lst{head_: nil,tail_:nil},
+func Crosslink_mgr_constructor(crs_lnk_if Crosslink_interface) *crosslink_mgr {
+	crs_lnk := &crosslink_mgr{
+		link_x_ :      crosslink_lst{head_: nil,tail_:nil},
+		link_y_ :      crosslink_lst{head_: nil,tail_:nil},
 		map_node_ :    make(MAP_CROSS_LINK_NODE),
 		cur_node_id_ : 0,
 		crs_lnk_if_:   crs_lnk_if,
@@ -265,7 +265,7 @@ func Cross_link_mgr_constructor(crs_lnk_if Cross_link_interface) *cross_link_mgr
 	return crs_lnk
 }
 
-func (pthis*cross_link_mgr)Cross_link_mgr_add(node_if Cross_link_node_if) int {
+func (pthis*crosslink_mgr)Crosslink_mgr_add(node_if Crosslink_node_if) int {
 	if node_if == nil {
 		return -1
 	}
@@ -273,18 +273,18 @@ func (pthis*cross_link_mgr)Cross_link_mgr_add(node_if Cross_link_node_if) int {
 	pthis.cur_node_id_++
 	new_node_id := pthis.cur_node_id_
 
-	x_new_node := &cross_linker_node{prev_: nil, next_:nil,
+	x_new_node := &crosslinker_node{prev_: nil, next_:nil,
 		front_ : nil, back_ : nil,
 		coord_ :      node_if.Get_node_x(),
 		view_range_ : node_if.Get_view_range(),
-		node_type_:   CROSS_LINK_NODE_TYPE_node,
+		node_type_:   CROSSLINK_NODE_TYPE_node,
 		node_id_:     new_node_id,
 	}
-	y_new_node := &cross_linker_node{prev_: nil, next_:nil,
+	y_new_node := &crosslinker_node{prev_: nil, next_:nil,
 		front_ : nil, back_ : nil,
 		coord_ :      node_if.Get_node_y(),
 		view_range_ : node_if.Get_view_range(),
-		node_type_:   CROSS_LINK_NODE_TYPE_node,
+		node_type_:   CROSSLINK_NODE_TYPE_node,
 		node_id_:     new_node_id,
 	}
 
@@ -301,29 +301,29 @@ func (pthis*cross_link_mgr)Cross_link_mgr_add(node_if Cross_link_node_if) int {
 	map_x_view := make(map[int]int)
 	// link x
 	if pthis.link_x_.head_ == nil {
-		pthis.link_x_._inter_cross_link_add_before(x_new_node,nil)
+		pthis.link_x_._inter_crosslink_add_before(x_new_node,nil)
 	} else {
 		cur_node := pthis.link_x_.head_
 		for ;cur_node != nil; {
 			if cur_node.get_coord() <= x_new_node.coord_ {
 				switch cur_node.get_node_type() {
-				case CROSS_LINK_NODE_TYPE_front_guard:
+				case CROSSLINK_NODE_TYPE_front_guard:
 					// in cur_node x view
 					map_x_view[cur_node.get_node_id()] = cur_node.get_node_id()
-				case CROSS_LINK_NODE_TYPE_back_guard:
+				case CROSSLINK_NODE_TYPE_back_guard:
 					// out cur_node x view
 					delete(map_x_view, cur_node.get_node_id())
 				}
 				cur_node = cur_node.get_next()
 				continue
 			} else {
-				pthis.link_x_._inter_cross_link_add_before(x_new_node, cur_node)
+				pthis.link_x_._inter_crosslink_add_before(x_new_node, cur_node)
 				break
 			}
 		}
 		if cur_node == nil {
 			LogDebug("link y tail", new_node_id)
-			pthis.link_x_._inter_cross_link_add_after(x_new_node,nil)
+			pthis.link_x_._inter_crosslink_add_after(x_new_node,nil)
 		}
 	}
 
@@ -331,29 +331,29 @@ func (pthis*cross_link_mgr)Cross_link_mgr_add(node_if Cross_link_node_if) int {
 	// link y
 	map_y_view := make(map[int]int)
 	if pthis.link_y_.head_ == nil {
-		pthis.link_y_._inter_cross_link_add_before(y_new_node,nil)
+		pthis.link_y_._inter_crosslink_add_before(y_new_node,nil)
 	} else {
 		cur_node := pthis.link_y_.head_
 		for ;cur_node != nil; {
 			if cur_node.get_coord() <= y_new_node.coord_ {
 				switch cur_node.get_node_type() {
-				case CROSS_LINK_NODE_TYPE_front_guard:
+				case CROSSLINK_NODE_TYPE_front_guard:
 					// in cur_node y view
 					map_y_view[cur_node.get_node_id()] = cur_node.get_node_id()
-				case CROSS_LINK_NODE_TYPE_back_guard:
+				case CROSSLINK_NODE_TYPE_back_guard:
 					// out cur_node y view
 					delete(map_y_view, cur_node.get_node_id())
 				}
 				cur_node = cur_node.get_next()
 				continue
 			} else {
-				pthis.link_y_._inter_cross_link_add_before(y_new_node, cur_node)
+				pthis.link_y_._inter_crosslink_add_before(y_new_node, cur_node)
 				break
 			}
 		}
 		if cur_node == nil {
 			LogDebug("link y tail", new_node_id)
-			pthis.link_y_._inter_cross_link_add_after(y_new_node, nil)
+			pthis.link_y_._inter_crosslink_add_after(y_new_node, nil)
 		}
 	}
 
@@ -372,7 +372,7 @@ func (pthis*cross_link_mgr)Cross_link_mgr_add(node_if Cross_link_node_if) int {
 		pthis.crs_lnk_if_.Ntf_node_in_view(k, new_node_id)
 	}
 
-	pthis._inter_cross_link_link_guard(new_node)
+	pthis._inter_crosslink_link_guard(new_node)
 
 	return new_node_id
 }
@@ -410,12 +410,12 @@ func (pthis*cross_node)_inter_gen_view() map[int]int {
 	return map_view
 }
 
-func(pthis*cross_link_mgr)_inter_cross_link_link_guard(new_node *cross_node) {
+func(pthis*crosslink_mgr)_inter_crosslink_link_guard(new_node *cross_node) {
 
-	if pthis.link_x_._inter_cross_link_empty() {
+	if pthis.link_x_._inter_crosslink_empty() {
 		LogErr("err, x link head is nil")
 	}
-	if pthis.link_y_._inter_cross_link_empty() {
+	if pthis.link_y_._inter_crosslink_empty() {
 		LogErr("err, y link head is nil")
 	}
 
@@ -426,11 +426,11 @@ func(pthis*cross_link_mgr)_inter_cross_link_link_guard(new_node *cross_node) {
 	// add trigger node
 	if pthis.link_x_.head_ != nil {
 		// add front and back guard to link
-		x_new_node.front_ = &cross_linker_front_guard{
+		x_new_node.front_ = &crosslinker_front_guard{
 			prev_ :      nil,
 			next_ :      nil,
 			coord_ :     x_new_node.coord_ - node_if.Get_view_range(),
-			node_type_ : CROSS_LINK_NODE_TYPE_front_guard,
+			node_type_ : CROSSLINK_NODE_TYPE_front_guard,
 			node_id_: new_node.node_id_,
 		}
 		cur_node := x_new_node.get_prev()
@@ -439,19 +439,19 @@ func(pthis*cross_link_mgr)_inter_cross_link_link_guard(new_node *cross_node) {
 				cur_node = cur_node.get_prev()
 				continue
 			} else {
-				pthis.link_x_._inter_cross_link_add_after(x_new_node.front_, cur_node)
+				pthis.link_x_._inter_crosslink_add_after(x_new_node.front_, cur_node)
 				break
 			}
 		}
 		if cur_node == nil {
-			pthis.link_x_._inter_cross_link_add_before(x_new_node.front_, nil)
+			pthis.link_x_._inter_crosslink_add_before(x_new_node.front_, nil)
 		}
 
-		x_new_node.back_ = &cross_linker_back_guard{
+		x_new_node.back_ = &crosslinker_back_guard{
 			prev_ :      nil,
 			next_ :      nil,
 			coord_ :     x_new_node.coord_ + node_if.Get_view_range(),
-			node_type_ : CROSS_LINK_NODE_TYPE_back_guard,
+			node_type_ : CROSSLINK_NODE_TYPE_back_guard,
 			node_id_: new_node.node_id_,
 		}
 		cur_node = x_new_node.get_next()
@@ -460,22 +460,22 @@ func(pthis*cross_link_mgr)_inter_cross_link_link_guard(new_node *cross_node) {
 				cur_node = cur_node.get_next()
 				continue
 			} else {
-				pthis.link_x_._inter_cross_link_add_before(x_new_node.back_, cur_node)
+				pthis.link_x_._inter_crosslink_add_before(x_new_node.back_, cur_node)
 				break
 			}
 		}
 		if cur_node == nil {
-			pthis.link_x_._inter_cross_link_add_after(x_new_node.back_, nil)
+			pthis.link_x_._inter_crosslink_add_after(x_new_node.back_, nil)
 		}
 	}
 
 	if pthis.link_y_.head_ != nil {
 		// add front and back guard to link
-		y_new_node.front_ = &cross_linker_front_guard{
+		y_new_node.front_ = &crosslinker_front_guard{
 			prev_ :      nil,
 			next_ :      nil,
 			coord_ :     y_new_node.coord_ - node_if.Get_view_range(),
-			node_type_ : CROSS_LINK_NODE_TYPE_front_guard,
+			node_type_ : CROSSLINK_NODE_TYPE_front_guard,
 			node_id_: new_node.node_id_,
 		}
 		cur_node := y_new_node.get_prev()
@@ -484,19 +484,19 @@ func(pthis*cross_link_mgr)_inter_cross_link_link_guard(new_node *cross_node) {
 				cur_node = cur_node.get_prev()
 				continue
 			} else {
-				pthis.link_y_._inter_cross_link_add_before(y_new_node.front_, cur_node)
+				pthis.link_y_._inter_crosslink_add_before(y_new_node.front_, cur_node)
 				break
 			}
 		}
 		if cur_node == nil {
-			pthis.link_y_._inter_cross_link_add_before(y_new_node.front_, nil)
+			pthis.link_y_._inter_crosslink_add_before(y_new_node.front_, nil)
 		}
 
-		y_new_node.back_ = &cross_linker_back_guard{
+		y_new_node.back_ = &crosslinker_back_guard{
 			prev_ :      nil,
 			next_ :      nil,
 			coord_ :     y_new_node.coord_ + node_if.Get_view_range(),
-			node_type_ : CROSS_LINK_NODE_TYPE_back_guard,
+			node_type_ : CROSSLINK_NODE_TYPE_back_guard,
 			node_id_: new_node.node_id_,
 		}
 		cur_node = y_new_node.get_next()
@@ -505,12 +505,12 @@ func(pthis*cross_link_mgr)_inter_cross_link_link_guard(new_node *cross_node) {
 				cur_node = cur_node.get_next()
 				continue
 			} else {
-				pthis.link_y_._inter_cross_link_add_before(y_new_node.back_, cur_node)
+				pthis.link_y_._inter_crosslink_add_before(y_new_node.back_, cur_node)
 				break
 			}
 		}
 		if cur_node == nil {
-			pthis.link_y_._inter_cross_link_add_after(y_new_node.back_, nil)
+			pthis.link_y_._inter_crosslink_add_after(y_new_node.back_, nil)
 		}
 	}
 
@@ -521,7 +521,7 @@ func(pthis*cross_link_mgr)_inter_cross_link_link_guard(new_node *cross_node) {
 	}
 }
 
-func (pthis*cross_link_mgr)Cross_link_mgr_del(node_id int) {
+func (pthis*crosslink_mgr)Crosslink_mgr_del(node_id int) {
 	node, _ := pthis.map_node_[node_id]
 	if node == nil {
 		return
@@ -537,11 +537,11 @@ func (pthis*cross_link_mgr)Cross_link_mgr_del(node_id int) {
 		delete(node_view_by.map_view_by_, node.node_id_)
 	}
 
-	pthis.link_y_._inter_cross_link_del(node.x_node_)
-	pthis.link_y_._inter_cross_link_del(node.y_node_)
+	pthis.link_y_._inter_crosslink_del(node.x_node_)
+	pthis.link_y_._inter_crosslink_del(node.y_node_)
 }
 
-func (pthis*cross_link_mgr)Cross_link_mgr_update_pos(node_id int, coord_x float32, coord_y float32) {
+func (pthis*crosslink_mgr)Crosslink_mgr_update_pos(node_id int, coord_x float32, coord_y float32) {
 	node, _ := pthis.map_node_[node_id]
 	if node == nil {
 		return
@@ -563,47 +563,47 @@ func (pthis*cross_link_mgr)Cross_link_mgr_update_pos(node_id int, coord_x float3
 		}
 		if coord_x < old_x {
 			x_cur_node := x_node.prev_
-			pthis.link_y_._inter_cross_link_del(x_node)
+			pthis.link_y_._inter_crosslink_del(x_node)
 			for ; x_cur_node != nil; {
 				if x_node.coord_ < x_cur_node.get_coord() {
 					switch x_cur_node.get_node_type() {
-					case CROSS_LINK_NODE_TYPE_front_guard:
+					case CROSSLINK_NODE_TYPE_front_guard:
 						delete(x_map, x_cur_node.get_node_id())
-					case CROSS_LINK_NODE_TYPE_back_guard:
+					case CROSSLINK_NODE_TYPE_back_guard:
 						x_map[x_cur_node.get_node_id()] = x_cur_node.get_node_id()
 					}
 					x_cur_node = x_cur_node.get_prev()
 					continue
 				} else {
-					pthis.link_x_._inter_cross_link_add_after(x_node, x_cur_node)
+					pthis.link_x_._inter_crosslink_add_after(x_node, x_cur_node)
 					break
 				}
 			}
 			if x_cur_node == nil {
 				LogDebug("link x head", node_id)
-				pthis.link_x_._inter_cross_link_add_before(x_node, nil)
+				pthis.link_x_._inter_crosslink_add_before(x_node, nil)
 			}
 		} else if coord_x > old_x {
 			x_cur_node := x_node.next_
-			pthis.link_y_._inter_cross_link_del(x_node)
+			pthis.link_y_._inter_crosslink_del(x_node)
 			for ; x_cur_node != nil; {
 				if x_node.coord_ > x_cur_node.get_coord() {
 					switch x_cur_node.get_node_type() {
-					case CROSS_LINK_NODE_TYPE_front_guard:
+					case CROSSLINK_NODE_TYPE_front_guard:
 						x_map[x_cur_node.get_node_id()] = x_cur_node.get_node_id()
-					case CROSS_LINK_NODE_TYPE_back_guard:
+					case CROSSLINK_NODE_TYPE_back_guard:
 						delete(x_map, x_cur_node.get_node_id())
 					}
 					x_cur_node = x_cur_node.get_next()
 					continue
 				} else {
-					pthis.link_x_._inter_cross_link_add_before(x_node, x_cur_node)
+					pthis.link_x_._inter_crosslink_add_before(x_node, x_cur_node)
 					break
 				}
 			}
 			if x_cur_node == nil {
 				LogDebug("link x tail", node_id)
-				pthis.link_x_._inter_cross_link_add_after(x_node, nil)
+				pthis.link_x_._inter_crosslink_add_after(x_node, nil)
 			}
 		}
 	}
@@ -618,47 +618,47 @@ func (pthis*cross_link_mgr)Cross_link_mgr_update_pos(node_id int, coord_x float3
 		}
 		if coord_y < old_y {
 			y_cur_node := y_node.prev_
-			pthis.link_y_._inter_cross_link_del(y_node)
+			pthis.link_y_._inter_crosslink_del(y_node)
 			for ;y_cur_node!=nil; {
 				if y_node.coord_ < y_cur_node.get_coord() {
 					switch y_cur_node.get_node_type() {
-					case CROSS_LINK_NODE_TYPE_front_guard:
+					case CROSSLINK_NODE_TYPE_front_guard:
 						delete(y_map, y_cur_node.get_node_id())
-					case CROSS_LINK_NODE_TYPE_back_guard:
+					case CROSSLINK_NODE_TYPE_back_guard:
 						y_map[y_cur_node.get_node_id()] = y_cur_node.get_node_id()
 					}
 					y_cur_node = y_cur_node.get_prev()
 					continue
 				} else {
-					pthis.link_y_._inter_cross_link_add_after(y_node, y_cur_node)
+					pthis.link_y_._inter_crosslink_add_after(y_node, y_cur_node)
 					break
 				}
 			}
 			if y_cur_node == nil {
 				LogDebug("link y head", node_id)
-				pthis.link_y_._inter_cross_link_add_before(y_node, nil)
+				pthis.link_y_._inter_crosslink_add_before(y_node, nil)
 			}
 		} else if coord_y > old_y {
 			y_cur_node := y_node.next_
-			pthis.link_y_._inter_cross_link_del(y_node)
+			pthis.link_y_._inter_crosslink_del(y_node)
 			for ;y_cur_node!=nil; {
 				if y_cur_node.get_coord() >= y_node.coord_ {
 					switch y_cur_node.get_node_type() {
-					case CROSS_LINK_NODE_TYPE_front_guard:
+					case CROSSLINK_NODE_TYPE_front_guard:
 						y_map[y_cur_node.get_node_id()] = y_cur_node.get_node_id()
-					case CROSS_LINK_NODE_TYPE_back_guard:
+					case CROSSLINK_NODE_TYPE_back_guard:
 						delete(y_map, y_cur_node.get_node_id())
 					}
 					y_cur_node = y_cur_node.get_next()
 					continue
 				} else {
-					pthis.link_y_._inter_cross_link_add_before(y_node, y_cur_node)
+					pthis.link_y_._inter_crosslink_add_before(y_node, y_cur_node)
 					break
 				}
 			}
 			if y_cur_node == nil {
 				LogDebug("link y tail", node_id)
-				pthis.link_y_._inter_cross_link_add_after(y_node, nil)
+				pthis.link_y_._inter_crosslink_add_after(y_node, nil)
 			}
 		}
 	}
@@ -695,33 +695,33 @@ func (pthis*cross_link_mgr)Cross_link_mgr_update_pos(node_id int, coord_x float3
 		x_front_guard.coord_ = node.x_node_.coord_ - node.node_if_.Get_view_range()
 		if x_front_guard.coord_ < old_front_x {
 			cur_node := x_front_guard.get_prev()
-			pthis.link_x_._inter_cross_link_del(x_front_guard)
+			pthis.link_x_._inter_crosslink_del(x_front_guard)
 			for ; cur_node != nil; {
 				if x_front_guard.coord_ < cur_node.get_coord() {
 					cur_node = cur_node.get_prev()
 					continue
 				} else {
-					pthis.link_x_._inter_cross_link_add_after(x_front_guard, cur_node)
+					pthis.link_x_._inter_crosslink_add_after(x_front_guard, cur_node)
 					break
 				}
 			}
 			if cur_node == nil {
-				pthis.link_x_._inter_cross_link_add_before(x_front_guard, nil)
+				pthis.link_x_._inter_crosslink_add_before(x_front_guard, nil)
 			}
 		} else if x_front_guard.coord_ > old_front_x {
 			cur_node := x_front_guard.get_next()
-			pthis.link_x_._inter_cross_link_del(x_front_guard)
+			pthis.link_x_._inter_crosslink_del(x_front_guard)
 			for ; cur_node != nil; {
 				if x_front_guard.coord_ > cur_node.get_coord() {
 					cur_node = cur_node.get_next()
 					continue
 				} else {
-					pthis.link_x_._inter_cross_link_add_before(x_front_guard, cur_node)
+					pthis.link_x_._inter_crosslink_add_before(x_front_guard, cur_node)
 					break
 				}
 			}
 			if cur_node == nil {
-				pthis.link_x_._inter_cross_link_add_after(x_front_guard, nil)
+				pthis.link_x_._inter_crosslink_add_after(x_front_guard, nil)
 			}
 		}
 	}
@@ -733,33 +733,33 @@ func (pthis*cross_link_mgr)Cross_link_mgr_update_pos(node_id int, coord_x float3
 		x_back_guard.coord_ = node.x_node_.coord_ + node.node_if_.Get_view_range()
 		if x_back_guard.coord_ < old_back_x {
 			cur_node := x_back_guard.get_prev()
-			pthis.link_x_._inter_cross_link_del(x_back_guard)
+			pthis.link_x_._inter_crosslink_del(x_back_guard)
 			for ; cur_node != nil; {
 				if x_back_guard.coord_ < cur_node.get_coord() {
 					cur_node = cur_node.get_prev()
 					continue
 				} else {
-					pthis.link_x_._inter_cross_link_add_after(x_back_guard, cur_node)
+					pthis.link_x_._inter_crosslink_add_after(x_back_guard, cur_node)
 					break
 				}
 			}
 			if cur_node == nil {
-				pthis.link_x_._inter_cross_link_add_before(x_back_guard, nil)
+				pthis.link_x_._inter_crosslink_add_before(x_back_guard, nil)
 			}
 		} else if x_back_guard.coord_ > old_back_x {
 			cur_node := x_back_guard.get_next()
-			pthis.link_x_._inter_cross_link_del(x_back_guard)
+			pthis.link_x_._inter_crosslink_del(x_back_guard)
 			for ; cur_node != nil; {
 				if x_back_guard.coord_ > cur_node.get_coord() {
 					cur_node = cur_node.get_next()
 					continue
 				} else {
-					pthis.link_x_._inter_cross_link_add_before(x_back_guard, cur_node)
+					pthis.link_x_._inter_crosslink_add_before(x_back_guard, cur_node)
 					break
 				}
 			}
 			if cur_node == nil {
-				pthis.link_x_._inter_cross_link_add_after(x_back_guard, nil)
+				pthis.link_x_._inter_crosslink_add_after(x_back_guard, nil)
 			}
 		}
 	}
@@ -771,33 +771,33 @@ func (pthis*cross_link_mgr)Cross_link_mgr_update_pos(node_id int, coord_x float3
 		y_front_guard.coord_ = node.x_node_.coord_ - node.node_if_.Get_view_range()
 		if y_front_guard.coord_ < old_front_y {
 			cur_node := y_front_guard.get_prev()
-			pthis.link_y_._inter_cross_link_del(y_front_guard)
+			pthis.link_y_._inter_crosslink_del(y_front_guard)
 			for ; cur_node != nil; {
 				if y_front_guard.coord_ < cur_node.get_coord() {
 					cur_node = cur_node.get_prev()
 					continue
 				} else {
-					pthis.link_y_._inter_cross_link_add_after(y_front_guard, cur_node)
+					pthis.link_y_._inter_crosslink_add_after(y_front_guard, cur_node)
 					break
 				}
 			}
 			if cur_node == nil {
-				pthis.link_y_._inter_cross_link_add_before(y_front_guard, nil)
+				pthis.link_y_._inter_crosslink_add_before(y_front_guard, nil)
 			}
 		} else if y_front_guard.coord_ > old_front_y {
 			cur_node := y_front_guard.get_next()
-			pthis.link_y_._inter_cross_link_del(y_front_guard)
+			pthis.link_y_._inter_crosslink_del(y_front_guard)
 			for ; cur_node != nil; {
 				if y_front_guard.coord_ > cur_node.get_coord() {
 					cur_node = cur_node.get_next()
 					continue
 				} else {
-					pthis.link_y_._inter_cross_link_add_before(y_front_guard, cur_node)
+					pthis.link_y_._inter_crosslink_add_before(y_front_guard, cur_node)
 					break
 				}
 			}
 			if cur_node == nil {
-				pthis.link_y_._inter_cross_link_add_after(y_front_guard, nil)
+				pthis.link_y_._inter_crosslink_add_after(y_front_guard, nil)
 			}
 		}
 	}
@@ -809,33 +809,33 @@ func (pthis*cross_link_mgr)Cross_link_mgr_update_pos(node_id int, coord_x float3
 		y_back_guard.coord_ = node.x_node_.coord_ + node.node_if_.Get_view_range()
 		if y_back_guard.coord_ < old_back_y {
 			cur_node := y_back_guard.get_prev()
-			pthis.link_y_._inter_cross_link_del(y_back_guard)
+			pthis.link_y_._inter_crosslink_del(y_back_guard)
 			for ; cur_node != nil; {
 				if y_back_guard.coord_ < cur_node.get_coord() {
 					cur_node = cur_node.get_prev()
 					continue
 				} else {
-					pthis.link_y_._inter_cross_link_add_after(y_back_guard, cur_node)
+					pthis.link_y_._inter_crosslink_add_after(y_back_guard, cur_node)
 					break
 				}
 			}
 			if cur_node == nil {
-				pthis.link_y_._inter_cross_link_add_before(y_back_guard, nil)
+				pthis.link_y_._inter_crosslink_add_before(y_back_guard, nil)
 			}
 		} else if y_back_guard.coord_ > old_back_y {
 			cur_node := y_back_guard.get_next()
-			pthis.link_y_._inter_cross_link_del(y_back_guard)
+			pthis.link_y_._inter_crosslink_del(y_back_guard)
 			for ; cur_node != nil; {
 				if y_back_guard.coord_ > cur_node.get_coord() {
 					cur_node = cur_node.get_next()
 					continue
 				} else {
-					pthis.link_y_._inter_cross_link_add_before(y_back_guard, cur_node)
+					pthis.link_y_._inter_crosslink_add_before(y_back_guard, cur_node)
 					break
 				}
 			}
 			if cur_node == nil {
-				pthis.link_y_._inter_cross_link_add_after(y_back_guard, nil)
+				pthis.link_y_._inter_crosslink_add_after(y_back_guard, nil)
 			}
 		}
 	}
