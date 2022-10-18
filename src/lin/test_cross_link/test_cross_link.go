@@ -1,6 +1,9 @@
 package main
 
-import "lin/lin_common"
+import (
+	"fmt"
+	"lin/lin_common"
+)
 
 
 type cross_link_inf struct {
@@ -46,6 +49,8 @@ func main() {
 		view_range : 10,
 	}
 	node0_id := clm.Crosslink_mgr_add(node0)
+
+	fmt.Println(clm.Crosslink_mgr_dump())
 
 	node1 := &cross_link_node_inf {
 		x : 1,
