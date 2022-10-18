@@ -903,13 +903,17 @@ func (pthis*crosslink_mgr)Crosslink_mgr_dump() string {
 	}
 
 	str += "x link:\r\n"
-
-/*	cur_node := pthis.link_x_.head_
+	cur_node := pthis.link_x_.head_
 	for ;cur_node != nil; {
-		str += f
+		str += fmt.Sprintf(" id:%v type:%v coord:%v \r\n", cur_node.get_node_id(), cur_node.get_node_type(), cur_node.get_coord())
+		cur_node = cur_node.get_next()
 	}
-	pthis.link_x_.
-	pthis.link_y_
-*/
+	str += "y link:\r\n"
+	cur_node = pthis.link_y_.head_
+	for ;cur_node != nil; {
+		str += fmt.Sprintf(" id:%v type:%v coord:%v \r\n", cur_node.get_node_id(), cur_node.get_node_type(), cur_node.get_coord())
+		cur_node = cur_node.get_next()
+	}
+
 	return str
 }
