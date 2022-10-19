@@ -51,27 +51,7 @@ type crosslinker_node struct {
 
 	node_id_ int
 }
-func (pthis*crosslinker_node)String() string {
-	str := fmt.Sprintf("coord:%v\r\n", pthis.coord_)
-	str += fmt.Sprintf(" front:%v", pthis.front_)
-	str += fmt.Sprintf(" back:%v\r\n", pthis.back_)
 
-	str += fmt.Sprintf(" view prev:\r\n")
-	cur_node := pthis.get_prev()
-	for ;cur_node != nil && cur_node != pthis.front_; {
-		cur_node = cur_node.get_prev()
-		str += fmt.Sprintf(" id:%v coord:%v", cur_node.get_node_id(), cur_node.get_coord())
-	}
-
-	str += fmt.Sprintf("\r\n view next:\r\n")
-	cur_node = pthis.get_next()
-	for ;cur_node != nil && cur_node != pthis.back_; {
-		cur_node = cur_node.get_next()
-		str += fmt.Sprintf(" id:%v coord:%v", cur_node.get_node_id(), cur_node.get_coord())
-	}
-
-	return str
-}
 func (pthis*crosslinker_node)get_prev() crosslinker_inf {
 	return pthis.prev_
 }
@@ -111,10 +91,7 @@ type crosslinker_guard struct {
 	node_type_ CROSSLINK_NODE_TYPE
 	node_id_ int
 }
-func (pthis*crosslinker_guard)String() string {
-	str := fmt.Sprintf("{guard id:%v coord:%v type:%d}", pthis.node_id_, pthis.coord_, pthis.node_type_)
-	return str
-}
+
 func (pthis*crosslinker_guard)get_prev() crosslinker_inf {
 	return pthis.prev_
 }
@@ -145,44 +122,6 @@ func (pthis*crosslinker_guard)get_node_id()int {
 }
 
 
-/*type crosslinker_back_guard struct {
-	prev_ crosslinker_inf
-	next_ crosslinker_inf
-
-	coord_ float32
-
-	node_type_ CROSSLINK_NODE_TYPE
-	node_id_ int
-}
-func (pthis*crosslinker_back_guard)get_prev() crosslinker_inf {
-	return pthis.prev_
-}
-func (pthis*crosslinker_back_guard)set_prev(prev crosslinker_inf) {
-	pthis.prev_ = prev
-}
-
-func (pthis*crosslinker_back_guard)get_next() crosslinker_inf {
-	return pthis.next_
-}
-func (pthis*crosslinker_back_guard)set_next(next crosslinker_inf) {
-	pthis.next_ = next
-}
-
-func (pthis*crosslinker_back_guard)get_coord()float32 {
-	return pthis.coord_
-}
-func (pthis*crosslinker_back_guard)get_view_range()float32 {
-	return 0
-}
-
-func (pthis*crosslinker_back_guard)get_node_type() CROSSLINK_NODE_TYPE {
-	return pthis.node_type_
-}
-
-func (pthis*crosslinker_back_guard)get_node_id()int {
-	return pthis.node_id_
-}
-*/
 
 type cross_node struct {
 	x_node_ *crosslinker_node
@@ -194,14 +133,7 @@ type cross_node struct {
 	map_view_by_ MAP_NODE_ID // view by
 	map_view_    MAP_NODE_ID // view
 }
-func (pthis*cross_node)String() string {
-	str := fmt.Sprintf("id:%v\r\n", pthis.node_id_)
-	str += fmt.Sprintf("x node:%v\r\n", pthis.x_node_)
-	str += fmt.Sprintf("y node:%v\r\n", pthis.y_node_)
-	str += fmt.Sprintf("view by:%v\r\n", pthis.map_view_by_)
-	str += fmt.Sprintf("view:%v\r\n", pthis.map_view_)
-	return str
-}
+
 
 type MAP_CROSS_LINK_NODE map[int]*cross_node
 
@@ -329,6 +261,8 @@ func (pthis*crosslink_mgr)Crosslink_mgr_add(node_if Crosslink_node_if) int {
 		y_node_ : y_new_node,
 		node_id_ : new_node_id,
 		node_if_ : node_if,
+		map_view_by_ : make(MAP_NODE_ID),
+		map_view_ : make(MAP_NODE_ID),
 	}
 
 	pthis.map_node_[new_node_id] = new_node
@@ -395,22 +329,44 @@ func (pthis*crosslink_mgr)Crosslink_mgr_add(node_if Crosslink_node_if) int {
 
 
 	// check map_x_view map_y_view
-	new_node.map_view_by_ = make(map[int]int)
+	map_view_by := make(map[int]int)
 	for k, _ := range map_x_view {
 		_,ok := map_y_view[k]
 		if ok {
-			new_node.map_view_by_[k] = k
+			map_view_by[k] = k
 		}
 	}
 
 	// notify the map_xy_view, the new_node in the view
-	for k, _ := range new_node.map_view_by_ {
-		pthis.crs_lnk_if_.Ntf_node_in_view(k, new_node_id)
+	for k, _ := range map_view_by {
+		pthis.Ntf_node_in_view(k, new_node_id)
 	}
 
 	pthis._inter_crosslink_link_guard(new_node)
 
+	map_view := new_node._inter_gen_view()
+
+	for k, _ := range map_view {
+		pthis.Ntf_node_in_view(new_node.node_id_, k)
+	}
+
 	return new_node_id
+}
+
+func (pthis*crosslink_mgr)Ntf_node_in_view(node_id int, node_id_in_viewed int) {
+	node, _ := pthis.map_node_[node_id]
+	if node == nil {
+		return
+	}
+	node_in_viewed, _ := pthis.map_node_[node_id_in_viewed]
+	if node_in_viewed == nil {
+		return
+	}
+
+	node.map_view_[node_id_in_viewed] = node_id_in_viewed
+	node_in_viewed.map_view_by_[node_id] = node_id
+
+	pthis.crs_lnk_if_.Ntf_node_in_view(node_id, node_id_in_viewed)
 }
 
 func (pthis*cross_node)_inter_gen_view() map[int]int {
@@ -548,12 +504,6 @@ func(pthis*crosslink_mgr)_inter_crosslink_link_guard(new_node *cross_node) {
 		if cur_node == nil {
 			pthis.link_y_._inter_crosslink_add_after(y_new_node.back_, nil)
 		}
-	}
-
-	new_node.map_view_ = new_node._inter_gen_view()
-
-	for k, _ := range new_node.map_view_ {
-		pthis.crs_lnk_if_.Ntf_node_in_view(new_node.node_id_, k)
 	}
 }
 
@@ -895,7 +845,44 @@ func (pthis*crosslink_mgr)Crosslink_mgr_update_pos(node_id int, coord_x float32,
 	}
 }
 
-func (pthis*crosslink_mgr)Crosslink_mgr_dump() string {
+
+func (pthis*crosslinker_guard)String() string {
+	str := fmt.Sprintf("{guard id:%v coord:%v type:%d}", pthis.node_id_, pthis.coord_, pthis.node_type_)
+	return str
+}
+func (pthis*cross_node)String() string {
+	str := fmt.Sprintf("id:%v\r\n", pthis.node_id_)
+	str += fmt.Sprintf("x node:%v\r\n", pthis.x_node_)
+	str += fmt.Sprintf("y node:%v\r\n", pthis.y_node_)
+	str += fmt.Sprintf("view by:%v\r\n", pthis.map_view_by_)
+	str += fmt.Sprintf("view:%v\r\n", pthis.map_view_)
+	return str
+}
+func (pthis*crosslinker_node)String() string {
+	str := fmt.Sprintf("coord:%v\r\n", pthis.coord_)
+	str += fmt.Sprintf(" front:%v back:%v\r\n", pthis.front_, pthis.back_)
+
+	str += fmt.Sprintln(" view prev:")
+	cur_node := pthis.get_prev()
+	for ;cur_node != nil && cur_node != pthis.front_; {
+		if cur_node.get_node_type() == CROSSLINK_NODE_TYPE_node {
+			str += fmt.Sprintf("{id:%v coord:%v}", cur_node.get_node_id(), cur_node.get_coord())
+		}
+		cur_node = cur_node.get_prev()
+	}
+
+	str += fmt.Sprintf("\r\n view next:\r\n")
+	cur_node = pthis.get_next()
+	for ;cur_node != nil && cur_node != pthis.back_; {
+		if cur_node.get_node_type() == CROSSLINK_NODE_TYPE_node {
+			str += fmt.Sprintf("{id:%v coord:%v}", cur_node.get_node_id(), cur_node.get_coord())
+		}
+		cur_node = cur_node.get_next()
+	}
+
+	return str
+}
+func (pthis*crosslink_mgr)String() string {
 	str := "cross link dump\r\n\n"
 
 	for _, v := range pthis.map_node_ {

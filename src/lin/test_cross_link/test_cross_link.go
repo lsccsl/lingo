@@ -10,11 +10,11 @@ type cross_link_inf struct {
 
 }
 
-func (pthis*cross_link_inf)Ntf_node_in_view(node_id int, node_id_in_viewed int) {
-
+func (pthis*cross_link_inf)Ntf_node_in_view(node_id int, node_id_in_view int) {
+	fmt.Println(node_id, " view ", node_id_in_view)
 }
 func (pthis*cross_link_inf)Ntf_node_out_view(node_id int, node_id_out_view int) {
-
+	fmt.Println(node_id, " out view ", node_id_out_view)
 }
 
 
@@ -113,10 +113,10 @@ func main() {
 		view_range : 10,
 	}
 	clm.Crosslink_mgr_add(node8)
-	fmt.Println(clm.Crosslink_mgr_dump())
+	fmt.Println(clm)
 
 	clm.Crosslink_mgr_update_pos(node0_id, 12, 12)
-	fmt.Println(clm.Crosslink_mgr_dump())
+	fmt.Println(clm)
 
 	return
 }
