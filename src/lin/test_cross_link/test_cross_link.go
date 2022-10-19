@@ -49,8 +49,7 @@ func main() {
 		view_range : 10,
 	}
 	node0_id := clm.Crosslink_mgr_add(node0)
-
-	fmt.Println(clm.Crosslink_mgr_dump())
+	//fmt.Println(clm.Crosslink_mgr_dump())
 
 	node1 := &cross_link_node_inf {
 		x : 1,
@@ -58,6 +57,7 @@ func main() {
 		view_range : 10,
 	}
 	clm.Crosslink_mgr_add(node1)
+	//fmt.Println(clm.Crosslink_mgr_dump())
 
 	node2 := &cross_link_node_inf {
 		x : 11,
@@ -65,6 +65,7 @@ func main() {
 		view_range : 10,
 	}
 	clm.Crosslink_mgr_add(node2)
+	//fmt.Println(clm.Crosslink_mgr_dump())
 
 	node3 := &cross_link_node_inf {
 		x : 16,
@@ -72,6 +73,7 @@ func main() {
 		view_range : 10,
 	}
 	clm.Crosslink_mgr_add(node3)
+	//fmt.Println(clm.Crosslink_mgr_dump())
 
 	node4 := &cross_link_node_inf {
 		x : 21,
@@ -79,6 +81,7 @@ func main() {
 		view_range : 10,
 	}
 	clm.Crosslink_mgr_add(node4)
+	//fmt.Println(clm.Crosslink_mgr_dump())
 
 	node5 := &cross_link_node_inf {
 		x : -6,
@@ -86,6 +89,7 @@ func main() {
 		view_range : 10,
 	}
 	clm.Crosslink_mgr_add(node5)
+	//fmt.Println(clm.Crosslink_mgr_dump())
 
 	node6 := &cross_link_node_inf {
 		x : -11,
@@ -93,6 +97,7 @@ func main() {
 		view_range : 10,
 	}
 	clm.Crosslink_mgr_add(node6)
+	//fmt.Println(clm.Crosslink_mgr_dump())
 
 	node7 := &cross_link_node_inf {
 		x : -16,
@@ -100,6 +105,7 @@ func main() {
 		view_range : 10,
 	}
 	clm.Crosslink_mgr_add(node7)
+	//fmt.Println(clm.Crosslink_mgr_dump())
 
 	node8 := &cross_link_node_inf {
 		x : -21,
@@ -110,6 +116,7 @@ func main() {
 	fmt.Println(clm.Crosslink_mgr_dump())
 
 	clm.Crosslink_mgr_update_pos(node0_id, 12, 12)
+	fmt.Println(clm.Crosslink_mgr_dump())
 
 	return
 }
