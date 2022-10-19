@@ -375,7 +375,9 @@ func (pthis*cross_node)_inter_gen_view() map[int]int {
 	x_node := pthis.x_node_
 	cur_node := x_node.front_.get_next()
 	for ;cur_node!=nil && cur_node != x_node.back_; {
-		map_x_view[cur_node.get_node_id()] = cur_node.get_node_id()
+		if cur_node.get_node_type() == CROSSLINK_NODE_TYPE_node {
+			map_x_view[cur_node.get_node_id()] = cur_node.get_node_id()
+		}
 		cur_node = cur_node.get_next()
 	}
 
@@ -384,7 +386,9 @@ func (pthis*cross_node)_inter_gen_view() map[int]int {
 	y_node := pthis.y_node_
 	cur_node = y_node.front_.get_next()
 	for ;cur_node!=nil && cur_node != y_node.back_; {
-		map_y_view[cur_node.get_node_id()] = cur_node.get_node_id()
+		if cur_node.get_node_type() == CROSSLINK_NODE_TYPE_node {
+			map_y_view[cur_node.get_node_id()] = cur_node.get_node_id()
+		}
 		cur_node = cur_node.get_next()
 	}
 
