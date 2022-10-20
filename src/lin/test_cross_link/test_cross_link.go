@@ -113,9 +113,9 @@ func main() {
 		view_range : 10,
 	}
 	clm.Crosslink_mgr_add(node8)
-	fmt.Println(clm)
+	//fmt.Println(clm)
 
-	clm.Crosslink_mgr_update_pos(node0_id, 12, 12)
+	clm.Crosslink_mgr_update_pos(node0_id, 11, 11)
 	fmt.Println(clm)
 
 	return

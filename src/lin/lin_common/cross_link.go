@@ -295,6 +295,7 @@ func (pthis*crosslink_mgr)Crosslink_mgr_add(node_if Crosslink_node_if) int {
 					cur_node = cur_node.get_next()
 					continue
 				case CROSSLINK_NODE_TYPE_back_guard:
+				default:
 					pthis.link_x_._inter_crosslink_add_before(x_new_node, cur_node)
 					break X_LOOP
 				}
@@ -337,6 +338,7 @@ func (pthis*crosslink_mgr)Crosslink_mgr_add(node_if Crosslink_node_if) int {
 					cur_node = cur_node.get_next()
 					continue
 				case CROSSLINK_NODE_TYPE_back_guard:
+				default:
 					// out cur_node y view
 					pthis.link_y_._inter_crosslink_add_before(y_new_node, cur_node)
 					break Y_LOOP
@@ -579,6 +581,7 @@ func (pthis*crosslink_mgr)Crosslink_mgr_update_pos(node_id int, coord_x float32,
 		if coord_x < old_x {
 			x_cur_node := x_node.prev_
 			pthis.link_x_._inter_crosslink_del(x_node)
+			X_PREV_LOOP:
 			for ; x_cur_node != nil; {
 				if x_node.coord_ < x_cur_node.get_coord() {
 					switch x_cur_node.get_node_type() {
@@ -589,6 +592,17 @@ func (pthis*crosslink_mgr)Crosslink_mgr_update_pos(node_id int, coord_x float32,
 					}
 					x_cur_node = x_cur_node.get_prev()
 					continue
+				} else if x_node.coord_ == x_cur_node.get_coord() {
+					switch x_cur_node.get_node_type() {
+					case CROSSLINK_NODE_TYPE_back_guard:
+						x_map[x_cur_node.get_node_id()] = x_cur_node.get_node_id()
+						x_cur_node = x_cur_node.get_prev()
+						continue
+					case CROSSLINK_NODE_TYPE_front_guard:
+					default:
+						pthis.link_x_._inter_crosslink_add_after(x_node, x_cur_node)
+						break X_PREV_LOOP
+					}
 				} else {
 					pthis.link_x_._inter_crosslink_add_after(x_node, x_cur_node)
 					break
@@ -601,6 +615,7 @@ func (pthis*crosslink_mgr)Crosslink_mgr_update_pos(node_id int, coord_x float32,
 		} else if coord_x > old_x {
 			x_cur_node := x_node.next_
 			pthis.link_x_._inter_crosslink_del(x_node)
+			X_BACK_LOOP:
 			for ; x_cur_node != nil; {
 				if x_node.coord_ > x_cur_node.get_coord() {
 					switch x_cur_node.get_node_type() {
@@ -611,6 +626,17 @@ func (pthis*crosslink_mgr)Crosslink_mgr_update_pos(node_id int, coord_x float32,
 					}
 					x_cur_node = x_cur_node.get_next()
 					continue
+				} else if x_node.coord_ == x_cur_node.get_coord() {
+					switch x_cur_node.get_node_type() {
+					case CROSSLINK_NODE_TYPE_front_guard:
+						x_map[x_cur_node.get_node_id()] = x_cur_node.get_node_id()
+						x_cur_node = x_cur_node.get_next()
+						continue
+					case CROSSLINK_NODE_TYPE_back_guard:
+					default:
+						pthis.link_x_._inter_crosslink_add_before(x_node, x_cur_node)
+						break X_BACK_LOOP
+					}
 				} else {
 					pthis.link_x_._inter_crosslink_add_before(x_node, x_cur_node)
 					break
@@ -634,6 +660,7 @@ func (pthis*crosslink_mgr)Crosslink_mgr_update_pos(node_id int, coord_x float32,
 		if coord_y < old_y {
 			y_cur_node := y_node.prev_
 			pthis.link_y_._inter_crosslink_del(y_node)
+			Y_PREV_LOOP:
 			for ;y_cur_node!=nil; {
 				if y_node.coord_ < y_cur_node.get_coord() {
 					switch y_cur_node.get_node_type() {
@@ -644,6 +671,17 @@ func (pthis*crosslink_mgr)Crosslink_mgr_update_pos(node_id int, coord_x float32,
 					}
 					y_cur_node = y_cur_node.get_prev()
 					continue
+				} else if y_node.coord_ == y_cur_node.get_coord() {
+					switch y_cur_node.get_node_type() {
+					case CROSSLINK_NODE_TYPE_back_guard:
+						y_map[y_cur_node.get_node_id()] = y_cur_node.get_node_id()
+						y_cur_node = y_cur_node.get_prev()
+						continue
+					case CROSSLINK_NODE_TYPE_front_guard:
+					default:
+						pthis.link_y_._inter_crosslink_add_after(y_node, y_cur_node)
+						break Y_PREV_LOOP
+					}
 				} else {
 					pthis.link_y_._inter_crosslink_add_after(y_node, y_cur_node)
 					break
@@ -656,6 +694,7 @@ func (pthis*crosslink_mgr)Crosslink_mgr_update_pos(node_id int, coord_x float32,
 		} else if coord_y > old_y {
 			y_cur_node := y_node.next_
 			pthis.link_y_._inter_crosslink_del(y_node)
+			Y_BACK_LOOP:
 			for ;y_cur_node!=nil; {
 				if y_node.coord_ > y_cur_node.get_coord() {
 					switch y_cur_node.get_node_type() {
@@ -666,6 +705,17 @@ func (pthis*crosslink_mgr)Crosslink_mgr_update_pos(node_id int, coord_x float32,
 					}
 					y_cur_node = y_cur_node.get_next()
 					continue
+				} else if y_node.coord_ == y_cur_node.get_coord() {
+					switch y_cur_node.get_node_type() {
+					case CROSSLINK_NODE_TYPE_front_guard:
+						y_map[y_cur_node.get_node_id()] = y_cur_node.get_node_id()
+						y_cur_node = y_cur_node.get_next()
+						continue
+					case CROSSLINK_NODE_TYPE_back_guard:
+					default:
+						pthis.link_y_._inter_crosslink_add_before(y_node, y_cur_node)
+						break Y_BACK_LOOP
+					}
 				} else {
 					pthis.link_y_._inter_crosslink_add_before(y_node, y_cur_node)
 					break
