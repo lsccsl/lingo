@@ -382,16 +382,14 @@ func (pthis*crosslink_mgr)Crosslink_mgr_add(node_if Crosslink_node_if) int {
 
 func (pthis*crosslink_mgr)Ntf_node_in_view(node_id int, node_id_in_viewed int) {
 	node, _ := pthis.map_node_[node_id]
-	if node == nil {
-		return
+	if node != nil {
+		node.map_view_[node_id_in_viewed] = node_id_in_viewed
 	}
 	node_in_viewed, _ := pthis.map_node_[node_id_in_viewed]
-	if node_in_viewed == nil {
-		return
+	if node_in_viewed != nil {
+		node_in_viewed.map_view_by_[node_id] = node_id
 	}
 
-	node.map_view_[node_id_in_viewed] = node_id_in_viewed
-	node_in_viewed.map_view_by_[node_id] = node_id
 
 	pthis.crs_lnk_if_.Ntf_node_in_view(node_id, node_id_in_viewed)
 }
@@ -927,13 +925,13 @@ func (pthis*crosslink_mgr)Crosslink_mgr_update_pos(node_id int, coord_x float32,
 		for k, _ := range map_view_old {
 			_, ok := map_view_new[k]
 			if !ok {
-				pthis.Ntf_node_in_view(node_id, k)
+				pthis.Ntf_node_out_view(node_id, k)
 			}
 		}
 		for k, _ := range map_view_new {
 			_, ok := map_view_old[k]
 			if !ok {
-				pthis.Ntf_node_out_view(node_id, k)
+				pthis.Ntf_node_in_view(node_id, k)
 			}
 		}
 		node.map_view_ = map_view_new
