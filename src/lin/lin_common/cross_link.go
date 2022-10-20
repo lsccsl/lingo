@@ -395,6 +395,20 @@ func (pthis*crosslink_mgr)Ntf_node_in_view(node_id int, node_id_in_viewed int) {
 
 	pthis.crs_lnk_if_.Ntf_node_in_view(node_id, node_id_in_viewed)
 }
+func (pthis*crosslink_mgr)Ntf_node_out_view(node_id int, node_id_out_view int) {
+	node, _ := pthis.map_node_[node_id]
+	if node != nil {
+		delete(node.map_view_, node_id_out_view)
+	}
+
+	node_out_view, _ := pthis.map_node_[node_id_out_view]
+	if node_out_view != nil {
+		delete(node_out_view.map_view_by_, node_id_out_view)
+	}
+
+	pthis.crs_lnk_if_.Ntf_node_out_view(node_id, node_id_out_view)
+}
+
 
 func (pthis*cross_node)_inter_gen_view() map[int]int {
 	// gather node between front and back guard
@@ -546,16 +560,17 @@ func (pthis*crosslink_mgr)Crosslink_mgr_del(node_id int) {
 	delete(pthis.map_node_, node_id)
 
 	for k, _ := range node.map_view_by_ {
-		pthis.crs_lnk_if_.Ntf_node_out_view(k, node.node_id_)
-		node_view_by, _ := pthis.map_node_[k]
-		if node_view_by == nil {
-			continue
-		}
-		delete(node_view_by.map_view_by_, node.node_id_)
+		pthis.Ntf_node_out_view(k, node_id)
 	}
 
 	pthis.link_y_._inter_crosslink_del(node.x_node_)
+	pthis.link_y_._inter_crosslink_del(node.x_node_.front_)
+	pthis.link_y_._inter_crosslink_del(node.x_node_.back_)
+
 	pthis.link_y_._inter_crosslink_del(node.y_node_)
+	pthis.link_y_._inter_crosslink_del(node.y_node_.front_)
+	pthis.link_y_._inter_crosslink_del(node.y_node_.back_)
+
 }
 
 func (pthis*crosslink_mgr)Crosslink_mgr_update_pos(node_id int, coord_x float32, coord_y float32) {
@@ -737,16 +752,17 @@ func (pthis*crosslink_mgr)Crosslink_mgr_update_pos(node_id int, coord_x float32,
 				map_view_by[k] = k
 			}
 		}
-		for k, _ := range node.map_view_by_ {
-			_, ok := map_view_by[k]
-			if !ok {
-				pthis.crs_lnk_if_.Ntf_node_in_view(k, node_id)
-			}
-		}
+
 		for k, _ := range map_view_by {
 			_, ok := node.map_view_by_[k]
 			if !ok {
-				pthis.crs_lnk_if_.Ntf_node_in_view(k, node_id)
+				pthis.Ntf_node_in_view(k, node_id)
+			}
+		}
+		for k, _ := range node.map_view_by_ {
+			_, ok := map_view_by[k]
+			if !ok {
+				pthis.Ntf_node_out_view(k, node_id)
 			}
 		}
 		node.map_view_by_ = map_view_by
@@ -911,13 +927,13 @@ func (pthis*crosslink_mgr)Crosslink_mgr_update_pos(node_id int, coord_x float32,
 		for k, _ := range map_view_old {
 			_, ok := map_view_new[k]
 			if !ok {
-				pthis.crs_lnk_if_.Ntf_node_in_view(node_id, k)
+				pthis.Ntf_node_in_view(node_id, k)
 			}
 		}
 		for k, _ := range map_view_new {
 			_, ok := map_view_old[k]
 			if !ok {
-				pthis.crs_lnk_if_.Ntf_node_out_view(node_id, k)
+				pthis.Ntf_node_out_view(node_id, k)
 			}
 		}
 		node.map_view_ = map_view_new
@@ -987,4 +1003,3 @@ func (pthis*crosslink_mgr)String() string {
 // guard >=   node >
 // link order check
 // view check
-// Crosslink_mgr_del
