@@ -114,13 +114,16 @@ func main() {
 	}
 	clm.Crosslink_mgr_add(node8)
 	//fmt.Println(clm)
+	clm.Check()
 
 	fmt.Println("\n\n\n update pos\n")
 	clm.Crosslink_mgr_update_pos(node0_id, 11, 11)
 	fmt.Println(clm)
+	clm.Check()
 
 	fmt.Println("\n\n\n delete\n")
 	clm.Crosslink_mgr_del(node0_id)
+	clm.Check()
 	fmt.Println(clm)
 
 	return

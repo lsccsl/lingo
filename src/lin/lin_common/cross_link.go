@@ -998,6 +998,269 @@ func (pthis*crosslink_mgr)String() string {
 	return str
 }
 
-// guard >=   node >
-// link order check
+func (pthis*crosslink_mgr)Check() {
+
+	// check x y coord sort is right
+	{
+		map_node_id := make(MAP_NODE_ID)
+		for k, _ := range pthis.map_node_ {
+			map_node_id[k] = k
+		}
+		cur_node := pthis.link_x_.head_
+		for ; cur_node != nil; {
+			node_next := cur_node.get_next()
+			if node_next != nil {
+				if node_next.get_coord() < cur_node.get_coord() {
+					LogErr("wrong coord sort", cur_node, node_next)
+					panic("cross link check err")
+					break
+				}
+			}
+			if cur_node.get_node_type() == CROSSLINK_NODE_TYPE_node {
+				_, ok := map_node_id[cur_node.get_node_id()]
+				if !ok {
+					LogErr("x node is not is map", cur_node)
+					panic("cross link check err")
+				}
+				delete(map_node_id, cur_node.get_node_id())
+			}
+			cur_node = node_next
+		}
+		if len(map_node_id) != 0 {
+			LogErr("node is not match")
+			panic("cross link check err")
+		}
+
+		map_node_id = make(MAP_NODE_ID)
+		for k, _ := range pthis.map_node_ {
+			map_node_id[k] = k
+		}
+		cur_node = pthis.link_y_.head_
+		for ; cur_node != nil; {
+			node_next := cur_node.get_next()
+			if node_next != nil {
+				if node_next.get_coord() < cur_node.get_coord() {
+					LogErr("wrong coord sort", cur_node, node_next)
+					panic("cross link check err")
+					break
+				}
+			}
+			if cur_node.get_node_type() == CROSSLINK_NODE_TYPE_node {
+				_, ok := map_node_id[cur_node.get_node_id()]
+				if !ok {
+					LogErr("y node is not is map", cur_node)
+					panic("cross link check err")
+				}
+				delete(map_node_id, cur_node.get_node_id())
+			}
+			cur_node = node_next
+		}
+		if len(map_node_id) != 0 {
+			LogErr("node is not match")
+			panic("cross link check err")
+		}
+	}
+
+
+	// check front back guard and view
+	for k, v := range pthis.map_node_ {
+		node_id := k
+		map_x := make(MAP_NODE_ID)
+		{
+			cur_node := v.x_node_.get_prev()
+			b_find_front := false
+			for ;cur_node != nil;cur_node = cur_node.get_prev() {
+				if cur_node.get_node_type() == CROSSLINK_NODE_TYPE_node {
+					map_x[cur_node.get_node_id()] = cur_node.get_node_id()
+					continue
+				}
+				if cur_node.get_node_type() != CROSSLINK_NODE_TYPE_front_guard {
+					continue
+				}
+				if cur_node.get_node_id() != node_id {
+					continue
+				}
+				b_find_front = true
+				break
+			}
+			if b_find_front == false {
+				LogErr("can't find front guard", cur_node)
+				panic("cross link check err")
+				break
+			}
+		}
+
+		{
+			cur_node := v.x_node_.get_next()
+			b_find_back := false
+			for ;cur_node != nil;cur_node = cur_node.get_next() {
+				if cur_node.get_node_type() == CROSSLINK_NODE_TYPE_node {
+					map_x[cur_node.get_node_id()] = cur_node.get_node_id()
+					continue
+				}
+				if cur_node.get_node_type() != CROSSLINK_NODE_TYPE_back_guard {
+					continue
+				}
+				if cur_node.get_node_id() != node_id {
+					continue
+				}
+				b_find_back = true
+				break
+			}
+			if b_find_back == false {
+				LogErr("can't find front guard", cur_node)
+				panic("cross link check err")
+				break
+			}
+		}
+
+
+		map_y := make(MAP_NODE_ID)
+		{
+			cur_node := v.y_node_.get_prev()
+			b_find_front := false
+			for ;cur_node != nil;cur_node = cur_node.get_prev() {
+				if cur_node.get_node_type() == CROSSLINK_NODE_TYPE_node {
+					map_y[cur_node.get_node_id()] = cur_node.get_node_id()
+					continue
+				}
+				if cur_node.get_node_type() != CROSSLINK_NODE_TYPE_front_guard {
+					continue
+				}
+				if cur_node.get_node_id() != node_id {
+					continue
+				}
+				b_find_front = true
+				break
+			}
+			if b_find_front == false {
+				LogErr("can't find front guard", cur_node)
+				panic("cross link check err")
+				break
+			}
+		}
+
+		{
+			cur_node := v.y_node_.get_next()
+			b_find_back := false
+			for ;cur_node != nil;cur_node = cur_node.get_next() {
+				if cur_node.get_node_type() == CROSSLINK_NODE_TYPE_node {
+					map_y[cur_node.get_node_id()] = cur_node.get_node_id()
+					continue
+				}
+				if cur_node.get_node_type() != CROSSLINK_NODE_TYPE_back_guard {
+					continue
+				}
+				if cur_node.get_node_id() != node_id {
+					continue
+				}
+				b_find_back = true
+				break
+			}
+			if b_find_back == false {
+				LogErr("can't find front guard", cur_node)
+				panic("cross link check err")
+				break
+			}
+		}
+
+		map_view := make(MAP_NODE_ID)
+		for k, _ := range v.map_view_ {
+			map_view[k] = k
+		}
+		for k, _ := range map_x {
+			_, ok := map_y[k]
+			if ok {
+				_, ok1 := map_view[k]
+				if !ok1 {
+					LogErr("node view err:", v)
+					panic("cross link check err")
+					break
+				}
+				delete(map_view, k)
+			}
+		}
+		if len(map_view) != 0 {
+			LogErr("node view err:", v)
+			panic("cross link check err")
+		}
+	}
+
+
+	// check view by
+	for k, v := range pthis.map_node_ {
+		node_id := k
+
+		map_view_by_x := make(MAP_NODE_ID)
+		{
+			cur_node := pthis.link_x_.head_
+			LOOP_CHECK_VIEW_BY_X:
+			for ;cur_node != nil; {
+				switch cur_node.get_node_type() {
+				case CROSSLINK_NODE_TYPE_node:
+					if node_id == cur_node.get_node_id() {
+						break LOOP_CHECK_VIEW_BY_X
+					}
+				case CROSSLINK_NODE_TYPE_front_guard:
+					if node_id != cur_node.get_node_id() {
+						map_view_by_x[cur_node.get_node_id()] = cur_node.get_node_id()
+					}
+				case CROSSLINK_NODE_TYPE_back_guard:
+					if node_id != cur_node.get_node_id() {
+						delete(map_view_by_x, cur_node.get_node_id())
+					}
+				}
+				cur_node = cur_node.get_next()
+			}
+		}
+
+		map_view_by_y := make(MAP_NODE_ID)
+		{
+			cur_node := pthis.link_y_.head_
+			LOOP_CHECK_VIEW_BY_Y:
+			for ;cur_node != nil; {
+				switch cur_node.get_node_type() {
+				case CROSSLINK_NODE_TYPE_node:
+					if node_id == cur_node.get_node_id() {
+						break LOOP_CHECK_VIEW_BY_Y
+					}
+				case CROSSLINK_NODE_TYPE_front_guard:
+					if node_id != cur_node.get_node_id() {
+						map_view_by_y[cur_node.get_node_id()] = cur_node.get_node_id()
+					}
+				case CROSSLINK_NODE_TYPE_back_guard:
+					if node_id != cur_node.get_node_id() {
+						delete(map_view_by_y, cur_node.get_node_id())
+					}
+				}
+				cur_node = cur_node.get_next()
+			}
+		}
+
+		map_view_by := make(MAP_NODE_ID)
+		for k, _ := range v.map_view_by_ {
+			map_view_by[k] = k
+		}
+		for k, _ := range map_view_by_x {
+			_, ok := map_view_by_y[k]
+			if ok {
+				_, ok1 := map_view_by[k]
+				if !ok1 {
+					LogErr("node view by err:", v)
+					panic("cross link check err")
+					break
+				}
+				delete(map_view_by, k)
+			}
+		}
+		if len(map_view_by) != 0 {
+			LogErr("node view by err:", v)
+			panic("cross link check err")
+		}
+	}
+
+
+}
+
 // view check
+
