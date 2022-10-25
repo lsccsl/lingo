@@ -991,6 +991,9 @@ func (pthis*crosslink_mgr)Crosslink_mgr_update_pos(node_id int, coord_x float32,
 	}
 }
 
+func (pthis*crosslink_mgr)Crosslink_get_node_count() int {
+	return len(pthis.map_node_)
+}
 
 func (pthis*crosslinker_guard)String() string {
 	str := fmt.Sprintf("{guard id:%v coord:%v type:%d}", pthis.node_id_, pthis.coord_, pthis.node_type_)

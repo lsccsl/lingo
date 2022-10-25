@@ -161,7 +161,10 @@ func main() {
 	//fmt.Println(clm)
 	clm.Check()
 
+	fmt.Println("add", clm.Crosslink_get_node_count())
 
+
+	// update pos
 	for i := 0; i < 100; i ++ {
 		fmt.Println("\n\n\n update pos\n")
 		clm.Crosslink_mgr_update_pos(node0_id, float32(i), float32(i))
@@ -176,6 +179,7 @@ func main() {
 		clm.Check()
 	}
 
+	// update pos rand 100
 	rand.Seed(0)
 	for i := 0; i < 100; i ++ {
 		fmt.Println("\n\n\n rand update pos\n")
@@ -186,9 +190,59 @@ func main() {
 		clm.Check()
 	}
 
+	// udpate pos rand 1000
+	rand.Seed(0)
+	for i := 0; i < 100; i ++ {
+		fmt.Println("\n\n\n rand 1000 update pos\n")
+		x := float32(rand.Int() % 1000)
+		y := float32(rand.Int() % 1000)
+		clm.Crosslink_mgr_update_pos(node0_id, x, y)
+		//fmt.Println(clm)
+		clm.Check()
+	}
+
+	// add rand 1000
+	map_del := make(map[int]int)
+	rand.Seed(0)
+	for i := 1; i <= 100; i ++ {
+		x := float32(rand.Int() % 1000)
+		y := float32(rand.Int() % 1000)
+
+		node_tmp := &cross_link_node_inf {
+			x : x,
+			y : y,
+			view_range : 10,
+		}
+		id := clm.Crosslink_mgr_add(node_tmp)
+		//fmt.Println(clm)
+		clm.Check()
+
+		map_del[id] = id
+	}
+	fmt.Println("add", clm.Crosslink_get_node_count())
+
+	// udpate pos rand 1000
+	rand.Seed(0)
+	for i := 0; i < 100; i ++ {
+		fmt.Println("\n\n\n rand 1000 update pos\n")
+		x := float32(rand.Int() % 1000)
+		y := float32(rand.Int() % 1000)
+		clm.Crosslink_mgr_update_pos(node0_id, x, y)
+		//fmt.Println(clm)
+		clm.Check()
+	}
+
+	// del
+	for k, _ := range map_del {
+		clm.Crosslink_mgr_del(k)
+		clm.Check()
+	}
+
+	fmt.Println("delete", clm.Crosslink_get_node_count())
+
 	fmt.Println("\n\n\n delete\n")
 	clm.Crosslink_mgr_del(node0_id)
-	fmt.Println(clm)
+	//fmt.Println(clm)
 	clm.Check()
 
 	return
