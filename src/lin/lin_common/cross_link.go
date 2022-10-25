@@ -949,11 +949,11 @@ func (pthis*crosslink_mgr)Crosslink_mgr_update_pos(node_id int, coord_x float32,
 	node.map_view_by_ = make(MAP_NODE_ID)
 	node.map_view_ = make(MAP_NODE_ID)
 	{
-		for k, _ := range x_map {
-			_, ok := y_map[k]
-			if ok {
-				map_view_by[k] = k
+		for k, _ := range y_map {
+			if !pthis._inter_crosslink_is_in_view(k, coord_x, coord_y) {
+				continue
 			}
+			map_view_by[k] = k
 		}
 
 		for k, _ := range map_view_by {
