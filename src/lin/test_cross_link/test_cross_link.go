@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"lin/lin_common"
+	"math/rand"
 )
 
 
@@ -42,6 +43,42 @@ func main() {
 
 	var cli cross_link_inf
 	clm := lin_common.Crosslink_mgr_constructor(&cli)
+
+	for i := 2; i <= 100; i += 2 {
+		node_tmp := &cross_link_node_inf {
+			x : float32(i),
+			y : float32(i),
+			view_range : 10,
+		}
+		clm.Crosslink_mgr_add(node_tmp)
+		//fmt.Println(clm)
+		clm.Check()
+	}
+	for i := 1; i <= 99; i += 2 {
+		node_tmp := &cross_link_node_inf {
+			x : float32(i),
+			y : float32(i),
+			view_range : 10,
+		}
+		clm.Crosslink_mgr_add(node_tmp)
+		//fmt.Println(clm)
+		clm.Check()
+	}
+
+	rand.Seed(0)
+	for i := 1; i <= 100; i ++ {
+		x := float32(rand.Int() % 100)
+		y := float32(rand.Int() % 100)
+
+		node_tmp := &cross_link_node_inf {
+			x : x,
+			y : y,
+			view_range : 10,
+		}
+		clm.Crosslink_mgr_add(node_tmp)
+		//fmt.Println(clm)
+		clm.Check()
+	}
 
 	node0 := &cross_link_node_inf {
 		x : 0,
@@ -124,23 +161,14 @@ func main() {
 	//fmt.Println(clm)
 	clm.Check()
 
-	for i := 0; i < 100; i ++ {
-		node_tmp := &cross_link_node_inf {
-			x : float32(i),
-			y : float32(i),
-			view_range : 10,
-		}
-		clm.Crosslink_mgr_add(node_tmp)
-		//fmt.Println(clm)
-		clm.Check()
-	}
 
 	for i := 0; i < 100; i ++ {
 		fmt.Println("\n\n\n update pos\n")
 		clm.Crosslink_mgr_update_pos(node0_id, float32(i), float32(i))
-		//fmt.Println(clm)
+		fmt.Println(clm)
 		clm.Check()
 	}
+	fmt.Println(clm)
 	for i := 0; i < 100; i ++ {
 		fmt.Println("\n\n\n update pos\n")
 		clm.Crosslink_mgr_update_pos(node0_id, float32(100 - i), float32(100 - i))

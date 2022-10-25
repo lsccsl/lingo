@@ -131,6 +131,7 @@ type cross_node struct {
 	node_if_ Crosslink_node_if
 
 	map_view_by_ MAP_NODE_ID // view by
+
 	map_view_    MAP_NODE_ID // view
 }
 
@@ -573,6 +574,43 @@ func (pthis*crosslink_mgr)Crosslink_mgr_del(node_id int) {
 	pthis.link_y_._inter_crosslink_del(node.y_node_.back_)
 }
 
+func (pthis*crosslink_mgr)_inter_crosslink_is_in_view(node_id int, coord_x float32, coord_y float32) bool {
+	node, _ := pthis.map_node_[node_id]
+	if node == nil {
+		return false
+	}
+
+	{
+		x := node.x_node_.coord_
+
+		x_min := x - node.node_if_.Get_view_range()
+		x_max := x + node.node_if_.Get_view_range()
+
+		if coord_x < x_min {
+			return false
+		}
+		if coord_x > x_max {
+			return false
+		}
+	}
+
+	{
+		y := node.y_node_.coord_
+
+		y_min := y - node.node_if_.Get_view_range()
+		y_max := y + node.node_if_.Get_view_range()
+
+		if coord_y < y_min {
+			return false
+		}
+		if coord_y > y_max {
+			return false
+		}
+	}
+
+	return true
+}
+
 func (pthis*crosslink_mgr)Crosslink_mgr_update_pos(node_id int, coord_x float32, coord_y float32) {
 	node, _ := pthis.map_node_[node_id]
 	if node == nil {
@@ -664,14 +702,20 @@ func (pthis*crosslink_mgr)Crosslink_mgr_update_pos(node_id int, coord_x float32,
 		}
 	}
 
-
 	// y move
 	y_map := make(map[int]int)
+	for k,v := range node.map_view_by_ {
+		y_map[k] = v
+	}
+	for k,_ := range x_map {
+		if !pthis._inter_crosslink_is_in_view(k, coord_x, coord_y) {
+			continue
+		}
+		y_map[k] = k
+	}
+
 	{
 		y_node := node.y_node_
-		for k,v := range node.map_view_by_ {
-			y_map[k] = v
-		}
 		if coord_y < old_y {
 			y_cur_node := y_node.prev_
 			pthis.link_y_._inter_crosslink_del(y_node)
@@ -985,7 +1029,7 @@ func (pthis*crosslinker_node)String() string {
 	return str
 }
 func (pthis*crosslink_mgr)String() string {
-	str := "cross link dump\r\n\n"
+	str := "cross link dump ====================== \r\n\n"
 
 	for _, v := range pthis.map_node_ {
 		str += fmt.Sprintf("\r\n node:%v", v)
@@ -1004,6 +1048,7 @@ func (pthis*crosslink_mgr)String() string {
 		cur_node = cur_node.get_next()
 	}
 
+	str += "end cross link dump ====================== \r\n\n"
 	return str
 }
 
@@ -1272,6 +1317,4 @@ func (pthis*crosslink_mgr)Check() {
 			panic("cross link check err")
 		}
 	}
-
-
 }
