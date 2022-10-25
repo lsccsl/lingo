@@ -560,6 +560,9 @@ func (pthis*crosslink_mgr)Crosslink_mgr_del(node_id int) {
 	for k, _ := range node.map_view_by_ {
 		pthis.Ntf_node_out_view(k, node_id)
 	}
+	for k, _ := range node.map_view_ {
+		pthis.Ntf_node_out_view(node_id, k)
+	}
 
 	pthis.link_y_._inter_crosslink_del(node.x_node_)
 	pthis.link_y_._inter_crosslink_del(node.x_node_.front_)
@@ -568,7 +571,6 @@ func (pthis*crosslink_mgr)Crosslink_mgr_del(node_id int) {
 	pthis.link_y_._inter_crosslink_del(node.y_node_)
 	pthis.link_y_._inter_crosslink_del(node.y_node_.front_)
 	pthis.link_y_._inter_crosslink_del(node.y_node_.back_)
-
 }
 
 func (pthis*crosslink_mgr)Crosslink_mgr_update_pos(node_id int, coord_x float32, coord_y float32) {
