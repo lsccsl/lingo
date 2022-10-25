@@ -868,7 +868,7 @@ func (pthis*crosslink_mgr)Crosslink_mgr_update_pos(node_id int, coord_x float32,
 	{
 		y_front_guard := node.y_node_.front_
 		old_front_y := y_front_guard.coord_
-		y_front_guard.coord_ = node.x_node_.coord_ - node.node_if_.Get_view_range()
+		y_front_guard.coord_ = node.y_node_.coord_ - node.node_if_.Get_view_range()
 		if y_front_guard.coord_ < old_front_y {
 			cur_node := y_front_guard.get_prev()
 			pthis.link_y_._inter_crosslink_del(y_front_guard)
@@ -906,7 +906,7 @@ func (pthis*crosslink_mgr)Crosslink_mgr_update_pos(node_id int, coord_x float32,
 	{
 		y_back_guard := node.y_node_.back_
 		old_back_y := y_back_guard.coord_
-		y_back_guard.coord_ = node.x_node_.coord_ + node.node_if_.Get_view_range()
+		y_back_guard.coord_ = node.y_node_.coord_ + node.node_if_.Get_view_range()
 		if y_back_guard.coord_ < old_back_y {
 			cur_node := y_back_guard.get_prev()
 			pthis.link_y_._inter_crosslink_del(y_back_guard)
@@ -1139,7 +1139,7 @@ func (pthis*crosslink_mgr)Check() {
 				break
 			}
 			if b_find_front == false {
-				LogErr("can't find front guard", cur_node)
+				LogErr("can't find x front guard", cur_node)
 				panic("cross link check err")
 				break
 			}
@@ -1164,7 +1164,7 @@ func (pthis*crosslink_mgr)Check() {
 				break
 			}
 			if b_find_back == false {
-				LogErr("can't find front guard", cur_node)
+				LogErr("can't find x back guard", cur_node)
 				panic("cross link check err")
 				break
 			}
@@ -1191,7 +1191,7 @@ func (pthis*crosslink_mgr)Check() {
 				break
 			}
 			if b_find_front == false {
-				LogErr("can't find front guard", cur_node)
+				LogErr("can't find y front guard", cur_node)
 				panic("cross link check err")
 				break
 			}
@@ -1216,8 +1216,8 @@ func (pthis*crosslink_mgr)Check() {
 				break
 			}
 			if b_find_back == false {
-				LogErr("can't find front guard", cur_node)
-				panic("cross link check err")
+				LogErr("can't find y back guard", cur_node)
+				panic("can't find back guard")
 				break
 			}
 		}

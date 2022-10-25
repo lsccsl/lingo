@@ -165,13 +165,23 @@ func main() {
 	for i := 0; i < 100; i ++ {
 		fmt.Println("\n\n\n update pos\n")
 		clm.Crosslink_mgr_update_pos(node0_id, float32(i), float32(i))
-		fmt.Println(clm)
+		//fmt.Println(clm)
 		clm.Check()
 	}
 	fmt.Println(clm)
 	for i := 0; i < 100; i ++ {
 		fmt.Println("\n\n\n update pos\n")
 		clm.Crosslink_mgr_update_pos(node0_id, float32(100 - i), float32(100 - i))
+		//fmt.Println(clm)
+		clm.Check()
+	}
+
+	rand.Seed(0)
+	for i := 0; i < 100; i ++ {
+		fmt.Println("\n\n\n rand update pos\n")
+		x := float32(rand.Int() % 100)
+		y := float32(rand.Int() % 100)
+		clm.Crosslink_mgr_update_pos(node0_id, x, y)
 		//fmt.Println(clm)
 		clm.Check()
 	}
