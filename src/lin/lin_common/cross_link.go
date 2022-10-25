@@ -1075,6 +1075,7 @@ func (pthis*crosslink_mgr)Check() {
 	for k, v := range pthis.map_node_ {
 		node_id := k
 		map_x := make(MAP_NODE_ID)
+		//check x front guard
 		{
 			cur_node := v.x_node_.get_prev()
 			b_find_front := false
@@ -1099,6 +1100,7 @@ func (pthis*crosslink_mgr)Check() {
 			}
 		}
 
+		//check x back guard
 		{
 			cur_node := v.x_node_.get_next()
 			b_find_back := false
@@ -1125,6 +1127,7 @@ func (pthis*crosslink_mgr)Check() {
 
 
 		map_y := make(MAP_NODE_ID)
+		// check y front guard
 		{
 			cur_node := v.y_node_.get_prev()
 			b_find_front := false
@@ -1149,6 +1152,7 @@ func (pthis*crosslink_mgr)Check() {
 			}
 		}
 
+		// check y back guard
 		{
 			cur_node := v.y_node_.get_next()
 			b_find_back := false
@@ -1173,6 +1177,7 @@ func (pthis*crosslink_mgr)Check() {
 			}
 		}
 
+		// check view
 		map_view := make(MAP_NODE_ID)
 		for k, _ := range v.map_view_ {
 			map_view[k] = k
