@@ -124,10 +124,29 @@ func main() {
 	//fmt.Println(clm)
 	clm.Check()
 
-	fmt.Println("\n\n\n update pos\n")
-	clm.Crosslink_mgr_update_pos(node0_id, 11, 11)
-	//fmt.Println(clm)
-	clm.Check()
+	for i := 0; i < 100; i ++ {
+		node_tmp := &cross_link_node_inf {
+			x : float32(i),
+			y : float32(i),
+			view_range : 10,
+		}
+		clm.Crosslink_mgr_add(node_tmp)
+		//fmt.Println(clm)
+		clm.Check()
+	}
+
+	for i := 0; i < 100; i ++ {
+		fmt.Println("\n\n\n update pos\n")
+		clm.Crosslink_mgr_update_pos(node0_id, float32(i), float32(i))
+		//fmt.Println(clm)
+		clm.Check()
+	}
+	for i := 0; i < 100; i ++ {
+		fmt.Println("\n\n\n update pos\n")
+		clm.Crosslink_mgr_update_pos(node0_id, float32(100 - i), float32(100 - i))
+		//fmt.Println(clm)
+		clm.Check()
+	}
 
 	fmt.Println("\n\n\n delete\n")
 	clm.Crosslink_mgr_del(node0_id)
