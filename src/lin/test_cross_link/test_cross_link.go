@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"lin/lin_common"
 	"math/rand"
+	"time"
 )
 
 
@@ -48,8 +49,9 @@ func main() {
 	}
 
 	// test rand add
-	fmt.Println("\nadd rand 1000")
-	rand.Seed(0)
+	rseed := time.Now().Unix()
+	fmt.Println("\n 1 add rand 1000, seed:", rseed)
+	rand.Seed(rseed)
 	for i := 1; i <= 1000; i ++ {
 		x := float32(rand.Int() % 100)
 		y := float32(rand.Int() % 100)
@@ -176,8 +178,9 @@ func main() {
 	}
 
 	// update pos rand 100
-	fmt.Println("\n test update pos rand 100")
-	rand.Seed(0)
+	rseed = time.Now().Unix()
+	fmt.Println("\n 2 test update pos rand 100, rseed:", rseed)
+	rand.Seed(rseed)
 	for i := 0; i < 1000; i ++ {
 		x := float32(rand.Int() % 100)
 		y := float32(rand.Int() % 100)
@@ -191,8 +194,9 @@ func main() {
 	}
 
 	// udpate pos rand 1000
-	fmt.Println("\n test update pos rand 1000")
-	rand.Seed(0)
+	rseed = time.Now().Unix()
+	fmt.Println("\n 3 test update pos rand 1000, rseed:", rseed)
+	rand.Seed(rseed)
 	for i := 0; i < 1000; i ++ {
 		x := float32(rand.Int() % 1000)
 		y := float32(rand.Int() % 1000)
@@ -206,9 +210,10 @@ func main() {
 	}
 
 	// add rand 1000
-	fmt.Println("\n test add rand 1000")
+	rseed = time.Now().Unix()
+	fmt.Println("\n 4 test add rand 1000, rseed:", rseed)
+	rand.Seed(rseed)
 	map_del := make(map[int]int)
-	rand.Seed(0)
 	for i := 1; i <= 100; i ++ {
 		x := float32(rand.Int() % 1000)
 		y := float32(rand.Int() % 1000)
@@ -230,8 +235,9 @@ func main() {
 	fmt.Println("add", clm.Crosslink_get_node_count())
 
 	// udpate pos rand 1000
-	fmt.Println("\n test update pos rand 1000")
-	rand.Seed(0)
+	rseed = time.Now().Unix()
+	fmt.Println("\n 5 test update pos rand 1000, rseed:", rseed)
+	rand.Seed(rseed)
 	for i := 0; i < 1000; i ++ {
 		x := float32(rand.Int() % 1000)
 		y := float32(rand.Int() % 1000)
