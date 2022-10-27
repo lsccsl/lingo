@@ -14,11 +14,11 @@ type Crosslink_interface interface {
 	Ntf_node_out_view(node_id int, node_id_out_view int)
 }
 
-type Crosslink_node_if interface {
-	Get_node_x()float32
-	Get_node_y()float32
-	Get_node_data()interface{}
-	Get_view_range()float32
+type Crosslink_node_param struct {
+	X float32
+	Y float32
+	Data interface{}
+	ViewRange float32
 }
 
 type crosslinker_inf interface {
@@ -128,7 +128,7 @@ type cross_node struct {
 	y_node_ *crosslinker_node
 
 	node_id_ int
-	node_if_ Crosslink_node_if
+	node_param_ Crosslink_node_param
 
 	map_view_by_ MAP_NODE_ID // view by
 
@@ -234,25 +234,22 @@ func Crosslink_mgr_constructor(crs_lnk_if Crosslink_interface) *crosslink_mgr {
 	return crs_lnk
 }
 
-func (pthis*crosslink_mgr)Crosslink_mgr_add(node_if Crosslink_node_if) int {
-	if node_if == nil {
-		return -1
-	}
+func (pthis*crosslink_mgr)Crosslink_mgr_add(node_param * Crosslink_node_param) int {
 
 	pthis.cur_node_id_++
 	new_node_id := pthis.cur_node_id_
 
 	x_new_node := &crosslinker_node{prev_: nil, next_:nil,
 		front_ : nil, back_ : nil,
-		coord_ :      node_if.Get_node_x(),
-		view_range_ : node_if.Get_view_range(),
+		coord_ :      node_param.X,
+		view_range_ : node_param.ViewRange,
 		node_type_:   CROSSLINK_NODE_TYPE_node,
 		node_id_:     new_node_id,
 	}
 	y_new_node := &crosslinker_node{prev_: nil, next_:nil,
 		front_ : nil, back_ : nil,
-		coord_ :      node_if.Get_node_y(),
-		view_range_ : node_if.Get_view_range(),
+		coord_ :      node_param.Y,
+		view_range_ : node_param.ViewRange,
 		node_type_:   CROSSLINK_NODE_TYPE_node,
 		node_id_:     new_node_id,
 	}
@@ -261,7 +258,7 @@ func (pthis*crosslink_mgr)Crosslink_mgr_add(node_if Crosslink_node_if) int {
 		x_node_ : x_new_node,
 		y_node_ : y_new_node,
 		node_id_ : new_node_id,
-		node_if_ : node_if,
+		node_param_ : *node_param,
 		map_view_by_ : make(MAP_NODE_ID),
 		map_view_ : make(MAP_NODE_ID),
 	}
@@ -457,7 +454,7 @@ func(pthis*crosslink_mgr)_inter_crosslink_link_guard(new_node *cross_node) {
 
 	x_new_node := new_node.x_node_
 	y_new_node := new_node.y_node_
-	node_if := new_node.node_if_
+	node_param := &new_node.node_param_
 
 	// add trigger node
 	if pthis.link_x_.head_ != nil {
@@ -465,7 +462,7 @@ func(pthis*crosslink_mgr)_inter_crosslink_link_guard(new_node *cross_node) {
 		x_new_node.front_ = &crosslinker_guard{
 			prev_ :      nil,
 			next_ :      nil,
-			coord_ :     x_new_node.coord_ - node_if.Get_view_range(),
+			coord_ :     x_new_node.coord_ - node_param.ViewRange,
 			node_type_ : CROSSLINK_NODE_TYPE_front_guard,
 			node_id_: new_node.node_id_,
 		}
@@ -486,7 +483,7 @@ func(pthis*crosslink_mgr)_inter_crosslink_link_guard(new_node *cross_node) {
 		x_new_node.back_ = &crosslinker_guard{
 			prev_ :      nil,
 			next_ :      nil,
-			coord_ :     x_new_node.coord_ + node_if.Get_view_range(),
+			coord_ :     x_new_node.coord_ + node_param.ViewRange,
 			node_type_ : CROSSLINK_NODE_TYPE_back_guard,
 			node_id_: new_node.node_id_,
 		}
@@ -510,7 +507,7 @@ func(pthis*crosslink_mgr)_inter_crosslink_link_guard(new_node *cross_node) {
 		y_new_node.front_ = &crosslinker_guard{
 			prev_ :      nil,
 			next_ :      nil,
-			coord_ :     y_new_node.coord_ - node_if.Get_view_range(),
+			coord_ :     y_new_node.coord_ - node_param.ViewRange,
 			node_type_ : CROSSLINK_NODE_TYPE_front_guard,
 			node_id_: new_node.node_id_,
 		}
@@ -531,7 +528,7 @@ func(pthis*crosslink_mgr)_inter_crosslink_link_guard(new_node *cross_node) {
 		y_new_node.back_ = &crosslinker_guard{
 			prev_ :      nil,
 			next_ :      nil,
-			coord_ :     y_new_node.coord_ + node_if.Get_view_range(),
+			coord_ :     y_new_node.coord_ + node_param.ViewRange,
 			node_type_ : CROSSLINK_NODE_TYPE_back_guard,
 			node_id_: new_node.node_id_,
 		}
@@ -583,8 +580,8 @@ func (pthis*crosslink_mgr)_inter_crosslink_is_in_view(node_id int, coord_x float
 	{
 		x := node.x_node_.coord_
 
-		x_min := x - node.node_if_.Get_view_range()
-		x_max := x + node.node_if_.Get_view_range()
+		x_min := x - node.node_param_.ViewRange
+		x_max := x + node.node_param_.ViewRange
 
 		if coord_x < x_min {
 			return false
@@ -597,8 +594,8 @@ func (pthis*crosslink_mgr)_inter_crosslink_is_in_view(node_id int, coord_x float
 	{
 		y := node.y_node_.coord_
 
-		y_min := y - node.node_if_.Get_view_range()
-		y_max := y + node.node_if_.Get_view_range()
+		y_min := y - node.node_param_.ViewRange
+		y_max := y + node.node_param_.ViewRange
 
 		if coord_y < y_min {
 			return false
@@ -792,7 +789,7 @@ func (pthis*crosslink_mgr)Crosslink_mgr_update_pos(node_id int, coord_x float32,
 	{
 		x_front_guard := node.x_node_.front_
 		old_front_x := x_front_guard.coord_
-		x_front_guard.coord_ = node.x_node_.coord_ - node.node_if_.Get_view_range()
+		x_front_guard.coord_ = node.x_node_.coord_ - node.node_param_.ViewRange
 		if x_front_guard.coord_ < old_front_x {
 			cur_node := x_front_guard.get_prev()
 			pthis.link_x_._inter_crosslink_del(x_front_guard)
@@ -830,7 +827,7 @@ func (pthis*crosslink_mgr)Crosslink_mgr_update_pos(node_id int, coord_x float32,
 	{
 		x_back_guard := node.x_node_.back_
 		old_back_x := x_back_guard.coord_
-		x_back_guard.coord_ = node.x_node_.coord_ + node.node_if_.Get_view_range()
+		x_back_guard.coord_ = node.x_node_.coord_ + node.node_param_.ViewRange
 		if x_back_guard.coord_ < old_back_x {
 			cur_node := x_back_guard.get_prev()
 			pthis.link_x_._inter_crosslink_del(x_back_guard)
@@ -868,7 +865,7 @@ func (pthis*crosslink_mgr)Crosslink_mgr_update_pos(node_id int, coord_x float32,
 	{
 		y_front_guard := node.y_node_.front_
 		old_front_y := y_front_guard.coord_
-		y_front_guard.coord_ = node.y_node_.coord_ - node.node_if_.Get_view_range()
+		y_front_guard.coord_ = node.y_node_.coord_ - node.node_param_.ViewRange
 		if y_front_guard.coord_ < old_front_y {
 			cur_node := y_front_guard.get_prev()
 			pthis.link_y_._inter_crosslink_del(y_front_guard)
@@ -906,7 +903,7 @@ func (pthis*crosslink_mgr)Crosslink_mgr_update_pos(node_id int, coord_x float32,
 	{
 		y_back_guard := node.y_node_.back_
 		old_back_y := y_back_guard.coord_
-		y_back_guard.coord_ = node.y_node_.coord_ + node.node_if_.Get_view_range()
+		y_back_guard.coord_ = node.y_node_.coord_ + node.node_param_.ViewRange
 		if y_back_guard.coord_ < old_back_y {
 			cur_node := y_back_guard.get_prev()
 			pthis.link_y_._inter_crosslink_del(y_back_guard)

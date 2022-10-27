@@ -18,39 +18,17 @@ func (pthis*cross_link_inf)Ntf_node_out_view(node_id int, node_id_out_view int) 
 	//fmt.Println(node_id, " out view ", node_id_out_view)
 }
 
-
-type cross_link_node_inf struct {
-	x float32
-	y float32
-	data interface{}
-	view_range float32
-}
-func (pthis*cross_link_node_inf)Get_node_x()float32 {
-	return pthis.x
-}
-func (pthis*cross_link_node_inf)Get_node_y()float32 {
-	return pthis.y
-}
-func (pthis*cross_link_node_inf)Get_node_data()interface{} {
-	return pthis.data
-}
-func (pthis*cross_link_node_inf) Get_view_range()float32 {
-	return pthis.view_range
-}
-
-
 func main() {
 
 	var cli cross_link_inf
 	clm := lin_common.Crosslink_mgr_constructor(&cli)
-
 	// test add
 	fmt.Println("add 100 step 2")
 	for i := 2; i <= 100; i += 2 {
-		node_tmp := &cross_link_node_inf {
-			x : float32(i),
-			y : float32(i),
-			view_range : 10,
+		node_tmp := &lin_common.Crosslink_node_param {
+			X : float32(i),
+			Y : float32(i),
+			ViewRange : 10,
 		}
 		clm.Crosslink_mgr_add(node_tmp)
 		//fmt.Println(clm)
@@ -58,10 +36,10 @@ func main() {
 		fmt.Print(".")
 	}
 	for i := 1; i <= 99; i += 2 {
-		node_tmp := &cross_link_node_inf {
-			x : float32(i),
-			y : float32(i),
-			view_range : 10,
+		node_tmp := &lin_common.Crosslink_node_param {
+			X : float32(i),
+			Y : float32(i),
+			ViewRange : 10,
 		}
 		clm.Crosslink_mgr_add(node_tmp)
 		//fmt.Println(clm)
@@ -76,10 +54,10 @@ func main() {
 		x := float32(rand.Int() % 100)
 		y := float32(rand.Int() % 100)
 
-		node_tmp := &cross_link_node_inf {
-			x : x,
-			y : y,
-			view_range : 10,
+		node_tmp := &lin_common.Crosslink_node_param {
+			X : x,
+			Y : y,
+			ViewRange : 10,
 		}
 		clm.Crosslink_mgr_add(node_tmp)
 		//fmt.Println(clm)
@@ -90,82 +68,82 @@ func main() {
 		}
 	}
 
-	node0 := &cross_link_node_inf {
-		x : 0,
-		y : 0,
-		view_range : 10,
+	node0 := &lin_common.Crosslink_node_param {
+		X : 0,
+		Y : 0,
+		ViewRange : 10,
 	}
 	node0_id := clm.Crosslink_mgr_add(node0)
 	//fmt.Println(clm.Crosslink_mgr_dump())
 	clm.Check()
 
-	node1 := &cross_link_node_inf {
-		x : 1,
-		y : 1,
-		view_range : 10,
+	node1 := &lin_common.Crosslink_node_param {
+		X : 1,
+		Y : 1,
+		ViewRange : 10,
 	}
 	clm.Crosslink_mgr_add(node1)
 	//fmt.Println(clm.Crosslink_mgr_dump())
 	clm.Check()
 
-	node2 := &cross_link_node_inf {
-		x : 11,
-		y : 11,
-		view_range : 10,
+	node2 := &lin_common.Crosslink_node_param {
+		X : 11,
+		Y : 11,
+		ViewRange : 10,
 	}
 	clm.Crosslink_mgr_add(node2)
 	//fmt.Println(clm.Crosslink_mgr_dump())
 	clm.Check()
 
-	node3 := &cross_link_node_inf {
-		x : 16,
-		y : 16,
-		view_range : 10,
+	node3 := &lin_common.Crosslink_node_param {
+		X : 16,
+		Y : 16,
+		ViewRange : 10,
 	}
 	clm.Crosslink_mgr_add(node3)
 	//fmt.Println(clm.Crosslink_mgr_dump())
 	clm.Check()
 
-	node4 := &cross_link_node_inf {
-		x : 21,
-		y : 21,
-		view_range : 10,
+	node4 := &lin_common.Crosslink_node_param {
+		X : 21,
+		Y : 21,
+		ViewRange : 10,
 	}
 	clm.Crosslink_mgr_add(node4)
 	//fmt.Println(clm.Crosslink_mgr_dump())
 	clm.Check()
 
-	node5 := &cross_link_node_inf {
-		x : -6,
-		y : -6,
-		view_range : 10,
+	node5 := &lin_common.Crosslink_node_param {
+		X : -6,
+		Y : -6,
+		ViewRange : 10,
 	}
 	clm.Crosslink_mgr_add(node5)
 	//fmt.Println(clm.Crosslink_mgr_dump())
 	clm.Check()
 
-	node6 := &cross_link_node_inf {
-		x : -11,
-		y : -11,
-		view_range : 10,
+	node6 := &lin_common.Crosslink_node_param {
+		X : -11,
+		Y : -11,
+		ViewRange : 10,
 	}
 	clm.Crosslink_mgr_add(node6)
 	//fmt.Println(clm.Crosslink_mgr_dump())
 	clm.Check()
 
-	node7 := &cross_link_node_inf {
-		x : -16,
-		y : -16,
-		view_range : 10,
+	node7 := &lin_common.Crosslink_node_param {
+		X : -16,
+		Y : -16,
+		ViewRange : 10,
 	}
 	clm.Crosslink_mgr_add(node7)
 	//fmt.Println(clm.Crosslink_mgr_dump())
 	clm.Check()
 
-	node8 := &cross_link_node_inf {
-		x : -21,
-		y : -21,
-		view_range : 10,
+	node8 := &lin_common.Crosslink_node_param {
+		X : -21,
+		Y : -21,
+		ViewRange : 10,
 	}
 	clm.Crosslink_mgr_add(node8)
 	//fmt.Println(clm)
@@ -235,10 +213,10 @@ func main() {
 		x := float32(rand.Int() % 1000)
 		y := float32(rand.Int() % 1000)
 
-		node_tmp := &cross_link_node_inf {
-			x : x,
-			y : y,
-			view_range : 10,
+		node_tmp := &lin_common.Crosslink_node_param {
+			X : x,
+			Y : y,
+			ViewRange : 10,
 		}
 		id := clm.Crosslink_mgr_add(node_tmp)
 		//fmt.Println(clm)
