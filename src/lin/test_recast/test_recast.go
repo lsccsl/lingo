@@ -13,7 +13,39 @@ import (
 	"unsafe"
 )
 
+func test_recast_template() {
+
+	str_file_path := "./test_mesh/test_scene.obj"
+
+	bin_file_path := []byte(str_file_path)
+	tmp := unsafe.Pointer(C.nav_temlate_create( (*C.char)( unsafe.Pointer(&bin_file_path[0]) ),
+		6.0, 4.0, 4.0, 45.0))
+	ins := unsafe.Pointer(C.nav_new())
+
+	C.nav_load_from_template(ins, tmp)
+
+	var start_pos C.struct_RecastVec3f
+	start_pos.x = 702.190918
+	start_pos.y = 1.53082275
+	start_pos.z = 635.378662
+	var end_pos C.RecastPosT
+	end_pos.x = 710.805664
+	end_pos.y = 1.00000000
+	end_pos.z = 851.753296
+	var pos *C.RecastPosT
+	var pos_sz C.int
+	C.nav_findpath(ins, &start_pos, &end_pos, &pos, &pos_sz, true)
+	fmt.Println("pos_sz:", pos_sz)
+	for i:=0; i < int(pos_sz); i ++ {
+		fmt.Println(uintptr(i)*unsafe.Sizeof(*pos))
+		tmp_v := uintptr(unsafe.Pointer(pos))  + uintptr(i)*unsafe.Sizeof(*pos)
+		tmp_pos_ptr := (*C.RecastPosT)( unsafe.Pointer(tmp_v) )
+		fmt.Println(tmp_pos_ptr.x, tmp_pos_ptr.y, tmp_pos_ptr.z)
+	}
+}
+
 func main() {
+	test_recast_template()
 	fmt.Println("test_nav")
 
 	str_file_path := "./test_mesh/nav_test.obj"

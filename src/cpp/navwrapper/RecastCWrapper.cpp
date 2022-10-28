@@ -1,5 +1,6 @@
 #include "RecastCWrapper.h"
 #include "RecastInstance.h"
+#include "RecastTemplate.h"
 
 void* nav_create(const char* file_path)
 {
@@ -122,4 +123,27 @@ void nav_update(void* ins_ptr)
 		return;
 
 	ins->UpdateNavInstance();
+}
+
+void* nav_temlate_create(const char* file_path,
+	float agentHeight, float agentRadius, float agentMaxClimb, float agentMaxSlope)
+{
+	RecastTemplate * tmp = new RecastTemplate;
+	tmp->reset_agent(agentHeight, agentRadius, agentMaxClimb, agentMaxSlope);
+	tmp->LoadTemplate(file_path);
+
+	return tmp;
+}
+
+bool nav_load_from_template(void* ins_ptr, void* template_ptr)
+{
+	RecastInstance* ins = static_cast<RecastInstance*>(ins_ptr);
+	if (NULL == ins)
+		return false;
+	RecastTemplate* tmp = static_cast<RecastTemplate*>(template_ptr);
+	if (NULL == tmp)
+		return false;
+
+	ins->LoadFromTemplate(tmp->GetGeom(), tmp->GetNavTemplateMem());
+	return true;
 }

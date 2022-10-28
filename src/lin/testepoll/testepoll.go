@@ -168,7 +168,9 @@ func (pthis*test_cb)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, attachD
 func (pthis*test_cb)TcpClose(fd lin_common.FD_DEF, reason lin_common.EN_TCP_CLOSE_REASON, attachData interface{}){
 	lin_common.LogDebug("tcp close fd:", fd.FD)
 }
+func (pthis*test_cb)TcpOutBandData(fd lin_common.FD_DEF, data interface{}, inAttachData interface{}) {
 
+}
 func testepoll() {
 	tcb := &test_cb{
 		mapFD : make(map[int]*test_tcp_info),

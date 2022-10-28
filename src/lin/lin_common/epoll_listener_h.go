@@ -67,6 +67,10 @@ type event_TcpDial struct {
 	fd FD_DEF
 	attachData interface{}
 }
+type event_TcpOutBandData struct {
+	fd FD_DEF
+	_data interface{}
+}
 /* @brief end inter evetn define */
 
 
@@ -203,6 +207,7 @@ type EPollCallback interface {
 	TcpDialConnection(fd FD_DEF, addr net.Addr, inAttachData interface{})(outAttachData interface{})
 	TcpData(fd FD_DEF, readBuf *bytes.Buffer, inAttachData interface{})(bytesProcess int, outAttachData interface{})
 	TcpClose(fd FD_DEF, closeReason EN_TCP_CLOSE_REASON, inAttachData interface{})
+	TcpOutBandData(fd FD_DEF, data interface{}, inAttachData interface{})
 }
 
 type EPollListener_interface interface {
@@ -211,6 +216,7 @@ type EPollListener_interface interface {
 	EPollListenerCloseTcp(fd FD_DEF, reason EN_TCP_CLOSE_REASON)
 	EPollListenerWrite(fd FD_DEF, binData []byte)
 	EPollListenerDial(addr string, attachData interface{})(fd FD_DEF, err error)
+	EPollListenerOutBandData(fd FD_DEF, data interface{})
 	EPollListenerGetStatic(*EPollListenerStatic)
 }
 

@@ -108,6 +108,7 @@ func (pthis*ePollConnection)EpollConnection_close_tcp(fd FD_DEF, reason EN_TCP_C
 }
 
 func (pthis*ePollConnection)EpollConnection_process_evt(){
+	PROCESS_LOOP:
 	for {
 		evt := pthis._evtQue.Dequeue()
 		if evt == nil {
@@ -162,6 +163,14 @@ func (pthis*ePollConnection)EpollConnection_process_evt(){
 				pthis.EpollConnection_user_write(t.fd, t._binData)
 			}
 
+		case *event_TcpOutBandData:
+			{
+				ti := pthis._get_tcp_conn(t.fd.FD)
+				if !ti._fd.IsSame(&t.fd) {
+					continue PROCESS_LOOP
+				}
+				pthis._lsn._cb.TcpOutBandData(ti._fd, t._data, ti._attachData)
+			}
 		default:
 		}
 	}
@@ -611,6 +620,10 @@ func (pthis*EPollListener)EPollListenerDial(addr string, attachData interface{})
 
 	//LogDebug(" connect fd:", rawfd, " magic:", magic, " addr:", addr)
 	return FD_DEF{rawfd, magic}, nil
+}
+
+func(pthis*EPollListener)EPollListenerOutBandData(fd FD_DEF, data interface{}) {
+	pthis._EPollListenerAddEvent(fd.FD, &event_TcpOutBandData{fd:fd, _data:data})
 }
 
 func(pthis*EPollListener)EPollListenerGetStatic(es *EPollListenerStatic) {

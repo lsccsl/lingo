@@ -185,6 +185,10 @@ func (pthis*ServerMgr)TcpClose(fd lin_common.FD_DEF, closeReason lin_common.EN_T
 		pthis.clientClose ++
 	}
 }
+func (pthis*ServerMgr)TcpOutBandData(fd lin_common.FD_DEF, data interface{}, inAttachData interface{}) {
+
+}
+
 
 func (pthis*ServerMgr)GetProcessUnitByClientID(cliID int64) *TcpClientMgrUnit {
 	processUnitCount := int64(len(pthis.processUnit))
