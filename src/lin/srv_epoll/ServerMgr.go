@@ -52,6 +52,7 @@ type ServerMgr struct {
 	tcpSrvMgr *TcpSrvMgr
 	mapMgr *MapMgr
 	navMap *NavMap
+	navIns *NavMapIns
 
 	clientCloseTimeoutSec int
 	srvCloseTimeoutSec int
@@ -272,6 +273,8 @@ func ConstructorEpollServerMgr(addr string,
 		mapMgr : ConstructorMapMgr("../resource/aa.bmp"),
 		navMap : ConstructorNavMapMgr("../resource/test_scene.obj"),
 	}
+	eSrvMgr.navIns = ConstructNavMapIns()
+	eSrvMgr.navIns.load_from_template(eSrvMgr.navMap)
 	eSrvMgr.tcpSrvMgr = ConstructorTcpSrvMgr(eSrvMgr, srvProcessUnitCount)
 	lsn, err := lin_common.ConstructorEPollListener(eSrvMgr, addr, epollCoroutineCount, lin_common.ParamEPollListener{ParamET: bET})
 	if err != nil {

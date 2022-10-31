@@ -143,7 +143,7 @@ func (pthis*TcpClient)Process_MSG_PATH_SEARCH(msg * msgpacket.MSG_PATH_SEARCH){
 
 func (pthis*TcpClient)Process_MSG_NAV_SEARCH(msg *msgpacket.MSG_NAV_SEARCH) {
 	lin_common.LogDebug("nav search", msg)
-	navMap := pthis.pu.eSrvMgr.navMap
+	navIns := pthis.pu.eSrvMgr.navIns
 
 	src := Coord3f{0, 0, 0}
 	dst := Coord3f{0, 0, 0}
@@ -153,7 +153,7 @@ func (pthis*TcpClient)Process_MSG_NAV_SEARCH(msg *msgpacket.MSG_NAV_SEARCH) {
 	if msg.PosDst != nil {
 		dst = Coord3f{msg.PosDst.X, msg.PosDst.Y, msg.PosDst.Z}
 	}
-	path := navMap.path_find(&src, &dst)
+	path := navIns.path_find(&src, &dst)
 
 	lin_common.LogDebug(path)
 
@@ -167,9 +167,9 @@ func (pthis*TcpClient)Process_MSG_NAV_SEARCH(msg *msgpacket.MSG_NAV_SEARCH) {
 
 func (pthis*TcpClient)Process_MSG_NAV_ADD_OBSTACLE(msg * msgpacket.MSG_NAV_ADD_OBSTACLE) {
 	lin_common.LogDebug("add obstacle", msg)
-	navMap := pthis.pu.eSrvMgr.navMap
+	navIns := pthis.pu.eSrvMgr.navIns
 
-	obstacle_id := navMap.add_obstacle(&Coord3f{msg.Obstacle.Center.X,msg.Obstacle.Center.Y, msg.Obstacle.Center.Z},
+	obstacle_id := navIns.add_obstacle(&Coord3f{msg.Obstacle.Center.X,msg.Obstacle.Center.Y, msg.Obstacle.Center.Z},
 		&Coord3f{msg.Obstacle.HalfExt.X,msg.Obstacle.HalfExt.Y, msg.Obstacle.HalfExt.Z},
 		msg.Obstacle.YRadian)
 
@@ -185,9 +185,9 @@ func (pthis*TcpClient)Process_MSG_NAV_ADD_OBSTACLE(msg * msgpacket.MSG_NAV_ADD_O
 
 func (pthis*TcpClient)Process_MSG_NAV_DEL_OBSTACLE(msg * msgpacket.MSG_NAV_DEL_OBSTACLE) {
 	lin_common.LogDebug("del obstacle", msg)
-	navMap := pthis.pu.eSrvMgr.navMap
+	navIns := pthis.pu.eSrvMgr.navIns
 
-	navMap.del_obstacle(msg.ObstacleId)
+	navIns.del_obstacle(msg.ObstacleId)
 
 	msg_ret := &msgpacket.MSG_NAV_DEL_OBSTACLE_RES{}
 	msg_ret.ObstacleId = msg.ObstacleId
@@ -197,9 +197,9 @@ func (pthis*TcpClient)Process_MSG_NAV_DEL_OBSTACLE(msg * msgpacket.MSG_NAV_DEL_O
 func (pthis*TcpClient)Process_MSG_NAV_GET_ALL_OBSTACLE(msg * msgpacket.MSG_NAV_GET_ALL_OBSTACLE){
 	lin_common.LogDebug("get obstacle", msg)
 
-	navMap := pthis.pu.eSrvMgr.navMap
+	navIns := pthis.pu.eSrvMgr.navIns
 
-	map_obstacle := navMap.get_all_obstacle()
+	map_obstacle := navIns.get_all_obstacle()
 
 	msg_ret := &msgpacket.MSG_NAV_GET_ALL_OBSTACLE_RES{}
 	for k,v := range map_obstacle {
