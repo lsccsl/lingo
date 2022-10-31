@@ -23,12 +23,14 @@ void test_1()
 void test_instance()
 {
 	printf("test instance\r\n");
-	RecastInstance ins;
 
-	ins.LoadFromObj("./test_mesh/nav_test.obj");
-	float startpos[3] = { 40.5650635f, -1.71816540f, 22.0546188f };
-	float endpos[3] = { 49.6740074f, -2.50520134f, -6.56286621f };
-	ins.FindPath(startpos, endpos);
+	{
+		RecastInstance ins;
+		ins.LoadFromObj("./test_mesh/nav_test.obj");
+		float startpos[3] = { 40.5650635f, -1.71816540f, 22.0546188f };
+		float endpos[3] = { 49.6740074f, -2.50520134f, -6.56286621f };
+		ins.FindPath(startpos, endpos);
+	}
 }
 
 void test_cwrapper()
@@ -63,6 +65,26 @@ void test_cwrapper()
 			pos_path[i].x, pos_path[i].y, pos_path[i].z);
 	}
 	printf("end test_cwrapper\r\n\r\n");
+}
+
+void test_template1()
+{
+	printf("test_template\r\n");
+	RecastTemplate navTmp;
+	navTmp.reset_agent(6.0, 4.0, 4.0, 45.0);
+	navTmp.LoadTemplate("./test_mesh/test_scene.obj");
+
+
+	float startpos[3] = { 123.61628f, 0.0f, 101.47595f };
+	float endpos[3] = { 966.7898f, 0.0f, 730.6272f };
+
+	RecastInstance navIns_1;
+	{
+		printf("\r\ninstance 1 find path\r\n");
+		navIns_1.reset_agent(6.0, 4.0, 4.0, 45.0);
+		navIns_1.LoadFromTemplate(navTmp.GetGeom(), navTmp.GetNavTemplateMem());
+		navIns_1.FindPath(startpos, endpos);
+	}
 }
 
 void test_template()
@@ -143,11 +165,10 @@ void test_template()
 
 int main()
 {
-	test_instance();
-
-	test_1();
+	test_template1();
 	test_template();
-
+	test_instance();
+	test_1();
 	test_cwrapper();
 }
 

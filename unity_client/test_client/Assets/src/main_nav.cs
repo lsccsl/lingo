@@ -192,20 +192,19 @@ public class main_nav : MonoBehaviour
         {
             Msgpacket.MSG_NAV_SEARCH msg = new Msgpacket.MSG_NAV_SEARCH();
             msg.PosSrc = cur_pos_;
-            //msg.PosSrc.Y = 1.0f;
             msg.PosDst = new Msgpacket.PROTO_VEC_3F();
             msg.PosDst.X = rh.point.x;
             msg.PosDst.Y = rh.point.y;
             msg.PosDst.Z = rh.point.z;
 
-            /*        msg.PosSrc = new Msgpacket.POS_3F();
-                    msg.PosSrc.PosX = 702.190918f;
-                    msg.PosSrc.PosY = 1.53082275f;
-                    msg.PosSrc.PosZ = 635.378662f;
-                    msg.PosDst = new Msgpacket.POS_3F();
-                    msg.PosDst.PosX = 710.805664f; 
-                    msg.PosDst.PosY = 1.00000000f;
-                    msg.PosDst.PosZ = 851.753296f;*/
+/*                                msg.PosSrc = new Msgpacket.PROTO_VEC_3F();
+                                msg.PosSrc.X = 123.61628f;
+                                msg.PosSrc.Y = 0.0f;
+                                msg.PosSrc.Z = 101.47595f;
+                                msg.PosDst = new Msgpacket.PROTO_VEC_3F();
+                                msg.PosDst.X = 966.7898f; 
+                                msg.PosDst.Y = 0.00000000f;
+                                msg.PosDst.Z = 730.6272f;*/
             this.client_.send_msg(Msgpacket.MSG_TYPE.MsgNavSearch, msg);
         }
     }

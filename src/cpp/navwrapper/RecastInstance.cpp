@@ -628,7 +628,7 @@ void RecastInstance::LoadFromTemplate(InputGeom* geom, const NavTemplateMem& tmp
 	if (dtStatusFailed(status))
 		return;
 
-	status = m_navQuery->init(m_navMesh, 2048);
+	status = m_navQuery->init(m_navMesh, 20480);
 	if (dtStatusFailed(status))
 	{
 		m_ctx->log(RC_LOG_ERROR, "buildTiledNavigation: Could not init Detour navmesh query");
@@ -681,7 +681,8 @@ void RecastInstance::SaveToTemplate(NavTemplateMem& tmpMem)
 	for (int i = 0; i < m_tileCache->getTileCount(); ++i)
 	{
 		const dtCompressedTile* tile = m_tileCache->getTile(i);
-		if (!tile || !tile->header || !tile->dataSize) continue;
+		if (!tile || !tile->header || !tile->dataSize)
+			continue;
 		tmpMem.m_TileCacheSetHeader.numTiles++;
 	}
 	memcpy(&tmpMem.m_TileCacheSetHeader.cacheParams, m_tileCache->getParams(), sizeof(dtTileCacheParams));
@@ -692,7 +693,8 @@ void RecastInstance::SaveToTemplate(NavTemplateMem& tmpMem)
 	for (int i = 0; i < m_tileCache->getTileCount() && i < tmpMem.m_vNavTemplateTile.size(); ++i)
 	{
 		const dtCompressedTile* tile = m_tileCache->getTile(i);
-		if (!tile || !tile->header || !tile->dataSize) continue;
+		if (!tile || !tile->header || !tile->dataSize)
+			continue;
 
 		NavTemplateMem::NavTemplateTile& tmpTile = tmpMem.m_vNavTemplateTile[i];
 		tmpTile.m_TileCacheTileHeader.tileRef = m_tileCache->getTileRef(tile);

@@ -2,6 +2,7 @@
 
 #include "RecastCommon.h"
 #include "dllexport.h"
+#include "RecastInstance.h"
 
 class DLL_EXPORT RecastTemplate
 {
@@ -36,6 +37,7 @@ private:
 	BuildContext m_ctx;
 
 	NavTemplateMem m_NavTemplateMem;
+	RecastInstance navIns;
 
 	float m_agentHeight = 2.0f;
 	float m_agentRadius = 0.6f;
