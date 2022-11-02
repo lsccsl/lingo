@@ -143,7 +143,7 @@ func (pthis*TcpClient)Process_MSG_PATH_SEARCH(msg * msgpacket.MSG_PATH_SEARCH){
 
 func (pthis*TcpClient)Process_MSG_NAV_SEARCH(msg *msgpacket.MSG_NAV_SEARCH) {
 	lin_common.LogDebug("nav search", msg)
-	navIns := pthis.pu.eSrvMgr.navIns
+	//navIns := pthis.pu.eSrvMgr.navIns
 
 	src := Coord3f{0, 0, 0}
 	dst := Coord3f{0, 0, 0}
@@ -153,7 +153,8 @@ func (pthis*TcpClient)Process_MSG_NAV_SEARCH(msg *msgpacket.MSG_NAV_SEARCH) {
 	if msg.PosDst != nil {
 		dst = Coord3f{msg.PosDst.X, msg.PosDst.Y, msg.PosDst.Z}
 	}
-	path := navIns.path_find(&src, &dst)
+	//path := navIns.path_find(&src, &dst)
+	path := pthis.pu.eSrvMgr.mapProcMgr.pathSearch(&src, &dst, pthis.clientID)
 
 	lin_common.LogDebug(path)
 

@@ -53,6 +53,7 @@ type ServerMgr struct {
 	mapMgr *MapMgr
 	navMap *NavMap
 	navIns *NavMapIns
+	mapProcMgr *MapProcessMgr
 
 	clientCloseTimeoutSec int
 	srvCloseTimeoutSec int
@@ -272,6 +273,7 @@ func ConstructorEpollServerMgr(addr string,
 		srvCloseTimeoutSec : srvCloseTimeoutSec,
 		mapMgr : ConstructorMapMgr("../resource/aa.bmp"),
 		navMap : ConstructorNavMapMgr("../resource/test_scene.obj"),
+		mapProcMgr : ConstructMapProcessMgr(3),
 	}
 	eSrvMgr.navIns = ConstructNavMapIns()
 	eSrvMgr.navIns.load_from_template(eSrvMgr.navMap)

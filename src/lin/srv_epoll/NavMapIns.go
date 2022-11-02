@@ -12,6 +12,20 @@ import (
 	"unsafe"
 )
 
+type Coord3f struct {
+	X float32
+	Y float32
+	Z float32
+}
+
+type nav_obstacle struct {
+	center Coord3f
+	half_ext Coord3f
+	y_radian float32
+}
+
+type MAP_OBSTACLE map[uint32]*nav_obstacle
+
 type NavMapIns struct {
 	nav_lock_ sync.Mutex
 
