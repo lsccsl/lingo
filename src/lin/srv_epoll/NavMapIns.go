@@ -113,5 +113,9 @@ func (pthis*NavMapIns)get_all_obstacle() MAP_OBSTACLE {
 	pthis.nav_lock_.Lock()
 	defer pthis.nav_lock_.Unlock()
 
-	return pthis.map_obstacle_
+	m := make(MAP_OBSTACLE)
+	for k,v := range pthis.map_obstacle_ {
+		m[k] = v
+	}
+	return m
 }

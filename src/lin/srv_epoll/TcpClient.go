@@ -143,24 +143,23 @@ func (pthis*TcpClient)Process_MSG_PATH_SEARCH(msg * msgpacket.MSG_PATH_SEARCH){
 
 func (pthis*TcpClient)Process_MSG_NAV_SEARCH(msg *msgpacket.MSG_NAV_SEARCH) {
 	lin_common.LogDebug("nav search", msg)
-	//navIns := pthis.pu.eSrvMgr.navIns
 
-	src := Coord3f{0, 0, 0}
-	dst := Coord3f{0, 0, 0}
+	msgSearch := &msgNavPathSearch{path:nil}
 	if msg.PosSrc != nil {
-		src = Coord3f{msg.PosSrc.X, msg.PosSrc.Y, msg.PosSrc.Z}
+		msgSearch.src = Coord3f{msg.PosSrc.X, msg.PosSrc.Y, msg.PosSrc.Z}
 	}
 	if msg.PosDst != nil {
-		dst = Coord3f{msg.PosDst.X, msg.PosDst.Y, msg.PosDst.Z}
+		msgSearch.dst = Coord3f{msg.PosDst.X, msg.PosDst.Y, msg.PosDst.Z}
 	}
-	//path := navIns.path_find(&src, &dst)
-	path := pthis.pu.eSrvMgr.mapProcMgr.pathSearch(&src, &dst, pthis.clientID)
+	pthis.pu.eSrvMgr.mapProcMgr.addMapProcessMsg(msgSearch, pthis.clientID, time.Second * 3)
 
-	lin_common.LogDebug(path)
+	lin_common.LogDebug(msgSearch.path)
 
 	msg_ret := &msgpacket.MSG_NAV_SEARCH_RES{}
-	for _, val := range path {
-		msg_ret.PathPos = append(msg_ret.PathPos, &msgpacket.PROTO_VEC_3F{X:val.X, Y:val.Y, Z:val.Z})
+	if msgSearch.path != nil {
+		for _, val := range msgSearch.path {
+			msg_ret.PathPos = append(msg_ret.PathPos, &msgpacket.PROTO_VEC_3F{X:val.X, Y:val.Y, Z:val.Z})
+		}
 	}
 
 	pthis.pu.eSrvMgr.SendProtoMsg(pthis.fd, msgpacket.MSG_TYPE__MSG_NAV_SEARCH_RES, msg_ret)
@@ -168,11 +167,19 @@ func (pthis*TcpClient)Process_MSG_NAV_SEARCH(msg *msgpacket.MSG_NAV_SEARCH) {
 
 func (pthis*TcpClient)Process_MSG_NAV_ADD_OBSTACLE(msg * msgpacket.MSG_NAV_ADD_OBSTACLE) {
 	lin_common.LogDebug("add obstacle", msg)
-	navIns := pthis.pu.eSrvMgr.navIns
 
-	obstacle_id := navIns.add_obstacle(&Coord3f{msg.Obstacle.Center.X,msg.Obstacle.Center.Y, msg.Obstacle.Center.Z},
+	msgAdd := &msgNavAddObstacle{
+		ob : NavObstacle{
+			center : Coord3f{msg.Obstacle.Center.X,msg.Obstacle.Center.Y, msg.Obstacle.Center.Z},
+			halfExt : Coord3f{msg.Obstacle.HalfExt.X,msg.Obstacle.HalfExt.Y, msg.Obstacle.HalfExt.Z},
+			yRadian : msg.Obstacle.YRadian,
+		},
+	}
+	pthis.pu.eSrvMgr.mapProcMgr.addMapProcessMsg(msgAdd, pthis.clientID, time.Second * 3)
+	/*obstacle_id := navIns.add_obstacle(&Coord3f{msg.Obstacle.Center.X,msg.Obstacle.Center.Y, msg.Obstacle.Center.Z},
 		&Coord3f{msg.Obstacle.HalfExt.X,msg.Obstacle.HalfExt.Y, msg.Obstacle.HalfExt.Z},
-		msg.Obstacle.YRadian)
+		msg.Obstacle.YRadian)*/
+	obstacle_id := msgAdd.ob.obstacleID
 
 	msg_ret := &msgpacket.MSG_NAV_ADD_OBSTACLE_RES{}
 	msg_ret.Obstacle = &msgpacket.NAV_OBSTACLE{}
@@ -186,9 +193,9 @@ func (pthis*TcpClient)Process_MSG_NAV_ADD_OBSTACLE(msg * msgpacket.MSG_NAV_ADD_O
 
 func (pthis*TcpClient)Process_MSG_NAV_DEL_OBSTACLE(msg * msgpacket.MSG_NAV_DEL_OBSTACLE) {
 	lin_common.LogDebug("del obstacle", msg)
-	navIns := pthis.pu.eSrvMgr.navIns
 
-	navIns.del_obstacle(msg.ObstacleId)
+	msgDel := &msgNavDelObstacle{obstacleID:msg.ObstacleId}
+	pthis.pu.eSrvMgr.mapProcMgr.addMapProcessMsg(msgDel, pthis.clientID, time.Second * 3)
 
 	msg_ret := &msgpacket.MSG_NAV_DEL_OBSTACLE_RES{}
 	msg_ret.ObstacleId = msg.ObstacleId
@@ -198,17 +205,16 @@ func (pthis*TcpClient)Process_MSG_NAV_DEL_OBSTACLE(msg * msgpacket.MSG_NAV_DEL_O
 func (pthis*TcpClient)Process_MSG_NAV_GET_ALL_OBSTACLE(msg * msgpacket.MSG_NAV_GET_ALL_OBSTACLE){
 	lin_common.LogDebug("get obstacle", msg)
 
-	navIns := pthis.pu.eSrvMgr.navIns
-
-	map_obstacle := navIns.get_all_obstacle()
+	msgGet := &msgNavGetAllObstacle{}
+	pthis.pu.eSrvMgr.mapProcMgr.addMapProcessMsg(msgGet, pthis.clientID, time.Second * 3)
 
 	msg_ret := &msgpacket.MSG_NAV_GET_ALL_OBSTACLE_RES{}
-	for k,v := range map_obstacle {
+	for _,v := range msgGet.ob {
 		ob := &msgpacket.NAV_OBSTACLE{}
-		ob.ObstacleId = k
+		ob.ObstacleId = v.obstacleID
 		ob.Center = &msgpacket.PROTO_VEC_3F{X:v.center.X, Y:v.center.Y, Z:v.center.Z}
-		ob.HalfExt = &msgpacket.PROTO_VEC_3F{X:v.half_ext.X, Y:v.half_ext.Y, Z:v.half_ext.Z}
-		ob.YRadian = v.y_radian
+		ob.HalfExt = &msgpacket.PROTO_VEC_3F{X:v.halfExt.X, Y:v.halfExt.Y, Z:v.halfExt.Z}
+		ob.YRadian = v.yRadian
 		msg_ret.Obstacle = append(msg_ret.Obstacle, ob)
 	}
 	pthis.pu.eSrvMgr.SendProtoMsg(pthis.fd, msgpacket.MSG_TYPE__MSG_NAV_GET_ALL_OBSTACLE_RES, msg_ret)

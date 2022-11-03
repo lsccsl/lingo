@@ -8,7 +8,7 @@ import (
 type MAP_NAVMAP_INS map[int64]*NavMapIns
 type MapProcess struct {
 	navIns *NavMapIns
-	chMsg chan interface{}
+	chMsg chan *msgMapProcess
 
 	procMgr *MapProcessMgr
 }
@@ -19,42 +19,95 @@ type MapProcessMgr struct {
 	navMap *NavMap
 }
 
-type msgPathSearch struct {
+
+type NavObstacle struct {
+	obstacleID uint32
+	center Coord3f
+	halfExt Coord3f
+	yRadian float32
+}
+// begin map process msg
+type msgMapProcess struct {
+	msg interface{}
+	chRes chan *msgMapProcess
+}
+type msgNavPathSearch struct {
 	src Coord3f
 	dst Coord3f
-
-	chRes chan interface{}
-}
-type msgPathSearchRes struct {
 	path []Coord3f
 }
+type msgNavAddObstacle struct {
+	ob NavObstacle
+}
+type msgNavDelObstacle struct {
+	obstacleID uint32
+}
+type msgNavGetAllObstacle struct {
+	ob []*NavObstacle
+}
+// end map process msg
+
 
 func (pthis*MapProcess)_go_MapProcess() {
 	ticker := time.NewTicker(time.Millisecond * 1000)
 	for {
-		select {
-		case msg := <-pthis.chMsg:
-			switch t := msg.(type) {
-			case *msgPathSearch:
-				pthis.process_msgPathSearch(t)
-			}
-		case <-ticker.C:
-		}
+		pthis._go_MapProcess_loop(ticker)
 	}
 }
 
-func (pthis*MapProcess)process_msgPathSearch(msg*msgPathSearch) {
+func (pthis*MapProcess)_go_MapProcess_loop(ticker *time.Ticker) {
+	defer func() {
+		err := recover()
+		if err != nil {
+			lin_common.LogErr(err)
+		}
+	}()
 
-	msgRes := &msgPathSearchRes{}
-	msgRes.path = pthis.navIns.path_find(&msg.src, &msg.dst)
+	select {
+	case msg := <-pthis.chMsg:
+		switch t := msg.msg.(type) {
+		case *msgNavPathSearch:
+			pthis.process_msgPathSearch(t)
+		case *msgNavAddObstacle:
+			pthis.process_msgNavAddObstacle(t)
+		case *msgNavDelObstacle:
+			pthis.process_msgNavDelObstacle(t)
+		case *msgNavGetAllObstacle:
+			pthis.process_msgNavGetAllObstacle(t)
+		}
+		msg.chRes <- msg
+	case <-ticker.C:
+	}
+}
 
-	msg.chRes <- msgRes
+func (pthis*MapProcess)process_msgPathSearch(msg *msgNavPathSearch) {
+	msg.path = pthis.navIns.path_find(&msg.src, &msg.dst)
+}
+func (pthis*MapProcess)process_msgNavAddObstacle(msg *msgNavAddObstacle) {
+	msg.ob.obstacleID = pthis.navIns.add_obstacle(&Coord3f{msg.ob.center.X,msg.ob.center.Y, msg.ob.center.Z},
+		&Coord3f{msg.ob.halfExt.X,msg.ob.halfExt.Y, msg.ob.halfExt.Z},
+		msg.ob.yRadian)
+}
+func (pthis*MapProcess)process_msgNavDelObstacle(msg *msgNavDelObstacle) {
+	pthis.navIns.del_obstacle(msg.obstacleID)
+}
+func (pthis*MapProcess)process_msgNavGetAllObstacle(msg *msgNavGetAllObstacle) {
+	map_obstacle := pthis.navIns.get_all_obstacle()
+
+	for k,v := range map_obstacle {
+		ob := &NavObstacle{}
+		ob.obstacleID = k
+		ob.center = v.center
+		ob.halfExt = v.half_ext
+		ob.yRadian = v.y_radian
+		msg.ob = append(msg.ob, ob)
+	}
 }
 
 func ConstructMapProcess(procMgr *MapProcessMgr) *MapProcess {
 	mp := &MapProcess {
 		navIns : ConstructNavMapIns(),
-		chMsg : make(chan interface{}),
+		chMsg : make(chan *msgMapProcess),
 		procMgr : procMgr,
 	}
 
@@ -62,23 +115,19 @@ func ConstructMapProcess(procMgr *MapProcessMgr) *MapProcess {
 	return mp
 }
 
-func (pthis*MapProcessMgr)pathSearch(src * Coord3f, dst * Coord3f, clientID int64) (path []Coord3f) {
+func (pthis*MapProcessMgr)addMapProcessMsg(msg interface{}, clientID int64, timeOut time.Duration) {
 	mp := pthis.getMapProcess(clientID)
 	if mp == nil {
-		return nil
+		return
 	}
 
-	chRes := make(chan interface{})
-	mp.chMsg <- &msgPathSearch{*src, *dst, chRes}
+	chRes := make(chan *msgMapProcess)
+	mp.chMsg <- &msgMapProcess{msg, chRes}
 
 	select {
-	case msg := <- chRes:
-		msgRes, ok := msg.(*msgPathSearchRes)
-		if ok {
-			path = msgRes.path
-		}
-	case <- time.After(time.Second * 3):
-		path = nil
+	case <- chRes:
+	case <- time.After(timeOut):
+		lin_common.LogErr("time out clientID:", clientID, " msg:", msg)
 	}
 	close(chRes)
 
