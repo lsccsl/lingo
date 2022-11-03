@@ -142,7 +142,7 @@ type crosslink_lst struct {
 	head_ crosslinker_inf
 	tail_ crosslinker_inf
 }
-type crosslink_mgr struct {
+type Crosslink_mgr struct {
 	link_x_ crosslink_lst
 	link_y_ crosslink_lst
 
@@ -222,8 +222,8 @@ func (pthis*crosslink_lst)_inter_crosslink_empty() bool {
 	return false
 }
 
-func Crosslink_mgr_constructor(crs_lnk_if Crosslink_interface) *crosslink_mgr {
-	crs_lnk := &crosslink_mgr{
+func Crosslink_mgr_constructor(crs_lnk_if Crosslink_interface) *Crosslink_mgr {
+	crs_lnk := &Crosslink_mgr{
 		link_x_ :      crosslink_lst{head_: nil,tail_:nil},
 		link_y_ :      crosslink_lst{head_: nil,tail_:nil},
 		map_node_ :    make(MAP_CROSS_LINK_NODE),
@@ -234,7 +234,7 @@ func Crosslink_mgr_constructor(crs_lnk_if Crosslink_interface) *crosslink_mgr {
 	return crs_lnk
 }
 
-func (pthis*crosslink_mgr)Crosslink_mgr_add(node_param * Crosslink_node_param) int {
+func (pthis*Crosslink_mgr)Crosslink_mgr_add(node_param * Crosslink_node_param) int {
 
 	pthis.cur_node_id_++
 	new_node_id := pthis.cur_node_id_
@@ -378,7 +378,7 @@ func (pthis*crosslink_mgr)Crosslink_mgr_add(node_param * Crosslink_node_param) i
 	return new_node_id
 }
 
-func (pthis*crosslink_mgr)Ntf_node_in_view(node_id int, node_id_in_viewed int) {
+func (pthis*Crosslink_mgr)Ntf_node_in_view(node_id int, node_id_in_viewed int) {
 	node, _ := pthis.map_node_[node_id]
 	if node != nil {
 		node.map_view_[node_id_in_viewed] = node_id_in_viewed
@@ -391,7 +391,7 @@ func (pthis*crosslink_mgr)Ntf_node_in_view(node_id int, node_id_in_viewed int) {
 
 	pthis.crs_lnk_if_.Ntf_node_in_view(node_id, node_id_in_viewed)
 }
-func (pthis*crosslink_mgr)Ntf_node_out_view(node_id int, node_id_out_view int) {
+func (pthis*Crosslink_mgr)Ntf_node_out_view(node_id int, node_id_out_view int) {
 	node, _ := pthis.map_node_[node_id]
 	if node != nil {
 		delete(node.map_view_, node_id_out_view)
@@ -443,7 +443,7 @@ func (pthis*cross_node)_inter_gen_view() map[int]int {
 	return map_view
 }
 
-func(pthis*crosslink_mgr)_inter_crosslink_link_guard(new_node *cross_node) {
+func(pthis*Crosslink_mgr)_inter_crosslink_link_guard(new_node *cross_node) {
 
 	if pthis.link_x_._inter_crosslink_empty() {
 		LogErr("err, x link head is nil")
@@ -548,7 +548,7 @@ func(pthis*crosslink_mgr)_inter_crosslink_link_guard(new_node *cross_node) {
 	}
 }
 
-func (pthis*crosslink_mgr)Crosslink_mgr_del(node_id int) {
+func (pthis*Crosslink_mgr)Crosslink_mgr_del(node_id int) {
 	node, _ := pthis.map_node_[node_id]
 	if node == nil {
 		return
@@ -571,7 +571,7 @@ func (pthis*crosslink_mgr)Crosslink_mgr_del(node_id int) {
 	pthis.link_y_._inter_crosslink_del(node.y_node_.back_)
 }
 
-func (pthis*crosslink_mgr)_inter_crosslink_is_in_view(node_id int, coord_x float32, coord_y float32) bool {
+func (pthis*Crosslink_mgr)_inter_crosslink_is_in_view(node_id int, coord_x float32, coord_y float32) bool {
 	node, _ := pthis.map_node_[node_id]
 	if node == nil {
 		return false
@@ -608,7 +608,7 @@ func (pthis*crosslink_mgr)_inter_crosslink_is_in_view(node_id int, coord_x float
 	return true
 }
 
-func (pthis*crosslink_mgr)Crosslink_mgr_update_pos(node_id int, coord_x float32, coord_y float32) {
+func (pthis*Crosslink_mgr)Crosslink_mgr_update_pos(node_id int, coord_x float32, coord_y float32) {
 	node, _ := pthis.map_node_[node_id]
 	if node == nil {
 		return
@@ -988,7 +988,7 @@ func (pthis*crosslink_mgr)Crosslink_mgr_update_pos(node_id int, coord_x float32,
 	}
 }
 
-func (pthis*crosslink_mgr)Crosslink_get_node_count() int {
+func (pthis*Crosslink_mgr)Crosslink_get_node_count() int {
 	return len(pthis.map_node_)
 }
 
@@ -1028,7 +1028,7 @@ func (pthis*crosslinker_node)String() string {
 
 	return str
 }
-func (pthis*crosslink_mgr)String() string {
+func (pthis*Crosslink_mgr)String() string {
 	str := "cross link dump ====================== \r\n\n"
 
 	for _, v := range pthis.map_node_ {
@@ -1052,7 +1052,7 @@ func (pthis*crosslink_mgr)String() string {
 	return str
 }
 
-func (pthis*crosslink_mgr)Check() {
+func (pthis*Crosslink_mgr)Check() {
 
 	// check x y coord sort is right
 	{

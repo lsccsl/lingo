@@ -176,9 +176,7 @@ func (pthis*TcpClient)Process_MSG_NAV_ADD_OBSTACLE(msg * msgpacket.MSG_NAV_ADD_O
 		},
 	}
 	pthis.pu.eSrvMgr.mapProcMgr.addMapProcessMsg(msgAdd, pthis.clientID, time.Second * 3)
-	/*obstacle_id := navIns.add_obstacle(&Coord3f{msg.Obstacle.Center.X,msg.Obstacle.Center.Y, msg.Obstacle.Center.Z},
-		&Coord3f{msg.Obstacle.HalfExt.X,msg.Obstacle.HalfExt.Y, msg.Obstacle.HalfExt.Z},
-		msg.Obstacle.YRadian)*/
+
 	obstacle_id := msgAdd.ob.obstacleID
 
 	msg_ret := &msgpacket.MSG_NAV_ADD_OBSTACLE_RES{}

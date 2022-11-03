@@ -8,7 +8,6 @@ typedef struct RecastVec3f RecastPosT;
 */
 import "C"
 import (
-	"sync"
 	"unsafe"
 )
 
@@ -27,7 +26,7 @@ type nav_obstacle struct {
 type MAP_OBSTACLE map[uint32]*nav_obstacle
 
 type NavMapIns struct {
-	nav_lock_ sync.Mutex
+	//nav_lock_ sync.Mutex
 
 	map_obstacle_ MAP_OBSTACLE
 
@@ -53,9 +52,9 @@ func (pthis *NavMapIns)load_from_template(navMap *NavMap) {
 }
 
 func (pthis*NavMapIns)path_find(src * Coord3f, dst * Coord3f) (path []Coord3f){
-	pthis.nav_lock_.Lock()
+/*	pthis.nav_lock_.Lock()
 	defer pthis.nav_lock_.Unlock()
-
+*/
 	var start_pos C.struct_RecastVec3f
 	start_pos.x = C.float(src.X)
 	start_pos.y = C.float(src.Y)
@@ -79,9 +78,9 @@ func (pthis*NavMapIns)path_find(src * Coord3f, dst * Coord3f) (path []Coord3f){
 
 
 func (pthis*NavMapIns)add_obstacle(center * Coord3f, halfExtents * Coord3f, yRadians float32) (obstacle_id uint32) {
-	pthis.nav_lock_.Lock()
+/*	pthis.nav_lock_.Lock()
 	defer pthis.nav_lock_.Unlock()
-
+*/
 	obstacle_id = uint32(C.nav_add_obstacle(pthis.handle_map_ins_, &C.struct_RecastVec3f{C.float(center.X), C.float(center.Y), C.float(center.Z)},
 		&C.RecastPosT{C.float(halfExtents.X), C.float(halfExtents.Y), C.float(halfExtents.Z)},
 		C.float(yRadians)))
@@ -100,9 +99,9 @@ func (pthis*NavMapIns)add_obstacle(center * Coord3f, halfExtents * Coord3f, yRad
 }
 
 func (pthis*NavMapIns)del_obstacle(obstacle_id uint32)  {
-	pthis.nav_lock_.Lock()
+/*	pthis.nav_lock_.Lock()
 	defer pthis.nav_lock_.Unlock()
-
+*/
 	delete(pthis.map_obstacle_, obstacle_id)
 
 	C.nav_del_obstacle(pthis.handle_map_ins_, C.uint(obstacle_id))
@@ -110,9 +109,9 @@ func (pthis*NavMapIns)del_obstacle(obstacle_id uint32)  {
 }
 
 func (pthis*NavMapIns)get_all_obstacle() MAP_OBSTACLE {
-	pthis.nav_lock_.Lock()
+/*	pthis.nav_lock_.Lock()
 	defer pthis.nav_lock_.Unlock()
-
+*/
 	m := make(MAP_OBSTACLE)
 	for k,v := range pthis.map_obstacle_ {
 		m[k] = v

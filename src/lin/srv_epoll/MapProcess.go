@@ -7,7 +7,11 @@ import (
 
 type MAP_NAVMAP_INS map[int64]*NavMapIns
 type MapProcess struct {
+	// nav map search
 	navIns *NavMapIns
+	// cross-link
+	crossLink *lin_common.Crosslink_mgr
+
 	chMsg chan *msgMapProcess
 
 	procMgr *MapProcessMgr
@@ -103,13 +107,17 @@ func (pthis*MapProcess)process_msgNavGetAllObstacle(msg *msgNavGetAllObstacle) {
 		msg.ob = append(msg.ob, ob)
 	}
 }
-
+func (pthis*MapProcess)Ntf_node_in_view(nodeID int, nodeIDInView int) {
+}
+func (pthis*MapProcess)Ntf_node_out_view(nodeID int, nodeIDOutView int) {
+}
 func ConstructMapProcess(procMgr *MapProcessMgr) *MapProcess {
 	mp := &MapProcess {
 		navIns : ConstructNavMapIns(),
 		chMsg : make(chan *msgMapProcess),
 		procMgr : procMgr,
 	}
+	mp.crossLink = lin_common.Crosslink_mgr_constructor(mp)
 
 	mp.navIns.load_from_template(mp.procMgr.navMap)
 	return mp
