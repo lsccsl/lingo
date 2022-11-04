@@ -9,8 +9,8 @@ type MAP_NAVMAP_INS map[int64]*NavMapIns
 type MapProcess struct {
 	// nav map search
 	navIns *NavMapIns
-	// cross-link
-	crossLink *lin_common.Crosslink_mgr
+	// map aoi
+	aoi *MapAOI
 
 	chMsg chan *msgMapProcess
 
@@ -49,6 +49,17 @@ type msgNavDelObstacle struct {
 type msgNavGetAllObstacle struct {
 	ob []*NavObstacle
 }
+type msgAddAOIObject struct {
+	aoiID int
+
+	ntf MapAoiInf
+	X float32
+	Y float32
+	ViewRange float32
+}
+type msgDelAOIObject struct {
+	aoiID int
+}
 // end map process msg
 
 
@@ -78,6 +89,10 @@ func (pthis*MapProcess)_go_MapProcess_loop(ticker *time.Ticker) {
 			pthis.process_msgNavDelObstacle(t)
 		case *msgNavGetAllObstacle:
 			pthis.process_msgNavGetAllObstacle(t)
+		case *msgAddAOIObject:
+			pthis.process_msgAddAOIObject(t)
+		case *msgDelAOIObject:
+			pthis.process_msgDelAOIObject(t)
 		}
 		msg.chRes <- msg
 	case <-ticker.C:
@@ -107,17 +122,22 @@ func (pthis*MapProcess)process_msgNavGetAllObstacle(msg *msgNavGetAllObstacle) {
 		msg.ob = append(msg.ob, ob)
 	}
 }
-func (pthis*MapProcess)Ntf_node_in_view(nodeID int, nodeIDInView int) {
+func (pthis*MapProcess)process_msgAddAOIObject(msg *msgAddAOIObject){
+	msg.aoiID = pthis.aoi.add(msg.X, msg.Y, msg.ViewRange, msg.ntf)
+	lin_common.LogDebug("add aoi ", msg.aoiID)
 }
-func (pthis*MapProcess)Ntf_node_out_view(nodeID int, nodeIDOutView int) {
+func (pthis*MapProcess)process_msgDelAOIObject(msg *msgDelAOIObject){
+	lin_common.LogDebug("del aoi ", msg.aoiID)
+	pthis.aoi.del(msg.aoiID)
 }
+
 func ConstructMapProcess(procMgr *MapProcessMgr) *MapProcess {
 	mp := &MapProcess {
 		navIns : ConstructNavMapIns(),
 		chMsg : make(chan *msgMapProcess),
 		procMgr : procMgr,
+		aoi : ConstructorMapAOI(),
 	}
-	mp.crossLink = lin_common.Crosslink_mgr_constructor(mp)
 
 	mp.navIns.load_from_template(mp.procMgr.navMap)
 	return mp

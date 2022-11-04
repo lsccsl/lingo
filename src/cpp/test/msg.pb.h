@@ -275,6 +275,331 @@ inline bool RESPONSE_CODE_Parse(
 }
 // ===================================================================
 
+class POS_T final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:msgpacket.POS_T) */ {
+ public:
+  inline POS_T() : POS_T(nullptr) {}
+  ~POS_T() override;
+  explicit constexpr POS_T(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  POS_T(const POS_T& from);
+  POS_T(POS_T&& from) noexcept
+    : POS_T() {
+    *this = ::std::move(from);
+  }
+
+  inline POS_T& operator=(const POS_T& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline POS_T& operator=(POS_T&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const POS_T& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const POS_T* internal_default_instance() {
+    return reinterpret_cast<const POS_T*>(
+               &_POS_T_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    0;
+
+  friend void swap(POS_T& a, POS_T& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(POS_T* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(POS_T* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  POS_T* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<POS_T>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const POS_T& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom(const POS_T& from);
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(POS_T* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "msgpacket.POS_T";
+  }
+  protected:
+  explicit POS_T(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kPosXFieldNumber = 1,
+    kPosYFieldNumber = 2,
+  };
+  // int32 pos_x = 1;
+  void clear_pos_x();
+  int32_t pos_x() const;
+  void set_pos_x(int32_t value);
+  private:
+  int32_t _internal_pos_x() const;
+  void _internal_set_pos_x(int32_t value);
+  public:
+
+  // int32 pos_y = 2;
+  void clear_pos_y();
+  int32_t pos_y() const;
+  void set_pos_y(int32_t value);
+  private:
+  int32_t _internal_pos_y() const;
+  void _internal_set_pos_y(int32_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:msgpacket.POS_T)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  int32_t pos_x_;
+  int32_t pos_y_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_msg_2eproto;
+};
+// -------------------------------------------------------------------
+
+class PROTO_VEC_3F final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:msgpacket.PROTO_VEC_3F) */ {
+ public:
+  inline PROTO_VEC_3F() : PROTO_VEC_3F(nullptr) {}
+  ~PROTO_VEC_3F() override;
+  explicit constexpr PROTO_VEC_3F(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  PROTO_VEC_3F(const PROTO_VEC_3F& from);
+  PROTO_VEC_3F(PROTO_VEC_3F&& from) noexcept
+    : PROTO_VEC_3F() {
+    *this = ::std::move(from);
+  }
+
+  inline PROTO_VEC_3F& operator=(const PROTO_VEC_3F& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline PROTO_VEC_3F& operator=(PROTO_VEC_3F&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const PROTO_VEC_3F& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const PROTO_VEC_3F* internal_default_instance() {
+    return reinterpret_cast<const PROTO_VEC_3F*>(
+               &_PROTO_VEC_3F_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    1;
+
+  friend void swap(PROTO_VEC_3F& a, PROTO_VEC_3F& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(PROTO_VEC_3F* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(PROTO_VEC_3F* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  PROTO_VEC_3F* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<PROTO_VEC_3F>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const PROTO_VEC_3F& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom(const PROTO_VEC_3F& from);
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(PROTO_VEC_3F* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "msgpacket.PROTO_VEC_3F";
+  }
+  protected:
+  explicit PROTO_VEC_3F(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kXFieldNumber = 1,
+    kYFieldNumber = 2,
+    kZFieldNumber = 3,
+  };
+  // float x = 1;
+  void clear_x();
+  float x() const;
+  void set_x(float value);
+  private:
+  float _internal_x() const;
+  void _internal_set_x(float value);
+  public:
+
+  // float y = 2;
+  void clear_y();
+  float y() const;
+  void set_y(float value);
+  private:
+  float _internal_y() const;
+  void _internal_set_y(float value);
+  public:
+
+  // float z = 3;
+  void clear_z();
+  float z() const;
+  void set_z(float value);
+  private:
+  float _internal_z() const;
+  void _internal_set_z(float value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:msgpacket.PROTO_VEC_3F)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  float x_;
+  float y_;
+  float z_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_msg_2eproto;
+};
+// -------------------------------------------------------------------
+
 class MSG_RPC final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:msgpacket.MSG_RPC) */ {
  public:
@@ -323,7 +648,7 @@ class MSG_RPC final :
                &_MSG_RPC_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    0;
+    2;
 
   friend void swap(MSG_RPC& a, MSG_RPC& b) {
     a.Swap(&b);
@@ -529,7 +854,7 @@ class MSG_RPC_RES final :
                &_MSG_RPC_RES_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    1;
+    3;
 
   friend void swap(MSG_RPC_RES& a, MSG_RPC_RES& b) {
     a.Swap(&b);
@@ -746,7 +1071,7 @@ class MSG_SRV_REPORT final :
                &_MSG_SRV_REPORT_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    2;
+    4;
 
   friend void swap(MSG_SRV_REPORT& a, MSG_SRV_REPORT& b) {
     a.Swap(&b);
@@ -903,7 +1228,7 @@ class MSG_SRV_REPORT_RES final :
                &_MSG_SRV_REPORT_RES_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    3;
+    5;
 
   friend void swap(MSG_SRV_REPORT_RES& a, MSG_SRV_REPORT_RES& b) {
     a.Swap(&b);
@@ -1060,7 +1385,7 @@ class MSG_HEARTBEAT final :
                &_MSG_HEARTBEAT_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    4;
+    6;
 
   friend void swap(MSG_HEARTBEAT& a, MSG_HEARTBEAT& b) {
     a.Swap(&b);
@@ -1206,7 +1531,7 @@ class MSG_HEARTBEAT_RES final :
                &_MSG_HEARTBEAT_RES_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    5;
+    7;
 
   friend void swap(MSG_HEARTBEAT_RES& a, MSG_HEARTBEAT_RES& b) {
     a.Swap(&b);
@@ -1352,7 +1677,7 @@ class MSG_TEST final :
                &_MSG_TEST_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    6;
+    8;
 
   friend void swap(MSG_TEST& a, MSG_TEST& b) {
     a.Swap(&b);
@@ -1547,7 +1872,7 @@ class MSG_TEST_RES final :
                &_MSG_TEST_RES_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    7;
+    9;
 
   friend void swap(MSG_TEST_RES& a, MSG_TEST_RES& b) {
     a.Swap(&b);
@@ -1753,7 +2078,7 @@ class MSG_TEST_RPC final :
                &_MSG_TEST_RPC_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    8;
+    10;
 
   friend void swap(MSG_TEST_RPC& a, MSG_TEST_RPC& b) {
     a.Swap(&b);
@@ -1898,7 +2223,7 @@ class MSG_TEST_RPC_RES final :
                &_MSG_TEST_RPC_RES_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    9;
+    11;
 
   friend void swap(MSG_TEST_RPC_RES& a, MSG_TEST_RPC_RES& b) {
     a.Swap(&b);
@@ -2017,7 +2342,7 @@ class MSG_LOGIN final :
                &_MSG_LOGIN_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    10;
+    12;
 
   friend void swap(MSG_LOGIN& a, MSG_LOGIN& b) {
     a.Swap(&b);
@@ -2092,6 +2417,8 @@ class MSG_LOGIN final :
 
   enum : int {
     kIdFieldNumber = 1,
+    kXFieldNumber = 2,
+    kYFieldNumber = 3,
   };
   // int64 id = 1;
   void clear_id();
@@ -2102,6 +2429,24 @@ class MSG_LOGIN final :
   void _internal_set_id(int64_t value);
   public:
 
+  // float X = 2;
+  void clear_x();
+  float x() const;
+  void set_x(float value);
+  private:
+  float _internal_x() const;
+  void _internal_set_x(float value);
+  public:
+
+  // float Y = 3;
+  void clear_y();
+  float y() const;
+  void set_y(float value);
+  private:
+  float _internal_y() const;
+  void _internal_set_y(float value);
+  public:
+
   // @@protoc_insertion_point(class_scope:msgpacket.MSG_LOGIN)
  private:
   class _Internal;
@@ -2110,6 +2455,8 @@ class MSG_LOGIN final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   int64_t id_;
+  float x_;
+  float y_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_msg_2eproto;
 };
@@ -2163,7 +2510,7 @@ class MSG_LOGIN_RES final :
                &_MSG_LOGIN_RES_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    11;
+    13;
 
   friend void swap(MSG_LOGIN_RES& a, MSG_LOGIN_RES& b) {
     a.Swap(&b);
@@ -2331,7 +2678,7 @@ class MSG_TCP_STATIC final :
                &_MSG_TCP_STATIC_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    12;
+    14;
 
   friend void swap(MSG_TCP_STATIC& a, MSG_TCP_STATIC& b) {
     a.Swap(&b);
@@ -2500,7 +2847,7 @@ class MSG_TCP_STATIC_RES final :
                &_MSG_TCP_STATIC_RES_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    14;
+    16;
 
   friend void swap(MSG_TCP_STATIC_RES& a, MSG_TCP_STATIC_RES& b) {
     a.Swap(&b);
@@ -2703,7 +3050,7 @@ class MSG_CLIENT_ENTER final :
                &_MSG_CLIENT_ENTER_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    15;
+    17;
 
   friend void swap(MSG_CLIENT_ENTER& a, MSG_CLIENT_ENTER& b) {
     a.Swap(&b);
@@ -2849,7 +3196,7 @@ class MSG_CLIENT_ENTER_RES final :
                &_MSG_CLIENT_ENTER_RES_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    16;
+    18;
 
   friend void swap(MSG_CLIENT_ENTER_RES& a, MSG_CLIENT_ENTER_RES& b) {
     a.Swap(&b);
@@ -3032,7 +3379,7 @@ class MSG_GET_MAP final :
                &_MSG_GET_MAP_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    17;
+    19;
 
   friend void swap(MSG_GET_MAP& a, MSG_GET_MAP& b) {
     a.Swap(&b);
@@ -3151,7 +3498,7 @@ class MSG_GET_MAP_RES final :
                &_MSG_GET_MAP_RES_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    18;
+    20;
 
   friend void swap(MSG_GET_MAP_RES& a, MSG_GET_MAP_RES& b) {
     a.Swap(&b);
@@ -3287,163 +3634,6 @@ class MSG_GET_MAP_RES final :
 };
 // -------------------------------------------------------------------
 
-class POS_T final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:msgpacket.POS_T) */ {
- public:
-  inline POS_T() : POS_T(nullptr) {}
-  ~POS_T() override;
-  explicit constexpr POS_T(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
-
-  POS_T(const POS_T& from);
-  POS_T(POS_T&& from) noexcept
-    : POS_T() {
-    *this = ::std::move(from);
-  }
-
-  inline POS_T& operator=(const POS_T& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline POS_T& operator=(POS_T&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
-  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
-        && GetOwningArena() != nullptr
-  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
-    ) {
-      InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const POS_T& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const POS_T* internal_default_instance() {
-    return reinterpret_cast<const POS_T*>(
-               &_POS_T_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    19;
-
-  friend void swap(POS_T& a, POS_T& b) {
-    a.Swap(&b);
-  }
-  inline void Swap(POS_T* other) {
-    if (other == this) return;
-  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
-   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
-  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
-      InternalSwap(other);
-    } else {
-      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
-    }
-  }
-  void UnsafeArenaSwap(POS_T* other) {
-    if (other == this) return;
-    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  POS_T* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
-    return CreateMaybeMessage<POS_T>(arena);
-  }
-  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
-  void CopyFrom(const POS_T& from);
-  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
-  void MergeFrom(const POS_T& from);
-  private:
-  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from);
-  public:
-  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
-  bool IsInitialized() const final;
-
-  size_t ByteSizeLong() const final;
-  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  int GetCachedSize() const final { return _cached_size_.Get(); }
-
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const final;
-  void InternalSwap(POS_T* other);
-
-  private:
-  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "msgpacket.POS_T";
-  }
-  protected:
-  explicit POS_T(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
-  private:
-  static void ArenaDtor(void* object);
-  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
-  public:
-
-  static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
-
-  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  enum : int {
-    kPosXFieldNumber = 1,
-    kPosYFieldNumber = 2,
-  };
-  // int32 pos_x = 1;
-  void clear_pos_x();
-  int32_t pos_x() const;
-  void set_pos_x(int32_t value);
-  private:
-  int32_t _internal_pos_x() const;
-  void _internal_set_pos_x(int32_t value);
-  public:
-
-  // int32 pos_y = 2;
-  void clear_pos_y();
-  int32_t pos_y() const;
-  void set_pos_y(int32_t value);
-  private:
-  int32_t _internal_pos_y() const;
-  void _internal_set_pos_y(int32_t value);
-  public:
-
-  // @@protoc_insertion_point(class_scope:msgpacket.POS_T)
- private:
-  class _Internal;
-
-  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
-  typedef void InternalArenaConstructable_;
-  typedef void DestructorSkippable_;
-  int32_t pos_x_;
-  int32_t pos_y_;
-  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
-  friend struct ::TableStruct_msg_2eproto;
-};
-// -------------------------------------------------------------------
-
 class MSG_PATH_SEARCH final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:msgpacket.MSG_PATH_SEARCH) */ {
  public:
@@ -3492,7 +3682,7 @@ class MSG_PATH_SEARCH final :
                &_MSG_PATH_SEARCH_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    20;
+    21;
 
   friend void swap(MSG_PATH_SEARCH& a, MSG_PATH_SEARCH& b) {
     a.Swap(&b);
@@ -3667,7 +3857,7 @@ class MSG_PATH_SEARCH_RES final :
                &_MSG_PATH_SEARCH_RES_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    21;
+    22;
 
   friend void swap(MSG_PATH_SEARCH_RES& a, MSG_PATH_SEARCH_RES& b) {
     a.Swap(&b);
@@ -3829,174 +4019,6 @@ class MSG_PATH_SEARCH_RES final :
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::msgpacket::POS_T > path_key_pos_;
   ::msgpacket::POS_T* pos_src_;
   ::msgpacket::POS_T* pos_dst_;
-  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
-  friend struct ::TableStruct_msg_2eproto;
-};
-// -------------------------------------------------------------------
-
-class PROTO_VEC_3F final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:msgpacket.PROTO_VEC_3F) */ {
- public:
-  inline PROTO_VEC_3F() : PROTO_VEC_3F(nullptr) {}
-  ~PROTO_VEC_3F() override;
-  explicit constexpr PROTO_VEC_3F(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
-
-  PROTO_VEC_3F(const PROTO_VEC_3F& from);
-  PROTO_VEC_3F(PROTO_VEC_3F&& from) noexcept
-    : PROTO_VEC_3F() {
-    *this = ::std::move(from);
-  }
-
-  inline PROTO_VEC_3F& operator=(const PROTO_VEC_3F& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline PROTO_VEC_3F& operator=(PROTO_VEC_3F&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
-  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
-        && GetOwningArena() != nullptr
-  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
-    ) {
-      InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const PROTO_VEC_3F& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const PROTO_VEC_3F* internal_default_instance() {
-    return reinterpret_cast<const PROTO_VEC_3F*>(
-               &_PROTO_VEC_3F_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    22;
-
-  friend void swap(PROTO_VEC_3F& a, PROTO_VEC_3F& b) {
-    a.Swap(&b);
-  }
-  inline void Swap(PROTO_VEC_3F* other) {
-    if (other == this) return;
-  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
-   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
-  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
-      InternalSwap(other);
-    } else {
-      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
-    }
-  }
-  void UnsafeArenaSwap(PROTO_VEC_3F* other) {
-    if (other == this) return;
-    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  PROTO_VEC_3F* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
-    return CreateMaybeMessage<PROTO_VEC_3F>(arena);
-  }
-  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
-  void CopyFrom(const PROTO_VEC_3F& from);
-  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
-  void MergeFrom(const PROTO_VEC_3F& from);
-  private:
-  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from);
-  public:
-  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
-  bool IsInitialized() const final;
-
-  size_t ByteSizeLong() const final;
-  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  int GetCachedSize() const final { return _cached_size_.Get(); }
-
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const final;
-  void InternalSwap(PROTO_VEC_3F* other);
-
-  private:
-  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "msgpacket.PROTO_VEC_3F";
-  }
-  protected:
-  explicit PROTO_VEC_3F(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
-  private:
-  static void ArenaDtor(void* object);
-  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
-  public:
-
-  static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
-
-  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  enum : int {
-    kXFieldNumber = 1,
-    kYFieldNumber = 2,
-    kZFieldNumber = 3,
-  };
-  // float x = 1;
-  void clear_x();
-  float x() const;
-  void set_x(float value);
-  private:
-  float _internal_x() const;
-  void _internal_set_x(float value);
-  public:
-
-  // float y = 2;
-  void clear_y();
-  float y() const;
-  void set_y(float value);
-  private:
-  float _internal_y() const;
-  void _internal_set_y(float value);
-  public:
-
-  // float z = 3;
-  void clear_z();
-  float z() const;
-  void set_z(float value);
-  private:
-  float _internal_z() const;
-  void _internal_set_z(float value);
-  public:
-
-  // @@protoc_insertion_point(class_scope:msgpacket.PROTO_VEC_3F)
- private:
-  class _Internal;
-
-  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
-  typedef void InternalArenaConstructable_;
-  typedef void DestructorSkippable_;
-  float x_;
-  float y_;
-  float z_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_msg_2eproto;
 };
@@ -5411,6 +5433,114 @@ class MSG_NAV_GET_ALL_OBSTACLE_RES final :
   #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif  // __GNUC__
+// POS_T
+
+// int32 pos_x = 1;
+inline void POS_T::clear_pos_x() {
+  pos_x_ = 0;
+}
+inline int32_t POS_T::_internal_pos_x() const {
+  return pos_x_;
+}
+inline int32_t POS_T::pos_x() const {
+  // @@protoc_insertion_point(field_get:msgpacket.POS_T.pos_x)
+  return _internal_pos_x();
+}
+inline void POS_T::_internal_set_pos_x(int32_t value) {
+  
+  pos_x_ = value;
+}
+inline void POS_T::set_pos_x(int32_t value) {
+  _internal_set_pos_x(value);
+  // @@protoc_insertion_point(field_set:msgpacket.POS_T.pos_x)
+}
+
+// int32 pos_y = 2;
+inline void POS_T::clear_pos_y() {
+  pos_y_ = 0;
+}
+inline int32_t POS_T::_internal_pos_y() const {
+  return pos_y_;
+}
+inline int32_t POS_T::pos_y() const {
+  // @@protoc_insertion_point(field_get:msgpacket.POS_T.pos_y)
+  return _internal_pos_y();
+}
+inline void POS_T::_internal_set_pos_y(int32_t value) {
+  
+  pos_y_ = value;
+}
+inline void POS_T::set_pos_y(int32_t value) {
+  _internal_set_pos_y(value);
+  // @@protoc_insertion_point(field_set:msgpacket.POS_T.pos_y)
+}
+
+// -------------------------------------------------------------------
+
+// PROTO_VEC_3F
+
+// float x = 1;
+inline void PROTO_VEC_3F::clear_x() {
+  x_ = 0;
+}
+inline float PROTO_VEC_3F::_internal_x() const {
+  return x_;
+}
+inline float PROTO_VEC_3F::x() const {
+  // @@protoc_insertion_point(field_get:msgpacket.PROTO_VEC_3F.x)
+  return _internal_x();
+}
+inline void PROTO_VEC_3F::_internal_set_x(float value) {
+  
+  x_ = value;
+}
+inline void PROTO_VEC_3F::set_x(float value) {
+  _internal_set_x(value);
+  // @@protoc_insertion_point(field_set:msgpacket.PROTO_VEC_3F.x)
+}
+
+// float y = 2;
+inline void PROTO_VEC_3F::clear_y() {
+  y_ = 0;
+}
+inline float PROTO_VEC_3F::_internal_y() const {
+  return y_;
+}
+inline float PROTO_VEC_3F::y() const {
+  // @@protoc_insertion_point(field_get:msgpacket.PROTO_VEC_3F.y)
+  return _internal_y();
+}
+inline void PROTO_VEC_3F::_internal_set_y(float value) {
+  
+  y_ = value;
+}
+inline void PROTO_VEC_3F::set_y(float value) {
+  _internal_set_y(value);
+  // @@protoc_insertion_point(field_set:msgpacket.PROTO_VEC_3F.y)
+}
+
+// float z = 3;
+inline void PROTO_VEC_3F::clear_z() {
+  z_ = 0;
+}
+inline float PROTO_VEC_3F::_internal_z() const {
+  return z_;
+}
+inline float PROTO_VEC_3F::z() const {
+  // @@protoc_insertion_point(field_get:msgpacket.PROTO_VEC_3F.z)
+  return _internal_z();
+}
+inline void PROTO_VEC_3F::_internal_set_z(float value) {
+  
+  z_ = value;
+}
+inline void PROTO_VEC_3F::set_z(float value) {
+  _internal_set_z(value);
+  // @@protoc_insertion_point(field_set:msgpacket.PROTO_VEC_3F.z)
+}
+
+// -------------------------------------------------------------------
+
 // MSG_RPC
 
 // int64 msg_id = 1;
@@ -6217,6 +6347,46 @@ inline void MSG_LOGIN::set_id(int64_t value) {
   // @@protoc_insertion_point(field_set:msgpacket.MSG_LOGIN.id)
 }
 
+// float X = 2;
+inline void MSG_LOGIN::clear_x() {
+  x_ = 0;
+}
+inline float MSG_LOGIN::_internal_x() const {
+  return x_;
+}
+inline float MSG_LOGIN::x() const {
+  // @@protoc_insertion_point(field_get:msgpacket.MSG_LOGIN.X)
+  return _internal_x();
+}
+inline void MSG_LOGIN::_internal_set_x(float value) {
+  
+  x_ = value;
+}
+inline void MSG_LOGIN::set_x(float value) {
+  _internal_set_x(value);
+  // @@protoc_insertion_point(field_set:msgpacket.MSG_LOGIN.X)
+}
+
+// float Y = 3;
+inline void MSG_LOGIN::clear_y() {
+  y_ = 0;
+}
+inline float MSG_LOGIN::_internal_y() const {
+  return y_;
+}
+inline float MSG_LOGIN::y() const {
+  // @@protoc_insertion_point(field_get:msgpacket.MSG_LOGIN.Y)
+  return _internal_y();
+}
+inline void MSG_LOGIN::_internal_set_y(float value) {
+  
+  y_ = value;
+}
+inline void MSG_LOGIN::set_y(float value) {
+  _internal_set_y(value);
+  // @@protoc_insertion_point(field_set:msgpacket.MSG_LOGIN.Y)
+}
+
 // -------------------------------------------------------------------
 
 // MSG_LOGIN_RES
@@ -6680,50 +6850,6 @@ inline void MSG_GET_MAP_RES::set_allocated_map_data(std::string* map_data) {
 
 // -------------------------------------------------------------------
 
-// POS_T
-
-// int32 pos_x = 1;
-inline void POS_T::clear_pos_x() {
-  pos_x_ = 0;
-}
-inline int32_t POS_T::_internal_pos_x() const {
-  return pos_x_;
-}
-inline int32_t POS_T::pos_x() const {
-  // @@protoc_insertion_point(field_get:msgpacket.POS_T.pos_x)
-  return _internal_pos_x();
-}
-inline void POS_T::_internal_set_pos_x(int32_t value) {
-  
-  pos_x_ = value;
-}
-inline void POS_T::set_pos_x(int32_t value) {
-  _internal_set_pos_x(value);
-  // @@protoc_insertion_point(field_set:msgpacket.POS_T.pos_x)
-}
-
-// int32 pos_y = 2;
-inline void POS_T::clear_pos_y() {
-  pos_y_ = 0;
-}
-inline int32_t POS_T::_internal_pos_y() const {
-  return pos_y_;
-}
-inline int32_t POS_T::pos_y() const {
-  // @@protoc_insertion_point(field_get:msgpacket.POS_T.pos_y)
-  return _internal_pos_y();
-}
-inline void POS_T::_internal_set_pos_y(int32_t value) {
-  
-  pos_y_ = value;
-}
-inline void POS_T::set_pos_y(int32_t value) {
-  _internal_set_pos_y(value);
-  // @@protoc_insertion_point(field_set:msgpacket.POS_T.pos_y)
-}
-
-// -------------------------------------------------------------------
-
 // MSG_PATH_SEARCH
 
 // .msgpacket.POS_T pos_src = 1;
@@ -7168,70 +7294,6 @@ inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::msgpacket::POS_T >&
 MSG_PATH_SEARCH_RES::path_key_pos() const {
   // @@protoc_insertion_point(field_list:msgpacket.MSG_PATH_SEARCH_RES.path_key_pos)
   return path_key_pos_;
-}
-
-// -------------------------------------------------------------------
-
-// PROTO_VEC_3F
-
-// float x = 1;
-inline void PROTO_VEC_3F::clear_x() {
-  x_ = 0;
-}
-inline float PROTO_VEC_3F::_internal_x() const {
-  return x_;
-}
-inline float PROTO_VEC_3F::x() const {
-  // @@protoc_insertion_point(field_get:msgpacket.PROTO_VEC_3F.x)
-  return _internal_x();
-}
-inline void PROTO_VEC_3F::_internal_set_x(float value) {
-  
-  x_ = value;
-}
-inline void PROTO_VEC_3F::set_x(float value) {
-  _internal_set_x(value);
-  // @@protoc_insertion_point(field_set:msgpacket.PROTO_VEC_3F.x)
-}
-
-// float y = 2;
-inline void PROTO_VEC_3F::clear_y() {
-  y_ = 0;
-}
-inline float PROTO_VEC_3F::_internal_y() const {
-  return y_;
-}
-inline float PROTO_VEC_3F::y() const {
-  // @@protoc_insertion_point(field_get:msgpacket.PROTO_VEC_3F.y)
-  return _internal_y();
-}
-inline void PROTO_VEC_3F::_internal_set_y(float value) {
-  
-  y_ = value;
-}
-inline void PROTO_VEC_3F::set_y(float value) {
-  _internal_set_y(value);
-  // @@protoc_insertion_point(field_set:msgpacket.PROTO_VEC_3F.y)
-}
-
-// float z = 3;
-inline void PROTO_VEC_3F::clear_z() {
-  z_ = 0;
-}
-inline float PROTO_VEC_3F::_internal_z() const {
-  return z_;
-}
-inline float PROTO_VEC_3F::z() const {
-  // @@protoc_insertion_point(field_get:msgpacket.PROTO_VEC_3F.z)
-  return _internal_z();
-}
-inline void PROTO_VEC_3F::_internal_set_z(float value) {
-  
-  z_ = value;
-}
-inline void PROTO_VEC_3F::set_z(float value) {
-  _internal_set_z(value);
-  // @@protoc_insertion_point(field_set:msgpacket.PROTO_VEC_3F.z)
 }
 
 // -------------------------------------------------------------------

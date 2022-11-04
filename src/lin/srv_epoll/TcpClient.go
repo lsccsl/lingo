@@ -15,6 +15,7 @@ type TcpClient struct {
 	addr net.Addr
 
 	clientID int64
+	aoiID int
 
 	timerConnClose * time.Timer
 	durationClose time.Duration

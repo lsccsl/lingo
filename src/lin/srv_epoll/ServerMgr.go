@@ -115,7 +115,7 @@ func (pthis*ServerMgr)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, inAtt
 			}
 			pu = pthis.GetProcessUnitByClientID(msgL.Id)
 			if pu != nil {
-				pu.PushTcpLoginMsg(msgL.Id, fd)
+				pu.PushTcpLoginMsg(msgL.Id, msgL, fd)
 			}
 			return
 		}
@@ -251,7 +251,7 @@ func (pthis*ServerMgr)Dump(bDetail bool)string{
 	return str
 }
 
-func ConstructorEpollServerMgr(addr string,
+func ConstructorServerMgr(addr string,
 	processUnitCount int, srvProcessUnitCount int,
 	epollCoroutineCount int, clientCloseTimeoutSec int, srvCloseTimeoutSec int,
 	bET bool) (*ServerMgr, error) {
@@ -282,7 +282,7 @@ func ConstructorEpollServerMgr(addr string,
 	eSrvMgr.lsn = lsn
 
 	for i := 0; i < processUnitCount; i ++ {
-		pu := ConstructorEPollProcessUnit(eSrvMgr)
+		pu := ConstructorTcpClientMgrUnit(eSrvMgr)
 		eSrvMgr.processUnit = append(eSrvMgr.processUnit, pu)
 		go pu._go_Process_unit()
 	}

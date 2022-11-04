@@ -50,7 +50,7 @@ func main() {
 	msgpacket.InitMsgParseVirtualTable(Global_ServerCfg.Msgdef)
 
 	// epoll mgr
-	eSrvMgr, err := ConstructorEpollServerMgr(srvCfg.BindAddr,
+	eSrvMgr, err := ConstructorServerMgr(srvCfg.BindAddr,
 		20, 20, 8,
 		600,900,
 		true)

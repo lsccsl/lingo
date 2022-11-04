@@ -4,6 +4,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"lin/lin_common"
 	"lin/msgpacket"
+	"time"
 )
 
 /* begin process unit msg define */
@@ -65,11 +66,22 @@ func (pthis*TcpClientMgrUnit)Process_TcpClose(c *TcpClient, fd lin_common.FD_DEF
 	}
 	lin_common.LogDebug(fd.String(), " clientid:", c.clientID, " fd:", fd.String())
 	pthis.delClient(c.clientID)
+
+	{
+		msgAdd := &msgDelAOIObject {
+			aoiID : c.aoiID,
+		}
+		pthis.eSrvMgr.mapProcMgr.addMapProcessMsg(msgAdd, c.clientID, time.Second * 3)
+		c.aoiID = msgAdd.aoiID
+	}
+
 	c.Destructor()
 }
 
 
-func (pthis*TcpClientMgrUnit)Process_LOGIN(cliID int64, fd lin_common.FD_DEF){
+func (pthis*TcpClientMgrUnit)Process_LOGIN(msg*msgClient){
+	cliID := msg.clientID
+	fd := msg.fd
 	lin_common.LogDebug("login:", fd.String(), " clientid:", cliID)
 
 	oldC := pthis.getClient(cliID)
@@ -89,6 +101,25 @@ func (pthis*TcpClientMgrUnit)Process_LOGIN(cliID int64, fd lin_common.FD_DEF){
 		pthis.addClient(c)
 	}
 
+	c := pthis.getClient(cliID)
+	if c == nil {
+		return
+	}
+
+	{
+		msgAdd := &msgAddAOIObject {
+			ntf : ConstructorMapAOI(),
+			ViewRange : 10,
+		}
+		msgL, ok := msg.msg.(*msgpacket.MSG_LOGIN)
+		if ok {
+			msgAdd.X = msgL.X
+			msgAdd.Y = msgL.Y
+		}
+		pthis.eSrvMgr.mapProcMgr.addMapProcessMsg(msgAdd, cliID, time.Second * 3)
+		c.aoiID = msgAdd.aoiID
+	}
+
 	msgRes := &msgpacket.MSG_LOGIN_RES{}
 	msgRes.Id = cliID
 	msgRes.ConnectId = int64(fd.Magic)
@@ -103,7 +134,7 @@ func (pthis*TcpClientMgrUnit)_go_Process_unit(){
 	for {
 		msg := <- pthis._chMsg
 		if CLIENT_LOGIN == msg.msgType {
-			pthis.Process_LOGIN(msg.clientID, msg.fd)
+			pthis.Process_LOGIN(msg)
 			continue
 		}
 
@@ -126,8 +157,8 @@ func (pthis*TcpClientMgrUnit)_go_Process_unit(){
 	}
 }
 
-func (pthis*TcpClientMgrUnit)PushTcpLoginMsg(cliID int64, fd lin_common.FD_DEF){
-	pthis._chMsg <- &msgClient{clientID: cliID, fd:fd, msgType: CLIENT_LOGIN}
+func (pthis*TcpClientMgrUnit)PushTcpLoginMsg(cliID int64, msgL *msgpacket.MSG_LOGIN, fd lin_common.FD_DEF){
+	pthis._chMsg <- &msgClient{clientID: cliID, fd:fd, msg:msgL, msgType: CLIENT_LOGIN}
 }
 
 func (pthis*TcpClientMgrUnit)PushTcpCloseMsg(cliID int64, fd lin_common.FD_DEF){
@@ -143,7 +174,7 @@ func (pthis*TcpClientMgrUnit)PushProtoMsg(cliID int64, fd lin_common.FD_DEF, msg
 	}
 }
 
-func ConstructorEPollProcessUnit(eSrvMgr *ServerMgr) *TcpClientMgrUnit {
+func ConstructorTcpClientMgrUnit(eSrvMgr *ServerMgr) *TcpClientMgrUnit {
 	return &TcpClientMgrUnit{
 		_chMsg : make(chan *msgClient, 100),
 		eSrvMgr : eSrvMgr,

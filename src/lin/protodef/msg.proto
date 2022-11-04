@@ -49,6 +49,19 @@ enum RESPONSE_CODE
     RESPONSE_CODE_redirect = 3;
 }
 
+message POS_T
+{
+    int32 pos_x = 1;
+    int32 pos_y = 2;
+}
+
+message PROTO_VEC_3F
+{
+    float x = 1;
+    float y = 2;
+    float z = 3;
+}
+
 message MSG_RPC
 {
     int64 msg_id = 1;
@@ -120,6 +133,9 @@ message MSG_TEST_RPC_RES
 message MSG_LOGIN
 {
     int64 id = 1;
+
+    float X = 2;
+    float Y = 3;
 }
 
 message MSG_LOGIN_RES
@@ -165,11 +181,7 @@ message MSG_GET_MAP_RES
     bytes map_data = 4;
 }
 
-message POS_T
-{
-    int32 pos_x = 1;
-    int32 pos_y = 2;
-}
+
 
 message MSG_PATH_SEARCH
 {
@@ -184,12 +196,7 @@ message MSG_PATH_SEARCH_RES
     repeated POS_T path_key_pos = 4;
 }
 
-message PROTO_VEC_3F
-{
-    float x = 1;
-    float y = 2;
-    float z = 3;
-}
+
 
 message MSG_NAV_SEARCH
 {
