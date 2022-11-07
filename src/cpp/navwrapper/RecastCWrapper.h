@@ -16,6 +16,7 @@ DLL_EXPORT void nav_update(void* ins_ptr);
 DLL_EXPORT void nav_reset_agent(void* ins_ptr, float agentHeight, float agentRadius, float agentMaxClimb, float agentMaxSlope);
 DLL_EXPORT bool nav_load(void* ins_ptr, const char* file_path);
 DLL_EXPORT bool nav_load_from_template(void* ins_ptr, void* template_ptr);
+DLL_EXPORT bool nav_get_bound(void* ins_ptr, struct RecastVec3f* outBoundMin, struct RecastVec3f* outBoundMax);
 
 
 /* @brief pos_path nav_freepath */

@@ -93,6 +93,13 @@ void RecastInstance::initSettings()
 		const float* bmin = m_geom->getNavMeshBoundsMin();
 		const float* bmax = m_geom->getNavMeshBoundsMax();
 
+		this->nav_bound_min[0] = bmin[0];
+		this->nav_bound_min[1] = bmin[1];
+		this->nav_bound_min[2] = bmin[2];
+		this->nav_bound_max[0] = bmax[0];
+		this->nav_bound_max[1] = bmax[1];
+		this->nav_bound_max[2] = bmax[2];
+
 		int gw = 0, gh = 0;
 		rcCalcGridSize(bmin, bmax, m_cellSize, &gw, &gh);
 		const int ts = (int)m_tileSize;

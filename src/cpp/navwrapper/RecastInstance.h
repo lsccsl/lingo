@@ -42,6 +42,19 @@ public:
 		m_agentMaxSlope = agentMaxSlope;
 	}
 
+	void GetNavBound(RecastVec3f* outBoundMin, RecastVec3f* outBoundMax)
+	{
+		if (!outBoundMin || !outBoundMax)
+			return;
+
+		outBoundMin->x = this->nav_bound_min[0];
+		outBoundMin->y = this->nav_bound_min[1];
+		outBoundMin->z = this->nav_bound_min[2];
+		outBoundMax->x = this->nav_bound_max[0];
+		outBoundMax->y = this->nav_bound_max[1];
+		outBoundMax->z = this->nav_bound_max[2];
+	}
+
 protected:
 
 	bool buildFromGeom(InputGeom* geom);
@@ -106,4 +119,7 @@ private:
 	unsigned char m_straightPathFlags[MAX_POLYS];
 	dtPolyRef m_straightPathPolys[MAX_POLYS];
 	int m_straightPathOptions;
+
+	float nav_bound_max[3];
+	float nav_bound_min[3];
 };

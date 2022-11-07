@@ -118,3 +118,16 @@ func (pthis*NavMapIns)get_all_obstacle() MAP_OBSTACLE {
 	}
 	return m
 }
+
+func (pthis*NavMapIns)get_nav_bound(boundMin * Coord3f, boundMax * Coord3f) {
+	outBoundMin := &C.RecastPosT{}
+	outBoundMax := &C.RecastPosT{}
+	C.nav_get_bound(pthis.handle_map_ins_, outBoundMin, outBoundMax)
+
+	boundMin.X = float32(outBoundMin.x)
+	boundMin.Y = float32(outBoundMin.y)
+	boundMin.Z = float32(outBoundMin.z)
+	boundMax.X = float32(outBoundMax.x)
+	boundMax.Y = float32(outBoundMax.y)
+	boundMax.Z = float32(outBoundMax.z)
+}

@@ -24,6 +24,13 @@ func test_recast_template() {
 
 	C.nav_load_from_template(ins, tmp)
 
+	{
+		outBoundMin := &C.RecastPosT{}
+		outBoundMax := &C.RecastPosT{}
+		C.nav_get_bound(ins, outBoundMin, outBoundMax)
+		fmt.Println("nav bound", outBoundMin, outBoundMax)
+	}
+
 	var start_pos C.struct_RecastVec3f
 	start_pos.x = 702.190918
 	start_pos.y = 1.53082275

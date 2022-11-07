@@ -147,3 +147,12 @@ bool nav_load_from_template(void* ins_ptr, void* template_ptr)
 	ins->LoadFromTemplate(tmp->GetGeom(), tmp->GetNavTemplateMem());
 	return true;
 }
+
+bool nav_get_bound(void* ins_ptr, struct RecastVec3f* outBoundMin, struct RecastVec3f* outBoundMax)
+{
+	RecastInstance* ins = static_cast<RecastInstance*>(ins_ptr);
+	if (NULL == ins)
+		return false;
+
+	ins->GetNavBound(outBoundMin, outBoundMax);
+}

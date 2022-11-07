@@ -219,6 +219,10 @@ func (pthis*TcpClient)Process_MSG_NAV_GET_ALL_OBSTACLE(msg * msgpacket.MSG_NAV_G
 	pthis.pu.eSrvMgr.SendProtoMsg(pthis.fd, msgpacket.MSG_TYPE__MSG_NAV_GET_ALL_OBSTACLE_RES, msg_ret)
 }
 
+func (pthis*TcpClient)Process_MSG_UPDATE_POS(msg * msgpacket.MSG_UPDATE_POS){
+
+}
+
 func (pthis*TcpClient)Process_protoMsg(msg *msgClient) {
 	defer func() {
 		err := recover()
@@ -248,6 +252,8 @@ func (pthis*TcpClient)Process_protoMsg(msg *msgClient) {
 		pthis.Process_MSG_NAV_DEL_OBSTACLE(t)
 	case *msgpacket.MSG_NAV_GET_ALL_OBSTACLE:
 		pthis.Process_MSG_NAV_GET_ALL_OBSTACLE(t)
+	case *msgpacket.MSG_UPDATE_POS:
+		pthis.Process_MSG_UPDATE_POS(t)
 	}
 }
 
