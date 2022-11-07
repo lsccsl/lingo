@@ -124,6 +124,7 @@ func (pthis*MapProcess)process_msgNavGetAllObstacle(msg *msgNavGetAllObstacle) {
 }
 func (pthis*MapProcess)process_msgAddAOIObject(msg *msgAddAOIObject){
 	msg.aoiID = pthis.aoi.add(msg.X, msg.Y, msg.ViewRange, msg.ntf)
+	msg.ntf.setAOIID(msg.aoiID)
 	lin_common.LogDebug("add aoi ", msg.aoiID)
 }
 func (pthis*MapProcess)process_msgDelAOIObject(msg *msgDelAOIObject){

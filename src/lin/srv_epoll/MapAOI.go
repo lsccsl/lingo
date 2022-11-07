@@ -3,8 +3,11 @@ package main
 import "lin/lin_common"
 
 type MapAoiInf interface {
-	Ntf_node_in_view(nodeID int, nodeIDInView int)
-	Ntf_node_out_view(nodeID int, nodeIDOutView int)
+	Ntf_in_view(nodeID int)
+	Ntf_out_view(nodeID int)
+	Ntf_in_viewby(nodeID int)
+	Ntf_out_viewby(nodeID int)
+	setAOIID(aoiID int)
 }
 
 type MapAOI struct {
@@ -22,18 +25,24 @@ func ConstructorMapAOI() *MapAOI {
 }
 
 func (pthis*MapAOI)Ntf_node_in_view(nodeID int, nodeIDInView int) {
-	v, ok := pthis.mapAoi[nodeID]
-	if !ok {
-		return
+	node, _ := pthis.mapAoi[nodeID]
+	if node != nil {
+		node.Ntf_in_view(nodeIDInView)
 	}
-	v.Ntf_node_in_view(nodeID, nodeIDInView)
+	nodeView, _ := pthis.mapAoi[nodeIDInView]
+	if nodeView != nil {
+		nodeView.Ntf_in_viewby(nodeID)
+	}
 }
 func (pthis*MapAOI)Ntf_node_out_view(nodeID int, nodeIDOutView int) {
-	v, ok := pthis.mapAoi[nodeID]
-	if !ok {
-		return
+	node, _ := pthis.mapAoi[nodeID]
+	if node != nil {
+		node.Ntf_out_view(nodeIDOutView)
 	}
-	v.Ntf_node_out_view(nodeID, nodeIDOutView)
+	nodeView, _ := pthis.mapAoi[nodeIDOutView]
+	if nodeView != nil {
+		nodeView.Ntf_out_viewby(nodeID)
+	}
 }
 
 func (pthis*MapAOI)add(X float32, Y float32, ViewRange float32, ntf MapAoiInf) int {

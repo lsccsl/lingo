@@ -39,6 +39,9 @@ enum MSG_TYPE
     _MSG_NAV_DEL_OBSTACLE_RES = 1012;
     _MSG_NAV_GET_ALL_OBSTACLE = 1013;
     _MSG_NAV_GET_ALL_OBSTACLE_RES = 1014;
+
+    _MSG_UPDATE_POS = 1015;
+    _MSG_UPDATE_POS_RES = 1016;
 }
 
 enum RESPONSE_CODE
@@ -240,4 +243,11 @@ message MSG_NAV_GET_ALL_OBSTACLE_RES
     repeated NAV_OBSTACLE obstacle = 1;
 }
 
-
+message MSG_UPDATE_POS
+{
+    PROTO_VEC_3F new_pos = 1;
+}
+message MSG_UPDATE_POS_RES
+{
+    PROTO_VEC_3F new_pos = 1;
+}

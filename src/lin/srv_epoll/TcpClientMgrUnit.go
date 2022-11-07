@@ -108,7 +108,7 @@ func (pthis*TcpClientMgrUnit)Process_LOGIN(msg*msgClient){
 
 	{
 		msgAdd := &msgAddAOIObject {
-			ntf : ConstructorMapAOI(),
+			ntf : ConstructMapAOINtfClient(cliID, pthis.eSrvMgr),
 			ViewRange : 10,
 		}
 		msgL, ok := msg.msg.(*msgpacket.MSG_LOGIN)
