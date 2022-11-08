@@ -15,6 +15,7 @@ type Crosslink_interface interface {
 }
 
 type Crosslink_node_param struct {
+	NodeID int
 	X float32
 	Y float32
 	Data interface{}
@@ -234,10 +235,13 @@ func Crosslink_mgr_constructor(crs_lnk_if Crosslink_interface) *Crosslink_mgr {
 	return crs_lnk
 }
 
-func (pthis*Crosslink_mgr)Crosslink_mgr_add(node_param * Crosslink_node_param) int {
-
+func (pthis*Crosslink_mgr)Crosslink_mgr_gen_id() int {
 	pthis.cur_node_id_++
-	new_node_id := pthis.cur_node_id_
+	return pthis.cur_node_id_
+}
+
+func (pthis*Crosslink_mgr)Crosslink_mgr_add(node_param * Crosslink_node_param) int {
+	new_node_id := node_param.NodeID
 
 	x_new_node := &crosslinker_node{prev_: nil, next_:nil,
 		front_ : nil, back_ : nil,
@@ -303,7 +307,7 @@ func (pthis*Crosslink_mgr)Crosslink_mgr_add(node_param * Crosslink_node_param) i
 			}
 		}
 		if cur_node == nil {
-			LogDebug("link y tail", new_node_id)
+			//LogDebug("link y tail", new_node_id)
 			pthis.link_x_._inter_crosslink_add_after(x_new_node,nil)
 		}
 	}
@@ -347,7 +351,7 @@ func (pthis*Crosslink_mgr)Crosslink_mgr_add(node_param * Crosslink_node_param) i
 			}
 		}
 		if cur_node == nil {
-			LogDebug("link y tail", new_node_id)
+			//LogDebug("link y tail", new_node_id)
 			pthis.link_y_._inter_crosslink_add_after(y_new_node, nil)
 		}
 	}
@@ -387,7 +391,6 @@ func (pthis*Crosslink_mgr)Ntf_node_in_view(node_id int, node_id_in_viewed int) {
 	if node_in_viewed != nil {
 		node_in_viewed.map_view_by_[node_id] = node_id
 	}
-
 
 	pthis.crs_lnk_if_.Ntf_node_in_view(node_id, node_id_in_viewed)
 }

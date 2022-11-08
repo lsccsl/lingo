@@ -124,7 +124,6 @@ func (pthis*MapProcess)process_msgNavGetAllObstacle(msg *msgNavGetAllObstacle) {
 }
 func (pthis*MapProcess)process_msgAddAOIObject(msg *msgAddAOIObject){
 	msg.aoiID = pthis.aoi.add(msg.X, msg.Y, msg.ViewRange, msg.ntf)
-	msg.ntf.setAOIID(msg.aoiID)
 	lin_common.LogDebug("add aoi ", msg.aoiID)
 }
 func (pthis*MapProcess)process_msgDelAOIObject(msg *msgDelAOIObject){
@@ -139,8 +138,10 @@ func ConstructMapProcess(procMgr *MapProcessMgr) *MapProcess {
 		procMgr : procMgr,
 		aoi : ConstructorMapAOI(),
 	}
-
 	mp.navIns.load_from_template(mp.procMgr.navMap)
+
+	mp.initTestViewNode()
+
 	return mp
 }
 
@@ -187,7 +188,7 @@ func ConstructMapProcessMgr(processCount int) *MapProcessMgr {
 	for i := 0; i < processCount; i ++ {
 		lin_common.LogDebug("load map process:", i)
 		mp := ConstructMapProcess(mgr)
-		lin_common.LogDebug("load map process:", i, " done")
+		lin_common.LogDebug("load map process:", i, " done\r\n\r\n")
 		mgr.mapProc = append(mgr.mapProc, mp)
 		go mp._go_MapProcess()
 	}

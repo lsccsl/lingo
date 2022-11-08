@@ -27,6 +27,7 @@ func main() {
 	fmt.Println("add 100 step 2")
 	for i := 2; i <= 100; i += 2 {
 		node_tmp := &lin_common.Crosslink_node_param {
+			NodeID:clm.Crosslink_mgr_gen_id(),
 			X : float32(i),
 			Y : float32(i),
 			ViewRange : 10,
@@ -38,6 +39,7 @@ func main() {
 	}
 	for i := 1; i <= 99; i += 2 {
 		node_tmp := &lin_common.Crosslink_node_param {
+			NodeID:clm.Crosslink_mgr_gen_id(),
 			X : float32(i),
 			Y : float32(i),
 			ViewRange : 10,
@@ -57,6 +59,7 @@ func main() {
 		y := float32(rand.Int() % 100)
 
 		node_tmp := &lin_common.Crosslink_node_param {
+			NodeID:clm.Crosslink_mgr_gen_id(),
 			X : x,
 			Y : y,
 			ViewRange : 10,
@@ -71,6 +74,7 @@ func main() {
 	}
 
 	node0 := &lin_common.Crosslink_node_param {
+		NodeID:clm.Crosslink_mgr_gen_id(),
 		X : 0,
 		Y : 0,
 		ViewRange : 10,
@@ -80,6 +84,7 @@ func main() {
 	clm.Check()
 
 	node1 := &lin_common.Crosslink_node_param {
+		NodeID:clm.Crosslink_mgr_gen_id(),
 		X : 1,
 		Y : 1,
 		ViewRange : 10,
@@ -89,6 +94,7 @@ func main() {
 	clm.Check()
 
 	node2 := &lin_common.Crosslink_node_param {
+		NodeID:clm.Crosslink_mgr_gen_id(),
 		X : 11,
 		Y : 11,
 		ViewRange : 10,
@@ -98,6 +104,7 @@ func main() {
 	clm.Check()
 
 	node3 := &lin_common.Crosslink_node_param {
+		NodeID:clm.Crosslink_mgr_gen_id(),
 		X : 16,
 		Y : 16,
 		ViewRange : 10,
@@ -107,6 +114,7 @@ func main() {
 	clm.Check()
 
 	node4 := &lin_common.Crosslink_node_param {
+		NodeID:clm.Crosslink_mgr_gen_id(),
 		X : 21,
 		Y : 21,
 		ViewRange : 10,
@@ -116,6 +124,7 @@ func main() {
 	clm.Check()
 
 	node5 := &lin_common.Crosslink_node_param {
+		NodeID:clm.Crosslink_mgr_gen_id(),
 		X : -6,
 		Y : -6,
 		ViewRange : 10,
@@ -125,6 +134,7 @@ func main() {
 	clm.Check()
 
 	node6 := &lin_common.Crosslink_node_param {
+		NodeID:clm.Crosslink_mgr_gen_id(),
 		X : -11,
 		Y : -11,
 		ViewRange : 10,
@@ -134,6 +144,7 @@ func main() {
 	clm.Check()
 
 	node7 := &lin_common.Crosslink_node_param {
+		NodeID:clm.Crosslink_mgr_gen_id(),
 		X : -16,
 		Y : -16,
 		ViewRange : 10,
@@ -143,6 +154,7 @@ func main() {
 	clm.Check()
 
 	node8 := &lin_common.Crosslink_node_param {
+		NodeID:clm.Crosslink_mgr_gen_id(),
 		X : -21,
 		Y : -21,
 		ViewRange : 10,
@@ -219,6 +231,7 @@ func main() {
 		y := float32(rand.Int() % 1000)
 
 		node_tmp := &lin_common.Crosslink_node_param {
+			NodeID:clm.Crosslink_mgr_gen_id(),
 			X : x,
 			Y : y,
 			ViewRange : 10,

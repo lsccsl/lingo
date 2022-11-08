@@ -3,10 +3,10 @@ package main
 import "lin/lin_common"
 
 type MapAoiInf interface {
-	Ntf_in_view(nodeID int)
-	Ntf_out_view(nodeID int)
-	Ntf_in_viewby(nodeID int)
-	Ntf_out_viewby(nodeID int)
+	Ntf_in_view(aoiID int)
+	Ntf_out_view(aoiID int)
+	Ntf_in_viewby(aoiID int)
+	Ntf_out_viewby(aoiID int)
 	setAOIID(aoiID int)
 }
 
@@ -46,10 +46,11 @@ func (pthis*MapAOI)Ntf_node_out_view(nodeID int, nodeIDOutView int) {
 }
 
 func (pthis*MapAOI)add(X float32, Y float32, ViewRange float32, ntf MapAoiInf) int {
-	aoiID := pthis.crossLink.Crosslink_mgr_add(&lin_common.Crosslink_node_param{X, Y, ntf, ViewRange})
+	aoiID := pthis.crossLink.Crosslink_mgr_gen_id()
+	ntf.setAOIID(aoiID)
 
 	pthis.mapAoi[aoiID] = ntf
-
+	pthis.crossLink.Crosslink_mgr_add(&lin_common.Crosslink_node_param{aoiID, X, Y, ntf, ViewRange})
 	return aoiID
 }
 
