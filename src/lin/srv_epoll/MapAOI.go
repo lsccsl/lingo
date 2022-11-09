@@ -3,11 +3,12 @@ package main
 import "lin/lin_common"
 
 type MapAoiInf interface {
-	Ntf_in_view(aoiID int)
-	Ntf_out_view(aoiID int)
-	Ntf_in_viewby(aoiID int)
-	Ntf_out_viewby(aoiID int)
-	setAOIID(aoiID int)
+	Ntf_in_view(ObjID int)
+	Ntf_out_view(ObjID int)
+	Ntf_in_viewby(ObjID int)
+	Ntf_out_viewby(ObjID int)
+
+	setObjID(ObjID int)
 }
 
 type MapAOI struct {
@@ -24,51 +25,52 @@ func ConstructorMapAOI() *MapAOI {
 	return aoi
 }
 
-func (pthis*MapAOI)Ntf_node_in_view(nodeID int, nodeIDInView int) {
-	node, _ := pthis.mapAoi[nodeID]
+func (pthis*MapAOI)Ntf_node_in_view(objID int, objIDInView int) {
+	node, _ := pthis.mapAoi[objID]
 	if node != nil {
-		node.Ntf_in_view(nodeIDInView)
+		node.Ntf_in_view(objIDInView)
 	}
-	nodeView, _ := pthis.mapAoi[nodeIDInView]
+	nodeView, _ := pthis.mapAoi[objIDInView]
 	if nodeView != nil {
-		nodeView.Ntf_in_viewby(nodeID)
+		nodeView.Ntf_in_viewby(objID)
 	}
 }
-func (pthis*MapAOI)Ntf_node_out_view(nodeID int, nodeIDOutView int) {
-	node, _ := pthis.mapAoi[nodeID]
+func (pthis*MapAOI)Ntf_node_out_view(objID int, objIDOutView int) {
+	node, _ := pthis.mapAoi[objID]
 	if node != nil {
-		node.Ntf_out_view(nodeIDOutView)
+		node.Ntf_out_view(objIDOutView)
 	}
-	nodeView, _ := pthis.mapAoi[nodeIDOutView]
+	nodeView, _ := pthis.mapAoi[objIDOutView]
 	if nodeView != nil {
-		nodeView.Ntf_out_viewby(nodeID)
+		nodeView.Ntf_out_viewby(objID)
 	}
 }
 
-func (pthis*MapAOI)add(X float32, Y float32, ViewRange float32, ntf MapAoiInf) int {
-	aoiID := pthis.crossLink.Crosslink_mgr_gen_id()
-	ntf.setAOIID(aoiID)
-
-	pthis.mapAoi[aoiID] = ntf
-	pthis.crossLink.Crosslink_mgr_add(&lin_common.Crosslink_node_param{aoiID, X, Y, ntf, ViewRange})
-	return aoiID
+func (pthis*MapAOI)genID() int {
+	return pthis.crossLink.Crosslink_mgr_gen_id()
 }
 
-func (pthis*MapAOI)del(aoiID int) {
-	_, ok := pthis.mapAoi[aoiID]
+func (pthis*MapAOI)add(objID int, X float32, Y float32, ViewRange float32, ntf MapAoiInf) {
+	ntf.setObjID(objID)
+	pthis.mapAoi[objID] = ntf
+	pthis.crossLink.Crosslink_mgr_add(&lin_common.Crosslink_node_param{objID, X, Y, ntf, ViewRange})
+}
+
+func (pthis*MapAOI)del(objID int) {
+	_, ok := pthis.mapAoi[objID]
 	if !ok {
 		return
 	}
 
-	pthis.crossLink.Crosslink_mgr_del(aoiID)
-	delete(pthis.mapAoi, aoiID)
+	pthis.crossLink.Crosslink_mgr_del(objID)
+	delete(pthis.mapAoi, objID)
 }
 
-func (pthis*MapAOI)update(aoiID int, X float32, Y float32) {
-	_, ok := pthis.mapAoi[aoiID]
+func (pthis*MapAOI)update(objID int, X float32, Y float32) {
+	_, ok := pthis.mapAoi[objID]
 	if !ok {
 		return
 	}
 
-	pthis.crossLink.Crosslink_mgr_update_pos(aoiID, X, Y)
+	pthis.crossLink.Crosslink_mgr_update_pos(objID, X, Y)
 }

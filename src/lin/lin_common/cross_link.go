@@ -243,6 +243,12 @@ func (pthis*Crosslink_mgr)Crosslink_mgr_gen_id() int {
 func (pthis*Crosslink_mgr)Crosslink_mgr_add(node_param * Crosslink_node_param) int {
 	new_node_id := node_param.NodeID
 
+	_, ok := pthis.map_node_[new_node_id]
+	if ok {
+		LogErr("already has node id:", new_node_id)
+		return 0
+	}
+
 	x_new_node := &crosslinker_node{prev_: nil, next_:nil,
 		front_ : nil, back_ : nil,
 		coord_ :      node_param.X,

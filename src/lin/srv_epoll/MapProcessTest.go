@@ -8,23 +8,35 @@ import (
 )
 
 type MapAoiTestView struct {
-	aoiID int
+	srvMgr *ServerMgr
+	objID int
+
+	mapView map[int]int
+	mapViewBy map[int]int
 }
 
-func (pthis*MapAoiTestView)Ntf_in_view(aoiID int) {
-	lin_common.LogDebug(pthis.aoiID, " aoiID:", aoiID)
+func (pthis*MapAoiTestView)Ntf_in_view(objID int) {
+	lin_common.LogDebug(pthis.objID, " aoiID:", objID)
+
+	pthis.mapView[objID] = objID
 }
-func (pthis*MapAoiTestView)Ntf_out_view(aoiID int) {
-	lin_common.LogDebug(pthis.aoiID, " aoiID:", aoiID)
+func (pthis*MapAoiTestView)Ntf_out_view(objID int) {
+	lin_common.LogDebug(pthis.objID, " aoiID:", objID)
+
+	delete(pthis.mapView, objID)
 }
-func (pthis*MapAoiTestView)Ntf_in_viewby(aoiID int) {
-	lin_common.LogDebug(pthis.aoiID, " aoiID:", aoiID)
+func (pthis*MapAoiTestView)Ntf_in_viewby(objID int) {
+	lin_common.LogDebug(pthis.objID, " aoiID:", objID)
+
+	pthis.mapViewBy[objID] = objID
 }
-func (pthis*MapAoiTestView)Ntf_out_viewby(aoiID int) {
-	lin_common.LogDebug(pthis.aoiID, " aoiID:", aoiID)
+func (pthis*MapAoiTestView)Ntf_out_viewby(objID int) {
+	lin_common.LogDebug(pthis.objID, " aoiID:", objID)
+
+	delete(pthis.mapViewBy, objID)
 }
-func (pthis*MapAoiTestView)setAOIID(aoiID int) {
-	pthis.aoiID = aoiID
+func (pthis*MapAoiTestView)setObjID(objID int) {
+	pthis.objID = objID
 }
 
 func (pthis*MapProcess)initTestViewNode() {
@@ -48,10 +60,15 @@ func (pthis*MapProcess)initTestViewNode() {
 	lin_common.LogDebug("xRange:", xRange, " zRange:", zRange)
 
 	for i := 0; i < 100; i ++ {
-		aoi := &MapAoiTestView{}
+		aoi := &MapAoiTestView{
+			srvMgr : pthis.procMgr.eSrvMgr,
+			mapView : make(map[int]int),
+			mapViewBy : make(map[int]int),
+		}
 		x := boundMin.X + float32(rand.Int() % xRange)
 		z := boundMin.Z + float32(rand.Int() % zRange)
-		aoi.aoiID = pthis.aoi.add(x, z, 10, aoi)
-		lin_common.LogDebug("add node:", aoi.aoiID, "[", x, "-", z, "]")
+		aoi.objID = pthis.aoi.genID()
+		pthis.aoi.add(aoi.objID, x, z, 50, aoi)
+		lin_common.LogDebug("add node:", aoi.objID, "[", x, "-", z, "]")
 	}
 }

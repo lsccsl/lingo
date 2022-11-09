@@ -204,7 +204,8 @@ constexpr MSG_LOGIN_RES::MSG_LOGIN_RES(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : id_(int64_t{0})
   , connect_id_(int64_t{0})
-  , fd_(int64_t{0}){}
+  , fd_(int64_t{0})
+  , obj_id_(int64_t{0}){}
 struct MSG_LOGIN_RESDefaultTypeInternal {
   constexpr MSG_LOGIN_RESDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -602,6 +603,7 @@ const uint32_t TableStruct_msg_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(prot
   PROTOBUF_FIELD_OFFSET(::msgpacket::MSG_LOGIN_RES, id_),
   PROTOBUF_FIELD_OFFSET(::msgpacket::MSG_LOGIN_RES, connect_id_),
   PROTOBUF_FIELD_OFFSET(::msgpacket::MSG_LOGIN_RES, fd_),
+  PROTOBUF_FIELD_OFFSET(::msgpacket::MSG_LOGIN_RES, obj_id_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::msgpacket::MSG_TCP_STATIC, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -777,26 +779,26 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOB
   { 102, -1, -1, sizeof(::msgpacket::MSG_TEST_RPC_RES)},
   { 108, -1, -1, sizeof(::msgpacket::MSG_LOGIN)},
   { 117, -1, -1, sizeof(::msgpacket::MSG_LOGIN_RES)},
-  { 126, -1, -1, sizeof(::msgpacket::MSG_TCP_STATIC)},
-  { 133, 141, -1, sizeof(::msgpacket::MSG_TCP_STATIC_RES_MapStaticMsgRecvEntry_DoNotUse)},
-  { 143, -1, -1, sizeof(::msgpacket::MSG_TCP_STATIC_RES)},
-  { 154, -1, -1, sizeof(::msgpacket::MSG_CLIENT_ENTER)},
-  { 161, -1, -1, sizeof(::msgpacket::MSG_CLIENT_ENTER_RES)},
-  { 171, -1, -1, sizeof(::msgpacket::MSG_GET_MAP)},
-  { 177, -1, -1, sizeof(::msgpacket::MSG_GET_MAP_RES)},
-  { 187, -1, -1, sizeof(::msgpacket::MSG_PATH_SEARCH)},
-  { 195, -1, -1, sizeof(::msgpacket::MSG_PATH_SEARCH_RES)},
-  { 205, -1, -1, sizeof(::msgpacket::MSG_NAV_SEARCH)},
-  { 213, -1, -1, sizeof(::msgpacket::MSG_NAV_SEARCH_RES)},
-  { 220, -1, -1, sizeof(::msgpacket::NAV_OBSTACLE)},
-  { 230, -1, -1, sizeof(::msgpacket::MSG_NAV_ADD_OBSTACLE)},
-  { 237, -1, -1, sizeof(::msgpacket::MSG_NAV_ADD_OBSTACLE_RES)},
-  { 244, -1, -1, sizeof(::msgpacket::MSG_NAV_DEL_OBSTACLE)},
-  { 251, -1, -1, sizeof(::msgpacket::MSG_NAV_DEL_OBSTACLE_RES)},
-  { 258, -1, -1, sizeof(::msgpacket::MSG_NAV_GET_ALL_OBSTACLE)},
-  { 264, -1, -1, sizeof(::msgpacket::MSG_NAV_GET_ALL_OBSTACLE_RES)},
-  { 271, -1, -1, sizeof(::msgpacket::MSG_UPDATE_POS)},
-  { 278, -1, -1, sizeof(::msgpacket::MSG_UPDATE_POS_RES)},
+  { 127, -1, -1, sizeof(::msgpacket::MSG_TCP_STATIC)},
+  { 134, 142, -1, sizeof(::msgpacket::MSG_TCP_STATIC_RES_MapStaticMsgRecvEntry_DoNotUse)},
+  { 144, -1, -1, sizeof(::msgpacket::MSG_TCP_STATIC_RES)},
+  { 155, -1, -1, sizeof(::msgpacket::MSG_CLIENT_ENTER)},
+  { 162, -1, -1, sizeof(::msgpacket::MSG_CLIENT_ENTER_RES)},
+  { 172, -1, -1, sizeof(::msgpacket::MSG_GET_MAP)},
+  { 178, -1, -1, sizeof(::msgpacket::MSG_GET_MAP_RES)},
+  { 188, -1, -1, sizeof(::msgpacket::MSG_PATH_SEARCH)},
+  { 196, -1, -1, sizeof(::msgpacket::MSG_PATH_SEARCH_RES)},
+  { 206, -1, -1, sizeof(::msgpacket::MSG_NAV_SEARCH)},
+  { 214, -1, -1, sizeof(::msgpacket::MSG_NAV_SEARCH_RES)},
+  { 221, -1, -1, sizeof(::msgpacket::NAV_OBSTACLE)},
+  { 231, -1, -1, sizeof(::msgpacket::MSG_NAV_ADD_OBSTACLE)},
+  { 238, -1, -1, sizeof(::msgpacket::MSG_NAV_ADD_OBSTACLE_RES)},
+  { 245, -1, -1, sizeof(::msgpacket::MSG_NAV_DEL_OBSTACLE)},
+  { 252, -1, -1, sizeof(::msgpacket::MSG_NAV_DEL_OBSTACLE_RES)},
+  { 259, -1, -1, sizeof(::msgpacket::MSG_NAV_GET_ALL_OBSTACLE)},
+  { 265, -1, -1, sizeof(::msgpacket::MSG_NAV_GET_ALL_OBSTACLE_RES)},
+  { 272, -1, -1, sizeof(::msgpacket::MSG_UPDATE_POS)},
+  { 279, -1, -1, sizeof(::msgpacket::MSG_UPDATE_POS_RES)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -860,74 +862,75 @@ const char descriptor_table_protodef_msg_2eproto[] PROTOBUF_SECTION_VARIABLE(pro
   "stamp_process\030\006 \001(\003\"!\n\014MSG_TEST_RPC\022\021\n\tr"
   "pc_count\030\001 \001(\003\"\022\n\020MSG_TEST_RPC_RES\"-\n\tMS"
   "G_LOGIN\022\n\n\002id\030\001 \001(\003\022\t\n\001X\030\002 \001(\002\022\t\n\001Y\030\003 \001("
-  "\002\";\n\rMSG_LOGIN_RES\022\n\n\002id\030\001 \001(\003\022\022\n\nconnec"
-  "t_id\030\002 \001(\003\022\n\n\002fd\030\003 \001(\003\"\035\n\016MSG_TCP_STATIC"
-  "\022\013\n\003seq\030\001 \001(\003\"\356\001\n\022MSG_TCP_STATIC_RES\022\024\n\014"
-  "packet_count\030\001 \001(\003\022\021\n\tbyte_recv\030\002 \001(\003\022\021\n"
-  "\tbyte_proc\030\003 \001(\003\022\021\n\tbyte_send\030\004 \001(\003\022P\n\023m"
-  "ap_static_msg_recv\030\005 \003(\01323.msgpacket.MSG"
-  "_TCP_STATIC_RES.MapStaticMsgRecvEntry\0327\n"
-  "\025MapStaticMsgRecvEntry\022\013\n\003key\030\001 \001(\005\022\r\n\005v"
-  "alue\030\002 \001(\003:\0028\001\"%\n\020MSG_CLIENT_ENTER\022\021\n\tcl"
-  "ient_id\030\001 \001(\003\"|\n\024MSG_CLIENT_ENTER_RES\022\021\n"
-  "\tclient_id\030\001 \001(\003\022%\n\003res\030\002 \001(\0162\030.msgpacke"
-  "t.RESPONSE_CODE\022\023\n\013redirect_ip\030\004 \001(\t\022\025\n\r"
-  "redirect_port\030\005 \001(\005\"\r\n\013MSG_GET_MAP\"Y\n\017MS"
-  "G_GET_MAP_RES\022\017\n\007map_wid\030\001 \001(\005\022\020\n\010map_hi"
-  "gh\030\002 \001(\005\022\021\n\tmap_pitch\030\003 \001(\005\022\020\n\010map_data\030"
-  "\004 \001(\014\"W\n\017MSG_PATH_SEARCH\022!\n\007pos_src\030\001 \001("
-  "\0132\020.msgpacket.POS_T\022!\n\007pos_dst\030\002 \001(\0132\020.m"
-  "sgpacket.POS_T\"\247\001\n\023MSG_PATH_SEARCH_RES\022!"
-  "\n\007pos_src\030\001 \001(\0132\020.msgpacket.POS_T\022!\n\007pos"
-  "_dst\030\002 \001(\0132\020.msgpacket.POS_T\022\"\n\010path_pos"
-  "\030\003 \003(\0132\020.msgpacket.POS_T\022&\n\014path_key_pos"
-  "\030\004 \003(\0132\020.msgpacket.POS_T\"d\n\016MSG_NAV_SEAR"
-  "CH\022(\n\007pos_src\030\001 \001(\0132\027.msgpacket.PROTO_VE"
-  "C_3F\022(\n\007pos_dst\030\002 \001(\0132\027.msgpacket.PROTO_"
-  "VEC_3F\"\?\n\022MSG_NAV_SEARCH_RES\022)\n\010path_pos"
-  "\030\001 \003(\0132\027.msgpacket.PROTO_VEC_3F\"\211\001\n\014NAV_"
-  "OBSTACLE\022\023\n\013obstacle_id\030\001 \001(\r\022\'\n\006center\030"
-  "\002 \001(\0132\027.msgpacket.PROTO_VEC_3F\022)\n\010half_e"
-  "xt\030\003 \001(\0132\027.msgpacket.PROTO_VEC_3F\022\020\n\010y_r"
-  "adian\030\004 \001(\002\"A\n\024MSG_NAV_ADD_OBSTACLE\022)\n\010o"
-  "bstacle\030\001 \001(\0132\027.msgpacket.NAV_OBSTACLE\"E"
-  "\n\030MSG_NAV_ADD_OBSTACLE_RES\022)\n\010obstacle\030\002"
-  " \001(\0132\027.msgpacket.NAV_OBSTACLE\"+\n\024MSG_NAV"
-  "_DEL_OBSTACLE\022\023\n\013obstacle_id\030\001 \001(\r\"/\n\030MS"
-  "G_NAV_DEL_OBSTACLE_RES\022\023\n\013obstacle_id\030\001 "
-  "\001(\r\"\032\n\030MSG_NAV_GET_ALL_OBSTACLE\"I\n\034MSG_N"
-  "AV_GET_ALL_OBSTACLE_RES\022)\n\010obstacle\030\001 \003("
-  "\0132\027.msgpacket.NAV_OBSTACLE\":\n\016MSG_UPDATE"
-  "_POS\022(\n\007new_pos\030\001 \001(\0132\027.msgpacket.PROTO_"
-  "VEC_3F\">\n\022MSG_UPDATE_POS_RES\022(\n\007new_pos\030"
-  "\001 \001(\0132\027.msgpacket.PROTO_VEC_3F*\201\006\n\010MSG_T"
-  "YPE\022\r\n\t_MSG_NULL\020\000\022\014\n\010_MSG_RPC\020\001\022\020\n\014_MSG"
-  "_RPC_RES\020\002\022\023\n\017_MSG_SRV_REPORT\020\003\022\027\n\023_MSG_"
-  "SRV_REPORT_RES\020\004\022\022\n\016_MSG_HEARTBEAT\020\005\022\026\n\022"
-  "_MSG_HEARTBEAT_RES\020\006\022\023\n\017_MSG_TCP_STATIC\020"
-  "\007\022\027\n\023_MSG_TCP_STATIC_RES\020\010\022\014\n\010_MSG_MAX\020d"
-  "\022\r\n\t_MSG_TEST\020e\022\021\n\r_MSG_TEST_RES\020f\022\016\n\n_M"
-  "SG_LOGIN\020g\022\022\n\016_MSG_LOGIN_RES\020h\022\021\n\r_MSG_T"
-  "EST_RPC\020i\022\025\n\021_MSG_TEST_RPC_RES\020j\022\024\n\017_MSG"
-  "_SERVER_MAX\020\350\007\022\026\n\021_MSG_CLIENT_ENTER\020\351\007\022\032"
-  "\n\025_MSG_CLIENT_ENTER_RES\020\352\007\022\021\n\014_MSG_GET_M"
-  "AP\020\353\007\022\025\n\020_MSG_GET_MAP_RES\020\354\007\022\025\n\020_MSG_PAT"
-  "H_SEARCH\020\355\007\022\031\n\024_MSG_PATH_SEARCH_RES\020\356\007\022\024"
-  "\n\017_MSG_NAV_SEARCH\020\357\007\022\030\n\023_MSG_NAV_SEARCH_"
-  "RES\020\360\007\022\032\n\025_MSG_NAV_ADD_OBSTACLE\020\361\007\022\036\n\031_M"
-  "SG_NAV_ADD_OBSTACLE_RES\020\362\007\022\032\n\025_MSG_NAV_D"
-  "EL_OBSTACLE\020\363\007\022\036\n\031_MSG_NAV_DEL_OBSTACLE_"
-  "RES\020\364\007\022\036\n\031_MSG_NAV_GET_ALL_OBSTACLE\020\365\007\022\""
-  "\n\035_MSG_NAV_GET_ALL_OBSTACLE_RES\020\366\007\022\024\n\017_M"
-  "SG_UPDATE_POS\020\367\007\022\030\n\023_MSG_UPDATE_POS_RES\020"
-  "\370\007*{\n\rRESPONSE_CODE\022\026\n\022RESPONSE_CODE_Fai"
-  "l\020\000\022\024\n\020RESPONSE_CODE_OK\020\001\022 \n\034RESPONSE_CO"
-  "DE_Rpc_not_accept\020\002\022\032\n\026RESPONSE_CODE_red"
-  "irect\020\003B\016Z\014./;msgpacketb\006proto3"
+  "\002\"K\n\rMSG_LOGIN_RES\022\n\n\002id\030\001 \001(\003\022\022\n\nconnec"
+  "t_id\030\002 \001(\003\022\n\n\002fd\030\003 \001(\003\022\016\n\006obj_id\030\004 \001(\003\"\035"
+  "\n\016MSG_TCP_STATIC\022\013\n\003seq\030\001 \001(\003\"\356\001\n\022MSG_TC"
+  "P_STATIC_RES\022\024\n\014packet_count\030\001 \001(\003\022\021\n\tby"
+  "te_recv\030\002 \001(\003\022\021\n\tbyte_proc\030\003 \001(\003\022\021\n\tbyte"
+  "_send\030\004 \001(\003\022P\n\023map_static_msg_recv\030\005 \003(\013"
+  "23.msgpacket.MSG_TCP_STATIC_RES.MapStati"
+  "cMsgRecvEntry\0327\n\025MapStaticMsgRecvEntry\022\013"
+  "\n\003key\030\001 \001(\005\022\r\n\005value\030\002 \001(\003:\0028\001\"%\n\020MSG_CL"
+  "IENT_ENTER\022\021\n\tclient_id\030\001 \001(\003\"|\n\024MSG_CLI"
+  "ENT_ENTER_RES\022\021\n\tclient_id\030\001 \001(\003\022%\n\003res\030"
+  "\002 \001(\0162\030.msgpacket.RESPONSE_CODE\022\023\n\013redir"
+  "ect_ip\030\004 \001(\t\022\025\n\rredirect_port\030\005 \001(\005\"\r\n\013M"
+  "SG_GET_MAP\"Y\n\017MSG_GET_MAP_RES\022\017\n\007map_wid"
+  "\030\001 \001(\005\022\020\n\010map_high\030\002 \001(\005\022\021\n\tmap_pitch\030\003 "
+  "\001(\005\022\020\n\010map_data\030\004 \001(\014\"W\n\017MSG_PATH_SEARCH"
+  "\022!\n\007pos_src\030\001 \001(\0132\020.msgpacket.POS_T\022!\n\007p"
+  "os_dst\030\002 \001(\0132\020.msgpacket.POS_T\"\247\001\n\023MSG_P"
+  "ATH_SEARCH_RES\022!\n\007pos_src\030\001 \001(\0132\020.msgpac"
+  "ket.POS_T\022!\n\007pos_dst\030\002 \001(\0132\020.msgpacket.P"
+  "OS_T\022\"\n\010path_pos\030\003 \003(\0132\020.msgpacket.POS_T"
+  "\022&\n\014path_key_pos\030\004 \003(\0132\020.msgpacket.POS_T"
+  "\"d\n\016MSG_NAV_SEARCH\022(\n\007pos_src\030\001 \001(\0132\027.ms"
+  "gpacket.PROTO_VEC_3F\022(\n\007pos_dst\030\002 \001(\0132\027."
+  "msgpacket.PROTO_VEC_3F\"\?\n\022MSG_NAV_SEARCH"
+  "_RES\022)\n\010path_pos\030\001 \003(\0132\027.msgpacket.PROTO"
+  "_VEC_3F\"\211\001\n\014NAV_OBSTACLE\022\023\n\013obstacle_id\030"
+  "\001 \001(\r\022\'\n\006center\030\002 \001(\0132\027.msgpacket.PROTO_"
+  "VEC_3F\022)\n\010half_ext\030\003 \001(\0132\027.msgpacket.PRO"
+  "TO_VEC_3F\022\020\n\010y_radian\030\004 \001(\002\"A\n\024MSG_NAV_A"
+  "DD_OBSTACLE\022)\n\010obstacle\030\001 \001(\0132\027.msgpacke"
+  "t.NAV_OBSTACLE\"E\n\030MSG_NAV_ADD_OBSTACLE_R"
+  "ES\022)\n\010obstacle\030\002 \001(\0132\027.msgpacket.NAV_OBS"
+  "TACLE\"+\n\024MSG_NAV_DEL_OBSTACLE\022\023\n\013obstacl"
+  "e_id\030\001 \001(\r\"/\n\030MSG_NAV_DEL_OBSTACLE_RES\022\023"
+  "\n\013obstacle_id\030\001 \001(\r\"\032\n\030MSG_NAV_GET_ALL_O"
+  "BSTACLE\"I\n\034MSG_NAV_GET_ALL_OBSTACLE_RES\022"
+  ")\n\010obstacle\030\001 \003(\0132\027.msgpacket.NAV_OBSTAC"
+  "LE\":\n\016MSG_UPDATE_POS\022(\n\007new_pos\030\001 \001(\0132\027."
+  "msgpacket.PROTO_VEC_3F\">\n\022MSG_UPDATE_POS"
+  "_RES\022(\n\007new_pos\030\001 \001(\0132\027.msgpacket.PROTO_"
+  "VEC_3F*\201\006\n\010MSG_TYPE\022\r\n\t_MSG_NULL\020\000\022\014\n\010_M"
+  "SG_RPC\020\001\022\020\n\014_MSG_RPC_RES\020\002\022\023\n\017_MSG_SRV_R"
+  "EPORT\020\003\022\027\n\023_MSG_SRV_REPORT_RES\020\004\022\022\n\016_MSG"
+  "_HEARTBEAT\020\005\022\026\n\022_MSG_HEARTBEAT_RES\020\006\022\023\n\017"
+  "_MSG_TCP_STATIC\020\007\022\027\n\023_MSG_TCP_STATIC_RES"
+  "\020\010\022\014\n\010_MSG_MAX\020d\022\r\n\t_MSG_TEST\020e\022\021\n\r_MSG_"
+  "TEST_RES\020f\022\016\n\n_MSG_LOGIN\020g\022\022\n\016_MSG_LOGIN"
+  "_RES\020h\022\021\n\r_MSG_TEST_RPC\020i\022\025\n\021_MSG_TEST_R"
+  "PC_RES\020j\022\024\n\017_MSG_SERVER_MAX\020\350\007\022\026\n\021_MSG_C"
+  "LIENT_ENTER\020\351\007\022\032\n\025_MSG_CLIENT_ENTER_RES\020"
+  "\352\007\022\021\n\014_MSG_GET_MAP\020\353\007\022\025\n\020_MSG_GET_MAP_RE"
+  "S\020\354\007\022\025\n\020_MSG_PATH_SEARCH\020\355\007\022\031\n\024_MSG_PATH"
+  "_SEARCH_RES\020\356\007\022\024\n\017_MSG_NAV_SEARCH\020\357\007\022\030\n\023"
+  "_MSG_NAV_SEARCH_RES\020\360\007\022\032\n\025_MSG_NAV_ADD_O"
+  "BSTACLE\020\361\007\022\036\n\031_MSG_NAV_ADD_OBSTACLE_RES\020"
+  "\362\007\022\032\n\025_MSG_NAV_DEL_OBSTACLE\020\363\007\022\036\n\031_MSG_N"
+  "AV_DEL_OBSTACLE_RES\020\364\007\022\036\n\031_MSG_NAV_GET_A"
+  "LL_OBSTACLE\020\365\007\022\"\n\035_MSG_NAV_GET_ALL_OBSTA"
+  "CLE_RES\020\366\007\022\024\n\017_MSG_UPDATE_POS\020\367\007\022\030\n\023_MSG"
+  "_UPDATE_POS_RES\020\370\007*{\n\rRESPONSE_CODE\022\026\n\022R"
+  "ESPONSE_CODE_Fail\020\000\022\024\n\020RESPONSE_CODE_OK\020"
+  "\001\022 \n\034RESPONSE_CODE_Rpc_not_accept\020\002\022\032\n\026R"
+  "ESPONSE_CODE_redirect\020\003B\016Z\014./;msgpacketb"
+  "\006proto3"
   ;
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_msg_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_msg_2eproto = {
-  false, false, 3471, descriptor_table_protodef_msg_2eproto, "msg.proto", 
+  false, false, 3487, descriptor_table_protodef_msg_2eproto, "msg.proto", 
   &descriptor_table_msg_2eproto_once, nullptr, 0, 34,
   schemas, file_default_instances, TableStruct_msg_2eproto::offsets,
   file_level_metadata_msg_2eproto, file_level_enum_descriptors_msg_2eproto, file_level_service_descriptors_msg_2eproto,
@@ -4066,16 +4069,16 @@ MSG_LOGIN_RES::MSG_LOGIN_RES(const MSG_LOGIN_RES& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   ::memcpy(&id_, &from.id_,
-    static_cast<size_t>(reinterpret_cast<char*>(&fd_) -
-    reinterpret_cast<char*>(&id_)) + sizeof(fd_));
+    static_cast<size_t>(reinterpret_cast<char*>(&obj_id_) -
+    reinterpret_cast<char*>(&id_)) + sizeof(obj_id_));
   // @@protoc_insertion_point(copy_constructor:msgpacket.MSG_LOGIN_RES)
 }
 
 inline void MSG_LOGIN_RES::SharedCtor() {
 ::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
     reinterpret_cast<char*>(&id_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&fd_) -
-    reinterpret_cast<char*>(&id_)) + sizeof(fd_));
+    0, static_cast<size_t>(reinterpret_cast<char*>(&obj_id_) -
+    reinterpret_cast<char*>(&id_)) + sizeof(obj_id_));
 }
 
 MSG_LOGIN_RES::~MSG_LOGIN_RES() {
@@ -4106,8 +4109,8 @@ void MSG_LOGIN_RES::Clear() {
   (void) cached_has_bits;
 
   ::memset(&id_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&fd_) -
-      reinterpret_cast<char*>(&id_)) + sizeof(fd_));
+      reinterpret_cast<char*>(&obj_id_) -
+      reinterpret_cast<char*>(&id_)) + sizeof(obj_id_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -4137,6 +4140,14 @@ const char* MSG_LOGIN_RES::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
       case 3:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 24)) {
           fd_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // int64 obj_id = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 32)) {
+          obj_id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -4188,6 +4199,12 @@ uint8_t* MSG_LOGIN_RES::_InternalSerialize(
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt64ToArray(3, this->_internal_fd(), target);
   }
 
+  // int64 obj_id = 4;
+  if (this->_internal_obj_id() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt64ToArray(4, this->_internal_obj_id(), target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -4217,6 +4234,11 @@ size_t MSG_LOGIN_RES::ByteSizeLong() const {
   // int64 fd = 3;
   if (this->_internal_fd() != 0) {
     total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int64SizePlusOne(this->_internal_fd());
+  }
+
+  // int64 obj_id = 4;
+  if (this->_internal_obj_id() != 0) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int64SizePlusOne(this->_internal_obj_id());
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -4250,6 +4272,9 @@ void MSG_LOGIN_RES::MergeFrom(const MSG_LOGIN_RES& from) {
   if (from._internal_fd() != 0) {
     _internal_set_fd(from._internal_fd());
   }
+  if (from._internal_obj_id() != 0) {
+    _internal_set_obj_id(from._internal_obj_id());
+  }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
@@ -4268,8 +4293,8 @@ void MSG_LOGIN_RES::InternalSwap(MSG_LOGIN_RES* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(MSG_LOGIN_RES, fd_)
-      + sizeof(MSG_LOGIN_RES::fd_)
+      PROTOBUF_FIELD_OFFSET(MSG_LOGIN_RES, obj_id_)
+      + sizeof(MSG_LOGIN_RES::obj_id_)
       - PROTOBUF_FIELD_OFFSET(MSG_LOGIN_RES, id_)>(
           reinterpret_cast<char*>(&id_),
           reinterpret_cast<char*>(&other->id_));

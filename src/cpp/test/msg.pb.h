@@ -2597,6 +2597,7 @@ class MSG_LOGIN_RES final :
     kIdFieldNumber = 1,
     kConnectIdFieldNumber = 2,
     kFdFieldNumber = 3,
+    kObjIdFieldNumber = 4,
   };
   // int64 id = 1;
   void clear_id();
@@ -2625,6 +2626,15 @@ class MSG_LOGIN_RES final :
   void _internal_set_fd(int64_t value);
   public:
 
+  // int64 obj_id = 4;
+  void clear_obj_id();
+  int64_t obj_id() const;
+  void set_obj_id(int64_t value);
+  private:
+  int64_t _internal_obj_id() const;
+  void _internal_set_obj_id(int64_t value);
+  public:
+
   // @@protoc_insertion_point(class_scope:msgpacket.MSG_LOGIN_RES)
  private:
   class _Internal;
@@ -2635,6 +2645,7 @@ class MSG_LOGIN_RES final :
   int64_t id_;
   int64_t connect_id_;
   int64_t fd_;
+  int64_t obj_id_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_msg_2eproto;
 };
@@ -6769,6 +6780,26 @@ inline void MSG_LOGIN_RES::_internal_set_fd(int64_t value) {
 inline void MSG_LOGIN_RES::set_fd(int64_t value) {
   _internal_set_fd(value);
   // @@protoc_insertion_point(field_set:msgpacket.MSG_LOGIN_RES.fd)
+}
+
+// int64 obj_id = 4;
+inline void MSG_LOGIN_RES::clear_obj_id() {
+  obj_id_ = int64_t{0};
+}
+inline int64_t MSG_LOGIN_RES::_internal_obj_id() const {
+  return obj_id_;
+}
+inline int64_t MSG_LOGIN_RES::obj_id() const {
+  // @@protoc_insertion_point(field_get:msgpacket.MSG_LOGIN_RES.obj_id)
+  return _internal_obj_id();
+}
+inline void MSG_LOGIN_RES::_internal_set_obj_id(int64_t value) {
+  
+  obj_id_ = value;
+}
+inline void MSG_LOGIN_RES::set_obj_id(int64_t value) {
+  _internal_set_obj_id(value);
+  // @@protoc_insertion_point(field_set:msgpacket.MSG_LOGIN_RES.obj_id)
 }
 
 // -------------------------------------------------------------------

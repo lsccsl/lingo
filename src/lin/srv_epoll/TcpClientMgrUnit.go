@@ -68,11 +68,11 @@ func (pthis*TcpClientMgrUnit)Process_TcpClose(c *TcpClient, fd lin_common.FD_DEF
 	pthis.delClient(c.clientID)
 
 	{
-		msgAdd := &msgDelAOIObject {
-			aoiID : c.aoiID,
+		msgDel := &msgDelAOIObject {
+			objID : c.objID,
 		}
-		pthis.eSrvMgr.mapProcMgr.addMapProcessMsg(msgAdd, c.clientID, time.Second * 3)
-		c.aoiID = msgAdd.aoiID
+		pthis.eSrvMgr.mapProcMgr.addMapProcessMsg(msgDel, c.clientID, time.Second * 3)
+		c.objID = msgDel.objID
 	}
 
 	c.Destructor()
@@ -106,10 +106,27 @@ func (pthis*TcpClientMgrUnit)Process_LOGIN(msg*msgClient){
 		return
 	}
 
+	msgRes := &msgpacket.MSG_LOGIN_RES{}
+
+	objID := 0
+	{
+		msgG := &msgGenAOIID{}
+		pthis.eSrvMgr.mapProcMgr.addMapProcessMsg(msgG, cliID, time.Second * 3)
+		objID = msgG.objID
+		c.objID = objID
+	}
+	msgRes.ObjId = int64(c.objID)
+	msgRes.Id = cliID
+	msgRes.ConnectId = int64(fd.Magic)
+	msgRes.Fd = int64(fd.FD)
+	pthis.eSrvMgr.SendProtoMsg(fd, msgpacket.MSG_TYPE__MSG_LOGIN_RES, msgRes)
+
 	{
 		msgAdd := &msgAddAOIObject {
-			ntf : ConstructMapAOINtfClient(cliID, pthis.eSrvMgr),
+			objID: objID,
+			ntf : ConstructMapAOINtfClient(cliID, fd, pthis.eSrvMgr),
 			ViewRange : 10,
+			fd : fd,
 		}
 		msgL, ok := msg.msg.(*msgpacket.MSG_LOGIN)
 		if ok {
@@ -117,15 +134,7 @@ func (pthis*TcpClientMgrUnit)Process_LOGIN(msg*msgClient){
 			msgAdd.Y = msgL.Y
 		}
 		pthis.eSrvMgr.mapProcMgr.addMapProcessMsg(msgAdd, cliID, time.Second * 3)
-		c.aoiID = msgAdd.aoiID
 	}
-
-	msgRes := &msgpacket.MSG_LOGIN_RES{}
-	msgRes.Id = cliID
-	msgRes.ConnectId = int64(fd.Magic)
-	msgRes.Fd = int64(fd.FD)
-
-	pthis.eSrvMgr.SendProtoMsg(fd, msgpacket.MSG_TYPE__MSG_LOGIN_RES, msgRes)
 }
 
 

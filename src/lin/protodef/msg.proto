@@ -146,6 +146,8 @@ message MSG_LOGIN_RES
     int64 id = 1;
     int64 connect_id = 2;
     int64 fd = 3;
+
+    int64 obj_id = 4;
 }
 
 message MSG_TCP_STATIC

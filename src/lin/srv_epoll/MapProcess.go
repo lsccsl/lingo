@@ -18,6 +18,8 @@ type MapProcess struct {
 }
 
 type MapProcessMgr struct {
+	eSrvMgr *ServerMgr
+
 	mapProc []*MapProcess
 
 	navMap *NavMap
@@ -49,8 +51,12 @@ type msgNavDelObstacle struct {
 type msgNavGetAllObstacle struct {
 	ob []*NavObstacle
 }
+type msgGenAOIID struct {
+	objID int
+}
 type msgAddAOIObject struct {
-	aoiID int
+	objID int
+	fd lin_common.FD_DEF
 
 	ntf MapAoiInf
 	X float32
@@ -58,7 +64,7 @@ type msgAddAOIObject struct {
 	ViewRange float32
 }
 type msgDelAOIObject struct {
-	aoiID int
+	objID int
 }
 // end map process msg
 
@@ -89,6 +95,8 @@ func (pthis*MapProcess)_go_MapProcess_loop(ticker *time.Ticker) {
 			pthis.process_msgNavDelObstacle(t)
 		case *msgNavGetAllObstacle:
 			pthis.process_msgNavGetAllObstacle(t)
+		case *msgGenAOIID:
+			pthis.process_msgGenAOIID(t)
 		case *msgAddAOIObject:
 			pthis.process_msgAddAOIObject(t)
 		case *msgDelAOIObject:
@@ -122,13 +130,16 @@ func (pthis*MapProcess)process_msgNavGetAllObstacle(msg *msgNavGetAllObstacle) {
 		msg.ob = append(msg.ob, ob)
 	}
 }
+func (pthis*MapProcess)process_msgGenAOIID(msg *msgGenAOIID) {
+	msg.objID = pthis.aoi.genID()
+}
 func (pthis*MapProcess)process_msgAddAOIObject(msg *msgAddAOIObject){
-	msg.aoiID = pthis.aoi.add(msg.X, msg.Y, msg.ViewRange, msg.ntf)
-	lin_common.LogDebug("add aoi ", msg.aoiID)
+	pthis.aoi.add(msg.objID, msg.X, msg.Y, msg.ViewRange, msg.ntf)
+	lin_common.LogDebug("add aoi ", msg.objID)
 }
 func (pthis*MapProcess)process_msgDelAOIObject(msg *msgDelAOIObject){
-	lin_common.LogDebug("del aoi ", msg.aoiID)
-	pthis.aoi.del(msg.aoiID)
+	lin_common.LogDebug("del aoi ", msg.objID)
+	pthis.aoi.del(msg.objID)
 }
 
 func ConstructMapProcess(procMgr *MapProcessMgr) *MapProcess {
@@ -174,13 +185,14 @@ func (pthis *MapProcessMgr)getMapProcess(clientID int64)*MapProcess{
 	return pthis.mapProc[idx]
 }
 
-func ConstructMapProcessMgr(processCount int) *MapProcessMgr {
+func ConstructMapProcessMgr(processCount int, eSrvMgr *ServerMgr) *MapProcessMgr {
 	if processCount <= 0 {
 		lin_common.LogErr("map process count is 0")
 		return nil
 	}
 
 	mgr := &MapProcessMgr{
+		eSrvMgr : eSrvMgr,
 		mapProc : make([]*MapProcess, 0, processCount),
 		navMap : ConstructorNavMapMgr("../resource/test_scene.obj"),
 	}

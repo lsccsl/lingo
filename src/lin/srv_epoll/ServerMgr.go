@@ -270,8 +270,8 @@ func ConstructorServerMgr(addr string,
 		clientCloseTimeoutSec : clientCloseTimeoutSec,
 		srvCloseTimeoutSec : srvCloseTimeoutSec,
 		mapMgr : ConstructorMapMgr("../resource/aa.bmp"),
-		mapProcMgr : ConstructMapProcessMgr(3),
 	}
+	eSrvMgr.mapProcMgr = ConstructMapProcessMgr(3, eSrvMgr)
 
 	eSrvMgr.tcpSrvMgr = ConstructorTcpSrvMgr(eSrvMgr, srvProcessUnitCount)
 	lsn, err := lin_common.ConstructorEPollListener(eSrvMgr, addr, epollCoroutineCount, lin_common.ParamEPollListener{ParamET: bET})
