@@ -42,6 +42,8 @@ enum MSG_TYPE
 
     _MSG_UPDATE_POS = 1015;
     _MSG_UPDATE_POS_RES = 1016;
+    _MSG_NTF_IN_VIEW = 1017;
+    _MSG_NTF_OUT_VIEW = 1018;
 }
 
 enum RESPONSE_CODE
@@ -139,6 +141,7 @@ message MSG_LOGIN
 
     float X = 2;
     float Y = 3;
+    float view_range = 4;
 }
 
 message MSG_LOGIN_RES
@@ -252,4 +255,13 @@ message MSG_UPDATE_POS
 message MSG_UPDATE_POS_RES
 {
     PROTO_VEC_3F new_pos = 1;
+}
+
+message MSG_NTF_IN_VIEW
+{
+    int64 obj_id = 1;
+}
+message MSG_NTF_OUT_VIEW
+{
+    int64 obj_id = 1;
 }

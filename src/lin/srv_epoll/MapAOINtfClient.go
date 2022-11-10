@@ -1,6 +1,9 @@
 package main
 
-import "lin/lin_common"
+import (
+	"lin/lin_common"
+	"lin/msgpacket"
+)
 
 type MapAOINtfClient struct {
 	srvMgr *ServerMgr
@@ -16,10 +19,10 @@ func (pthis *MapAOINtfClient)Ntf_in_view(objID int) {
 	lin_common.LogDebug(pthis.objID, " recv in view aoiID:", objID)
 
 	pthis.mapView[objID] = objID
-	//todo send msg to client
 
-
-	//pthis.srvMgr.SendProtoMsg()
+	msg := &msgpacket.MSG_NTF_IN_VIEW{}
+	msg.ObjId = int64(objID)
+	pthis.srvMgr.SendProtoMsg(pthis.fd, msgpacket.MSG_TYPE__MSG_NTF_IN_VIEW, msg)
 }
 
 func (pthis *MapAOINtfClient)Ntf_out_view(objID int) {
@@ -27,23 +30,21 @@ func (pthis *MapAOINtfClient)Ntf_out_view(objID int) {
 
 	delete(pthis.mapView, objID)
 
-	//todo send msg to client
+	msg := &msgpacket.MSG_NTF_OUT_VIEW{}
+	msg.ObjId = int64(objID)
+	pthis.srvMgr.SendProtoMsg(pthis.fd, msgpacket.MSG_TYPE__MSG_NTF_IN_VIEW, msg)
 }
 
 func (pthis *MapAOINtfClient)Ntf_in_viewby(objID int) {
 	lin_common.LogDebug(pthis.objID, " recv in viewby aoiID:", objID)
 
 	pthis.mapViewBy[objID] = objID
-
-	//todo send msg to client
 }
 
 func (pthis *MapAOINtfClient)Ntf_out_viewby(aoiID int) {
 	lin_common.LogDebug(pthis.objID, " recv out viewby aoiID:", aoiID)
 
 	delete(pthis.mapViewBy, aoiID)
-
-	//todo send msg to client
 }
 
 func (pthis *MapAOINtfClient)setObjID(objID int) {

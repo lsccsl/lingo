@@ -135,7 +135,7 @@ func (pthis*MapProcess)process_msgGenAOIID(msg *msgGenAOIID) {
 }
 func (pthis*MapProcess)process_msgAddAOIObject(msg *msgAddAOIObject){
 	pthis.aoi.add(msg.objID, msg.X, msg.Y, msg.ViewRange, msg.ntf)
-	lin_common.LogDebug("add aoi ", msg.objID)
+	lin_common.LogDebug("add aoi ", msg.objID, " msg:", msg)
 }
 func (pthis*MapProcess)process_msgDelAOIObject(msg *msgDelAOIObject){
 	lin_common.LogDebug("del aoi ", msg.objID)

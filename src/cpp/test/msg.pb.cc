@@ -190,7 +190,8 @@ constexpr MSG_LOGIN::MSG_LOGIN(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : id_(int64_t{0})
   , x_(0)
-  , y_(0){}
+  , y_(0)
+  , view_range_(0){}
 struct MSG_LOGINDefaultTypeInternal {
   constexpr MSG_LOGINDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -471,8 +472,32 @@ struct MSG_UPDATE_POS_RESDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MSG_UPDATE_POS_RESDefaultTypeInternal _MSG_UPDATE_POS_RES_default_instance_;
+constexpr MSG_NTF_IN_VIEW::MSG_NTF_IN_VIEW(
+  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+  : obj_id_(int64_t{0}){}
+struct MSG_NTF_IN_VIEWDefaultTypeInternal {
+  constexpr MSG_NTF_IN_VIEWDefaultTypeInternal()
+    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  ~MSG_NTF_IN_VIEWDefaultTypeInternal() {}
+  union {
+    MSG_NTF_IN_VIEW _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MSG_NTF_IN_VIEWDefaultTypeInternal _MSG_NTF_IN_VIEW_default_instance_;
+constexpr MSG_NTF_OUT_VIEW::MSG_NTF_OUT_VIEW(
+  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+  : obj_id_(int64_t{0}){}
+struct MSG_NTF_OUT_VIEWDefaultTypeInternal {
+  constexpr MSG_NTF_OUT_VIEWDefaultTypeInternal()
+    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  ~MSG_NTF_OUT_VIEWDefaultTypeInternal() {}
+  union {
+    MSG_NTF_OUT_VIEW _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT MSG_NTF_OUT_VIEWDefaultTypeInternal _MSG_NTF_OUT_VIEW_default_instance_;
 }  // namespace msgpacket
-static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_msg_2eproto[34];
+static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_msg_2eproto[36];
 static const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* file_level_enum_descriptors_msg_2eproto[2];
 static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_msg_2eproto = nullptr;
 
@@ -594,6 +619,7 @@ const uint32_t TableStruct_msg_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(prot
   PROTOBUF_FIELD_OFFSET(::msgpacket::MSG_LOGIN, id_),
   PROTOBUF_FIELD_OFFSET(::msgpacket::MSG_LOGIN, x_),
   PROTOBUF_FIELD_OFFSET(::msgpacket::MSG_LOGIN, y_),
+  PROTOBUF_FIELD_OFFSET(::msgpacket::MSG_LOGIN, view_range_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::msgpacket::MSG_LOGIN_RES, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -763,6 +789,20 @@ const uint32_t TableStruct_msg_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(prot
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
   PROTOBUF_FIELD_OFFSET(::msgpacket::MSG_UPDATE_POS_RES, new_pos_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::msgpacket::MSG_NTF_IN_VIEW, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::msgpacket::MSG_NTF_IN_VIEW, obj_id_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::msgpacket::MSG_NTF_OUT_VIEW, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::msgpacket::MSG_NTF_OUT_VIEW, obj_id_),
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, -1, sizeof(::msgpacket::POS_T)},
@@ -778,27 +818,29 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOB
   { 95, -1, -1, sizeof(::msgpacket::MSG_TEST_RPC)},
   { 102, -1, -1, sizeof(::msgpacket::MSG_TEST_RPC_RES)},
   { 108, -1, -1, sizeof(::msgpacket::MSG_LOGIN)},
-  { 117, -1, -1, sizeof(::msgpacket::MSG_LOGIN_RES)},
-  { 127, -1, -1, sizeof(::msgpacket::MSG_TCP_STATIC)},
-  { 134, 142, -1, sizeof(::msgpacket::MSG_TCP_STATIC_RES_MapStaticMsgRecvEntry_DoNotUse)},
-  { 144, -1, -1, sizeof(::msgpacket::MSG_TCP_STATIC_RES)},
-  { 155, -1, -1, sizeof(::msgpacket::MSG_CLIENT_ENTER)},
-  { 162, -1, -1, sizeof(::msgpacket::MSG_CLIENT_ENTER_RES)},
-  { 172, -1, -1, sizeof(::msgpacket::MSG_GET_MAP)},
-  { 178, -1, -1, sizeof(::msgpacket::MSG_GET_MAP_RES)},
-  { 188, -1, -1, sizeof(::msgpacket::MSG_PATH_SEARCH)},
-  { 196, -1, -1, sizeof(::msgpacket::MSG_PATH_SEARCH_RES)},
-  { 206, -1, -1, sizeof(::msgpacket::MSG_NAV_SEARCH)},
-  { 214, -1, -1, sizeof(::msgpacket::MSG_NAV_SEARCH_RES)},
-  { 221, -1, -1, sizeof(::msgpacket::NAV_OBSTACLE)},
-  { 231, -1, -1, sizeof(::msgpacket::MSG_NAV_ADD_OBSTACLE)},
-  { 238, -1, -1, sizeof(::msgpacket::MSG_NAV_ADD_OBSTACLE_RES)},
-  { 245, -1, -1, sizeof(::msgpacket::MSG_NAV_DEL_OBSTACLE)},
-  { 252, -1, -1, sizeof(::msgpacket::MSG_NAV_DEL_OBSTACLE_RES)},
-  { 259, -1, -1, sizeof(::msgpacket::MSG_NAV_GET_ALL_OBSTACLE)},
-  { 265, -1, -1, sizeof(::msgpacket::MSG_NAV_GET_ALL_OBSTACLE_RES)},
-  { 272, -1, -1, sizeof(::msgpacket::MSG_UPDATE_POS)},
-  { 279, -1, -1, sizeof(::msgpacket::MSG_UPDATE_POS_RES)},
+  { 118, -1, -1, sizeof(::msgpacket::MSG_LOGIN_RES)},
+  { 128, -1, -1, sizeof(::msgpacket::MSG_TCP_STATIC)},
+  { 135, 143, -1, sizeof(::msgpacket::MSG_TCP_STATIC_RES_MapStaticMsgRecvEntry_DoNotUse)},
+  { 145, -1, -1, sizeof(::msgpacket::MSG_TCP_STATIC_RES)},
+  { 156, -1, -1, sizeof(::msgpacket::MSG_CLIENT_ENTER)},
+  { 163, -1, -1, sizeof(::msgpacket::MSG_CLIENT_ENTER_RES)},
+  { 173, -1, -1, sizeof(::msgpacket::MSG_GET_MAP)},
+  { 179, -1, -1, sizeof(::msgpacket::MSG_GET_MAP_RES)},
+  { 189, -1, -1, sizeof(::msgpacket::MSG_PATH_SEARCH)},
+  { 197, -1, -1, sizeof(::msgpacket::MSG_PATH_SEARCH_RES)},
+  { 207, -1, -1, sizeof(::msgpacket::MSG_NAV_SEARCH)},
+  { 215, -1, -1, sizeof(::msgpacket::MSG_NAV_SEARCH_RES)},
+  { 222, -1, -1, sizeof(::msgpacket::NAV_OBSTACLE)},
+  { 232, -1, -1, sizeof(::msgpacket::MSG_NAV_ADD_OBSTACLE)},
+  { 239, -1, -1, sizeof(::msgpacket::MSG_NAV_ADD_OBSTACLE_RES)},
+  { 246, -1, -1, sizeof(::msgpacket::MSG_NAV_DEL_OBSTACLE)},
+  { 253, -1, -1, sizeof(::msgpacket::MSG_NAV_DEL_OBSTACLE_RES)},
+  { 260, -1, -1, sizeof(::msgpacket::MSG_NAV_GET_ALL_OBSTACLE)},
+  { 266, -1, -1, sizeof(::msgpacket::MSG_NAV_GET_ALL_OBSTACLE_RES)},
+  { 273, -1, -1, sizeof(::msgpacket::MSG_UPDATE_POS)},
+  { 280, -1, -1, sizeof(::msgpacket::MSG_UPDATE_POS_RES)},
+  { 287, -1, -1, sizeof(::msgpacket::MSG_NTF_IN_VIEW)},
+  { 294, -1, -1, sizeof(::msgpacket::MSG_NTF_OUT_VIEW)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -836,6 +878,8 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::msgpacket::_MSG_NAV_GET_ALL_OBSTACLE_RES_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::msgpacket::_MSG_UPDATE_POS_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::msgpacket::_MSG_UPDATE_POS_RES_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::msgpacket::_MSG_NTF_IN_VIEW_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::msgpacket::_MSG_NTF_OUT_VIEW_default_instance_),
 };
 
 const char descriptor_table_protodef_msg_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
@@ -860,78 +904,81 @@ const char descriptor_table_protodef_msg_2eproto[] PROTOBUF_SECTION_VARIABLE(pro
   "\003\022\013\n\003str\030\002 \001(\t\022\013\n\003seq\030\003 \001(\003\022\021\n\ttimestamp"
   "\030\004 \001(\003\022\030\n\020timestamp_arrive\030\005 \001(\003\022\031\n\021time"
   "stamp_process\030\006 \001(\003\"!\n\014MSG_TEST_RPC\022\021\n\tr"
-  "pc_count\030\001 \001(\003\"\022\n\020MSG_TEST_RPC_RES\"-\n\tMS"
+  "pc_count\030\001 \001(\003\"\022\n\020MSG_TEST_RPC_RES\"A\n\tMS"
   "G_LOGIN\022\n\n\002id\030\001 \001(\003\022\t\n\001X\030\002 \001(\002\022\t\n\001Y\030\003 \001("
-  "\002\"K\n\rMSG_LOGIN_RES\022\n\n\002id\030\001 \001(\003\022\022\n\nconnec"
-  "t_id\030\002 \001(\003\022\n\n\002fd\030\003 \001(\003\022\016\n\006obj_id\030\004 \001(\003\"\035"
-  "\n\016MSG_TCP_STATIC\022\013\n\003seq\030\001 \001(\003\"\356\001\n\022MSG_TC"
-  "P_STATIC_RES\022\024\n\014packet_count\030\001 \001(\003\022\021\n\tby"
-  "te_recv\030\002 \001(\003\022\021\n\tbyte_proc\030\003 \001(\003\022\021\n\tbyte"
-  "_send\030\004 \001(\003\022P\n\023map_static_msg_recv\030\005 \003(\013"
-  "23.msgpacket.MSG_TCP_STATIC_RES.MapStati"
-  "cMsgRecvEntry\0327\n\025MapStaticMsgRecvEntry\022\013"
-  "\n\003key\030\001 \001(\005\022\r\n\005value\030\002 \001(\003:\0028\001\"%\n\020MSG_CL"
-  "IENT_ENTER\022\021\n\tclient_id\030\001 \001(\003\"|\n\024MSG_CLI"
-  "ENT_ENTER_RES\022\021\n\tclient_id\030\001 \001(\003\022%\n\003res\030"
-  "\002 \001(\0162\030.msgpacket.RESPONSE_CODE\022\023\n\013redir"
-  "ect_ip\030\004 \001(\t\022\025\n\rredirect_port\030\005 \001(\005\"\r\n\013M"
-  "SG_GET_MAP\"Y\n\017MSG_GET_MAP_RES\022\017\n\007map_wid"
-  "\030\001 \001(\005\022\020\n\010map_high\030\002 \001(\005\022\021\n\tmap_pitch\030\003 "
-  "\001(\005\022\020\n\010map_data\030\004 \001(\014\"W\n\017MSG_PATH_SEARCH"
-  "\022!\n\007pos_src\030\001 \001(\0132\020.msgpacket.POS_T\022!\n\007p"
-  "os_dst\030\002 \001(\0132\020.msgpacket.POS_T\"\247\001\n\023MSG_P"
-  "ATH_SEARCH_RES\022!\n\007pos_src\030\001 \001(\0132\020.msgpac"
-  "ket.POS_T\022!\n\007pos_dst\030\002 \001(\0132\020.msgpacket.P"
-  "OS_T\022\"\n\010path_pos\030\003 \003(\0132\020.msgpacket.POS_T"
-  "\022&\n\014path_key_pos\030\004 \003(\0132\020.msgpacket.POS_T"
-  "\"d\n\016MSG_NAV_SEARCH\022(\n\007pos_src\030\001 \001(\0132\027.ms"
-  "gpacket.PROTO_VEC_3F\022(\n\007pos_dst\030\002 \001(\0132\027."
-  "msgpacket.PROTO_VEC_3F\"\?\n\022MSG_NAV_SEARCH"
-  "_RES\022)\n\010path_pos\030\001 \003(\0132\027.msgpacket.PROTO"
-  "_VEC_3F\"\211\001\n\014NAV_OBSTACLE\022\023\n\013obstacle_id\030"
-  "\001 \001(\r\022\'\n\006center\030\002 \001(\0132\027.msgpacket.PROTO_"
-  "VEC_3F\022)\n\010half_ext\030\003 \001(\0132\027.msgpacket.PRO"
-  "TO_VEC_3F\022\020\n\010y_radian\030\004 \001(\002\"A\n\024MSG_NAV_A"
-  "DD_OBSTACLE\022)\n\010obstacle\030\001 \001(\0132\027.msgpacke"
-  "t.NAV_OBSTACLE\"E\n\030MSG_NAV_ADD_OBSTACLE_R"
-  "ES\022)\n\010obstacle\030\002 \001(\0132\027.msgpacket.NAV_OBS"
-  "TACLE\"+\n\024MSG_NAV_DEL_OBSTACLE\022\023\n\013obstacl"
-  "e_id\030\001 \001(\r\"/\n\030MSG_NAV_DEL_OBSTACLE_RES\022\023"
-  "\n\013obstacle_id\030\001 \001(\r\"\032\n\030MSG_NAV_GET_ALL_O"
-  "BSTACLE\"I\n\034MSG_NAV_GET_ALL_OBSTACLE_RES\022"
-  ")\n\010obstacle\030\001 \003(\0132\027.msgpacket.NAV_OBSTAC"
-  "LE\":\n\016MSG_UPDATE_POS\022(\n\007new_pos\030\001 \001(\0132\027."
-  "msgpacket.PROTO_VEC_3F\">\n\022MSG_UPDATE_POS"
-  "_RES\022(\n\007new_pos\030\001 \001(\0132\027.msgpacket.PROTO_"
-  "VEC_3F*\201\006\n\010MSG_TYPE\022\r\n\t_MSG_NULL\020\000\022\014\n\010_M"
-  "SG_RPC\020\001\022\020\n\014_MSG_RPC_RES\020\002\022\023\n\017_MSG_SRV_R"
-  "EPORT\020\003\022\027\n\023_MSG_SRV_REPORT_RES\020\004\022\022\n\016_MSG"
-  "_HEARTBEAT\020\005\022\026\n\022_MSG_HEARTBEAT_RES\020\006\022\023\n\017"
-  "_MSG_TCP_STATIC\020\007\022\027\n\023_MSG_TCP_STATIC_RES"
-  "\020\010\022\014\n\010_MSG_MAX\020d\022\r\n\t_MSG_TEST\020e\022\021\n\r_MSG_"
-  "TEST_RES\020f\022\016\n\n_MSG_LOGIN\020g\022\022\n\016_MSG_LOGIN"
-  "_RES\020h\022\021\n\r_MSG_TEST_RPC\020i\022\025\n\021_MSG_TEST_R"
-  "PC_RES\020j\022\024\n\017_MSG_SERVER_MAX\020\350\007\022\026\n\021_MSG_C"
-  "LIENT_ENTER\020\351\007\022\032\n\025_MSG_CLIENT_ENTER_RES\020"
-  "\352\007\022\021\n\014_MSG_GET_MAP\020\353\007\022\025\n\020_MSG_GET_MAP_RE"
-  "S\020\354\007\022\025\n\020_MSG_PATH_SEARCH\020\355\007\022\031\n\024_MSG_PATH"
-  "_SEARCH_RES\020\356\007\022\024\n\017_MSG_NAV_SEARCH\020\357\007\022\030\n\023"
-  "_MSG_NAV_SEARCH_RES\020\360\007\022\032\n\025_MSG_NAV_ADD_O"
-  "BSTACLE\020\361\007\022\036\n\031_MSG_NAV_ADD_OBSTACLE_RES\020"
-  "\362\007\022\032\n\025_MSG_NAV_DEL_OBSTACLE\020\363\007\022\036\n\031_MSG_N"
-  "AV_DEL_OBSTACLE_RES\020\364\007\022\036\n\031_MSG_NAV_GET_A"
-  "LL_OBSTACLE\020\365\007\022\"\n\035_MSG_NAV_GET_ALL_OBSTA"
-  "CLE_RES\020\366\007\022\024\n\017_MSG_UPDATE_POS\020\367\007\022\030\n\023_MSG"
-  "_UPDATE_POS_RES\020\370\007*{\n\rRESPONSE_CODE\022\026\n\022R"
-  "ESPONSE_CODE_Fail\020\000\022\024\n\020RESPONSE_CODE_OK\020"
-  "\001\022 \n\034RESPONSE_CODE_Rpc_not_accept\020\002\022\032\n\026R"
-  "ESPONSE_CODE_redirect\020\003B\016Z\014./;msgpacketb"
-  "\006proto3"
+  "\002\022\022\n\nview_range\030\004 \001(\002\"K\n\rMSG_LOGIN_RES\022\n"
+  "\n\002id\030\001 \001(\003\022\022\n\nconnect_id\030\002 \001(\003\022\n\n\002fd\030\003 \001"
+  "(\003\022\016\n\006obj_id\030\004 \001(\003\"\035\n\016MSG_TCP_STATIC\022\013\n\003"
+  "seq\030\001 \001(\003\"\356\001\n\022MSG_TCP_STATIC_RES\022\024\n\014pack"
+  "et_count\030\001 \001(\003\022\021\n\tbyte_recv\030\002 \001(\003\022\021\n\tbyt"
+  "e_proc\030\003 \001(\003\022\021\n\tbyte_send\030\004 \001(\003\022P\n\023map_s"
+  "tatic_msg_recv\030\005 \003(\01323.msgpacket.MSG_TCP"
+  "_STATIC_RES.MapStaticMsgRecvEntry\0327\n\025Map"
+  "StaticMsgRecvEntry\022\013\n\003key\030\001 \001(\005\022\r\n\005value"
+  "\030\002 \001(\003:\0028\001\"%\n\020MSG_CLIENT_ENTER\022\021\n\tclient"
+  "_id\030\001 \001(\003\"|\n\024MSG_CLIENT_ENTER_RES\022\021\n\tcli"
+  "ent_id\030\001 \001(\003\022%\n\003res\030\002 \001(\0162\030.msgpacket.RE"
+  "SPONSE_CODE\022\023\n\013redirect_ip\030\004 \001(\t\022\025\n\rredi"
+  "rect_port\030\005 \001(\005\"\r\n\013MSG_GET_MAP\"Y\n\017MSG_GE"
+  "T_MAP_RES\022\017\n\007map_wid\030\001 \001(\005\022\020\n\010map_high\030\002"
+  " \001(\005\022\021\n\tmap_pitch\030\003 \001(\005\022\020\n\010map_data\030\004 \001("
+  "\014\"W\n\017MSG_PATH_SEARCH\022!\n\007pos_src\030\001 \001(\0132\020."
+  "msgpacket.POS_T\022!\n\007pos_dst\030\002 \001(\0132\020.msgpa"
+  "cket.POS_T\"\247\001\n\023MSG_PATH_SEARCH_RES\022!\n\007po"
+  "s_src\030\001 \001(\0132\020.msgpacket.POS_T\022!\n\007pos_dst"
+  "\030\002 \001(\0132\020.msgpacket.POS_T\022\"\n\010path_pos\030\003 \003"
+  "(\0132\020.msgpacket.POS_T\022&\n\014path_key_pos\030\004 \003"
+  "(\0132\020.msgpacket.POS_T\"d\n\016MSG_NAV_SEARCH\022("
+  "\n\007pos_src\030\001 \001(\0132\027.msgpacket.PROTO_VEC_3F"
+  "\022(\n\007pos_dst\030\002 \001(\0132\027.msgpacket.PROTO_VEC_"
+  "3F\"\?\n\022MSG_NAV_SEARCH_RES\022)\n\010path_pos\030\001 \003"
+  "(\0132\027.msgpacket.PROTO_VEC_3F\"\211\001\n\014NAV_OBST"
+  "ACLE\022\023\n\013obstacle_id\030\001 \001(\r\022\'\n\006center\030\002 \001("
+  "\0132\027.msgpacket.PROTO_VEC_3F\022)\n\010half_ext\030\003"
+  " \001(\0132\027.msgpacket.PROTO_VEC_3F\022\020\n\010y_radia"
+  "n\030\004 \001(\002\"A\n\024MSG_NAV_ADD_OBSTACLE\022)\n\010obsta"
+  "cle\030\001 \001(\0132\027.msgpacket.NAV_OBSTACLE\"E\n\030MS"
+  "G_NAV_ADD_OBSTACLE_RES\022)\n\010obstacle\030\002 \001(\013"
+  "2\027.msgpacket.NAV_OBSTACLE\"+\n\024MSG_NAV_DEL"
+  "_OBSTACLE\022\023\n\013obstacle_id\030\001 \001(\r\"/\n\030MSG_NA"
+  "V_DEL_OBSTACLE_RES\022\023\n\013obstacle_id\030\001 \001(\r\""
+  "\032\n\030MSG_NAV_GET_ALL_OBSTACLE\"I\n\034MSG_NAV_G"
+  "ET_ALL_OBSTACLE_RES\022)\n\010obstacle\030\001 \003(\0132\027."
+  "msgpacket.NAV_OBSTACLE\":\n\016MSG_UPDATE_POS"
+  "\022(\n\007new_pos\030\001 \001(\0132\027.msgpacket.PROTO_VEC_"
+  "3F\">\n\022MSG_UPDATE_POS_RES\022(\n\007new_pos\030\001 \001("
+  "\0132\027.msgpacket.PROTO_VEC_3F\"!\n\017MSG_NTF_IN"
+  "_VIEW\022\016\n\006obj_id\030\001 \001(\003\"\"\n\020MSG_NTF_OUT_VIE"
+  "W\022\016\n\006obj_id\030\001 \001(\003*\260\006\n\010MSG_TYPE\022\r\n\t_MSG_N"
+  "ULL\020\000\022\014\n\010_MSG_RPC\020\001\022\020\n\014_MSG_RPC_RES\020\002\022\023\n"
+  "\017_MSG_SRV_REPORT\020\003\022\027\n\023_MSG_SRV_REPORT_RE"
+  "S\020\004\022\022\n\016_MSG_HEARTBEAT\020\005\022\026\n\022_MSG_HEARTBEA"
+  "T_RES\020\006\022\023\n\017_MSG_TCP_STATIC\020\007\022\027\n\023_MSG_TCP"
+  "_STATIC_RES\020\010\022\014\n\010_MSG_MAX\020d\022\r\n\t_MSG_TEST"
+  "\020e\022\021\n\r_MSG_TEST_RES\020f\022\016\n\n_MSG_LOGIN\020g\022\022\n"
+  "\016_MSG_LOGIN_RES\020h\022\021\n\r_MSG_TEST_RPC\020i\022\025\n\021"
+  "_MSG_TEST_RPC_RES\020j\022\024\n\017_MSG_SERVER_MAX\020\350"
+  "\007\022\026\n\021_MSG_CLIENT_ENTER\020\351\007\022\032\n\025_MSG_CLIENT"
+  "_ENTER_RES\020\352\007\022\021\n\014_MSG_GET_MAP\020\353\007\022\025\n\020_MSG"
+  "_GET_MAP_RES\020\354\007\022\025\n\020_MSG_PATH_SEARCH\020\355\007\022\031"
+  "\n\024_MSG_PATH_SEARCH_RES\020\356\007\022\024\n\017_MSG_NAV_SE"
+  "ARCH\020\357\007\022\030\n\023_MSG_NAV_SEARCH_RES\020\360\007\022\032\n\025_MS"
+  "G_NAV_ADD_OBSTACLE\020\361\007\022\036\n\031_MSG_NAV_ADD_OB"
+  "STACLE_RES\020\362\007\022\032\n\025_MSG_NAV_DEL_OBSTACLE\020\363"
+  "\007\022\036\n\031_MSG_NAV_DEL_OBSTACLE_RES\020\364\007\022\036\n\031_MS"
+  "G_NAV_GET_ALL_OBSTACLE\020\365\007\022\"\n\035_MSG_NAV_GE"
+  "T_ALL_OBSTACLE_RES\020\366\007\022\024\n\017_MSG_UPDATE_POS"
+  "\020\367\007\022\030\n\023_MSG_UPDATE_POS_RES\020\370\007\022\025\n\020_MSG_NT"
+  "F_IN_VIEW\020\371\007\022\026\n\021_MSG_NTF_OUT_VIEW\020\372\007*{\n\r"
+  "RESPONSE_CODE\022\026\n\022RESPONSE_CODE_Fail\020\000\022\024\n"
+  "\020RESPONSE_CODE_OK\020\001\022 \n\034RESPONSE_CODE_Rpc"
+  "_not_accept\020\002\022\032\n\026RESPONSE_CODE_redirect\020"
+  "\003B\016Z\014./;msgpacketb\006proto3"
   ;
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_msg_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_msg_2eproto = {
-  false, false, 3487, descriptor_table_protodef_msg_2eproto, "msg.proto", 
-  &descriptor_table_msg_2eproto_once, nullptr, 0, 34,
+  false, false, 3625, descriptor_table_protodef_msg_2eproto, "msg.proto", 
+  &descriptor_table_msg_2eproto_once, nullptr, 0, 36,
   schemas, file_default_instances, TableStruct_msg_2eproto::offsets,
   file_level_metadata_msg_2eproto, file_level_enum_descriptors_msg_2eproto, file_level_service_descriptors_msg_2eproto,
 };
@@ -981,6 +1028,8 @@ bool MSG_TYPE_IsValid(int value) {
     case 1014:
     case 1015:
     case 1016:
+    case 1017:
+    case 1018:
       return true;
     default:
       return false;
@@ -3811,16 +3860,16 @@ MSG_LOGIN::MSG_LOGIN(const MSG_LOGIN& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   ::memcpy(&id_, &from.id_,
-    static_cast<size_t>(reinterpret_cast<char*>(&y_) -
-    reinterpret_cast<char*>(&id_)) + sizeof(y_));
+    static_cast<size_t>(reinterpret_cast<char*>(&view_range_) -
+    reinterpret_cast<char*>(&id_)) + sizeof(view_range_));
   // @@protoc_insertion_point(copy_constructor:msgpacket.MSG_LOGIN)
 }
 
 inline void MSG_LOGIN::SharedCtor() {
 ::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
     reinterpret_cast<char*>(&id_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&y_) -
-    reinterpret_cast<char*>(&id_)) + sizeof(y_));
+    0, static_cast<size_t>(reinterpret_cast<char*>(&view_range_) -
+    reinterpret_cast<char*>(&id_)) + sizeof(view_range_));
 }
 
 MSG_LOGIN::~MSG_LOGIN() {
@@ -3851,8 +3900,8 @@ void MSG_LOGIN::Clear() {
   (void) cached_has_bits;
 
   ::memset(&id_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&y_) -
-      reinterpret_cast<char*>(&id_)) + sizeof(y_));
+      reinterpret_cast<char*>(&view_range_) -
+      reinterpret_cast<char*>(&id_)) + sizeof(view_range_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -3882,6 +3931,14 @@ const char* MSG_LOGIN::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
       case 3:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 29)) {
           y_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr);
+          ptr += sizeof(float);
+        } else
+          goto handle_unusual;
+        continue;
+      // float view_range = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 37)) {
+          view_range_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr);
           ptr += sizeof(float);
         } else
           goto handle_unusual;
@@ -3941,6 +3998,16 @@ uint8_t* MSG_LOGIN::_InternalSerialize(
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteFloatToArray(3, this->_internal_y(), target);
   }
 
+  // float view_range = 4;
+  static_assert(sizeof(uint32_t) == sizeof(float), "Code assumes uint32_t and float are the same size.");
+  float tmp_view_range = this->_internal_view_range();
+  uint32_t raw_view_range;
+  memcpy(&raw_view_range, &tmp_view_range, sizeof(tmp_view_range));
+  if (raw_view_range != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteFloatToArray(4, this->_internal_view_range(), target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -3977,6 +4044,15 @@ size_t MSG_LOGIN::ByteSizeLong() const {
   uint32_t raw_y;
   memcpy(&raw_y, &tmp_y, sizeof(tmp_y));
   if (raw_y != 0) {
+    total_size += 1 + 4;
+  }
+
+  // float view_range = 4;
+  static_assert(sizeof(uint32_t) == sizeof(float), "Code assumes uint32_t and float are the same size.");
+  float tmp_view_range = this->_internal_view_range();
+  uint32_t raw_view_range;
+  memcpy(&raw_view_range, &tmp_view_range, sizeof(tmp_view_range));
+  if (raw_view_range != 0) {
     total_size += 1 + 4;
   }
 
@@ -4019,6 +4095,13 @@ void MSG_LOGIN::MergeFrom(const MSG_LOGIN& from) {
   if (raw_y != 0) {
     _internal_set_y(from._internal_y());
   }
+  static_assert(sizeof(uint32_t) == sizeof(float), "Code assumes uint32_t and float are the same size.");
+  float tmp_view_range = from._internal_view_range();
+  uint32_t raw_view_range;
+  memcpy(&raw_view_range, &tmp_view_range, sizeof(tmp_view_range));
+  if (raw_view_range != 0) {
+    _internal_set_view_range(from._internal_view_range());
+  }
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
@@ -4037,8 +4120,8 @@ void MSG_LOGIN::InternalSwap(MSG_LOGIN* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(MSG_LOGIN, y_)
-      + sizeof(MSG_LOGIN::y_)
+      PROTOBUF_FIELD_OFFSET(MSG_LOGIN, view_range_)
+      + sizeof(MSG_LOGIN::view_range_)
       - PROTOBUF_FIELD_OFFSET(MSG_LOGIN, id_)>(
           reinterpret_cast<char*>(&id_),
           reinterpret_cast<char*>(&other->id_));
@@ -8250,6 +8333,362 @@ void MSG_UPDATE_POS_RES::InternalSwap(MSG_UPDATE_POS_RES* other) {
       file_level_metadata_msg_2eproto[33]);
 }
 
+// ===================================================================
+
+class MSG_NTF_IN_VIEW::_Internal {
+ public:
+};
+
+MSG_NTF_IN_VIEW::MSG_NTF_IN_VIEW(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor();
+  if (!is_message_owned) {
+    RegisterArenaDtor(arena);
+  }
+  // @@protoc_insertion_point(arena_constructor:msgpacket.MSG_NTF_IN_VIEW)
+}
+MSG_NTF_IN_VIEW::MSG_NTF_IN_VIEW(const MSG_NTF_IN_VIEW& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  obj_id_ = from.obj_id_;
+  // @@protoc_insertion_point(copy_constructor:msgpacket.MSG_NTF_IN_VIEW)
+}
+
+inline void MSG_NTF_IN_VIEW::SharedCtor() {
+obj_id_ = int64_t{0};
+}
+
+MSG_NTF_IN_VIEW::~MSG_NTF_IN_VIEW() {
+  // @@protoc_insertion_point(destructor:msgpacket.MSG_NTF_IN_VIEW)
+  if (GetArenaForAllocation() != nullptr) return;
+  SharedDtor();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+inline void MSG_NTF_IN_VIEW::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+}
+
+void MSG_NTF_IN_VIEW::ArenaDtor(void* object) {
+  MSG_NTF_IN_VIEW* _this = reinterpret_cast< MSG_NTF_IN_VIEW* >(object);
+  (void)_this;
+}
+void MSG_NTF_IN_VIEW::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
+}
+void MSG_NTF_IN_VIEW::SetCachedSize(int size) const {
+  _cached_size_.Set(size);
+}
+
+void MSG_NTF_IN_VIEW::Clear() {
+// @@protoc_insertion_point(message_clear_start:msgpacket.MSG_NTF_IN_VIEW)
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  obj_id_ = int64_t{0};
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* MSG_NTF_IN_VIEW::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    uint32_t tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // int64 obj_id = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+          obj_id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+uint8_t* MSG_NTF_IN_VIEW::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:msgpacket.MSG_NTF_IN_VIEW)
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // int64 obj_id = 1;
+  if (this->_internal_obj_id() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt64ToArray(1, this->_internal_obj_id(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:msgpacket.MSG_NTF_IN_VIEW)
+  return target;
+}
+
+size_t MSG_NTF_IN_VIEW::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:msgpacket.MSG_NTF_IN_VIEW)
+  size_t total_size = 0;
+
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // int64 obj_id = 1;
+  if (this->_internal_obj_id() != 0) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int64SizePlusOne(this->_internal_obj_id());
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData MSG_NTF_IN_VIEW::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
+    MSG_NTF_IN_VIEW::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*MSG_NTF_IN_VIEW::GetClassData() const { return &_class_data_; }
+
+void MSG_NTF_IN_VIEW::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
+                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+  static_cast<MSG_NTF_IN_VIEW *>(to)->MergeFrom(
+      static_cast<const MSG_NTF_IN_VIEW &>(from));
+}
+
+
+void MSG_NTF_IN_VIEW::MergeFrom(const MSG_NTF_IN_VIEW& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:msgpacket.MSG_NTF_IN_VIEW)
+  GOOGLE_DCHECK_NE(&from, this);
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (from._internal_obj_id() != 0) {
+    _internal_set_obj_id(from._internal_obj_id());
+  }
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void MSG_NTF_IN_VIEW::CopyFrom(const MSG_NTF_IN_VIEW& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:msgpacket.MSG_NTF_IN_VIEW)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool MSG_NTF_IN_VIEW::IsInitialized() const {
+  return true;
+}
+
+void MSG_NTF_IN_VIEW::InternalSwap(MSG_NTF_IN_VIEW* other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(obj_id_, other->obj_id_);
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata MSG_NTF_IN_VIEW::GetMetadata() const {
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
+      &descriptor_table_msg_2eproto_getter, &descriptor_table_msg_2eproto_once,
+      file_level_metadata_msg_2eproto[34]);
+}
+
+// ===================================================================
+
+class MSG_NTF_OUT_VIEW::_Internal {
+ public:
+};
+
+MSG_NTF_OUT_VIEW::MSG_NTF_OUT_VIEW(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor();
+  if (!is_message_owned) {
+    RegisterArenaDtor(arena);
+  }
+  // @@protoc_insertion_point(arena_constructor:msgpacket.MSG_NTF_OUT_VIEW)
+}
+MSG_NTF_OUT_VIEW::MSG_NTF_OUT_VIEW(const MSG_NTF_OUT_VIEW& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  obj_id_ = from.obj_id_;
+  // @@protoc_insertion_point(copy_constructor:msgpacket.MSG_NTF_OUT_VIEW)
+}
+
+inline void MSG_NTF_OUT_VIEW::SharedCtor() {
+obj_id_ = int64_t{0};
+}
+
+MSG_NTF_OUT_VIEW::~MSG_NTF_OUT_VIEW() {
+  // @@protoc_insertion_point(destructor:msgpacket.MSG_NTF_OUT_VIEW)
+  if (GetArenaForAllocation() != nullptr) return;
+  SharedDtor();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+inline void MSG_NTF_OUT_VIEW::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+}
+
+void MSG_NTF_OUT_VIEW::ArenaDtor(void* object) {
+  MSG_NTF_OUT_VIEW* _this = reinterpret_cast< MSG_NTF_OUT_VIEW* >(object);
+  (void)_this;
+}
+void MSG_NTF_OUT_VIEW::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
+}
+void MSG_NTF_OUT_VIEW::SetCachedSize(int size) const {
+  _cached_size_.Set(size);
+}
+
+void MSG_NTF_OUT_VIEW::Clear() {
+// @@protoc_insertion_point(message_clear_start:msgpacket.MSG_NTF_OUT_VIEW)
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  obj_id_ = int64_t{0};
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* MSG_NTF_OUT_VIEW::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    uint32_t tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // int64 obj_id = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+          obj_id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+uint8_t* MSG_NTF_OUT_VIEW::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:msgpacket.MSG_NTF_OUT_VIEW)
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // int64 obj_id = 1;
+  if (this->_internal_obj_id() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt64ToArray(1, this->_internal_obj_id(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:msgpacket.MSG_NTF_OUT_VIEW)
+  return target;
+}
+
+size_t MSG_NTF_OUT_VIEW::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:msgpacket.MSG_NTF_OUT_VIEW)
+  size_t total_size = 0;
+
+  uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // int64 obj_id = 1;
+  if (this->_internal_obj_id() != 0) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int64SizePlusOne(this->_internal_obj_id());
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData MSG_NTF_OUT_VIEW::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
+    MSG_NTF_OUT_VIEW::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*MSG_NTF_OUT_VIEW::GetClassData() const { return &_class_data_; }
+
+void MSG_NTF_OUT_VIEW::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
+                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+  static_cast<MSG_NTF_OUT_VIEW *>(to)->MergeFrom(
+      static_cast<const MSG_NTF_OUT_VIEW &>(from));
+}
+
+
+void MSG_NTF_OUT_VIEW::MergeFrom(const MSG_NTF_OUT_VIEW& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:msgpacket.MSG_NTF_OUT_VIEW)
+  GOOGLE_DCHECK_NE(&from, this);
+  uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (from._internal_obj_id() != 0) {
+    _internal_set_obj_id(from._internal_obj_id());
+  }
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void MSG_NTF_OUT_VIEW::CopyFrom(const MSG_NTF_OUT_VIEW& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:msgpacket.MSG_NTF_OUT_VIEW)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool MSG_NTF_OUT_VIEW::IsInitialized() const {
+  return true;
+}
+
+void MSG_NTF_OUT_VIEW::InternalSwap(MSG_NTF_OUT_VIEW* other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(obj_id_, other->obj_id_);
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata MSG_NTF_OUT_VIEW::GetMetadata() const {
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
+      &descriptor_table_msg_2eproto_getter, &descriptor_table_msg_2eproto_once,
+      file_level_metadata_msg_2eproto[35]);
+}
+
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace msgpacket
 PROTOBUF_NAMESPACE_OPEN
@@ -8354,6 +8793,12 @@ template<> PROTOBUF_NOINLINE ::msgpacket::MSG_UPDATE_POS* Arena::CreateMaybeMess
 }
 template<> PROTOBUF_NOINLINE ::msgpacket::MSG_UPDATE_POS_RES* Arena::CreateMaybeMessage< ::msgpacket::MSG_UPDATE_POS_RES >(Arena* arena) {
   return Arena::CreateMessageInternal< ::msgpacket::MSG_UPDATE_POS_RES >(arena);
+}
+template<> PROTOBUF_NOINLINE ::msgpacket::MSG_NTF_IN_VIEW* Arena::CreateMaybeMessage< ::msgpacket::MSG_NTF_IN_VIEW >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::msgpacket::MSG_NTF_IN_VIEW >(arena);
+}
+template<> PROTOBUF_NOINLINE ::msgpacket::MSG_NTF_OUT_VIEW* Arena::CreateMaybeMessage< ::msgpacket::MSG_NTF_OUT_VIEW >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::msgpacket::MSG_NTF_OUT_VIEW >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

@@ -220,7 +220,7 @@ func (pthis*TcpClient)Process_MSG_NAV_GET_ALL_OBSTACLE(msg * msgpacket.MSG_NAV_G
 }
 
 func (pthis*TcpClient)Process_MSG_UPDATE_POS(msg * msgpacket.MSG_UPDATE_POS){
-
+	// todo
 }
 
 func (pthis*TcpClient)Process_protoMsg(msg *msgClient) {

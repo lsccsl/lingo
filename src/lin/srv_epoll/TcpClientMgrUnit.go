@@ -132,6 +132,7 @@ func (pthis*TcpClientMgrUnit)Process_LOGIN(msg*msgClient){
 		if ok {
 			msgAdd.X = msgL.X
 			msgAdd.Y = msgL.Y
+			msgAdd.ViewRange = msgL.ViewRange
 		}
 		pthis.eSrvMgr.mapProcMgr.addMapProcessMsg(msgAdd, cliID, time.Second * 3)
 	}

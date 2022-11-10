@@ -51,7 +51,7 @@ struct TableStruct_msg_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxiliaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[34]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[36]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -107,6 +107,12 @@ extern MSG_NAV_SEARCHDefaultTypeInternal _MSG_NAV_SEARCH_default_instance_;
 class MSG_NAV_SEARCH_RES;
 struct MSG_NAV_SEARCH_RESDefaultTypeInternal;
 extern MSG_NAV_SEARCH_RESDefaultTypeInternal _MSG_NAV_SEARCH_RES_default_instance_;
+class MSG_NTF_IN_VIEW;
+struct MSG_NTF_IN_VIEWDefaultTypeInternal;
+extern MSG_NTF_IN_VIEWDefaultTypeInternal _MSG_NTF_IN_VIEW_default_instance_;
+class MSG_NTF_OUT_VIEW;
+struct MSG_NTF_OUT_VIEWDefaultTypeInternal;
+extern MSG_NTF_OUT_VIEWDefaultTypeInternal _MSG_NTF_OUT_VIEW_default_instance_;
 class MSG_PATH_SEARCH;
 struct MSG_PATH_SEARCHDefaultTypeInternal;
 extern MSG_PATH_SEARCHDefaultTypeInternal _MSG_PATH_SEARCH_default_instance_;
@@ -179,6 +185,8 @@ template<> ::msgpacket::MSG_NAV_GET_ALL_OBSTACLE* Arena::CreateMaybeMessage<::ms
 template<> ::msgpacket::MSG_NAV_GET_ALL_OBSTACLE_RES* Arena::CreateMaybeMessage<::msgpacket::MSG_NAV_GET_ALL_OBSTACLE_RES>(Arena*);
 template<> ::msgpacket::MSG_NAV_SEARCH* Arena::CreateMaybeMessage<::msgpacket::MSG_NAV_SEARCH>(Arena*);
 template<> ::msgpacket::MSG_NAV_SEARCH_RES* Arena::CreateMaybeMessage<::msgpacket::MSG_NAV_SEARCH_RES>(Arena*);
+template<> ::msgpacket::MSG_NTF_IN_VIEW* Arena::CreateMaybeMessage<::msgpacket::MSG_NTF_IN_VIEW>(Arena*);
+template<> ::msgpacket::MSG_NTF_OUT_VIEW* Arena::CreateMaybeMessage<::msgpacket::MSG_NTF_OUT_VIEW>(Arena*);
 template<> ::msgpacket::MSG_PATH_SEARCH* Arena::CreateMaybeMessage<::msgpacket::MSG_PATH_SEARCH>(Arena*);
 template<> ::msgpacket::MSG_PATH_SEARCH_RES* Arena::CreateMaybeMessage<::msgpacket::MSG_PATH_SEARCH_RES>(Arena*);
 template<> ::msgpacket::MSG_RPC* Arena::CreateMaybeMessage<::msgpacket::MSG_RPC>(Arena*);
@@ -234,12 +242,14 @@ enum MSG_TYPE : int {
   _MSG_NAV_GET_ALL_OBSTACLE_RES = 1014,
   _MSG_UPDATE_POS = 1015,
   _MSG_UPDATE_POS_RES = 1016,
+  _MSG_NTF_IN_VIEW = 1017,
+  _MSG_NTF_OUT_VIEW = 1018,
   MSG_TYPE_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::min(),
   MSG_TYPE_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<int32_t>::max()
 };
 bool MSG_TYPE_IsValid(int value);
 constexpr MSG_TYPE MSG_TYPE_MIN = _MSG_NULL;
-constexpr MSG_TYPE MSG_TYPE_MAX = _MSG_UPDATE_POS_RES;
+constexpr MSG_TYPE MSG_TYPE_MAX = _MSG_NTF_OUT_VIEW;
 constexpr int MSG_TYPE_ARRAYSIZE = MSG_TYPE_MAX + 1;
 
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* MSG_TYPE_descriptor();
@@ -2429,6 +2439,7 @@ class MSG_LOGIN final :
     kIdFieldNumber = 1,
     kXFieldNumber = 2,
     kYFieldNumber = 3,
+    kViewRangeFieldNumber = 4,
   };
   // int64 id = 1;
   void clear_id();
@@ -2457,6 +2468,15 @@ class MSG_LOGIN final :
   void _internal_set_y(float value);
   public:
 
+  // float view_range = 4;
+  void clear_view_range();
+  float view_range() const;
+  void set_view_range(float value);
+  private:
+  float _internal_view_range() const;
+  void _internal_set_view_range(float value);
+  public:
+
   // @@protoc_insertion_point(class_scope:msgpacket.MSG_LOGIN)
  private:
   class _Internal;
@@ -2467,6 +2487,7 @@ class MSG_LOGIN final :
   int64_t id_;
   float x_;
   float y_;
+  float view_range_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_msg_2eproto;
 };
@@ -5755,6 +5776,298 @@ class MSG_UPDATE_POS_RES final :
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_msg_2eproto;
 };
+// -------------------------------------------------------------------
+
+class MSG_NTF_IN_VIEW final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:msgpacket.MSG_NTF_IN_VIEW) */ {
+ public:
+  inline MSG_NTF_IN_VIEW() : MSG_NTF_IN_VIEW(nullptr) {}
+  ~MSG_NTF_IN_VIEW() override;
+  explicit constexpr MSG_NTF_IN_VIEW(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  MSG_NTF_IN_VIEW(const MSG_NTF_IN_VIEW& from);
+  MSG_NTF_IN_VIEW(MSG_NTF_IN_VIEW&& from) noexcept
+    : MSG_NTF_IN_VIEW() {
+    *this = ::std::move(from);
+  }
+
+  inline MSG_NTF_IN_VIEW& operator=(const MSG_NTF_IN_VIEW& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline MSG_NTF_IN_VIEW& operator=(MSG_NTF_IN_VIEW&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const MSG_NTF_IN_VIEW& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const MSG_NTF_IN_VIEW* internal_default_instance() {
+    return reinterpret_cast<const MSG_NTF_IN_VIEW*>(
+               &_MSG_NTF_IN_VIEW_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    34;
+
+  friend void swap(MSG_NTF_IN_VIEW& a, MSG_NTF_IN_VIEW& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(MSG_NTF_IN_VIEW* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(MSG_NTF_IN_VIEW* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  MSG_NTF_IN_VIEW* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<MSG_NTF_IN_VIEW>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const MSG_NTF_IN_VIEW& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom(const MSG_NTF_IN_VIEW& from);
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(MSG_NTF_IN_VIEW* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "msgpacket.MSG_NTF_IN_VIEW";
+  }
+  protected:
+  explicit MSG_NTF_IN_VIEW(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kObjIdFieldNumber = 1,
+  };
+  // int64 obj_id = 1;
+  void clear_obj_id();
+  int64_t obj_id() const;
+  void set_obj_id(int64_t value);
+  private:
+  int64_t _internal_obj_id() const;
+  void _internal_set_obj_id(int64_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:msgpacket.MSG_NTF_IN_VIEW)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  int64_t obj_id_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_msg_2eproto;
+};
+// -------------------------------------------------------------------
+
+class MSG_NTF_OUT_VIEW final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:msgpacket.MSG_NTF_OUT_VIEW) */ {
+ public:
+  inline MSG_NTF_OUT_VIEW() : MSG_NTF_OUT_VIEW(nullptr) {}
+  ~MSG_NTF_OUT_VIEW() override;
+  explicit constexpr MSG_NTF_OUT_VIEW(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  MSG_NTF_OUT_VIEW(const MSG_NTF_OUT_VIEW& from);
+  MSG_NTF_OUT_VIEW(MSG_NTF_OUT_VIEW&& from) noexcept
+    : MSG_NTF_OUT_VIEW() {
+    *this = ::std::move(from);
+  }
+
+  inline MSG_NTF_OUT_VIEW& operator=(const MSG_NTF_OUT_VIEW& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline MSG_NTF_OUT_VIEW& operator=(MSG_NTF_OUT_VIEW&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const MSG_NTF_OUT_VIEW& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const MSG_NTF_OUT_VIEW* internal_default_instance() {
+    return reinterpret_cast<const MSG_NTF_OUT_VIEW*>(
+               &_MSG_NTF_OUT_VIEW_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    35;
+
+  friend void swap(MSG_NTF_OUT_VIEW& a, MSG_NTF_OUT_VIEW& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(MSG_NTF_OUT_VIEW* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(MSG_NTF_OUT_VIEW* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  MSG_NTF_OUT_VIEW* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<MSG_NTF_OUT_VIEW>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const MSG_NTF_OUT_VIEW& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom(const MSG_NTF_OUT_VIEW& from);
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(MSG_NTF_OUT_VIEW* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "msgpacket.MSG_NTF_OUT_VIEW";
+  }
+  protected:
+  explicit MSG_NTF_OUT_VIEW(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kObjIdFieldNumber = 1,
+  };
+  // int64 obj_id = 1;
+  void clear_obj_id();
+  int64_t obj_id() const;
+  void set_obj_id(int64_t value);
+  private:
+  int64_t _internal_obj_id() const;
+  void _internal_set_obj_id(int64_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:msgpacket.MSG_NTF_OUT_VIEW)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  int64_t obj_id_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_msg_2eproto;
+};
 // ===================================================================
 
 
@@ -6716,6 +7029,26 @@ inline void MSG_LOGIN::_internal_set_y(float value) {
 inline void MSG_LOGIN::set_y(float value) {
   _internal_set_y(value);
   // @@protoc_insertion_point(field_set:msgpacket.MSG_LOGIN.Y)
+}
+
+// float view_range = 4;
+inline void MSG_LOGIN::clear_view_range() {
+  view_range_ = 0;
+}
+inline float MSG_LOGIN::_internal_view_range() const {
+  return view_range_;
+}
+inline float MSG_LOGIN::view_range() const {
+  // @@protoc_insertion_point(field_get:msgpacket.MSG_LOGIN.view_range)
+  return _internal_view_range();
+}
+inline void MSG_LOGIN::_internal_set_view_range(float value) {
+  
+  view_range_ = value;
+}
+inline void MSG_LOGIN::set_view_range(float value) {
+  _internal_set_view_range(value);
+  // @@protoc_insertion_point(field_set:msgpacket.MSG_LOGIN.view_range)
 }
 
 // -------------------------------------------------------------------
@@ -8571,9 +8904,61 @@ inline void MSG_UPDATE_POS_RES::set_allocated_new_pos(::msgpacket::PROTO_VEC_3F*
   // @@protoc_insertion_point(field_set_allocated:msgpacket.MSG_UPDATE_POS_RES.new_pos)
 }
 
+// -------------------------------------------------------------------
+
+// MSG_NTF_IN_VIEW
+
+// int64 obj_id = 1;
+inline void MSG_NTF_IN_VIEW::clear_obj_id() {
+  obj_id_ = int64_t{0};
+}
+inline int64_t MSG_NTF_IN_VIEW::_internal_obj_id() const {
+  return obj_id_;
+}
+inline int64_t MSG_NTF_IN_VIEW::obj_id() const {
+  // @@protoc_insertion_point(field_get:msgpacket.MSG_NTF_IN_VIEW.obj_id)
+  return _internal_obj_id();
+}
+inline void MSG_NTF_IN_VIEW::_internal_set_obj_id(int64_t value) {
+  
+  obj_id_ = value;
+}
+inline void MSG_NTF_IN_VIEW::set_obj_id(int64_t value) {
+  _internal_set_obj_id(value);
+  // @@protoc_insertion_point(field_set:msgpacket.MSG_NTF_IN_VIEW.obj_id)
+}
+
+// -------------------------------------------------------------------
+
+// MSG_NTF_OUT_VIEW
+
+// int64 obj_id = 1;
+inline void MSG_NTF_OUT_VIEW::clear_obj_id() {
+  obj_id_ = int64_t{0};
+}
+inline int64_t MSG_NTF_OUT_VIEW::_internal_obj_id() const {
+  return obj_id_;
+}
+inline int64_t MSG_NTF_OUT_VIEW::obj_id() const {
+  // @@protoc_insertion_point(field_get:msgpacket.MSG_NTF_OUT_VIEW.obj_id)
+  return _internal_obj_id();
+}
+inline void MSG_NTF_OUT_VIEW::_internal_set_obj_id(int64_t value) {
+  
+  obj_id_ = value;
+}
+inline void MSG_NTF_OUT_VIEW::set_obj_id(int64_t value) {
+  _internal_set_obj_id(value);
+  // @@protoc_insertion_point(field_set:msgpacket.MSG_NTF_OUT_VIEW.obj_id)
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

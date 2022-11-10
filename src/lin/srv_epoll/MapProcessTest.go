@@ -71,4 +71,15 @@ func (pthis*MapProcess)initTestViewNode() {
 		pthis.aoi.add(aoi.objID, x, z, 50, aoi)
 		lin_common.LogDebug("add node:", aoi.objID, "[", x, "-", z, "]")
 	}
+
+	{
+		aoi := &MapAoiTestView{
+			srvMgr:    pthis.procMgr.eSrvMgr,
+			mapView:   make(map[int]int),
+			mapViewBy: make(map[int]int),
+		}
+		objID := pthis.aoi.genID()
+		lin_common.LogDebug("add node:", objID)
+		pthis.aoi.add(objID, 0, 0, 50, aoi)
+	}
 }

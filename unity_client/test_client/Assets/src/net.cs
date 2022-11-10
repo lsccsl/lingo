@@ -67,6 +67,10 @@ public class TestClient
         msg_parse_.Add(Msgpacket.MSG_TYPE.MsgNavAddObstacleRes, typeof(Msgpacket.MSG_NAV_ADD_OBSTACLE_RES));
         msg_parse_.Add(Msgpacket.MSG_TYPE.MsgNavDelObstacleRes, typeof(Msgpacket.MSG_NAV_DEL_OBSTACLE_RES));
         msg_parse_.Add(Msgpacket.MSG_TYPE.MsgNavGetAllObstacleRes, typeof(Msgpacket.MSG_NAV_GET_ALL_OBSTACLE_RES));
+        msg_parse_.Add(Msgpacket.MSG_TYPE.MsgUpdatePosRes, typeof(Msgpacket.MSG_UPDATE_POS_RES));
+        msg_parse_.Add(Msgpacket.MSG_TYPE.MsgNtfInView, typeof(Msgpacket.MSG_NTF_IN_VIEW));
+        msg_parse_.Add(Msgpacket.MSG_TYPE.MsgNtfOutView, typeof(Msgpacket.MSG_NTF_OUT_VIEW));
+
     }
 
     private Google.Protobuf.IMessage parseMessage(byte[] pbData, Msgpacket.MSG_TYPE msgtype)
@@ -174,6 +178,7 @@ public class TestClient
 
         Msgpacket.MSG_LOGIN msg = new Msgpacket.MSG_LOGIN();
         msg.Id = 1;
+        msg.ViewRange = 50;
         send_msg_inter(Msgpacket.MSG_TYPE.MsgLogin, msg);
 
         Msgpacket.MSG_GET_MAP msgGetMap = new Msgpacket.MSG_GET_MAP();
