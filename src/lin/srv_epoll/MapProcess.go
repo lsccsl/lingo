@@ -149,6 +149,7 @@ func ConstructMapProcess(procMgr *MapProcessMgr) *MapProcess {
 		procMgr : procMgr,
 		aoi : ConstructorMapAOI(),
 	}
+
 	mp.navIns.load_from_template(mp.procMgr.navMap)
 
 	mp.initTestViewNode()
@@ -186,6 +187,8 @@ func (pthis *MapProcessMgr)getMapProcess(clientID int64)*MapProcess{
 }
 
 func ConstructMapProcessMgr(processCount int, eSrvMgr *ServerMgr) *MapProcessMgr {
+	//return &MapProcessMgr{}
+
 	if processCount <= 0 {
 		lin_common.LogErr("map process count is 0")
 		return nil

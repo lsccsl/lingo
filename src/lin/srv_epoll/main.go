@@ -72,8 +72,10 @@ func main() {
 	if err != nil {
 		lin_common.LogErr(err)
 	}
+	//http://192.168.0.104:8803/cmd?cmd=dump
 	httpSrv.HttpSrvAddCallback("/cmd", func(writer http.ResponseWriter, request *http.Request) {
 		cmd , _ := request.Form["cmd"]
+		fmt.Println(cmd)
 		if cmd != nil {
 			fmt.Fprint(writer, lin_common.DoCmd(cmd, len(cmd)))
 		}

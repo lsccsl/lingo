@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.44657826, g: 0.49641263, b: 0.57481676, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657874, g: 0.49641258, b: 0.5748172, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -418,11 +418,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 874962207}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b201bcbaf3443ed42807ef37514bd2ff, type: 3}
+  m_Script: {fileID: 11500000, guid: fd9175af18cecb6489e03e7dbd6d767f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   target_pos_: {x: 1, y: 0, z: 1}
-  move_speed_: 16
+  move_speed_: 5
   has_target_: 0
   last_dis: 3.4028235e+38
 --- !u!1 &963194225
@@ -518,10 +518,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 963194225}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b73249b2d5c642f4b9c095212b4d42c5, type: 3}
+  m_Script: {fileID: 11500000, guid: 1ceb91d20f7020b4ca6bc73f66550952, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cube_block_: {fileID: 6756228962173514500, guid: 221e801eabc886045a5df4fcf9481212, type: 3}
+  cube_block_: {fileID: 6756228962173514500, guid: 071919124e1a6374c946725786513f05, type: 3}
   ground_: {fileID: 1685056249}
   char_ctrl_: {fileID: 874962212}
   cube_all_: []
@@ -670,7 +670,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 458eea86ebb3a4c419b61480eab6aa91, type: 2}
+  - {fileID: 2100000, guid: 73ce431a8fa8da845bf5ef94c9d68bdb, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
