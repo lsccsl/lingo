@@ -3,6 +3,8 @@ module lin
 go 1.17
 
 require (
+	github.com/garyburd/redigo v1.6.4
+	github.com/go-sql-driver/mysql v1.7.0
 	github.com/go-yaml/yaml v2.1.0+incompatible
 	github.com/golang/protobuf v1.5.0
 	github.com/google/uuid v1.3.0
