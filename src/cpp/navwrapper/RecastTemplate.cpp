@@ -42,3 +42,21 @@ bool RecastTemplate::LoadTemplate(const std::string objFilePath)
 
 	return true;
 }
+
+InputGeom* RecastTemplate::GetGeom()
+{
+	return m_geom;
+}
+
+const NavTemplateMem& RecastTemplate::GetNavTemplateMem()
+{
+	return m_NavTemplateMem;
+}
+
+void RecastTemplate::reset_agent(float agentHeight, float agentRadius, float agentMaxClimb, float agentMaxSlope)
+{
+	m_agentHeight = agentHeight;
+	m_agentRadius = agentRadius;
+	m_agentMaxClimb = agentMaxClimb;
+	m_agentMaxSlope = agentMaxSlope;
+}

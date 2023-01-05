@@ -34,26 +34,9 @@ public:
 	void del_obstacle(int idObj);
 	bool IsWalkAble(float PosX, float PosY, float PosZ);
 
-	void reset_agent(float agentHeight = 2.0f, float agentRadius = 0.6f, float agentMaxClimb = 0.9f, float agentMaxSlope = 45.0f)
-	{
-		m_agentHeight = agentHeight;
-		m_agentRadius = agentRadius;
-		m_agentMaxClimb = agentMaxClimb;
-		m_agentMaxSlope = agentMaxSlope;
-	}
+	void reset_agent(float agentHeight = 2.0f, float agentRadius = 0.6f, float agentMaxClimb = 0.9f, float agentMaxSlope = 45.0f);
 
-	void GetNavBound(RecastVec3f* outBoundMin, RecastVec3f* outBoundMax)
-	{
-		if (!outBoundMin || !outBoundMax)
-			return;
-
-		outBoundMin->x = this->nav_bound_min[0];
-		outBoundMin->y = this->nav_bound_min[1];
-		outBoundMin->z = this->nav_bound_min[2];
-		outBoundMax->x = this->nav_bound_max[0];
-		outBoundMax->y = this->nav_bound_max[1];
-		outBoundMax->z = this->nav_bound_max[2];
-	}
+	void GetNavBound(RecastVec3f* outBoundMin, RecastVec3f* outBoundMax);
 
 protected:
 

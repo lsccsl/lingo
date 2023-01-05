@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 6756228962173514502}
   - component: {fileID: 6756228962173514503}
   - component: {fileID: 300957317760572148}
+  - component: {fileID: 972995650528400736}
   m_Layer: 0
   m_Name: Cube_block
   m_TagString: Untagged
@@ -61,7 +62,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: d9c31bcf4d20db949ac6a12443a75d9f, type: 2}
+  - {fileID: 2100000, guid: 39450ac5207ef444ea153da66b12d34c, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -108,3 +109,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 828bbdeb919f5e4459d935134725e9e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &972995650528400736
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6756228962173514500}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d856b9f1b34622c45bbf99834cfdc2d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  obstacle_id: 0

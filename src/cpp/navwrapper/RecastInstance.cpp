@@ -806,3 +806,24 @@ bool RecastInstance::LoadFromObj(const std::string objFilePath)
 
 	return this->buildFromGeom(m_geom);
 }
+
+void RecastInstance::reset_agent(float agentHeight, float agentRadius, float agentMaxClimb, float agentMaxSlope)
+{
+	m_agentHeight = agentHeight;
+	m_agentRadius = agentRadius;
+	m_agentMaxClimb = agentMaxClimb;
+	m_agentMaxSlope = agentMaxSlope;
+}
+
+void RecastInstance::GetNavBound(RecastVec3f* outBoundMin, RecastVec3f* outBoundMax)
+{
+	if (!outBoundMin || !outBoundMax)
+		return;
+
+	outBoundMin->x = this->nav_bound_min[0];
+	outBoundMin->y = this->nav_bound_min[1];
+	outBoundMin->z = this->nav_bound_min[2];
+	outBoundMax->x = this->nav_bound_max[0];
+	outBoundMax->y = this->nav_bound_max[1];
+	outBoundMax->z = this->nav_bound_max[2];
+}

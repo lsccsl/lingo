@@ -11,25 +11,13 @@ public:
 	RecastTemplate();
 	~RecastTemplate();
 
-	void reset_agent(float agentHeight = 2.0f, float agentRadius = 0.6f, float agentMaxClimb = 0.9f, float agentMaxSlope = 45.0f)
-	{
-		m_agentHeight = agentHeight;
-		m_agentRadius = agentRadius;
-		m_agentMaxClimb = agentMaxClimb;
-		m_agentMaxSlope = agentMaxSlope;
-	}
+	void reset_agent(float agentHeight = 2.0f, float agentRadius = 0.6f, float agentMaxClimb = 0.9f, float agentMaxSlope = 45.0f);
 
 	bool LoadTemplate(const std::string objFilePath);
 
-	InputGeom* GetGeom()
-	{
-		return m_geom;
-	}
+	InputGeom* GetGeom();
 
-	const NavTemplateMem& GetNavTemplateMem()
-	{
-		return m_NavTemplateMem;
-	}
+	const NavTemplateMem& GetNavTemplateMem();
 
 private:
 

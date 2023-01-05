@@ -43,7 +43,7 @@ public class main : MonoBehaviour
         Debug.Log("parse:" + msgNew.ToString());
 
         client_ = new TestClient();
-        client_.connect("192.168.188.128", 2003);
+        client_.connect("192.168.15.144", 2003);
         //client_.connect("117.78.3.242", 2003);
     }
 

@@ -155,4 +155,5 @@ bool nav_get_bound(void* ins_ptr, struct RecastVec3f* outBoundMin, struct Recast
 		return false;
 
 	ins->GetNavBound(outBoundMin, outBoundMax);
+	return true;
 }
