@@ -6,5 +6,7 @@ go build -o ../../output/testepoll lin/testepoll
 go build -o ../../output/test_api lin/test_api
 go build -o ../../output/test_cross_link lin/test_cross_link
 go build -o ../cpp/navwrapper/bin/test_recast lin/test_recast
+go build -o ../../output/test_mysql lin/testmysql
+go build -o ../../output/test_redis lin/testredis
 
 cp ./msgpacket/msg.pb.go ../../cfg/
