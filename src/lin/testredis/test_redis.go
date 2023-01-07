@@ -2,11 +2,14 @@ package main
 
 import (
 	"fmt"
+	"strconv"
+	"sync"
+	"time"
 
 	//"github.com/garyburd/redigo/redis"
 
 	"context"
-	clusterredis "github.com/go-redis/redis/v8"
+	clusterredis "github.com/go-redis/redis/v9"
 	"github.com/gomodule/redigo/redis"
 )
 
@@ -38,20 +41,57 @@ func test_go_redis_cluster(redisAddr string) {
 	var ctx = context.Background()
 	rdb := clusterredis.NewClusterClient(&clusterredis.ClusterOptions{
 		Addrs: []string{redisAddr},
+
+		OnConnect: func(ctx context.Context, conn *clusterredis.Conn) error {
+			fmt.Printf("~~~~~>>>>>>>>>>>>>>>>>new conn from pool, conn=%v\n", conn)
+			return nil
+		},
+
+		MinIdleConns: 1,
+		MaxIdleConns: 2,
+		PoolSize:3,
 	})
 
-	info_cluster, _ := rdb.Info(ctx,"Cluster").Result()
-	fmt.Print("info cluster return:", info_cluster)
+	var wg sync.WaitGroup
 
-	err := rdb.Set(ctx, "go_redis_key", "cluster value test~~~~", 0).Err()
-	fmt.Println("set err", err)
-	val, err := rdb.Get(ctx, "go_redis_key").Result()
-	fmt.Println("get return", val, err)
+	for i := 0; i < 100; i ++ {
+		wg.Add(1)
+		idx := i
+		go func() {
+			info_cluster, _ := rdb.Info(ctx,"Cluster").Result()
+			fmt.Print("info cluster return:", info_cluster)
+			var set_val = "cluster value test~~~~" + strconv.Itoa(idx)
+			var set_key = "go_redis_key" + strconv.Itoa(idx)
+			for j := 0; j < 100; j ++ {
+				fmt.Println("<<<<<<<<<<<<<<<<pool status:", rdb.PoolStats())
 
-	ret_intcmd := rdb.HSet(ctx,"go_redis_hset_key", "field", "field_val_cluster" + redisAddr)
-	fmt.Println("hset return", ret_intcmd, " hset err:", ret_intcmd.Err())
-	hgetval, err := rdb.HGet(ctx, "go_redis_hset_key", "field").Result()
-	fmt.Println("hget return", hgetval, err)
+				err := rdb.Set(ctx, set_key, set_val, 0).Err()
+				fmt.Println("set err", err)
+				val, err := rdb.Get(ctx, set_key).Result()
+				fmt.Println("get return", val, err)
+
+				if set_val != val {
+					panic("get set not match")
+				}
+
+				ret_intcmd := rdb.HSet(ctx,"go_redis_hset_key", "field", "field_val_cluster" + redisAddr)
+				fmt.Println("hset return", ret_intcmd, " hset err:", ret_intcmd.Err())
+				hgetval, err := rdb.HGet(ctx, "go_redis_hset_key", "field").Result()
+				fmt.Println("hget return", hgetval, err)
+			}
+			wg.Done()
+		}()
+	}
+
+	fmt.Println("<<<<<<<<<<<<<<<<pool status:", rdb.PoolStats())
+	wg.Wait()
+
+	for i := 0; i < 1000; i ++ {
+		time.Sleep(time.Second * 3)
+		fmt.Println("<<<<<<<<<<<<<<<<pool status:", rdb.PoolStats())
+	}
+
+	rdb.Close()
 }
 
 func test_go_redis_standalone(redisAddr string) {
@@ -79,6 +119,8 @@ func test_go_redis_standalone(redisAddr string) {
 	fmt.Println("standalone hset return", ret_intcmd, " hset err:", ret_intcmd.Err())
 	hgetval, err := rdb.HGet(ctx, "go_redis_hset_key", "field").Result()
 	fmt.Println("standalone hget return", hgetval, err)
+
+	rdb.Close()
 }
 
 func main() {
@@ -90,7 +132,7 @@ func main() {
 	test_redigo(ip + ":7005")
 	test_redigo(ip + ":7006")
 
+	test_go_redis_standalone("192.168.3.60:6379")
 	test_go_redis_cluster(ip + ":7002")
 
-	test_go_redis_standalone("192.168.3.60:6379")
 }
