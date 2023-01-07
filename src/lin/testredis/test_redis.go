@@ -123,8 +123,47 @@ func test_go_redis_standalone(redisAddr string) {
 	rdb.Close()
 }
 
+func test_redis_scan(redisAddr string) {
+	fmt.Println("\r\ntest cluster redis set get", redisAddr)
+	var ctx = context.Background()
+	rdb := clusterredis.NewClusterClient(&clusterredis.ClusterOptions{
+		Addrs: []string{redisAddr},
+
+		OnConnect: func(ctx context.Context, conn *clusterredis.Conn) error {
+			fmt.Printf("~~~~~>>>>>>>>>>>>>>>>>new conn from pool, conn=%v\n", conn)
+			return nil
+		},
+
+		MinIdleConns: 1,
+		MaxIdleConns: 2,
+		PoolSize:3,
+	})
+
+	fn := func(ctx context.Context, client *clusterredis.Client) error {
+		var cursor uint64 = 0
+		for	 {
+			scan_cmd := client.Scan(ctx, cursor, "go_redis_key*", 10)
+
+			keys, cursor_ret, err := scan_cmd.Result()
+
+			fmt.Println(cursor_ret, err)
+			fmt.Println(keys)
+
+			cursor = cursor_ret
+			if cursor==0 {
+				break
+			}
+		}
+		return nil
+	}
+	rdb.ForEachMaster(ctx, fn)
+}
+
 func main() {
 	ip := "192.168.15.146"
+
+	test_redis_scan(ip + ":7001")
+
 	test_redigo(ip + ":7001")
 	test_redigo(ip + ":7002")
 	test_redigo(ip + ":7003")
