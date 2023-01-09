@@ -139,6 +139,7 @@ func test_redis_scan(redisAddr string) {
 		PoolSize:3,
 	})
 
+	keycout := 0
 	fn := func(ctx context.Context, client *clusterredis.Client) error {
 		var cursor uint64 = 0
 		for	 {
@@ -149,6 +150,8 @@ func test_redis_scan(redisAddr string) {
 			fmt.Println(cursor_ret, err)
 			fmt.Println(keys)
 
+			keycout += len(keys)
+
 			cursor = cursor_ret
 			if cursor==0 {
 				break
@@ -157,6 +160,7 @@ func test_redis_scan(redisAddr string) {
 		return nil
 	}
 	rdb.ForEachMaster(ctx, fn)
+	fmt.Println("redis cluster scan key count", keycout)
 }
 
 func main() {
