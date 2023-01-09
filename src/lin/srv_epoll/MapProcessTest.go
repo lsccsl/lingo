@@ -2,6 +2,7 @@ package main
 
 import (
 	"lin/lin_common"
+	"lin/navmeshwrapper"
 	"math"
 	"math/rand"
 	"time"
@@ -44,9 +45,9 @@ func (pthis*MapProcess)initTestViewNode() {
 	lin_common.LogDebug("rSeed:", rSeed)
 	rand.Seed(rSeed)
 
-	boundMin := &Coord3f{}
-	boundMax := &Coord3f{}
-	pthis.navIns.getNavBound(boundMin, boundMax)
+	boundMin := &navmeshwrapper.Coord3f{}
+	boundMax := &navmeshwrapper.Coord3f{}
+	pthis.navIns.GetNavBound(boundMin, boundMax)
 
 	boundMin.X = float32(math.Ceil(float64(boundMin.X)))
 	boundMin.Y = float32(math.Ceil(float64(boundMin.Y)))

@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/golang/protobuf/proto"
 	"lin/lin_common"
-	cor_pool "lin/lin_cor_pool"
 	"lin/msgpacket"
 	"runtime"
 	"time"
@@ -147,10 +146,10 @@ func (pthis*TcpSrv)TcpSrvProcessRPCMsg(fd lin_common.FD_DEF, msgRPC *msgpacket.M
 
 		pthis.pu.tcpSrvMgr.eSrvMgr.SendProtoMsg(fd, msgpacket.MSG_TYPE__MSG_RPC_RES, msgRPCRes)
 	}
-	pthis.pu.tcpSrvMgr.rpcPool.CorPoolAddJob(&cor_pool.CorPoolJobData{
+	pthis.pu.tcpSrvMgr.rpcPool.CorPoolAddJob(&lin_common.CorPoolJobData{
 		JobType_ : EN_CORPOOL_JOBTYPE_Rpc_req,
 		JobData_ : pthis.srvID,
-		JobCB_ : func(jd cor_pool.CorPoolJobData){
+		JobCB_ : func(jd lin_common.CorPoolJobData){
 			rpcFunc()
 		},
 	})

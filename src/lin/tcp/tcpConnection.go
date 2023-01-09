@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"lin/lin_common"
-	cor_pool "lin/lin_cor_pool"
 	"net"
 	"runtime"
 	"strconv"
@@ -135,7 +134,7 @@ func startTcpConnection(connMgr InterfaceConnManage, conn net.Conn, closeExpireS
 
 func startTcpDial(connMgr InterfaceConnManage, SrvID int64, ip string, port int,
 	closeExpireSec int, dialTimeoutSec int, redialCount int,
-	ctx context.Context, rpcPool *cor_pool.CorPool) (*TcpConnection, error) {
+	ctx context.Context, rpcPool *lin_common.CorPool) (*TcpConnection, error) {
 	defer func() {
 		err := recover()
 		if err != nil {

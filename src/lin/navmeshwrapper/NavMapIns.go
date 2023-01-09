@@ -1,4 +1,4 @@
-package main
+package navmeshwrapper
 /*
 #cgo CFLAGS: -I../../cpp/navwrapper
 #cgo LDFLAGS: -L../../cpp/navwrapper/bin -lnavwrapper
@@ -18,9 +18,9 @@ type Coord3f struct {
 }
 
 type nav_obstacle struct {
-	center Coord3f
-	half_ext Coord3f
-	y_radian float32
+	Center   Coord3f
+	Half_ext Coord3f
+	Y_radian float32
 }
 
 type MAP_OBSTACLE map[uint32]*nav_obstacle
@@ -41,7 +41,7 @@ func ConstructNavMapIns() *NavMapIns {
 	return ins
 }
 
-func (pthis *NavMapIns)load_from_template(navMap *NavMap) {
+func (pthis *NavMapIns)Load_from_template(navMap *NavMap) {
 	if pthis.handle_map_ins_ != nil {
 		C.nav_delete(pthis.handle_map_ins_)
 	}
@@ -51,7 +51,7 @@ func (pthis *NavMapIns)load_from_template(navMap *NavMap) {
 	C.nav_load_from_template(pthis.handle_map_ins_, navMap.handle_template_)
 }
 
-func (pthis*NavMapIns)path_find(src * Coord3f, dst * Coord3f) (path []Coord3f){
+func (pthis*NavMapIns)Path_find(src *Coord3f, dst *Coord3f) (path []Coord3f){
 /*	pthis.nav_lock_.Lock()
 	defer pthis.nav_lock_.Unlock()
 */
@@ -77,7 +77,7 @@ func (pthis*NavMapIns)path_find(src * Coord3f, dst * Coord3f) (path []Coord3f){
 
 
 
-func (pthis*NavMapIns)add_obstacle(center * Coord3f, halfExtents * Coord3f, yRadians float32) (obstacle_id uint32) {
+func (pthis*NavMapIns)Add_obstacle(center *Coord3f, halfExtents *Coord3f, yRadians float32) (obstacle_id uint32) {
 /*	pthis.nav_lock_.Lock()
 	defer pthis.nav_lock_.Unlock()
 */
@@ -89,16 +89,16 @@ func (pthis*NavMapIns)add_obstacle(center * Coord3f, halfExtents * Coord3f, yRad
 	}
 
 	ob := &nav_obstacle{}
-	ob.center = *center
-	ob.half_ext = *halfExtents
-	ob.y_radian = yRadians
+	ob.Center = *center
+	ob.Half_ext = *halfExtents
+	ob.Y_radian = yRadians
 	pthis.map_obstacle_[obstacle_id] = ob
 
 	C.nav_update(pthis.handle_map_ins_)
 	return
 }
 
-func (pthis*NavMapIns)del_obstacle(obstacle_id uint32)  {
+func (pthis*NavMapIns)Del_obstacle(obstacle_id uint32)  {
 /*	pthis.nav_lock_.Lock()
 	defer pthis.nav_lock_.Unlock()
 */
@@ -108,7 +108,7 @@ func (pthis*NavMapIns)del_obstacle(obstacle_id uint32)  {
 	C.nav_update(pthis.handle_map_ins_)
 }
 
-func (pthis*NavMapIns)get_all_obstacle() MAP_OBSTACLE {
+func (pthis*NavMapIns)Get_all_obstacle() MAP_OBSTACLE {
 /*	pthis.nav_lock_.Lock()
 	defer pthis.nav_lock_.Unlock()
 */
@@ -119,7 +119,7 @@ func (pthis*NavMapIns)get_all_obstacle() MAP_OBSTACLE {
 	return m
 }
 
-func (pthis*NavMapIns)getNavBound(boundMin * Coord3f, boundMax * Coord3f) {
+func (pthis*NavMapIns)GetNavBound(boundMin *Coord3f, boundMax *Coord3f) {
 	outBoundMin := &C.RecastPosT{}
 	outBoundMax := &C.RecastPosT{}
 	C.nav_get_bound(pthis.handle_map_ins_, outBoundMin, outBoundMax)

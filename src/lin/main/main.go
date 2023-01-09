@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	. "lin/lin_cor_pool"
+	. "lin/lin_common"
 	"sync"
 	"sync/atomic"
 	"time"

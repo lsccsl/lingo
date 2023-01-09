@@ -2,7 +2,7 @@ package tcp
 
 import (
 	"context"
-	cor_pool "lin/lin_cor_pool"
+	cor_pool "lin/lin_common"
 	"sync"
 	"time"
 )

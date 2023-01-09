@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/golang/protobuf/proto"
 	"lin/lin_common"
-	cor_pool "lin/lin_cor_pool"
 	"lin/msgpacket"
 	"strconv"
 	"time"
@@ -76,7 +75,7 @@ type TcpSrvMgr struct {
 
 	mgrUnit []*TcpSrvMgrUnit
 
-	rpcPool *cor_pool.CorPool
+	rpcPool *lin_common.CorPool
 
 	TcpSrvMgrStatic
 }
@@ -139,7 +138,7 @@ func ConstructorTcpSrvMgr(eSrvMgr *ServerMgr, srvProcessUnitCount int) *TcpSrvMg
 	tcpSrvMgr := &TcpSrvMgr{
 		eSrvMgr : eSrvMgr,
 		mgrUnit : make([]*TcpSrvMgrUnit, 0, srvProcessUnitCount),
-		rpcPool : cor_pool.CorPoolInit(150, 5, 300),
+		rpcPool : lin_common.CorPoolInit(150, 5, 300),
 	}
 
 	for i := 0; i < srvProcessUnitCount; i ++ {

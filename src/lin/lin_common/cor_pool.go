@@ -1,4 +1,4 @@
-package cor_pool
+package lin_common
 
 // copy idea from https://github.com/panjf2000/ants
 // https://github.com/fasthttp/
@@ -6,7 +6,6 @@ package cor_pool
 import (
 	"container/list"
 	"fmt"
-	"lin/lin_common"
 	"sync"
 	"time"
 )
@@ -70,8 +69,8 @@ type CorPool struct {
 	//condPoolTrigger bool
 
 	WorkerFree_    list.List // *_corPoolWorker
-	mapJobAll_     MAP_CORPOOLWORKER
-	paramMaxCorCount   int
+	mapJobAll_       MAP_CORPOOLWORKER
+	paramMaxCorCount int
 	paramCheckCorCount int
 	paramCheckInterval int
 	corCount_      int
@@ -84,7 +83,7 @@ func (worker *_corPoolWorker) _corWorkerDoJob(job *CorPoolJobData) {
 	defer func() {
 		err := recover()
 		if err != nil {
-			lin_common.LogErr("recover get err:", err)
+			LogErr("recover get err:", err)
 		}
 	}()
 
@@ -93,7 +92,7 @@ func (worker *_corPoolWorker) _corWorkerDoJob(job *CorPoolJobData) {
 
 func (worker *_corPoolWorker) _go_CorWorker() {
 
-	worker.goID = lin_common.GetGID()
+	worker.goID = GetGID()
 
 	worker.corPool_.wg_.Add(1)
 	defer worker.corPool_.wg_.Done()
@@ -129,12 +128,12 @@ func (pthis *CorPool) _go_CorPoolCheck() {
 			defer func() {
 				err := recover()
 				if err != nil {
-					lin_common.LogErr("check cor pool err:", err)
+					LogErr("check cor pool err:", err)
 				}
 			}()
 			curFreeCount := pthis.WorkerFree_.Len()
 			if curFreeCount >= pthis.paramCheckCorCount && curFreeCount >= pthis.lastFreeCount_ && pthis.lastFreeCount_ >= pthis.paramCheckCorCount{
-				lin_common.LogDebug(" will quit some cor worker, curFreeCount:",
+				LogDebug(" will quit some cor worker, curFreeCount:",
 					curFreeCount, " lastFreeCount_:", pthis.lastFreeCount_, " paramCheckCorCount:", pthis.paramCheckCorCount)
 				quitCount := curFreeCount / 2
 				if quitCount < 1 {
@@ -157,7 +156,7 @@ func (pthis *CorPool) _go_CorPoolCheck() {
 		}()
 		pthis.condPool_.L.Unlock()
 
-		lin_common.LogDebug(" check cor pool, curFreeCount:",
+		LogDebug(" check cor pool, curFreeCount:",
 			pthis.WorkerFree_.Len(), " lastFreeCount_:", pthis.lastFreeCount_, " paramCheckCorCount:", pthis.paramCheckCorCount)
 		time.Sleep(time.Second * time.Duration(pthis.paramCheckInterval))
 	}
@@ -213,9 +212,9 @@ func (pthis *CorPool) CorPoolAddJob(jobR *CorPoolJobData /* ready only */) error
 
 	if pthis.WorkerFree_.Len() == 0 {
 		newWorker := &_corPoolWorker{
-			corPool_: pthis,
-			jobChan_: make(chan CorPoolJobData, 100),
-			workerID_:lin_common.GenUUID64_V4(),
+			corPool_:  pthis,
+			jobChan_:  make(chan CorPoolJobData, 100),
+			workerID_: GenUUID64_V4(),
 		}
 
 		pthis.mapJobAll_[newWorker.workerID_] = newWorker
@@ -257,7 +256,7 @@ func CorPoolInit(maxWorkerCount int, checkCount int, checkInterval int) *CorPool
 		mapJobAll_:     make(MAP_CORPOOLWORKER),
 	}
 	cp.WorkerFree_.Init()
-	lin_common.LogDebug("max worker count:", cp.paramMaxCorCount, " check count:", cp.paramCheckCorCount)
+	LogDebug("max worker count:", cp.paramMaxCorCount, " check count:", cp.paramCheckCorCount)
 
 	go cp._go_CorPoolCheck()
 

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/golang/protobuf/proto"
 	"lin/lin_common"
-	cor_pool "lin/lin_cor_pool"
 	"lin/msgpacket"
 	"lin/tcp"
 	"strconv"
@@ -15,7 +14,7 @@ import (
 )
 
 const(
-	EN_CORPOOL_JOBTYPE_Rpc_req = cor_pool.EN_CORPOOL_JOBTYPE_user + 100
+	EN_CORPOOL_JOBTYPE_Rpc_req = lin_common.EN_CORPOOL_JOBTYPE_user + 100
 	EN_CORPOOL_JOBTYPE_client_Rpc_req
 )
 
@@ -49,8 +48,8 @@ type ServerMgr struct {
 	ServerMapMgr
 	tcpMgr *tcp.TcpMgr
 	httpSrv *lin_common.HttpSrvMgr
-	rpcPool *cor_pool.CorPool
-	dialPool *cor_pool.CorPool
+	rpcPool *lin_common.CorPool
+	dialPool *lin_common.CorPool
 
 	heartbeatIntervalSec int
 
@@ -160,8 +159,8 @@ func ConstructServerMgr(srvID int64, heartbeatIntervalSec int, rpcPoolCount int)
 	srvMgr.mapClient = make(MAP_CLIENT)
 	srvMgr.mapServer = make(MAP_SERVER)
 	srvMgr.heartbeatIntervalSec = heartbeatIntervalSec
-	srvMgr.rpcPool = cor_pool.CorPoolInit(rpcPoolCount, rpcPoolCount/2, 60)
-	srvMgr.dialPool = cor_pool.CorPoolInit(100, 50, 60)
+	srvMgr.rpcPool = lin_common.CorPoolInit(rpcPoolCount, rpcPoolCount/2, 60)
+	srvMgr.dialPool = lin_common.CorPoolInit(100, 50, 60)
 
 	return srvMgr
 }
@@ -292,10 +291,10 @@ func (pthis*ServerMgr)processRPCReq(tcpConn *tcp.TcpConnection, msg *msgpacket.M
 	if tcpConn.SrvID != 0 {
 		srv := pthis.getServer(tcpConn.SrvID)
 		if srv != nil {
-			err := pthis.rpcPool.CorPoolAddJob(&cor_pool.CorPoolJobData{
+			err := pthis.rpcPool.CorPoolAddJob(&lin_common.CorPoolJobData{
 				JobType_ : EN_CORPOOL_JOBTYPE_Rpc_req,
 				JobData_: tcpConn.SrvID,
-				JobCB_   : func(jd cor_pool.CorPoolJobData){
+				JobCB_   : func(jd lin_common.CorPoolJobData){
 					srv.Go_ProcessRPC(tcpConn, msg, msgRPCBody)
 				},
 			})

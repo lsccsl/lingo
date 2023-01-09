@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"github.com/golang/protobuf/proto"
 	"lin/lin_common"
-	cor_pool "lin/lin_cor_pool"
 	"lin/msgpacket"
 	"net"
 	"strconv"
@@ -13,7 +12,7 @@ import (
 
 
 const(
-	EN_CORPOOL_JOBTYPE_Rpc_req = cor_pool.EN_CORPOOL_JOBTYPE_user + 100
+	EN_CORPOOL_JOBTYPE_Rpc_req = lin_common.EN_CORPOOL_JOBTYPE_user + 100
 	EN_CORPOOL_JOBTYPE_client_Rpc_req
 )
 

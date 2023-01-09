@@ -1,4 +1,4 @@
-package cor_pool
+package lin_common
 
 import (
 	"fmt"

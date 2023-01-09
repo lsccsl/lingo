@@ -1,4 +1,4 @@
-package main
+package navmeshwrapper
 
 /*
 #cgo CFLAGS: -I../../cpp/navwrapper
@@ -30,12 +30,12 @@ func ConstructorNavMapMgr(file_path string) *NavMap {
 		lin_common.LogDebug("load template success", file_path)
 
 		navIns := ConstructNavMapIns()
-		navIns.load_from_template(nav_map)
+		navIns.Load_from_template(nav_map)
 		lin_common.LogDebug("load map from template success", file_path)
 
 		src := Coord3f{123.61628, 0, 101.47595}
 		dst := Coord3f{966.7898,  0, 730.6272}
-		path := navIns.path_find(&src, &dst)
+		path := navIns.Path_find(&src, &dst)
 		lin_common.LogDebug(len(path), " nav instance path:", path)
 	}
 

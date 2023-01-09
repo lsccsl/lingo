@@ -2,13 +2,14 @@ package main
 
 import (
 	"lin/lin_common"
+	"lin/navmeshwrapper"
 	"time"
 )
 
-type MAP_NAVMAP_INS map[int64]*NavMapIns
+type MAP_NAVMAP_INS map[int64]*navmeshwrapper.NavMapIns
 type MapProcess struct {
 	// nav map search
-	navIns *NavMapIns
+	navIns *navmeshwrapper.NavMapIns
 	// map aoi
 	aoi *MapAOI
 
@@ -22,15 +23,15 @@ type MapProcessMgr struct {
 
 	mapProc []*MapProcess
 
-	navMap *NavMap
+	navMap *navmeshwrapper.NavMap
 }
 
 
 type NavObstacle struct {
 	obstacleID uint32
-	center Coord3f
-	halfExt Coord3f
-	yRadian float32
+	center     navmeshwrapper.Coord3f
+	halfExt    navmeshwrapper.Coord3f
+	yRadian    float32
 }
 // begin map process msg
 type msgMapProcess struct {
@@ -38,9 +39,9 @@ type msgMapProcess struct {
 	chRes chan *msgMapProcess
 }
 type msgNavPathSearch struct {
-	src Coord3f
-	dst Coord3f
-	path []Coord3f
+	src  navmeshwrapper.Coord3f
+	dst  navmeshwrapper.Coord3f
+	path []navmeshwrapper.Coord3f
 }
 type msgNavAddObstacle struct {
 	ob NavObstacle
@@ -108,25 +109,25 @@ func (pthis*MapProcess)_go_MapProcess_loop(ticker *time.Ticker) {
 }
 
 func (pthis*MapProcess)process_msgPathSearch(msg *msgNavPathSearch) {
-	msg.path = pthis.navIns.path_find(&msg.src, &msg.dst)
+	msg.path = pthis.navIns.Path_find(&msg.src, &msg.dst)
 }
 func (pthis*MapProcess)process_msgNavAddObstacle(msg *msgNavAddObstacle) {
-	msg.ob.obstacleID = pthis.navIns.add_obstacle(&Coord3f{msg.ob.center.X,msg.ob.center.Y, msg.ob.center.Z},
-		&Coord3f{msg.ob.halfExt.X,msg.ob.halfExt.Y, msg.ob.halfExt.Z},
+	msg.ob.obstacleID = pthis.navIns.Add_obstacle(&navmeshwrapper.Coord3f{msg.ob.center.X,msg.ob.center.Y, msg.ob.center.Z},
+		&navmeshwrapper.Coord3f{msg.ob.halfExt.X,msg.ob.halfExt.Y, msg.ob.halfExt.Z},
 		msg.ob.yRadian)
 }
 func (pthis*MapProcess)process_msgNavDelObstacle(msg *msgNavDelObstacle) {
-	pthis.navIns.del_obstacle(msg.obstacleID)
+	pthis.navIns.Del_obstacle(msg.obstacleID)
 }
 func (pthis*MapProcess)process_msgNavGetAllObstacle(msg *msgNavGetAllObstacle) {
-	map_obstacle := pthis.navIns.get_all_obstacle()
+	map_obstacle := pthis.navIns.Get_all_obstacle()
 
 	for k,v := range map_obstacle {
 		ob := &NavObstacle{}
 		ob.obstacleID = k
-		ob.center = v.center
-		ob.halfExt = v.half_ext
-		ob.yRadian = v.y_radian
+		ob.center = v.Center
+		ob.halfExt = v.Half_ext
+		ob.yRadian = v.Y_radian
 		msg.ob = append(msg.ob, ob)
 	}
 }
@@ -144,13 +145,13 @@ func (pthis*MapProcess)process_msgDelAOIObject(msg *msgDelAOIObject){
 
 func ConstructMapProcess(procMgr *MapProcessMgr) *MapProcess {
 	mp := &MapProcess {
-		navIns : ConstructNavMapIns(),
-		chMsg : make(chan *msgMapProcess),
+		navIns :  navmeshwrapper.ConstructNavMapIns(),
+		chMsg :   make(chan *msgMapProcess),
 		procMgr : procMgr,
-		aoi : ConstructorMapAOI(),
+		aoi :     ConstructorMapAOI(),
 	}
 
-	mp.navIns.load_from_template(mp.procMgr.navMap)
+	mp.navIns.Load_from_template(mp.procMgr.navMap)
 
 	mp.initTestViewNode()
 
@@ -197,7 +198,7 @@ func ConstructMapProcessMgr(processCount int, eSrvMgr *ServerMgr) *MapProcessMgr
 	mgr := &MapProcessMgr{
 		eSrvMgr : eSrvMgr,
 		mapProc : make([]*MapProcess, 0, processCount),
-		navMap : ConstructorNavMapMgr("../resource/test_scene.obj"),
+		navMap :  navmeshwrapper.ConstructorNavMapMgr("../resource/test_scene.obj"),
 	}
 
 	for i := 0; i < processCount; i ++ {

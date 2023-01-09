@@ -3,6 +3,7 @@ package main
 import (
 	"lin/lin_common"
 	"lin/msgpacket"
+	"lin/navmeshwrapper"
 	"net"
 	"runtime"
 	"time"
@@ -147,10 +148,10 @@ func (pthis*TcpClient)Process_MSG_NAV_SEARCH(msg *msgpacket.MSG_NAV_SEARCH) {
 
 	msgSearch := &msgNavPathSearch{path:nil}
 	if msg.PosSrc != nil {
-		msgSearch.src = Coord3f{msg.PosSrc.X, msg.PosSrc.Y, msg.PosSrc.Z}
+		msgSearch.src = navmeshwrapper.Coord3f{msg.PosSrc.X, msg.PosSrc.Y, msg.PosSrc.Z}
 	}
 	if msg.PosDst != nil {
-		msgSearch.dst = Coord3f{msg.PosDst.X, msg.PosDst.Y, msg.PosDst.Z}
+		msgSearch.dst = navmeshwrapper.Coord3f{msg.PosDst.X, msg.PosDst.Y, msg.PosDst.Z}
 	}
 	pthis.pu.eSrvMgr.mapProcMgr.addMapProcessMsg(msgSearch, pthis.clientID, time.Second * 3)
 
@@ -171,8 +172,8 @@ func (pthis*TcpClient)Process_MSG_NAV_ADD_OBSTACLE(msg * msgpacket.MSG_NAV_ADD_O
 
 	msgAdd := &msgNavAddObstacle{
 		ob : NavObstacle{
-			center : Coord3f{msg.Obstacle.Center.X,msg.Obstacle.Center.Y, msg.Obstacle.Center.Z},
-			halfExt : Coord3f{msg.Obstacle.HalfExt.X,msg.Obstacle.HalfExt.Y, msg.Obstacle.HalfExt.Z},
+			center :  navmeshwrapper.Coord3f{msg.Obstacle.Center.X,msg.Obstacle.Center.Y, msg.Obstacle.Center.Z},
+			halfExt : navmeshwrapper.Coord3f{msg.Obstacle.HalfExt.X,msg.Obstacle.HalfExt.Y, msg.Obstacle.HalfExt.Z},
 			yRadian : msg.Obstacle.YRadian,
 		},
 	}
