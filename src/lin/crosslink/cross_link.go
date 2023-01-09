@@ -1,6 +1,9 @@
-package lin_common
+package crosslink
 
-import "fmt"
+import (
+	"fmt"
+	"lin/lin_common"
+)
 
 type CROSSLINK_NODE_TYPE int
 const (
@@ -90,7 +93,7 @@ type crosslinker_guard struct {
 	coord_ float32
 
 	node_type_ CROSSLINK_NODE_TYPE
-	node_id_ int
+	node_id_   int
 }
 
 func (pthis*crosslinker_guard)get_prev() crosslinker_inf {
@@ -128,12 +131,12 @@ type cross_node struct {
 	x_node_ *crosslinker_node
 	y_node_ *crosslinker_node
 
-	node_id_ int
+	node_id_    int
 	node_param_ Crosslink_node_param
 
 	map_view_by_ MAP_NODE_ID // view by
 
-	map_view_    MAP_NODE_ID // view
+	map_view_ MAP_NODE_ID // view
 }
 
 
@@ -240,12 +243,12 @@ func (pthis*Crosslink_mgr)Crosslink_mgr_gen_id() int {
 	return pthis.cur_node_id_
 }
 
-func (pthis*Crosslink_mgr)Crosslink_mgr_add(node_param * Crosslink_node_param) int {
+func (pthis*Crosslink_mgr)Crosslink_mgr_add(node_param *Crosslink_node_param) int {
 	new_node_id := node_param.NodeID
 
 	_, ok := pthis.map_node_[new_node_id]
 	if ok {
-		LogErr("already has node id:", new_node_id)
+		lin_common.LogErr("already has node id:", new_node_id)
 		return 0
 	}
 
@@ -455,10 +458,10 @@ func (pthis*cross_node)_inter_gen_view() map[int]int {
 func(pthis*Crosslink_mgr)_inter_crosslink_link_guard(new_node *cross_node) {
 
 	if pthis.link_x_._inter_crosslink_empty() {
-		LogErr("err, x link head is nil")
+		lin_common.LogErr("err, x link head is nil")
 	}
 	if pthis.link_y_._inter_crosslink_empty() {
-		LogErr("err, y link head is nil")
+		lin_common.LogErr("err, y link head is nil")
 	}
 
 	x_new_node := new_node.x_node_
@@ -473,7 +476,7 @@ func(pthis*Crosslink_mgr)_inter_crosslink_link_guard(new_node *cross_node) {
 			next_ :      nil,
 			coord_ :     x_new_node.coord_ - node_param.ViewRange,
 			node_type_ : CROSSLINK_NODE_TYPE_front_guard,
-			node_id_: new_node.node_id_,
+			node_id_:    new_node.node_id_,
 		}
 		cur_node := x_new_node.get_prev()
 		for ;cur_node != nil; {
@@ -494,7 +497,7 @@ func(pthis*Crosslink_mgr)_inter_crosslink_link_guard(new_node *cross_node) {
 			next_ :      nil,
 			coord_ :     x_new_node.coord_ + node_param.ViewRange,
 			node_type_ : CROSSLINK_NODE_TYPE_back_guard,
-			node_id_: new_node.node_id_,
+			node_id_:    new_node.node_id_,
 		}
 		cur_node = x_new_node.get_next()
 		for ;cur_node != nil; {
@@ -518,7 +521,7 @@ func(pthis*Crosslink_mgr)_inter_crosslink_link_guard(new_node *cross_node) {
 			next_ :      nil,
 			coord_ :     y_new_node.coord_ - node_param.ViewRange,
 			node_type_ : CROSSLINK_NODE_TYPE_front_guard,
-			node_id_: new_node.node_id_,
+			node_id_:    new_node.node_id_,
 		}
 		cur_node := y_new_node.get_prev()
 		for ;cur_node != nil; {
@@ -539,7 +542,7 @@ func(pthis*Crosslink_mgr)_inter_crosslink_link_guard(new_node *cross_node) {
 			next_ :      nil,
 			coord_ :     y_new_node.coord_ + node_param.ViewRange,
 			node_type_ : CROSSLINK_NODE_TYPE_back_guard,
-			node_id_: new_node.node_id_,
+			node_id_:    new_node.node_id_,
 		}
 		cur_node = y_new_node.get_next()
 		for ;cur_node != nil; {
@@ -668,7 +671,7 @@ func (pthis*Crosslink_mgr)Crosslink_mgr_update_pos(node_id int, coord_x float32,
 				}
 			}
 			if x_cur_node == nil {
-				LogDebug("link x head", node_id)
+				lin_common.LogDebug("link x head", node_id)
 				pthis.link_x_._inter_crosslink_add_before(x_node, nil)
 			}
 		} else if coord_x > old_x {
@@ -702,7 +705,7 @@ func (pthis*Crosslink_mgr)Crosslink_mgr_update_pos(node_id int, coord_x float32,
 				}
 			}
 			if x_cur_node == nil {
-				LogDebug("link x tail", node_id)
+				lin_common.LogDebug("link x tail", node_id)
 				pthis.link_x_._inter_crosslink_add_after(x_node, nil)
 			}
 		}
@@ -753,7 +756,7 @@ func (pthis*Crosslink_mgr)Crosslink_mgr_update_pos(node_id int, coord_x float32,
 				}
 			}
 			if y_cur_node == nil {
-				LogDebug("link y head", node_id)
+				lin_common.LogDebug("link y head", node_id)
 				pthis.link_y_._inter_crosslink_add_before(y_node, nil)
 			}
 		} else if coord_y > old_y {
@@ -787,7 +790,7 @@ func (pthis*Crosslink_mgr)Crosslink_mgr_update_pos(node_id int, coord_x float32,
 				}
 			}
 			if y_cur_node == nil {
-				LogDebug("link y tail", node_id)
+				lin_common.LogDebug("link y tail", node_id)
 				pthis.link_y_._inter_crosslink_add_after(y_node, nil)
 			}
 		}
@@ -1074,7 +1077,7 @@ func (pthis*Crosslink_mgr)Check() {
 			node_next := cur_node.get_next()
 			if node_next != nil {
 				if node_next.get_coord() < cur_node.get_coord() {
-					LogErr("wrong coord sort", cur_node, node_next)
+					lin_common.LogErr("wrong coord sort", cur_node, node_next)
 					panic("cross link check err")
 					break
 				}
@@ -1082,7 +1085,7 @@ func (pthis*Crosslink_mgr)Check() {
 			if cur_node.get_node_type() == CROSSLINK_NODE_TYPE_node {
 				_, ok := map_node_id[cur_node.get_node_id()]
 				if !ok {
-					LogErr("x node is not is map", cur_node)
+					lin_common.LogErr("x node is not is map", cur_node)
 					panic("cross link check err")
 				}
 				delete(map_node_id, cur_node.get_node_id())
@@ -1090,7 +1093,7 @@ func (pthis*Crosslink_mgr)Check() {
 			cur_node = node_next
 		}
 		if len(map_node_id) != 0 {
-			LogErr("node is not match")
+			lin_common.LogErr("node is not match")
 			panic("cross link check err")
 		}
 
@@ -1103,7 +1106,7 @@ func (pthis*Crosslink_mgr)Check() {
 			node_next := cur_node.get_next()
 			if node_next != nil {
 				if node_next.get_coord() < cur_node.get_coord() {
-					LogErr("wrong coord sort", cur_node, node_next)
+					lin_common.LogErr("wrong coord sort", cur_node, node_next)
 					panic("cross link check err")
 					break
 				}
@@ -1111,7 +1114,7 @@ func (pthis*Crosslink_mgr)Check() {
 			if cur_node.get_node_type() == CROSSLINK_NODE_TYPE_node {
 				_, ok := map_node_id[cur_node.get_node_id()]
 				if !ok {
-					LogErr("y node is not is map", cur_node)
+					lin_common.LogErr("y node is not is map", cur_node)
 					panic("cross link check err")
 				}
 				delete(map_node_id, cur_node.get_node_id())
@@ -1119,7 +1122,7 @@ func (pthis*Crosslink_mgr)Check() {
 			cur_node = node_next
 		}
 		if len(map_node_id) != 0 {
-			LogErr("node is not match")
+			lin_common.LogErr("node is not match")
 			panic("cross link check err")
 		}
 	}
@@ -1148,7 +1151,7 @@ func (pthis*Crosslink_mgr)Check() {
 				break
 			}
 			if b_find_front == false {
-				LogErr("can't find x front guard", cur_node)
+				lin_common.LogErr("can't find x front guard", cur_node)
 				panic("cross link check err")
 				break
 			}
@@ -1173,7 +1176,7 @@ func (pthis*Crosslink_mgr)Check() {
 				break
 			}
 			if b_find_back == false {
-				LogErr("can't find x back guard", cur_node)
+				lin_common.LogErr("can't find x back guard", cur_node)
 				panic("cross link check err")
 				break
 			}
@@ -1200,7 +1203,7 @@ func (pthis*Crosslink_mgr)Check() {
 				break
 			}
 			if b_find_front == false {
-				LogErr("can't find y front guard", cur_node)
+				lin_common.LogErr("can't find y front guard", cur_node)
 				panic("cross link check err")
 				break
 			}
@@ -1225,7 +1228,7 @@ func (pthis*Crosslink_mgr)Check() {
 				break
 			}
 			if b_find_back == false {
-				LogErr("can't find y back guard", cur_node)
+				lin_common.LogErr("can't find y back guard", cur_node)
 				panic("can't find back guard")
 				break
 			}
@@ -1241,7 +1244,7 @@ func (pthis*Crosslink_mgr)Check() {
 			if ok {
 				_, ok1 := map_view[k]
 				if !ok1 {
-					LogErr("node view err:", v)
+					lin_common.LogErr("node view err:", v)
 					panic("cross link check err")
 					break
 				}
@@ -1249,7 +1252,7 @@ func (pthis*Crosslink_mgr)Check() {
 			}
 		}
 		if len(map_view) != 0 {
-			LogErr("node view err:", v)
+			lin_common.LogErr("node view err:", v)
 			panic("cross link check err")
 		}
 	}
@@ -1314,7 +1317,7 @@ func (pthis*Crosslink_mgr)Check() {
 			if ok {
 				_, ok1 := map_view_by[k]
 				if !ok1 {
-					LogErr("node view by err:", v)
+					lin_common.LogErr("node view by err:", v)
 					panic("cross link check err")
 					break
 				}
@@ -1322,7 +1325,7 @@ func (pthis*Crosslink_mgr)Check() {
 			}
 		}
 		if len(map_view_by) != 0 {
-			LogErr("node view by err:", v)
+			lin_common.LogErr("node view by err:", v)
 			panic("cross link check err")
 		}
 	}

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"lin/lin_common"
+	"lin/pathsearch"
 	"time"
 )
 
@@ -21,7 +22,7 @@ func test_bmp(){
 }
 
 func test_map(){
-	testMap := &lin_common.MapData{}
+	testMap := &pathsearch.MapData{}
 	//testMap.LoadMap("../resource/sample.bmp")
 	testMap.LoadMap("../resource/aa_old.bmp")
 
@@ -33,15 +34,15 @@ func test_map(){
 	//dst := lin_common.Coord2d{367,290 - 109}
 	//src := lin_common.Coord2d{72, 342 - 158}
 	//dst := lin_common.Coord2d{252,342 - 157}
-	src := lin_common.Coord2d{317,236}
-	dst := lin_common.Coord2d{103,227}
+	src := pathsearch.Coord2d{317,236}
+	dst := pathsearch.Coord2d{103,227}
 
 	{
 		t1 := time.Now().UnixMilli()
 		path, jpsMgr := testMap.PathJPS(src, dst)
 		t2 := time.Now().UnixMilli()
 		fmt.Println("jps end search:", t2 - t1)
-		var pathConn []lin_common.Coord2d
+		var pathConn []pathsearch.Coord2d
 		for i := 0; i < len(path) - 1; i ++ {
 			pos1 := path[i]
 			pos2 := path[i + 1]

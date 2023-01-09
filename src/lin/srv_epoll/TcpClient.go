@@ -4,6 +4,7 @@ import (
 	"lin/lin_common"
 	"lin/msgpacket"
 	"lin/navmeshwrapper"
+	"lin/pathsearch"
 	"net"
 	"runtime"
 	"time"
@@ -97,15 +98,15 @@ func (pthis*TcpClient)Process_MSG_GET_MAP(msg * msgpacket.MSG_GET_MAP){
 func (pthis*TcpClient)Process_MSG_PATH_SEARCH(msg * msgpacket.MSG_PATH_SEARCH){
 	lin_common.LogDebug("path search", msg)
 	mapData := pthis.pu.eSrvMgr.mapMgr.mapData
-	src := lin_common.Coord2d{int(msg.PosSrc.PosX), int(msg.PosSrc.PosY)}
-	dst := lin_common.Coord2d{int(msg.PosDst.PosX), int(msg.PosDst.PosY)}
+	src := pathsearch.Coord2d{int(msg.PosSrc.PosX), int(msg.PosSrc.PosY)}
+	dst := pathsearch.Coord2d{int(msg.PosDst.PosX), int(msg.PosDst.PosY)}
 	path, jpsMgr := mapData.PathJPS(src, dst)
 
 	msgRes := &msgpacket.MSG_PATH_SEARCH_RES{}
 	msgRes.PosSrc = msg.PosSrc
 	msgRes.PosDst = msg.PosDst
 
-	var pathConn []lin_common.Coord2d
+	var pathConn []pathsearch.Coord2d
 	for i := len(path) - 1; i > 0; i -- {
 		pos1 := path[i - 1]
 		pos2 := path[i]

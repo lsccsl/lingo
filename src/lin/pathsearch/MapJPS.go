@@ -1,7 +1,8 @@
-package lin_common
+package pathsearch
 
 import (
 	"fmt"
+	"lin/lin_common"
 	"math"
 	"sort"
 )
@@ -29,7 +30,7 @@ const (
 	JPS_DIR_down_left  JPS_DIR = 6
 	JPS_DIR_down_right JPS_DIR = 7
 
-	JPS_DIR_MAX  JPS_DIR = 8
+	JPS_DIR_MAX JPS_DIR = 8
 )
 
 var array_dirJPS = [JPS_DIR_MAX]Coord2d{
@@ -49,16 +50,16 @@ type JPSNode struct {
 
 	totalWeight int
 
-	pos Coord2d
-	startWeight int
-	endWeight int
+	pos           Coord2d
+	startWeight   int
+	endWeight     int
 	forceNeighbor []Coord2d
 }
 type MAP_JSP_HISTORY_PATH map[Coord2d]*JPSNode
 type JSPMgr struct {
-	pMapData *MapData
-	root *JPSNode
-	nodes []*JPSNode
+	pMapData       *MapData
+	root           *JPSNode
+	nodes          []*JPSNode
 	mapHistoryPath MAP_JSP_HISTORY_PATH
 
 	src Coord2d
@@ -99,7 +100,7 @@ func (pthis*JSPMgr)addNode(node *JPSNode, parent *JPSNode) {
 	}
 
 	if pthis.isInHistory(node.pos) {
-		LogErr("already in history")
+		lin_common.LogErr("already in history")
 		return
 	}
 
@@ -143,7 +144,7 @@ func (pthis*JSPMgr)addHistory(node *JPSNode) {
 	pthis.mapHistoryPath[node.pos] = node
 }
 
-func getDirVector(dir JPS_DIR) *Coord2d{
+func getDirVector(dir JPS_DIR) *Coord2d {
 	return &array_dirJPS[dir]
 }
 
@@ -351,10 +352,10 @@ func (pthis*MapData)searchHorVer(jpsMgr *JSPMgr, curNode *JPSNode, curPos Coord2
 			findJump = true
 			if bAdd && !jpsMgr.isInHistory(searchPos){
 				jp := &JPSNode{
-					pos:searchPos,
-					endWeight:calJPSEndWeight(searchPos, jpsMgr.dst),
-					startWeight:curNode.startWeight + curWeightAdd,
-					forceNeighbor:forceNeighbor,
+					pos:           searchPos,
+					endWeight:     calJPSEndWeight(searchPos, jpsMgr.dst),
+					startWeight:   curNode.startWeight + curWeightAdd,
+					forceNeighbor: forceNeighbor,
 				}
 
 				// add pos to open list
@@ -362,10 +363,10 @@ func (pthis*MapData)searchHorVer(jpsMgr *JSPMgr, curNode *JPSNode, curPos Coord2
 
 				for _, val := range forceNeighbor {
 					neighborJP := &JPSNode{
-						pos:val,
-						endWeight:calJPSEndWeight(val, jpsMgr.dst),
-						startWeight:jp.startWeight + JPS_WEIGHT_slash,
-						forceNeighbor:nil,
+						pos:           val,
+						endWeight:     calJPSEndWeight(val, jpsMgr.dst),
+						startWeight:   jp.startWeight + JPS_WEIGHT_slash,
+						forceNeighbor: nil,
 					}
 					jpsMgr.addNode(neighborJP, jp)
 				}
@@ -387,10 +388,10 @@ func (pthis*MapData)searchSlash(jpsMgr *JSPMgr, curNode *JPSNode, curPos Coord2d
 		if forceNeighbor != nil {
 			for _, val := range forceNeighbor {
 				neighborJP := &JPSNode{
-					pos:val,
-					endWeight:calJPSEndWeight(val, jpsMgr.dst),
-					startWeight:curNode.startWeight + JPS_WEIGHT_slash,
-					forceNeighbor:nil,
+					pos:           val,
+					endWeight:     calJPSEndWeight(val, jpsMgr.dst),
+					startWeight:   curNode.startWeight + JPS_WEIGHT_slash,
+					forceNeighbor: nil,
 				}
 				jpsMgr.addNode(neighborJP, curNode)
 			}
@@ -411,10 +412,10 @@ func (pthis*MapData)searchSlash(jpsMgr *JSPMgr, curNode *JPSNode, curPos Coord2d
 		bFindForceNeighbor, forceNeighbor := pthis.hasForceNeighbor(jpsMgr, newPos, enDir)
 		if bFindForceNeighbor && !jpsMgr.isInHistory(newPos){
 			jp := &JPSNode{
-				pos:newPos,
-				endWeight:calJPSEndWeight(newPos, jpsMgr.dst),
-				startWeight:curNode.startWeight + curWeightAdd,
-				forceNeighbor:forceNeighbor,
+				pos:           newPos,
+				endWeight:     calJPSEndWeight(newPos, jpsMgr.dst),
+				startWeight:   curNode.startWeight + curWeightAdd,
+				forceNeighbor: forceNeighbor,
 			}
 
 			// add pos to open list
@@ -423,10 +424,10 @@ func (pthis*MapData)searchSlash(jpsMgr *JSPMgr, curNode *JPSNode, curPos Coord2d
 			if forceNeighbor != nil {
 				for _, val := range forceNeighbor {
 					neighborJP := &JPSNode{
-						pos:val,
-						endWeight:calJPSEndWeight(val, jpsMgr.dst),
-						startWeight:jp.startWeight + JPS_WEIGHT_slash,
-						forceNeighbor:nil,
+						pos:           val,
+						endWeight:     calJPSEndWeight(val, jpsMgr.dst),
+						startWeight:   jp.startWeight + JPS_WEIGHT_slash,
+						forceNeighbor: nil,
 					}
 					jpsMgr.addNode(neighborJP, jp)
 				}
@@ -464,10 +465,10 @@ func (pthis*MapData)searchSlash(jpsMgr *JSPMgr, curNode *JPSNode, curPos Coord2d
 
 		if findJump && !jpsMgr.isInHistory(newPos){
 			jp := &JPSNode{
-				pos:newPos,
-				endWeight:calJPSEndWeight(newPos, jpsMgr.dst),
-				startWeight:curNode.startWeight + curWeightAdd,
-				forceNeighbor:nil,
+				pos:           newPos,
+				endWeight:     calJPSEndWeight(newPos, jpsMgr.dst),
+				startWeight:   curNode.startWeight + curWeightAdd,
+				forceNeighbor: nil,
 			}
 
 			jpsMgr.addNode(jp, curNode)
@@ -482,7 +483,7 @@ type SearchDirData struct{
 }
 type TmpRelativeData struct {
 	relativePos Coord2d
-	pos Coord2d
+	pos         Coord2d
 }
 func (pthis*MapData)PathJPS(src Coord2d, dst Coord2d) (path []Coord2d, jpsMgr *JSPMgr) {
 
@@ -523,9 +524,9 @@ func (pthis*MapData)PathJPS(src Coord2d, dst Coord2d) (path []Coord2d, jpsMgr *J
 	*/
 
 	startNode := &JPSNode{
-		parent: nil,
-		pos:src,
-		endWeight:calJPSEndWeight(src, dst),
+		parent:    nil,
+		pos:       src,
+		endWeight: calJPSEndWeight(src, dst),
 	}
 	startNode.totalWeight = startNode.endWeight
 
@@ -671,9 +672,9 @@ func (pthis*MapData)PathJPS(src Coord2d, dst Coord2d) (path []Coord2d, jpsMgr *J
 	return
 }*/
 
-func (pthis*MapData)DumpNodeSub(searchMgr *JSPMgr, node *JPSNode, bmp * Bitmap) {
+func (pthis*MapData)DumpNodeSub(searchMgr *JSPMgr, node *JPSNode, bmp *lin_common.Bitmap) {
 	tmpBMP := bmp.BmpData
-	widBytePitch := bmp.widBytePitch
+	widBytePitch := bmp.GetPitchByteWidth()
 	for _, val := range node.subNode {
 		coordDiff := val.pos.Dec(&node.pos)
 		if coordDiff.X != 0 {
@@ -705,10 +706,10 @@ func (pthis*MapData)DumpNodeSub(searchMgr *JSPMgr, node *JPSNode, bmp * Bitmap) 
 
 func (pthis*MapData)DumpJPSMap(strMapFile string, path []Coord2d, searchMgr *JSPMgr) {
 
-	widBytePitch := CalWidBytePitch(pthis.widReal, 24)
+	widBytePitch := lin_common.CalWidBytePitch(pthis.widReal, 24)
 	dataLen := widBytePitch * pthis.hei
 	tmpBMP := make([]uint8, dataLen)
-	bmp := CreateBMP(pthis.widReal, pthis.hei, 24, nil)
+	bmp := lin_common.CreateBMP(pthis.widReal, pthis.hei, 24, nil)
 	bmp.BmpData = tmpBMP
 
 	//draw map

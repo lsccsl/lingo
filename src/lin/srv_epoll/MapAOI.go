@@ -1,6 +1,8 @@
 package main
 
-import "lin/lin_common"
+import (
+	"lin/crosslink"
+)
 
 type MapAoiInf interface {
 	Ntf_in_view(ObjID int)
@@ -13,14 +15,14 @@ type MapAoiInf interface {
 
 type MapAOI struct {
 	// cross-link
-	crossLink *lin_common.Crosslink_mgr
+	crossLink *crosslink.Crosslink_mgr
 
 	mapAoi map[int]MapAoiInf
 }
 
 func ConstructorMapAOI() *MapAOI {
 	aoi := &MapAOI{mapAoi:make(map[int]MapAoiInf)}
-	aoi.crossLink = lin_common.Crosslink_mgr_constructor(aoi)
+	aoi.crossLink = crosslink.Crosslink_mgr_constructor(aoi)
 
 	return aoi
 }
@@ -53,7 +55,7 @@ func (pthis*MapAOI)genID() int {
 func (pthis*MapAOI)add(objID int, X float32, Y float32, ViewRange float32, ntf MapAoiInf) {
 	ntf.setObjID(objID)
 	pthis.mapAoi[objID] = ntf
-	pthis.crossLink.Crosslink_mgr_add(&lin_common.Crosslink_node_param{objID, X, Y, ntf, ViewRange})
+	pthis.crossLink.Crosslink_mgr_add(&crosslink.Crosslink_node_param{objID, X, Y, ntf, ViewRange})
 }
 
 func (pthis*MapAOI)del(objID int) {

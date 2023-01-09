@@ -1,6 +1,9 @@
-package lin_common
+package pathsearch
 
-import "math"
+import (
+	"lin/lin_common"
+	"math"
+)
 
 
 
@@ -31,7 +34,7 @@ type MapData struct {
 }
 
 func (pthis*MapData)LoadMap(mapFile string)error{
-	bmp := Bitmap{}
+	bmp := lin_common.Bitmap{}
 	err := bmp.ReadBmp(mapFile)
 	if err != nil {
 		return err
@@ -78,9 +81,9 @@ func (pthis*MapData)GetMapBit()*[]uint8{
 }
 
 
-func (pthis*MapData)DumpMap(strMapFile string, path []Coord2d, src * Coord2d , dst * Coord2d, searchMgr *SearchMgr) {
+func (pthis*MapData)DumpMap(strMapFile string, path []Coord2d, src *Coord2d, dst *Coord2d, searchMgr *SearchMgr) {
 
-	widBytePitch := CalWidBytePitch(pthis.widReal, 24)
+	widBytePitch := lin_common.CalWidBytePitch(pthis.widReal, 24)
 	dataLen := widBytePitch * pthis.hei
 	tmpBMP := make([]uint8, dataLen)
 
@@ -128,7 +131,7 @@ func (pthis*MapData)DumpMap(strMapFile string, path []Coord2d, src * Coord2d , d
 		tmpBMP[idx+2] = 0
 	}
 
-	bmp := CreateBMP(pthis.widReal, pthis.hei, 24, tmpBMP)
+	bmp := lin_common.CreateBMP(pthis.widReal, pthis.hei, 24, tmpBMP)
 
 	bmp.WriteBmp(strMapFile)
 }

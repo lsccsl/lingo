@@ -3,16 +3,17 @@ package main
 import (
 	"lin/lin_common"
 	"lin/msgpacket"
+	"lin/pathsearch"
 )
 
 type MapMgr struct {
-	mapData *lin_common.MapData
+	mapData *pathsearch.MapData
 }
 
 func ConstructorMapMgr(path string) *MapMgr {
 	mapMgr := &MapMgr{}
 
-	mapMgr.mapData = &lin_common.MapData{}
+	mapMgr.mapData = &pathsearch.MapData{}
 	mapMgr.mapData.LoadMap(path)
 
 	lin_common.LogDebug("wid:", mapMgr.mapData.GetWidReal(),

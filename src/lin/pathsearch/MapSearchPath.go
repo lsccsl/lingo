@@ -1,6 +1,7 @@
-package lin_common
+package pathsearch
 
 import (
+	"lin/lin_common"
 	"math"
 	"sort"
 )
@@ -22,9 +23,9 @@ const (
 
 
 type SearchNode struct {
-	pos Coord2d
-	parent *SearchNode
-	neighbor [SEARCH_NEIGHBOR_MAX]*SearchNode
+	pos         Coord2d
+	parent      *SearchNode
+	neighbor    [SEARCH_NEIGHBOR_MAX]*SearchNode
 	startWeight int
 	endWeight int
 	totalWeight int
@@ -32,8 +33,8 @@ type SearchNode struct {
 
 type MAP_HISTORY_PATH map[Coord2d]*SearchNode
 type SearchMgr struct {
-	root *SearchNode
-	nodes []*SearchNode
+	root           *SearchNode
+	nodes          []*SearchNode
 	mapHistoryPath MAP_HISTORY_PATH
 }
 func (pthis*SearchMgr)Len() int {
@@ -98,17 +99,17 @@ func calAStarWeight(src Coord2d, dst Coord2d) int {
 
 
 
-func (pthis*MapData)PathSearchAStart(src Coord2d, dst Coord2d) (path []Coord2d, search * SearchMgr) {
+func (pthis*MapData)PathSearchAStart(src Coord2d, dst Coord2d) (path []Coord2d, search *SearchMgr) {
 
 	// search around by weight,
 	// weight = end_weight + start_weight,
 	// end_weight = abs(x_diff) + abs(y_diff), start_weight += 14 or 10
 
 	startNode := &SearchNode{
-		pos:src,
-		startWeight:0,
-		endWeight:calAStarWeight(src, dst),
-		parent:nil,
+		pos:         src,
+		startWeight: 0,
+		endWeight:   calAStarWeight(src, dst),
+		parent:      nil,
 	}
 
 	searchMgr := &SearchMgr{
@@ -124,7 +125,7 @@ func (pthis*MapData)PathSearchAStart(src Coord2d, dst Coord2d) (path []Coord2d, 
 	for {
 		node = searchMgr.getNearestNode()
 		if node == nil {
-			LogDebug("fail find")
+			lin_common.LogDebug("fail find")
 			break
 		}
 
@@ -164,7 +165,7 @@ func (pthis*MapData)PathSearchAStart(src Coord2d, dst Coord2d) (path []Coord2d, 
 			}
 
 			if curPos.X == dst.X && curPos.Y == dst.Y {
-				LogDebug("suc find")
+				lin_common.LogDebug("suc find")
 				bFind = true
 				break
 			}
@@ -177,10 +178,10 @@ func (pthis*MapData)PathSearchAStart(src Coord2d, dst Coord2d) (path []Coord2d, 
 			}
 
 			nodeNeighbor := &SearchNode{
-				pos:curPos,
-				startWeight:startWeight + node.startWeight,
-				endWeight:calAStarWeight(curPos, dst),
-				parent:node,
+				pos:         curPos,
+				startWeight: startWeight + node.startWeight,
+				endWeight:   calAStarWeight(curPos, dst),
+				parent:      node,
 			}
 			nodeNeighbor.totalWeight = nodeNeighbor.startWeight + nodeNeighbor.endWeight
 			searchMgr.mapHistoryPath[nodeNeighbor.pos] = nodeNeighbor
