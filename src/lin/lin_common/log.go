@@ -12,7 +12,8 @@ import (
 type LOG_LEVEL int
 const (
 	LOG_LEVEL_DEBUG LOG_LEVEL = 1
-	LOG_LEVEL_ERR LOG_LEVEL = 2
+	LOG_LEVEL_INFO LOG_LEVEL = 2
+	LOG_LEVEL_ERR LOG_LEVEL = 3
 )
 
 type LogMsg struct {
@@ -46,6 +47,22 @@ func LogDebug(args ... interface{}) {
 		return
 	}
 	l := &LogMsg{logLevel:LOG_LEVEL_DEBUG}
+	l.strLog = fmt.Sprintf("%s[%s:%d] route:%d %s %s\r\n",
+		time.Now().Format(time.RFC3339Nano), path.Base(filename), line, GetGID(), funcName, fmt.Sprint(args...))
+	globalLogMgr.chLog <- l
+}
+
+func LogInof(args ... interface{}) {
+	if !globalLogMgr.enableLog {
+		return
+	}
+
+	pc,filename, line, _ := runtime.Caller(1)
+	funcName := runtime.FuncForPC(pc).Name()
+	if len(globalLogMgr.chLog) >= 999 {
+		return
+	}
+	l := &LogMsg{logLevel:LOG_LEVEL_INFO}
 	l.strLog = fmt.Sprintf("%s[%s:%d] route:%d %s %s\r\n",
 		time.Now().Format(time.RFC3339Nano), path.Base(filename), line, GetGID(), funcName, fmt.Sprint(args...))
 	globalLogMgr.chLog <- l

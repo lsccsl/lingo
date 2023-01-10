@@ -67,6 +67,7 @@ void test_cwrapper()
 	printf("end test_cwrapper\r\n\r\n");
 }
 
+
 void test_template1()
 {
 	printf("test_template\r\n");

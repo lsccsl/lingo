@@ -34,6 +34,8 @@ func test_redigo(redisAddr string) {
 	c.Do("HSET", "go_redis_hset_key", "field", "field_val_" + redisAddr)
 	val, err = redis.String(c.Do("HGET", "go_redis_hset_key", "field"))
 	fmt.Println("redis mkey:", val, err)
+
+	c.Close()
 }
 
 func test_go_redis_cluster(redisAddr string) {
@@ -161,21 +163,25 @@ func test_redis_scan(redisAddr string) {
 	}
 	rdb.ForEachMaster(ctx, fn)
 	fmt.Println("redis cluster scan key count", keycout)
+
+	rdb.Close()
 }
 
 func main() {
 	ip := "192.168.15.146"
 
-	test_redis_scan(ip + ":7001")
+	for {
+		test_redis_scan(ip + ":7001")
 
-	test_redigo(ip + ":7001")
-	test_redigo(ip + ":7002")
-	test_redigo(ip + ":7003")
-	test_redigo(ip + ":7004")
-	test_redigo(ip + ":7005")
-	test_redigo(ip + ":7006")
+		test_redigo(ip + ":7001")
+		test_redigo(ip + ":7002")
+		test_redigo(ip + ":7003")
+		test_redigo(ip + ":7004")
+		test_redigo(ip + ":7005")
+		test_redigo(ip + ":7006")
 
-	test_go_redis_standalone("192.168.3.60:6379")
-	test_go_redis_cluster(ip + ":7002")
+		test_go_redis_standalone("192.168.3.60:6379")
+		test_go_redis_cluster(ip + ":7002")
+	}
 
 }

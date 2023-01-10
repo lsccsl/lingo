@@ -20,7 +20,7 @@ server:
         http_addr: 0.0.0.0:8803
         alias_name: test_srv_3
         cluster: test3
-        log_enable_console_print : false
+        log_enable_console_print : true
     4:
         bind_addr: 192.168.2.129:2004
         srv_id: 4

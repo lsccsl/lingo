@@ -1,21 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="F:\test\lingo\src\cpp\test\protobuf-3.19.2\src\google\protobuf\compiler\main.cc">
+    <ClCompile Include="D:\mywork\git\lingo\src\cpp\test\protobuf-3.19.2\src\google\protobuf\compiler\main.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="F:\test\lingo\src\cpp\test\protobuf-3.19.2\cmake\CMakeLists.txt" />
+    <CustomBuild Include="D:\mywork\git\lingo\src\cpp\test\protobuf-3.19.2\cmake\CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="F:\test\lingo\src\cpp\test\protobuf-3.19.2\build_win_64\version.rc">
+    <ResourceCompile Include="D:\mywork\git\lingo\src\cpp\test\protobuf-3.19.2\build_win_64\version.rc">
       <Filter>Source Files</Filter>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{DCB78A17-07B3-3286-80DB-BF2EA717BFED}</UniqueIdentifier>
+      <UniqueIdentifier>{76495A3F-ECF6-3604-8B08-01DC968A4D22}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -949,35 +949,35 @@ const char descriptor_table_protodef_msg_2eproto[] PROTOBUF_SECTION_VARIABLE(pro
   "3F\">\n\022MSG_UPDATE_POS_RES\022(\n\007new_pos\030\001 \001("
   "\0132\027.msgpacket.PROTO_VEC_3F\"!\n\017MSG_NTF_IN"
   "_VIEW\022\016\n\006obj_id\030\001 \001(\003\"\"\n\020MSG_NTF_OUT_VIE"
-  "W\022\016\n\006obj_id\030\001 \001(\003*\260\006\n\010MSG_TYPE\022\r\n\t_MSG_N"
-  "ULL\020\000\022\014\n\010_MSG_RPC\020\001\022\020\n\014_MSG_RPC_RES\020\002\022\023\n"
-  "\017_MSG_SRV_REPORT\020\003\022\027\n\023_MSG_SRV_REPORT_RE"
-  "S\020\004\022\022\n\016_MSG_HEARTBEAT\020\005\022\026\n\022_MSG_HEARTBEA"
-  "T_RES\020\006\022\023\n\017_MSG_TCP_STATIC\020\007\022\027\n\023_MSG_TCP"
-  "_STATIC_RES\020\010\022\014\n\010_MSG_MAX\020d\022\r\n\t_MSG_TEST"
-  "\020e\022\021\n\r_MSG_TEST_RES\020f\022\016\n\n_MSG_LOGIN\020g\022\022\n"
-  "\016_MSG_LOGIN_RES\020h\022\021\n\r_MSG_TEST_RPC\020i\022\025\n\021"
-  "_MSG_TEST_RPC_RES\020j\022\024\n\017_MSG_SERVER_MAX\020\350"
-  "\007\022\026\n\021_MSG_CLIENT_ENTER\020\351\007\022\032\n\025_MSG_CLIENT"
-  "_ENTER_RES\020\352\007\022\021\n\014_MSG_GET_MAP\020\353\007\022\025\n\020_MSG"
-  "_GET_MAP_RES\020\354\007\022\025\n\020_MSG_PATH_SEARCH\020\355\007\022\031"
-  "\n\024_MSG_PATH_SEARCH_RES\020\356\007\022\024\n\017_MSG_NAV_SE"
-  "ARCH\020\357\007\022\030\n\023_MSG_NAV_SEARCH_RES\020\360\007\022\032\n\025_MS"
-  "G_NAV_ADD_OBSTACLE\020\361\007\022\036\n\031_MSG_NAV_ADD_OB"
-  "STACLE_RES\020\362\007\022\032\n\025_MSG_NAV_DEL_OBSTACLE\020\363"
-  "\007\022\036\n\031_MSG_NAV_DEL_OBSTACLE_RES\020\364\007\022\036\n\031_MS"
-  "G_NAV_GET_ALL_OBSTACLE\020\365\007\022\"\n\035_MSG_NAV_GE"
-  "T_ALL_OBSTACLE_RES\020\366\007\022\024\n\017_MSG_UPDATE_POS"
-  "\020\367\007\022\030\n\023_MSG_UPDATE_POS_RES\020\370\007\022\025\n\020_MSG_NT"
-  "F_IN_VIEW\020\371\007\022\026\n\021_MSG_NTF_OUT_VIEW\020\372\007*{\n\r"
-  "RESPONSE_CODE\022\026\n\022RESPONSE_CODE_Fail\020\000\022\024\n"
-  "\020RESPONSE_CODE_OK\020\001\022 \n\034RESPONSE_CODE_Rpc"
-  "_not_accept\020\002\022\032\n\026RESPONSE_CODE_redirect\020"
-  "\003B\016Z\014./;msgpacketb\006proto3"
+  "W\022\016\n\006obj_id\030\001 \001(\003*\277\006\n\010MSG_TYPE\022\r\n\t_MSG_N"
+  "ULL\020\000\022\r\n\010_MSG_RPC\020\351\007\022\021\n\014_MSG_RPC_RES\020\352\007\022"
+  "\024\n\017_MSG_SRV_REPORT\020\353\007\022\030\n\023_MSG_SRV_REPORT"
+  "_RES\020\354\007\022\023\n\016_MSG_HEARTBEAT\020\225N\022\027\n\022_MSG_HEA"
+  "RTBEAT_RES\020\356\007\022\024\n\017_MSG_TCP_STATIC\020\357\007\022\030\n\023_"
+  "MSG_TCP_STATIC_RES\020\360\007\022\r\n\010_MSG_MAX\020\314\010\022\016\n\t"
+  "_MSG_TEST\020\315\010\022\022\n\r_MSG_TEST_RES\020\316\010\022\017\n\n_MSG"
+  "_LOGIN\020\317\010\022\023\n\016_MSG_LOGIN_RES\020\320\010\022\022\n\r_MSG_T"
+  "EST_RPC\020\321\010\022\026\n\021_MSG_TEST_RPC_RES\020\322\010\022\024\n\017_M"
+  "SG_SERVER_MAX\020\320\017\022\026\n\021_MSG_CLIENT_ENTER\020\321\017"
+  "\022\032\n\025_MSG_CLIENT_ENTER_RES\020\322\017\022\021\n\014_MSG_GET"
+  "_MAP\020\323\017\022\025\n\020_MSG_GET_MAP_RES\020\324\017\022\025\n\020_MSG_P"
+  "ATH_SEARCH\020\325\017\022\031\n\024_MSG_PATH_SEARCH_RES\020\326\017"
+  "\022\024\n\017_MSG_NAV_SEARCH\020\327\017\022\030\n\023_MSG_NAV_SEARC"
+  "H_RES\020\330\017\022\032\n\025_MSG_NAV_ADD_OBSTACLE\020\331\017\022\036\n\031"
+  "_MSG_NAV_ADD_OBSTACLE_RES\020\332\017\022\032\n\025_MSG_NAV"
+  "_DEL_OBSTACLE\020\333\017\022\036\n\031_MSG_NAV_DEL_OBSTACL"
+  "E_RES\020\334\017\022\036\n\031_MSG_NAV_GET_ALL_OBSTACLE\020\335\017"
+  "\022\"\n\035_MSG_NAV_GET_ALL_OBSTACLE_RES\020\336\017\022\024\n\017"
+  "_MSG_UPDATE_POS\020\337\017\022\030\n\023_MSG_UPDATE_POS_RE"
+  "S\020\340\017\022\025\n\020_MSG_NTF_IN_VIEW\020\341\017\022\026\n\021_MSG_NTF_"
+  "OUT_VIEW\020\342\017*{\n\rRESPONSE_CODE\022\026\n\022RESPONSE"
+  "_CODE_Fail\020\000\022\024\n\020RESPONSE_CODE_OK\020\001\022 \n\034RE"
+  "SPONSE_CODE_Rpc_not_accept\020\002\022\032\n\026RESPONSE"
+  "_CODE_redirect\020\003B\016Z\014./;msgpacketb\006proto3"
   ;
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_msg_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_msg_2eproto = {
-  false, false, 3625, descriptor_table_protodef_msg_2eproto, "msg.proto", 
+  false, false, 3640, descriptor_table_protodef_msg_2eproto, "msg.proto", 
   &descriptor_table_msg_2eproto_once, nullptr, 0, 36,
   schemas, file_default_instances, TableStruct_msg_2eproto::offsets,
   file_level_metadata_msg_2eproto, file_level_enum_descriptors_msg_2eproto, file_level_service_descriptors_msg_2eproto,
@@ -996,40 +996,40 @@ const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* MSG_TYPE_descriptor() {
 bool MSG_TYPE_IsValid(int value) {
   switch (value) {
     case 0:
-    case 1:
-    case 2:
-    case 3:
-    case 4:
-    case 5:
-    case 6:
-    case 7:
-    case 8:
-    case 100:
-    case 101:
-    case 102:
-    case 103:
-    case 104:
-    case 105:
-    case 106:
-    case 1000:
     case 1001:
     case 1002:
     case 1003:
     case 1004:
-    case 1005:
     case 1006:
     case 1007:
     case 1008:
-    case 1009:
-    case 1010:
-    case 1011:
-    case 1012:
-    case 1013:
-    case 1014:
-    case 1015:
-    case 1016:
-    case 1017:
-    case 1018:
+    case 1100:
+    case 1101:
+    case 1102:
+    case 1103:
+    case 1104:
+    case 1105:
+    case 1106:
+    case 2000:
+    case 2001:
+    case 2002:
+    case 2003:
+    case 2004:
+    case 2005:
+    case 2006:
+    case 2007:
+    case 2008:
+    case 2009:
+    case 2010:
+    case 2011:
+    case 2012:
+    case 2013:
+    case 2014:
+    case 2015:
+    case 2016:
+    case 2017:
+    case 2018:
+    case 10005:
       return true;
     default:
       return false;
