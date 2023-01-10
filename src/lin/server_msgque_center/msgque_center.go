@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"lin/lin_common"
+	"lin/msgpacket"
 	"net"
 )
 
@@ -22,6 +23,11 @@ func (pthis*MsgQueCenterMgr)TcpDialConnection(fd lin_common.FD_DEF, addr net.Add
 
 func (pthis*MsgQueCenterMgr)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, inAttachData interface{})(bytesProcess int, outAttachData interface{}) {
 	lin_common.LogDebug(fd)
+	packType, bytesProcess, protoMsg := msgpacket.ProtoUnPacketFromBin(readBuf)
+	if protoMsg == nil {
+		return
+	}
+	lin_common.LogInof("packType", packType)
 	return 0,nil
 }
 
