@@ -26,16 +26,25 @@ func isMsgType(str string) (b bool, msgName string, msgType string) {
 	if strings.Index(str, "MSG_TYPE_") == 0 {
 		return true, str[len("MSG_TYPE_"):len(str)], "msgpacket." + str[len("MSG_TYPE__"):len(str)]
 	}
+	if strings.Index(str, "PB_MSG_INTER_TYPE_") == 0 {
+		return true, str[len("PB_MSG_INTER_TYPE_"):len(str)], "msgpacket." + str[len("PB_MSG_INTER_TYPE__"):len(str)]
+	}
 	return false, "", ""
 }
 
 func addMsgNameType(msgName string, msgType string) {
 	intType, ok := MSG_TYPE_value[msgType]
-	if !ok{
-		fmt.Println("no msgtype:", msgType)
+	if ok{
+		mapMsgNameType[msgName] = intType
 		return
 	}
-	mapMsgNameType[msgName] = intType
+	intType, ok = PB_MSG_INTER_TYPE_value[msgType]
+	if ok{
+		mapMsgNameType[msgName] = intType
+		return
+	}
+	fmt.Println("no msgtype:", msgType, " msg name", msgName)
+	return
 }
 
 func GetMsgTypeByMsgInstance(msg proto.Message) int32 {
@@ -73,7 +82,7 @@ func genAllMsgParse(msgprotoPath string) {
 		for keyFileName, file := range pkg.Files {
 
 			str := filepath.Base(keyFileName)
-			if str != "msg.pb.go" {
+			if str != "msg.pb.go" && str != "msginter.pb.go" {
 				continue
 			}
 
@@ -156,11 +165,18 @@ func ProtoParseAdd(name string, msgTye int32){
 }
 func ProtoParseAddText(name string, msgType string){
 	intType, ok := MSG_TYPE_value[msgType]
-	if !ok{
-		fmt.Println("no msgtype:", msgType)
+	if ok{
+		ProtoParseAdd(name, intType)
 		return
 	}
-	ProtoParseAdd(name, intType)
+
+	intType, ok = PB_MSG_INTER_TYPE_value[msgType]
+	if ok {
+		ProtoParseAdd(name, intType)
+		return
+	}
+	fmt.Println("no msg name", name, " msg type", msgType)
+	return
 }
 
 func ProtoParseByName(binMsg []byte, msgType int32)proto.Message {

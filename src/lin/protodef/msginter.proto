@@ -1,0 +1,28 @@
+syntax = "proto3";
+package msgpacket;
+
+option go_package = "./;msgpacket";
+
+enum PB_MSG_INTER_TYPE
+{
+    _PB_MSG_INTER_NULL = 0;
+    _PB_MSG_INTER_QUESRV_REGISTER = 1;
+    _PB_MSG_INTER_QUESRV_REGISTER_RES = 2;
+}
+
+message PB_MSG_INTER_QUESRV_REGISTER
+{
+}
+
+message PB_MSG_INTER_QUESRV_INFO
+{
+    int32 srv_id = 1;
+    string ip = 2;
+    int32 port = 3;
+}
+
+message PB_MSG_INTER_QUESRV_REGISTER_RES
+{
+    repeated PB_MSG_INTER_QUESRV_INFO que_srv_info = 1;
+    int32 srv_id = 2;
+}
