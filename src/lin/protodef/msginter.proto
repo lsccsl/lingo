@@ -18,7 +18,7 @@ message PB_MSG_INTER_QUESRV_REGISTER
 
 message PB_MSG_INTER_QUESRV_INFO
 {
-    int32 que_srv_id = 1;
+    int64 que_srv_id = 1;
     string ip = 2;
     int32 port = 3;
 }
@@ -26,5 +26,5 @@ message PB_MSG_INTER_QUESRV_INFO
 message PB_MSG_INTER_QUESRV_REGISTER_RES
 {
     repeated PB_MSG_INTER_QUESRV_INFO que_srv_info = 1;
-    int32 que_srv_id = 2;
+    int64 que_srv_id = 2;
 }
