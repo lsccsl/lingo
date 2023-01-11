@@ -65,7 +65,7 @@ func CommandTestRPC(argStr []string) string {
 		RpcCount: int64(count),
 	}
 	for _, val := range Global_TestSrvMgr.mapSrv {
-		val.tcpAcpt.Write(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_TEST_RPC, msg))
+		val.tcpAcpt.Write(msgpacket.ProtoPacketToBin(uint16(msgpacket.MSG_TYPE__MSG_TEST_RPC), msg))
 	}
 
 	return ""

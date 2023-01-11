@@ -132,7 +132,7 @@ func (pthis*Client) processClientMsg (interMsg * interProtoMsg) {
 func (pthis*Client) process_MSG_HEARTBEAT (protoMsg * msgpacket.MSG_HEARTBEAT) {
 	msgRes := &msgpacket.MSG_HEARTBEAT_RES{}
 	msgRes.Id = protoMsg.Id
-	pthis.tcpConn.TcpConnectSendBin(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_HEARTBEAT_RES, msgRes))
+	pthis.tcpConn.TcpConnectSendBin(msgpacket.ProtoPacketToBin(uint16(msgpacket.MSG_TYPE__MSG_HEARTBEAT_RES), msgRes))
 }
 
 func (pthis*Client) process_MSG_TEST (protoMsg * msgpacket.MSG_TEST) {
@@ -143,7 +143,7 @@ func (pthis*Client) process_MSG_TEST (protoMsg * msgpacket.MSG_TEST) {
 	msgRes.Timestamp = protoMsg.Timestamp
 	msgRes.TimestampArrive = protoMsg.TimestampArrive
 	msgRes.TimestampProcess = time.Now().UnixMilli()
-	pthis.tcpConn.TcpConnectSendBin(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_TEST_RES, msgRes))
+	pthis.tcpConn.TcpConnectSendBin(msgpacket.ProtoPacketToBin(uint16(msgpacket.MSG_TYPE__MSG_TEST_RES), msgRes))
 }
 
 func (pthis*Client) process_MSG_TCP_STATIC(protoMsg * msgpacket.MSG_TCP_STATIC) {
@@ -158,6 +158,6 @@ func (pthis*Client) process_MSG_TCP_STATIC(protoMsg * msgpacket.MSG_TCP_STATIC) 
 	for key, val := range pthis.mapStaticMsgRecv {
 		msgRes.MapStaticMsgRecv[int32(key)] = val
 	}
-	pthis.tcpConn.TcpConnectSendBin(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_TCP_STATIC_RES, msgRes))
+	pthis.tcpConn.TcpConnectSendBin(msgpacket.ProtoPacketToBin(uint16(msgpacket.MSG_TYPE__MSG_TCP_STATIC_RES), msgRes))
 }
 

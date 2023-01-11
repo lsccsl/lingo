@@ -78,7 +78,7 @@ func (pthis*TcpClient)Process_MSG_TEST(msg *msgpacket.MSG_TEST) {
 	msgRes.TimestampArrive = msg.TimestampArrive
 	msgRes.TimestampProcess = time.Now().UnixMilli()
 
-	lin_common.TMP_tcpWrite(pthis.fd, msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_TEST_RES, msgRes))
+	lin_common.TMP_tcpWrite(pthis.fd, msgpacket.ProtoPacketToBin(uint16(msgpacket.MSG_TYPE__MSG_TEST_RES), msgRes))
 	//pthis.pu.eSrvMgr.SendProtoMsg(pthis.fd, msgpacket.MSG_TYPE__MSG_TEST_RES, msgRes)
 }
 func (pthis*TcpClient)Process_MSG_HEARTBEAT(msg *msgpacket.MSG_HEARTBEAT) {

@@ -197,12 +197,12 @@ func ProtoParseByName(binMsg []byte, msgType int32)proto.Message {
 	return msgIns
 }
 
-func ProtoPacketToBin(msgType MSG_TYPE, protoMsg proto.Message) []byte {
+func ProtoPacketToBin(msgType uint16, protoMsg proto.Message) []byte {
 	binMsg, _ := proto.Marshal(protoMsg)
 	var wb []byte
 	var buf bytes.Buffer
 	_ = binary.Write(&buf,binary.LittleEndian,uint32(6 + len(binMsg)))
-	_ = binary.Write(&buf,binary.LittleEndian,uint16(msgType))
+	_ = binary.Write(&buf,binary.LittleEndian,msgType)
 	wb = buf.Bytes()
 	wb = append(wb, binMsg...)
 

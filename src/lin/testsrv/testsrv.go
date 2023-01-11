@@ -106,7 +106,7 @@ func (pthis*TestSrv)TestSrvDial() (err interface{}) {
 	}
 	pthis.totalWriteRpc ++
 	tBeginTime := time.Now().UnixMilli()
-	wz, err := pthis.tcpDial.Write(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_RPC, msgRPC))
+	wz, err := pthis.tcpDial.Write(msgpacket.ProtoPacketToBin(uint16(msgpacket.MSG_TYPE__MSG_RPC), msgRPC))
 	if err != nil {
 		lin_common.LogErr("write tcp err:", pthis.DialConnectionID, " srv:", pthis.srvId, " err:", err, " wz:", wz)
 		return err
@@ -171,7 +171,7 @@ func (pthis*TestSrv)tcpReDial() {
 	}
 	pthis.tcpDial = conn.(*net.TCPConn)
 	msgReport := &msgpacket.MSG_SRV_REPORT{SrvId: pthis.srvId}
-	wz, err := pthis.tcpDial.Write(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_SRV_REPORT, msgReport))
+	wz, err := pthis.tcpDial.Write(msgpacket.ProtoPacketToBin(uint16(msgpacket.MSG_TYPE__MSG_SRV_REPORT), msgReport))
 	if err != nil {
 		lin_common.LogErr("write tcp err:", pthis.DialConnectionID, " srv:", pthis.srvId, " err:", err, " wz:", wz)
 		return
@@ -272,7 +272,7 @@ func (pthis*TestSrv)TestSrvAcpt() (err interface{}) {
 			{
 				//lin_common.LogDebug("MSG_HEARTBEAT:", t.Id)
 				msgHBRsp := &msgpacket.MSG_HEARTBEAT_RES{Id:t.Id}
-				pthis.tcpAcpt.Write(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_HEARTBEAT_RES, msgHBRsp))
+				pthis.tcpAcpt.Write(msgpacket.ProtoPacketToBin(uint16(msgpacket.MSG_TYPE__MSG_HEARTBEAT_RES), msgHBRsp))
 				continue
 			}
 		default:
@@ -312,7 +312,7 @@ func (pthis*TestSrv)TestSrvAcpt() (err interface{}) {
 			if err != nil {
 				continue
 			}
-			pthis.tcpAcpt.Write(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_RPC_RES, msgRPCRes))
+			pthis.tcpAcpt.Write(msgpacket.ProtoPacketToBin(uint16(msgpacket.MSG_TYPE__MSG_RPC_RES), msgRPCRes))
 		}
 	}
 

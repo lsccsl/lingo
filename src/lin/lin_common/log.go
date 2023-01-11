@@ -52,7 +52,7 @@ func LogDebug(args ... interface{}) {
 	globalLogMgr.chLog <- l
 }
 
-func LogInof(args ... interface{}) {
+func LogInfo(args ... interface{}) {
 	if !globalLogMgr.enableLog {
 		return
 	}

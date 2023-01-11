@@ -240,7 +240,7 @@ func (pthis*ServerMgr)processClientLogin(clientID int64, tcpConn *tcp.TcpConnect
 	msgRes := &msgpacket.MSG_LOGIN_RES{}
 	msgRes.Id = clientID
 	msgRes.ConnectId = int64(tcpConn.TcpConnectionID())
-	tcpConn.TcpConnectSendBin(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_LOGIN_RES, msgRes))
+	tcpConn.TcpConnectSendBin(msgpacket.ProtoPacketToBin(uint16(msgpacket.MSG_TYPE__MSG_LOGIN_RES), msgRes))
 }
 
 func (pthis*ServerMgr)processMsg(tcpConn *tcp.TcpConnection, msgType msgpacket.MSG_TYPE, protoMsg proto.Message) {
@@ -341,7 +341,7 @@ func (pthis*ServerMgr)AddRemoteServer(srvID int64, ip string, port int, closeExp
 }
 
 func TcpConnectSendProtoMsg(tcpConn *tcp.TcpConnection, msgType msgpacket.MSG_TYPE, protoMsg proto.Message) {
-	tcpConn.TcpConnectSendBin(msgpacket.ProtoPacketToBin(msgType, protoMsg))
+	tcpConn.TcpConnectSendBin(msgpacket.ProtoPacketToBin(uint16(msgType), protoMsg))
 }
 
 func (pthis*ServerMgr)Dump(bDtail bool) string {

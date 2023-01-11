@@ -207,7 +207,7 @@ func (pthis*ServerMgr)AddRemoteSrv(srvID int64, addr string, closeExpireSec int)
 }
 
 func (pthis*ServerMgr)SendProtoMsg(fd lin_common.FD_DEF, msgType msgpacket.MSG_TYPE, protoMsg proto.Message){
-	pthis.lsn.EPollListenerWrite(fd, msgpacket.ProtoPacketToBin(msgType, protoMsg))
+	pthis.lsn.EPollListenerWrite(fd, msgpacket.ProtoPacketToBin(uint16(msgType), protoMsg))
 }
 
 func (pthis*ServerMgr)Dump(bDetail bool)string{

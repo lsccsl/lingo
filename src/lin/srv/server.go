@@ -146,7 +146,7 @@ func (pthis*Server) go_serverProcess() {
 						" connection id:", pthis.connDial.TcpConnectionID())*/
 					msgHeartBeat := &msgpacket.MSG_HEARTBEAT{}
 					msgHeartBeat.Id = pthis.srvMgr.srvID
-					pthis.connDial.TcpConnectSendBin(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_HEARTBEAT, msgHeartBeat))
+					pthis.connDial.TcpConnectSendBin(msgpacket.ProtoPacketToBin(uint16(msgpacket.MSG_TYPE__MSG_HEARTBEAT), msgHeartBeat))
 				}
 			}
 		}
@@ -213,7 +213,7 @@ func (pthis*Server)processDailConnect(tcpDial *tcp.TcpConnection){
 	msgR := &msgpacket.MSG_SRV_REPORT{}
 	msgR.SrvId = pthis.srvMgr.srvID
 	msgR.TcpConnId = int64(pthis.connDial.TcpConnectionID())
-	pthis.connDial.TcpConnectSendBin(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_SRV_REPORT, msgR))
+	pthis.connDial.TcpConnectSendBin(msgpacket.ProtoPacketToBin(uint16(msgpacket.MSG_TYPE__MSG_SRV_REPORT), msgR))
 }
 
 func (pthis*Server)processConnClose(tcpConn *tcp.TcpConnection){
@@ -308,7 +308,7 @@ func (pthis*Server)Go_ProcessRPC(tcpConn *tcp.TcpConnection, msg *msgpacket.MSG_
 	}
 
 	atomic.AddInt64(&pthis.totalRPCIn, 1)
-	tcpConn.TcpConnectSendBin(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_RPC_RES, msgRPCRes))
+	tcpConn.TcpConnectSendBin(msgpacket.ProtoPacketToBin(uint16(msgpacket.MSG_TYPE__MSG_RPC_RES), msgRPCRes))
 }
 func (pthis*Server)processRPCRes(tcpConn *tcp.TcpConnection, msg *msgpacket.MSG_RPC_RES, msgBody proto.Message) {
 	defer func() {
@@ -360,7 +360,7 @@ func (pthis*Server)SendRPC_Async(msgType msgpacket.MSG_TYPE, protoMsg proto.Mess
 	rreq := pthis.rpcMgr.RPCManagerAddReq(msgRPC.MsgId)
 
 	atomic.AddInt64(&pthis.totalRPCOut, 1)
-	pthis.connDial.TcpConnectSendBin(msgpacket.ProtoPacketToBin(msgpacket.MSG_TYPE__MSG_RPC, msgRPC))
+	pthis.connDial.TcpConnectSendBin(msgpacket.ProtoPacketToBin(uint16(msgpacket.MSG_TYPE__MSG_RPC), msgRPC))
 
 	var res proto.Message = nil
 	select{

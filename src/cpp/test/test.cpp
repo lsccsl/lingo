@@ -49,6 +49,7 @@ void test_cmd()
 
 int main(int argc, char* argv[])
 {
+	char8_t c20test = 1;
 #ifndef WIN32
 	signal(SIGPIPE, SIG_IGN);
 #endif
