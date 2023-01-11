@@ -209,9 +209,9 @@ func ProtoPacketToBin(msgType uint16, protoMsg proto.Message) []byte {
 	return wb
 }
 
-func ProtoUnPacketFromBin(recvBuf * bytes.Buffer) (MSG_TYPE, int, proto.Message) {
+func ProtoUnPacketFromBin(recvBuf * bytes.Buffer) (uint16, int, proto.Message) {
 	if recvBuf.Len() < 6 {
-		return MSG_TYPE__MSG_NULL, 0, nil
+		return uint16(MSG_TYPE__MSG_NULL), 0, nil
 	}
 	binHead := recvBuf.Bytes()[0:6]
 
@@ -219,11 +219,11 @@ func ProtoUnPacketFromBin(recvBuf * bytes.Buffer) (MSG_TYPE, int, proto.Message)
 	packType := binary.LittleEndian.Uint16(binHead[4:6])
 
 	if recvBuf.Len() < int(packLen){
-		return MSG_TYPE__MSG_NULL, 0, nil
+		return uint16(MSG_TYPE__MSG_NULL), 0, nil
 	}
 
 	binBody := recvBuf.Bytes()[6:packLen]
 
-	return MSG_TYPE(packType), int(packLen), ParseProtoMsg(binBody, int32(packType))
+	return packType, int(packLen), ParseProtoMsg(binBody, int32(packType))
 }
 

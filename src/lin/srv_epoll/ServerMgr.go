@@ -81,7 +81,7 @@ func (pthis*ServerMgr)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, inAtt
 
 	var pu *TcpClientMgrUnit = nil
 
-	switch packType {
+	switch msgpacket.MSG_TYPE(packType) {
 	case msgpacket.MSG_TYPE__MSG_TEST:
 		{
 			// todo:delete for test
@@ -136,7 +136,7 @@ func (pthis*ServerMgr)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, inAtt
 					srvID:tcpAttachData.srvID,
 					fd:fd,
 					msg:protoMsg,
-					msgType:packType,
+					msgType:msgpacket.MSG_TYPE(packType),
 				})
 		} else {
 			pu = pthis.GetProcessUnitByClientID(tcpAttachData.cliID)

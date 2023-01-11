@@ -68,7 +68,7 @@ func (pthis*ServerMgr)CBReadProcess(tcpConn *tcp.TcpConnection, recvBuf * bytes.
 		return
 	}
 
-	switch packType {
+	switch msgpacket.MSG_TYPE(packType) {
 	case msgpacket.MSG_TYPE__MSG_LOGIN:
 		t, ok := protoMsg.(*msgpacket.MSG_LOGIN)
 		if ok && t != nil {
@@ -94,7 +94,7 @@ func (pthis*ServerMgr)CBReadProcess(tcpConn *tcp.TcpConnection, recvBuf * bytes.
 		}
 
 	default:
-		pthis.processMsg(tcpConn, packType, protoMsg)
+		pthis.processMsg(tcpConn, msgpacket.MSG_TYPE(packType), protoMsg)
 	}
 
 	return

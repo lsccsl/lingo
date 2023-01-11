@@ -10,6 +10,6 @@ func main() {
 
 	msgpacket.InitMsgParseVirtualTable("../cfg")
 
-	mqMgr := ConstructMsgqueCenterSrv("0.0.0.0:10000", 10)
-	mqMgr.MsgqueCenterSrvWait()
+	mqMgr := ConstructMsgQueCenterSrv("0.0.0.0:10000", 10)
+	mqMgr.Wait()
 }
