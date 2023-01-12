@@ -122,6 +122,9 @@ func (pthis*MsgQueCenterSrv)processMsgQueReg(fd lin_common.FD_DEF, pbMsg proto.M
 		if !ok {
 			return true
 		}
+		if qsi.queSrvID == qsiReg.queSrvID {
+			return true
+		}
 		//通知其它msg que srv有消息服务器断线上线
 		ntf := &msgpacket.PB_MSG_INTER_QUESRV_ONLINE_NTF{
 			QueSrvInfo : &msgpacket.PB_MSG_INTER_QUESRV_INFO{

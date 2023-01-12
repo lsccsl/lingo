@@ -104,7 +104,7 @@ func ConstructMsgQueSrv(msgqueCenterAddr string, addrBind string, addrOut string
 	mqMgr.lsn = lsn
 
 	//连接入msg que center,连接成功后请求数据包
-	lsn.EPollListenerDial(msgqueCenterAddr, nil)
+	lsn.EPollListenerDial(msgqueCenterAddr, nil, false)
 
 	return mqMgr
 }

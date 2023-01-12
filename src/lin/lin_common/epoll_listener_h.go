@@ -187,7 +187,7 @@ type EPollListenerStatic struct {
 	fd from
 		EPollCallback.TcpAcceptConnection
 		EPollCallback.TcpDialConnection
-	or fd := epollSrv.EPollListenerDial(addr, nil)
+	or fd := epollSrv.EPollListenerDial(addr, nil, false)
 
 	write data to fd
 	epollSrv.EPollListenerWrite(fd, bin)
@@ -215,7 +215,7 @@ type EPollListener_interface interface {
 	EPollListenerWait()
 	EPollListenerCloseTcp(fd FD_DEF, reason EN_TCP_CLOSE_REASON)
 	EPollListenerWrite(fd FD_DEF, binData []byte)
-	EPollListenerDial(addr string, attachData interface{})(fd FD_DEF, err error)
+	EPollListenerDial(addr string, attachData interface{}, bBlock bool)(fd FD_DEF, err error)
 	EPollListenerOutBandData(fd FD_DEF, data interface{})
 	EPollListenerGetStatic(*EPollListenerStatic)
 }

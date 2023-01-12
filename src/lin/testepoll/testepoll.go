@@ -178,7 +178,7 @@ func testepoll() {
 	el, err := lin_common.ConstructorEPollListener(tcb,"192.168.2.129:3001", 10, lin_common.ParamEPollListener{})
 	tcb.lsn = el
 	fmt.Println("lin_common.ConstructEPollListener", el, err)
-	fd, err := tcb.lsn.EPollListenerDial("192.168.2.129:2003", nil)
+	fd, err := tcb.lsn.EPollListenerDial("192.168.2.129:2003", nil, false)
 	lin_common.LogDebug("fd:", fd.FD, " magic:", fd.Magic, " err:", err)
 	el.EPollListenerWait()
 }

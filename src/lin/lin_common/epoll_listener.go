@@ -604,9 +604,9 @@ func (pthis*EPollListener)EPollListenerWrite(fd FD_DEF, binData []byte) {
 	pthis._EPollListenerAddEvent(fd.FD, &event_TcpWrite{fd:fd, _binData:binData})
 }
 
-func (pthis*EPollListener)EPollListenerDial(addr string, attachData interface{})(fd FD_DEF, err error){
+func (pthis*EPollListener)EPollListenerDial(addr string, attachData interface{}, bBlock bool)(fd FD_DEF, err error){
 	//LogDebug(" begin connect addr:", addr)
-	rawfd, err := _tcpConnectNoBlock(addr)
+	rawfd, err := _tcpConnect(addr, bBlock)
 	if err != nil {
 		LogErr(" fail connect addr:", addr)
 		return FD_DEF{-1,0}, err

@@ -83,7 +83,7 @@ func (pthis*TcpSrvMgrUnit)process_srvEvt_addremote(evt * srvEvt_addremote){
 					srvID : evt.srvID,
 					isDial: true,
 				},
-			})
+			}, false)
 		if err != nil {
 			lin_common.LogErr("connect to srv:", evt.srvID, " dial err")
 		}
