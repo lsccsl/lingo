@@ -17,6 +17,6 @@ func main() {
 	flag.Parse()
 	server_common.ReadCfg(pathCfg)
 
-	mqMgr := ConstructMsgQueCenterSrv("0.0.0.0:10000", 10)
+	mqMgr := ConstructMsgQueCenterSrv(server_common.Global_ServerCfg.MsgQueCent.BindAddr, 10)
 	mqMgr.Wait()
 }

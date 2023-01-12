@@ -45,3 +45,12 @@ func ReadCfg(pathCfg string) {
 	}
 	lin_common.LogDebug(&Global_ServerCfg)
 }
+
+func GetMsgQueSrvCfg(id string)*MsgQueSrvCfg {
+	qCfg, ok := Global_ServerCfg.MapMsgQueServer[id]
+	if !ok {
+		return nil
+	}
+
+	return &qCfg
+}
