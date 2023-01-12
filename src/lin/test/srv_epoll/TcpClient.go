@@ -2,9 +2,9 @@ package main
 
 import (
 	"lin/lin_common"
+	"lin/lin_common/navmeshwrapper"
+	"lin/lin_common/pathsearch"
 	"lin/msgpacket"
-	"lin/navmeshwrapper"
-	"lin/pathsearch"
 	"net"
 	"runtime"
 	"time"

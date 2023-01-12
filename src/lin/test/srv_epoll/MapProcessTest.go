@@ -2,7 +2,7 @@ package main
 
 import (
 	"lin/lin_common"
-	"lin/navmeshwrapper"
+	"lin/lin_common/navmeshwrapper"
 	"math"
 	"math/rand"
 	"time"

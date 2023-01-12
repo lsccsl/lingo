@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"lin/crosslink"
+	"lin/lin_common/crosslink"
 	"math/rand"
 	"time"
 )

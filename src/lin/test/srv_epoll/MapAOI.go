@@ -1,7 +1,7 @@
 package main
 
 import (
-	"lin/crosslink"
+	"lin/lin_common/crosslink"
 )
 
 type MapAoiInf interface {

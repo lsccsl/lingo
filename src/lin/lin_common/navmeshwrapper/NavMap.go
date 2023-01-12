@@ -1,8 +1,8 @@
 package navmeshwrapper
 
 /*
-#cgo CFLAGS: -I../../cpp/navwrapper
-#cgo LDFLAGS: -L../../cpp/navwrapper/bin -lnavwrapper
+#cgo CFLAGS: -I../../../cpp/navwrapper
+#cgo LDFLAGS: -L../../../cpp/navwrapper/bin -lnavwrapper
 #include "RecastCWrapper.h"
 typedef void * VoidPtr;
 typedef struct RecastVec3f RecastPosT;

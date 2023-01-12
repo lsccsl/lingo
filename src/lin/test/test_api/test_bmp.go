@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"lin/lin_common"
-	"lin/pathsearch"
+	"lin/lin_common/pathsearch"
 	"time"
 )
 

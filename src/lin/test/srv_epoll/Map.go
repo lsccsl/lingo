@@ -2,8 +2,8 @@ package main
 
 import (
 	"lin/lin_common"
+	"lin/lin_common/pathsearch"
 	"lin/msgpacket"
-	"lin/pathsearch"
 )
 
 type MapMgr struct {
