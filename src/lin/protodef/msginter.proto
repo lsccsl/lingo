@@ -10,6 +10,8 @@ enum PB_MSG_INTER_TYPE
     _PB_MSG_INTER_QUESRV_REGISTER_RES = 2;
     _PB_MSG_INTER_QUESRV_OFFLINE_NTF = 3;
     _PB_MSG_INTER_QUESRV_ONLINE_NTF = 4;
+    _PB_MSG_INTER_QUESRV_CONNECT = 5;
+    _PB_MSG_INTER_QUESRV_CONNECT_RES = 6;
 }
 
 message PB_MSG_INTER_QUESRV_REGISTER
@@ -24,7 +26,6 @@ message PB_MSG_INTER_QUESRV_INFO
     string ip = 2;
     int32 port = 3;
 }
-
 message PB_MSG_INTER_QUESRV_REGISTER_RES
 {
     repeated PB_MSG_INTER_QUESRV_INFO que_srv_info = 1;
@@ -39,4 +40,13 @@ message PB_MSG_INTER_QUESRV_OFFLINE_NTF
 message PB_MSG_INTER_QUESRV_ONLINE_NTF
 {
     PB_MSG_INTER_QUESRV_INFO que_srv_info = 1;
+}
+
+message PB_MSG_INTER_QUESRV_CONNECT
+{
+    int64 que_srv_id = 1;
+}
+message PB_MSG_INTER_QUESRV_CONNECT_RES
+{
+    int64 que_srv_id = 1;
 }

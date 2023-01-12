@@ -6,7 +6,7 @@ msgquecenter:
 msgqueserver:
   1:
     bind_addr: 0.0.0.0:11000
-    out_addr: 192.168.15.150:11000
+    out_addr: 192.168.3.71:11000
   2:
     bind_addr: 0.0.0.0:11001
     out_addr: 192.168.3.70:11001
