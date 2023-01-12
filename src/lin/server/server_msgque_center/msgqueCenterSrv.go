@@ -14,7 +14,7 @@ import (
 type MsgQueCenterSrv struct {
 	lsn *lin_common.EPollListener
 
-	mapMsgQueSrv sync.Map // 读多写少
+	mapMsgQueSrv sync.Map // server_common.MSGQUE_SRV_ID - msgQueSrvInfo
 
 	queSrvIDSeed atomic.Int32
 }
@@ -22,7 +22,7 @@ type MsgQueCenterSrv struct {
 type msgQueSrvInfo struct {
 	fd lin_common.FD_DEF
 	ip string
-	port     int32
+	port int32
 	queSrvID server_common.MSGQUE_SRV_ID
 }
 

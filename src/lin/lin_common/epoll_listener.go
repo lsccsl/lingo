@@ -609,7 +609,7 @@ func (pthis*EPollListener)EPollListenerDial(addr string, attachData interface{},
 	rawfd, err := _tcpConnect(addr, bBlock)
 	if err != nil {
 		LogErr(" fail connect addr:", addr)
-		return FD_DEF{-1,0}, err
+		return FD_DEF_NIL, err
 	}
 
 	magic := pthis.EPollListenerGenMagic()
