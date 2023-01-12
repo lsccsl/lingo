@@ -1,0 +1,12 @@
+msgdef: "../cfg"
+msgquecenter:
+  bind_addr: 0.0.0.0:10000
+  out_addr: 117.78.3.242:10000
+
+msgqueserver:
+  1:
+    bind_addr: 0.0.0.0:11000
+    out_addr: 192.168.15.149:11000
+  2:
+    bind_addr: 0.0.0.0:11001
+    out_addr: 192.168.15.149:11001

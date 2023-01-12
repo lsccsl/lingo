@@ -36,6 +36,15 @@ func (pthis*MsgQueSrv)TcpDialConnection(fd lin_common.FD_DEF, addr net.Addr, inA
 	return nil
 }
 
+func (pthis*MsgQueSrv)TcpClose(fd lin_common.FD_DEF, closeReason lin_common.EN_TCP_CLOSE_REASON, inAttachData interface{}) {
+	lin_common.LogDebug(fd)
+
+}
+
+func (pthis*MsgQueSrv)TcpOutBandData(fd lin_common.FD_DEF, data interface{}, inAttachData interface{}) {
+	lin_common.LogDebug(fd)
+}
+
 func (pthis*MsgQueSrv)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, inAttachData interface{})(bytesProcess int, outAttachData interface{}) {
 	lin_common.LogDebug(fd)
 	packType, bytesProcess, protoMsg := msgpacket.ProtoUnPacketFromBin(readBuf)
@@ -47,31 +56,38 @@ func (pthis*MsgQueSrv)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, inAtt
 	switch msgpacket.PB_MSG_INTER_TYPE(packType) {
 	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_REGISTER_RES:
 		{
+			pthis.process_PB_MSG_INTER_QUESRV_REGISTER_RES(protoMsg)
+		}
+
+	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_ONLINE_NTF:
+		{
+			pthis.process_PB_MSG_INTER_QUESRV_ONLINE_NTF(protoMsg)
+		}
+
+	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_OFFLINE_NTF:
+		{
+			pthis.process_PB_MSG_INTER_QUESRV_OFFLINE_NTF(protoMsg)
 		}
 	}
 
-	return bytesProcess,nil
-}
-
-func (pthis*MsgQueSrv)TcpClose(fd lin_common.FD_DEF, closeReason lin_common.EN_TCP_CLOSE_REASON, inAttachData interface{}) {
-	lin_common.LogDebug(fd)
-
-}
-
-func (pthis*MsgQueSrv)TcpOutBandData(fd lin_common.FD_DEF, data interface{}, inAttachData interface{}) {
-	lin_common.LogDebug(fd)
+	return
 }
 
 
+func (pthis*MsgQueSrv)process_PB_MSG_INTER_QUESRV_REGISTER_RES(pbMsg proto.Message) {
+
+}
+
+func (pthis*MsgQueSrv)process_PB_MSG_INTER_QUESRV_ONLINE_NTF(pbMsg proto.Message) {
+
+}
+
+func (pthis*MsgQueSrv)process_PB_MSG_INTER_QUESRV_OFFLINE_NTF(pbMsg proto.Message) {
+
+}
 
 func (pthis*MsgQueSrv)SendProtoMsg(fd lin_common.FD_DEF, msgType msgpacket.PB_MSG_INTER_TYPE, protoMsg proto.Message){
 	pthis.lsn.EPollListenerWrite(fd, msgpacket.ProtoPacketToBin(uint16(msgType), protoMsg))
-}
-
-
-
-func (pthis*MsgQueSrv)processRegRes() {
-
 }
 
 // ConstructMsgQueSrv <addr> example 127.0.0.1:8888

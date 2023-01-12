@@ -8,6 +8,8 @@ enum PB_MSG_INTER_TYPE
     _PB_MSG_INTER_NULL = 0;
     _PB_MSG_INTER_QUESRV_REGISTER = 1;
     _PB_MSG_INTER_QUESRV_REGISTER_RES = 2;
+    _PB_MSG_INTER_QUESRV_OFFLINE_NTF = 3;
+    _PB_MSG_INTER_QUESRV_ONLINE_NTF = 4;
 }
 
 message PB_MSG_INTER_QUESRV_REGISTER
@@ -27,4 +29,14 @@ message PB_MSG_INTER_QUESRV_REGISTER_RES
 {
     repeated PB_MSG_INTER_QUESRV_INFO que_srv_info = 1;
     int64 que_srv_id = 2;
+}
+
+message PB_MSG_INTER_QUESRV_OFFLINE_NTF
+{
+    int64 que_srv_id = 1;
+}
+
+message PB_MSG_INTER_QUESRV_ONLINE_NTF
+{
+    PB_MSG_INTER_QUESRV_INFO que_srv_info = 1;
 }

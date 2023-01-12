@@ -86,22 +86,25 @@ func (pthis*MsgQueCenterSrv)processMsgQueReg(fd lin_common.FD_DEF, pbMsg proto.M
 	}
 
 	//分配id
-	qsi := msgQueSrvInfo{
+	qsiReg := msgQueSrvInfo{
 		queSrvID : server_common.MSGQUE_SRV_ID(pthis.genQueSrvID()),
 		fd : fd,
 		ip : regMsg.Ip,
 		port: regMsg.Port,
 	}
 	//加入msg que server列表
-	pthis.mapMsgQueSrv.Store(qsi.queSrvID, qsi)
+	pthis.mapMsgQueSrv.Store(qsiReg.queSrvID, qsiReg)
 
 	//回包
 	regRet := &msgpacket.PB_MSG_INTER_QUESRV_REGISTER_RES{}
-	regRet.QueSrvId = int64(qsi.queSrvID)
+	regRet.QueSrvId = int64(qsiReg.queSrvID)
 
 	pthis.mapMsgQueSrv.Range(func(key, value any) bool{
 
-		qsi := value.(msgQueSrvInfo)
+		qsi, ok := value.(msgQueSrvInfo)
+		if !ok {
+			return true
+		}
 		queSrvInfo := &msgpacket.PB_MSG_INTER_QUESRV_INFO {
 			QueSrvId: int64(qsi.queSrvID),
 			Ip:qsi.ip,
@@ -114,14 +117,45 @@ func (pthis*MsgQueCenterSrv)processMsgQueReg(fd lin_common.FD_DEF, pbMsg proto.M
 
 	pthis.SendProtoMsg(fd, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_REGISTER_RES, regRet)
 
+	pthis.mapMsgQueSrv.Range(func(key, value any) bool{
+		qsi, ok := value.(msgQueSrvInfo)
+		if !ok {
+			return true
+		}
+		//通知其它msg que srv有消息服务器断线上线
+		ntf := &msgpacket.PB_MSG_INTER_QUESRV_ONLINE_NTF{
+			QueSrvInfo : &msgpacket.PB_MSG_INTER_QUESRV_INFO{
+				QueSrvId:int64(qsiReg.queSrvID),
+				Ip: qsiReg.ip,
+				Port: qsiReg.port,
+			},
+		}
+		pthis.SendProtoMsg(qsi.fd, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_ONLINE_NTF, ntf)
+
+		return true
+	})
+
 	return &tcpAttachDataMsgQueSrv{
-		qsi.queSrvID,
+		qsiReg.queSrvID,
 	}
 }
 
 func (pthis*MsgQueCenterSrv)processMsgQueSrvClose(attachData * tcpAttachDataMsgQueSrv) {
 	lin_common.LogInfo("que srv id:", attachData.queSrvID)
 	pthis.mapMsgQueSrv.Delete(attachData.queSrvID)
+
+	pthis.mapMsgQueSrv.Range(func(key, value any) bool{
+		qsi, ok := value.(msgQueSrvInfo)
+		if !ok {
+			return true
+		}
+		//通知其它msg que srv有消息服务器断线
+		ntf := &msgpacket.PB_MSG_INTER_QUESRV_OFFLINE_NTF{
+			QueSrvId:int64(attachData.queSrvID),
+		}
+		pthis.SendProtoMsg(qsi.fd, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_OFFLINE_NTF, ntf)
+		return true
+	})
 }
 
 func (pthis*MsgQueCenterSrv)genQueSrvID() int32 {
