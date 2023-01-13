@@ -5,6 +5,7 @@ import (
 	"lin/lin_common"
 	"lin/msgpacket"
 	"lin/server/server_common"
+	"strconv"
 )
 
 func main() {
@@ -19,6 +20,23 @@ func main() {
 
 	mqMgr := ConstructMsgQueCenterSrv(server_common.Global_ServerCfg.MsgQueCent.BindAddr, 10)
 
+	lin_common.AddCmd("dump", "dump", func(argStr []string)string{
+		bDetail := false
+		bLog := true
+		if len(argStr) >= 1 {
+			detail, _ := strconv.Atoi(argStr[0])
+			bDetail = (detail != 0)
+		}
+		if len(argStr) >= 2 {
+			needLog, _ := strconv.Atoi(argStr[1])
+			bLog = (needLog != 0)
+		}
+		str := mqMgr.Dump(bDetail)
+		if bLog {
+			lin_common.LogDebug(str)
+		}
+		return str
+	})
 	lin_common.ParseCmd()
 
 	mqMgr.Wait()

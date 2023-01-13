@@ -156,7 +156,7 @@ func (pthis*MsgQueSrv)process_PB_MSG_INTER_QUESRV_REGISTER_RES(pbMsg proto.Messa
 
 		fdDial, err := pthis.lsn.EPollListenerDial(addr, attachData, false)
 		if err != nil {
-			lin_common.LogErr("can't connect to:", addr, " que srv id:", pbqsi.QueSrvId)
+			lin_common.LogErr("can't connect to:", addr, " ", server_common.MSGQUE_SRV_ID(pbqsi.QueSrvId).ToString())
 		}
 		qsi := otherMsgQueSrvInfo{
 			fdDial:fdDial,
@@ -178,14 +178,14 @@ func (pthis*MsgQueSrv)process_PB_MSG_INTER_QUESRV_ONLINE_NTF(pbMsg proto.Message
 	pbqsi := pbNtf.QueSrvInfo
 	queSrvID := server_common.MSGQUE_SRV_ID(pbqsi.QueSrvId)
 	addr := pbqsi.Ip + ":" + strconv.FormatInt(int64(pbqsi.Port), 10)
-	lin_common.LogInfo("addr", addr, pbqsi)
+	lin_common.LogInfo("addr", addr, " ", pbqsi, " ", queSrvID.ToString())
 	attachData := &tcpAttachDataMsgQueSrvDial{
 		queSrvID: server_common.MSGQUE_SRV_ID(pbqsi.QueSrvId),
 	}
 
 	fdDial, err := pthis.lsn.EPollListenerDial(addr, attachData, false)
 	if err != nil {
-		lin_common.LogErr("can't connect to:", addr, " que srv id:", pbqsi.QueSrvId)
+		lin_common.LogErr("can't connect to:", addr, " ", queSrvID.ToString())
 	}
 	qsi := otherMsgQueSrvInfo{
 		fdDial:fdDial,
@@ -225,7 +225,7 @@ func (pthis*MsgQueSrv)process_PB_MSG_INTER_QUESRV_CONNECT(fd lin_common.FD_DEF, 
 	}
 
 	queSrvID := server_common.MSGQUE_SRV_ID(pbConn.QueSrvId)
-	lin_common.LogInfo("que srv connect, fd:", fd, queSrvID.ToString(), " pb msg:", pbConn)
+	lin_common.LogInfo("que srv connect, fd:", fd, " ", queSrvID.ToString(), " pb msg:", pbConn)
 
 	val, ok := pthis.mapOtherMsgQueSrv.Load(queSrvID)
 	if !ok {

@@ -7,6 +7,7 @@ import (
 	"lin/msgpacket"
 	"lin/server/server_common"
 	"net"
+	"strconv"
 	"sync"
 	"sync/atomic"
 )
@@ -24,6 +25,12 @@ type msgQueSrvInfo struct {
 	ip string
 	port int32
 	queSrvID server_common.MSGQUE_SRV_ID
+}
+
+func (pthis*msgQueSrvInfo)String()(str string){
+	str = pthis.queSrvID.ToString() + " fd:" + pthis.fd.String() +
+		"[" + pthis.ip + ":" + strconv.FormatInt(int64(pthis.port), 10) + "]"
+	return
 }
 
 type tcpAttachDataMsgQueSrv struct {
@@ -144,7 +151,7 @@ func (pthis*MsgQueCenterSrv)processMsgQueReg(fd lin_common.FD_DEF, pbMsg proto.M
 }
 
 func (pthis*MsgQueCenterSrv)processMsgQueSrvClose(attachData *tcpAttachDataMsgQueSrv) {
-	lin_common.LogInfo("que srv id:", attachData.queSrvID)
+	lin_common.LogInfo(attachData.queSrvID.ToString())
 	pthis.mapMsgQueSrv.Delete(attachData.queSrvID)
 
 	pthis.mapMsgQueSrv.Range(func(key, value any) bool{
@@ -188,3 +195,20 @@ func ConstructMsgQueCenterSrv(addr string, epollCoroutineCount int) *MsgQueCente
 	return mqMgr
 }
 
+func (pthis*MsgQueCenterSrv)Dump(bDetail bool) (str string) {
+
+	str = "que srv id seed:" + strconv.FormatInt(int64(pthis.queSrvIDSeed.Load()), 10) + "\r\n"
+
+	str += "msg que srv reg:\r\n"
+	pthis.mapMsgQueSrv.Range(func(key, value any) bool{
+		qsi, ok := value.(msgQueSrvInfo)
+		if !ok {
+			return true
+		}
+
+		str += qsi.String() + "\r\n"
+		return true
+	})
+
+	return
+}
