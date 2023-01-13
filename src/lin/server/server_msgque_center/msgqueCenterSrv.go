@@ -83,6 +83,9 @@ func (pthis*MsgQueCenterSrv)TcpOutBandData(fd lin_common.FD_DEF, data interface{
 	lin_common.LogDebug(fd)
 }
 
+func (pthis*MsgQueCenterSrv)TcpTick(fd lin_common.FD_DEF, tNowMill int64, inAttachData interface{}){
+	lin_common.LogDebug(fd, " tNowMill:", tNowMill, " inAttachData:", inAttachData)
+}
 
 
 
@@ -205,8 +208,8 @@ func ConstructMsgQueCenterSrv(addr string, epollCoroutineCount int) *MsgQueCente
 
 	lsn, err := lin_common.ConstructorEPollListener(mqMgr, addr, epollCoroutineCount,
 		lin_common.ParamEPollListener{ParamET: true,
-			ParamEpollWaitTimeoutMills:30*1000,
-			ParamIdleCheckInterval:60 * 1000,
+			ParamEpollWaitTimeoutMills:3*1000,
+			ParamIdleClose:60 * 1000,
 		})
 	if err != nil {
 		lin_common.LogErr("constructor epoll listener err:", err)

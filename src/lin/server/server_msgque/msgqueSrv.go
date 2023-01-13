@@ -15,6 +15,8 @@ import (
 type MsgQueSrv struct {
 	lsn *lin_common.EPollListener
 
+	msgqueCenterAddr string
+
 	fdCenter lin_common.FD_DEF
 	addrOut string
 	queSrvID server_common.MSGQUE_SRV_ID
@@ -107,14 +109,23 @@ func (pthis*MsgQueSrv)TcpClose(fd lin_common.FD_DEF, closeReason lin_common.EN_T
 	case *tcpAttachDataMsgQueCenter:
 		{
 			lin_common.LogDebug(t)
-			if fd.IsSame(&pthis.fdCenter) {
+			if !fd.IsSame(&pthis.fdCenter) {
+				return
 			}
+
+			time.AfterFunc(time.Second * 3, func() {
+				pthis.fdCenter, _ = pthis.lsn.EPollListenerDial(pthis.msgqueCenterAddr, &tcpAttachDataMsgQueCenter{}, false)
+			})
 		}
 	}
 }
 
 func (pthis*MsgQueSrv)TcpOutBandData(fd lin_common.FD_DEF, data interface{}, inAttachData interface{}) {
 	lin_common.LogDebug(fd, data, inAttachData)
+}
+
+func (pthis*MsgQueSrv)TcpTick(fd lin_common.FD_DEF, tNowMill int64, inAttachData interface{}){
+	lin_common.LogDebug(fd, " tNowMill:", tNowMill, " inAttachData:", inAttachData)
 }
 
 func (pthis*MsgQueSrv)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, inAttachData interface{})(bytesProcess int, outAttachData interface{}) {
@@ -283,7 +294,13 @@ func ConstructMsgQueSrv(msgqueCenterAddr string, addrBind string, addrOut string
 		addrOut : addrOut,
 	}
 
-	lsn, err := lin_common.ConstructorEPollListener(mqMgr, addrBind, epollCoroutineCount, lin_common.ParamEPollListener{ParamET: true})
+	lsn, err := lin_common.ConstructorEPollListener(mqMgr, addrBind, epollCoroutineCount,
+		lin_common.ParamEPollListener{
+			ParamET: true,
+			ParamEpollWaitTimeoutMills: 3 * 1000,
+			ParamIdleClose: 60*1000,
+			ParamNeedTick: true,
+		})
 	if err != nil {
 		lin_common.LogErr("constructor epoll listener err:", err)
 		return nil
@@ -291,6 +308,7 @@ func ConstructMsgQueSrv(msgqueCenterAddr string, addrBind string, addrOut string
 	mqMgr.lsn = lsn
 
 	//connect to msg que center, when connect success send reg pack
+	mqMgr.msgqueCenterAddr = msgqueCenterAddr
 	mqMgr.fdCenter, err = lsn.EPollListenerDial(msgqueCenterAddr, &tcpAttachDataMsgQueCenter{}, false)
 	if err != nil {
 		lin_common.LogErr("dial to msg que center err:", err)

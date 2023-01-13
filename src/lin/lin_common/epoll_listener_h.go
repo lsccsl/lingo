@@ -93,7 +93,7 @@ type tcpConnectionInfo struct {
 
 	_closeReason EN_TCP_CLOSE_REASON
 
-	_tLastActive int64
+	_tLastActiveMills int64
 }
 type MAP_TCPCONNECTION map[int]*tcpConnectionInfo
 
@@ -132,7 +132,7 @@ type ePollConnection struct {
 
 	_binRead []byte
 	_mapTcp MAP_TCPCONNECTION
-	_tLastCheckIde int64
+	_tLastCheckIdeMills int64
 
 	ePollConnectionStatic
 }
@@ -156,7 +156,8 @@ type ePollAccept struct {
 type ParamEPollListener struct {
 	ParamMaxEpollEventCount int
 	ParamEpollWaitTimeoutMills int
-	ParamIdleCheckInterval int // tcp connect idle check
+	ParamIdleClose int // tcp connect idle check
+	ParamNeedTick bool
 	ParamTmpReadBufLen int    // epoll coroutine tmp read buf
 	ParamTcpRWBuffLen  int // tcp r/w data buffer
 	ParamMaxTcpRead int
@@ -166,7 +167,8 @@ type ParamEPollListener struct {
 type interParamEPollListener struct {
 	_paramMaxEpollEventCount int
 	_paramEpollWaitTimeoutMills int
-	_paramIdleCheckInterval int // tcp connect idle check
+	_paramIdleClose int // tcp connect idle check
+	_paramNeedTick bool
 	_paramTmpReadBufLen int    // epoll coroutine tmp read buf
 	_paramTcpRWBuffLen  int // tcp r/w data buffer
 	_paramMaxTcpRead int
@@ -214,6 +216,7 @@ type EPollCallback interface {
 	TcpData(fd FD_DEF, readBuf *bytes.Buffer, inAttachData interface{})(bytesProcess int, outAttachData interface{})
 	TcpClose(fd FD_DEF, closeReason EN_TCP_CLOSE_REASON, inAttachData interface{})
 	TcpOutBandData(fd FD_DEF, data interface{}, inAttachData interface{})
+	TcpTick(fd FD_DEF, tNowMill int64, inAttachData interface{})
 }
 
 type EPollListener_interface interface {
@@ -243,7 +246,8 @@ func ConstructorEPollListener(cb EPollCallback, addr string, epollCoroutineCount
 		interParamEPollListener:interParamEPollListener{
 			_paramMaxEpollEventCount : param.ParamMaxEpollEventCount,
 			_paramEpollWaitTimeoutMills : param.ParamEpollWaitTimeoutMills,
-			_paramIdleCheckInterval :  param.ParamIdleCheckInterval,
+			_paramIdleClose :  param.ParamIdleClose,
+			_paramNeedTick :  param.ParamNeedTick,
 			_paramTmpReadBufLen : param.ParamTmpReadBufLen,
 			_paramTcpRWBuffLen : param.ParamTcpRWBuffLen,
 			_paramMaxTcpRead : param.ParamMaxTcpRead,
@@ -264,8 +268,8 @@ func ConstructorEPollListener(cb EPollCallback, addr string, epollCoroutineCount
 	if el._paramEpollWaitTimeoutMills <= 0 {
 		el._paramEpollWaitTimeoutMills = 300 * 1000
 	}
-	if el._paramIdleCheckInterval <= 0 {
-		el._paramIdleCheckInterval = el._paramEpollWaitTimeoutMills
+	if el._paramIdleClose <= 0 {
+		el._paramIdleClose = el._paramEpollWaitTimeoutMills
 	}
 	if el._paramTmpReadBufLen <= 0 {
 		el._paramTmpReadBufLen = MTU
