@@ -8,9 +8,10 @@ import (
 	"golang.org/x/sys/unix"
 	"math/rand"
 	"runtime"
+	"time"
 )
 
-func ConstructorTcpConnectionInfo(fd FD_DEF, isDial bool, buffInitLen int, needKeepAlive bool, attachData interface{})*tcpConnectionInfo {
+func ConstructorTcpConnectionInfo(fd FD_DEF, isDial bool, buffInitLen int, needKeepAlive bool, tnow int64, attachData interface{})*tcpConnectionInfo {
 	err := _setNoBlock(fd.FD)
 	if err != nil {
 		LogDebug("_setNoBlock:", fd.String(), " err:", err)
@@ -46,6 +47,7 @@ func ConstructorTcpConnectionInfo(fd FD_DEF, isDial bool, buffInitLen int, needK
 		_cur_epoll_evt : EPOLL_EVENT_READ,
 		_attachData: attachData,
 		_closeReason: EN_TCP_CLOSE_REASON_inter_none,
+		_tLastActive: tnow,
 	}
 	if isDial {
 		ti._isConnSuc = false
@@ -122,7 +124,8 @@ func (pthis*ePollConnection)EpollConnection_process_evt(){
 				// new tcp connection add to epoll
 				magic := pthis._lsn.EPollListenerGenMagic()
 				//LogDebug("new conn fd:", t._fdConn, " magic:", magic)
-				ti := ConstructorTcpConnectionInfo(FD_DEF{t._fdConn, magic}, false, pthis._lsn._paramTcpRWBuffLen, false, nil)
+				ti := ConstructorTcpConnectionInfo(FD_DEF{t._fdConn, magic}, false, pthis._lsn._paramTcpRWBuffLen,
+				false, time.Now().Unix(), nil)
 				pthis._add_tcp_conn(ti)
 				unixEpollAdd(pthis._epollFD, t._fdConn, ti._cur_epoll_evt, magic, pthis._lsn._paramET)
 
@@ -152,7 +155,7 @@ func (pthis*ePollConnection)EpollConnection_process_evt(){
 		case *event_TcpDial:
 			{
 				//LogDebug("dial tcp connection, fd:", t.fd.FD, " magic:", t.fd.Magic)
-				ti := ConstructorTcpConnectionInfo(t.fd, true, pthis._lsn._paramTcpRWBuffLen, false, t.attachData)
+				ti := ConstructorTcpConnectionInfo(t.fd, true, pthis._lsn._paramTcpRWBuffLen, false, time.Now().Unix(), t.attachData)
 				pthis._add_tcp_conn(ti)
 				unixEpollAdd(pthis._epollFD, t.fd.FD, ti._cur_epoll_evt, t.fd.Magic, pthis._lsn._paramET) // if the tcp connection can write, means the tcp connection is success, it will be mod epoll wait read event when connection is ok
 			}
@@ -200,7 +203,7 @@ func (pthis*ePollConnection)EpollConnection_user_write(fd FD_DEF, binData []byte
 	pthis.EpollConnection_do_write(ti)
 }
 
-func (pthis*ePollConnection)EpollConnection_epllEvt_tcpread(fd FD_DEF) {
+func (pthis*ePollConnection)EpollConnection_epllEvt_tcpread(fd FD_DEF, tnow int64) {
 	ti := pthis._get_tcp_conn(fd.FD)
 	if ti == nil {
 		return
@@ -209,6 +212,8 @@ func (pthis*ePollConnection)EpollConnection_epllEvt_tcpread(fd FD_DEF) {
 		LogDebug("magic not match, fd:", fd.FD, " magic:", ti._fd.Magic, " old magic:", fd.Magic)
 		return
 	}
+
+	ti._tLastActive = tnow
 
 	maxReadcount := pthis._lsn._paramMaxTcpRead
 	if pthis._lsn._paramET {
@@ -384,6 +389,33 @@ func (pthis*ePollConnection)EPollConnection_AddEvent(fd int, evt interface{}) {
 	}*/
 }
 
+func (pthis*ePollConnection)_checkTcpIdle(tnow int64) {
+	// check tcp idle
+	tdiff := (tnow - pthis._tLastCheckIde) * 1000
+
+	var arrConn []*tcpConnectionInfo
+	if tdiff < int64(pthis._lsn._paramIdleCheckInterval) {
+		return
+	}
+
+	pthis._tLastCheckIde = tnow
+
+	for k, v := range pthis._mapTcp {
+		if v == nil {
+			LogErr("tcp connection info err, fd", k)
+			continue
+		}
+		activeDiff := (tnow - v._tLastActive) * 1000
+		if activeDiff < int64(pthis._lsn._paramIdleCheckInterval) {
+			continue
+		}
+		arrConn = append(arrConn, v)
+	}
+
+	for _, v := range arrConn {
+		pthis._lsn._EPollListenerAddEvent(v._fd.FD, &event_TcpClose{fd:v._fd, reason:EN_TCP_CLOSE_REASON_idle_timeout})
+	}
+}
 func (pthis*ePollConnection)_go_EpollConnection_epollwait() {
 	defer func() {
 		err := recover()
@@ -394,11 +426,15 @@ func (pthis*ePollConnection)_go_EpollConnection_epollwait() {
 		LogErr("_go_EpollConnection_epollwait quit")
 	}()
 
+	pthis._tLastCheckIde = time.Now().Unix()
+
 	// todo: change the events array size by epoll wait ret count
 	events := make([]unix.EpollEvent, pthis._lsn._paramMaxEpollEventCount)
 	for {
 		count, err := unix.EpollWait(pthis._epollFD, events, pthis._lsn._paramEpollWaitTimeoutMills)
+		tnow := time.Now().Unix()
 		if count == 0 || (count < 0 && err == unix.EINTR) {
+			pthis._checkTcpIdle(tnow)
 			runtime.Gosched()
 			continue
 		} else if err != nil {
@@ -415,7 +451,7 @@ func (pthis*ePollConnection)_go_EpollConnection_epollwait() {
 			} else {
 				// tcp read / write / err
 				if (epollEvt.Events & unix.EPOLLIN) != 0 {
-					pthis.EpollConnection_epllEvt_tcpread(fd)
+					pthis.EpollConnection_epllEvt_tcpread(fd, tnow)
 				}
 				if (epollEvt.Events & unix.EPOLLOUT) != 0 {
 					pthis.EpollConnection_epllEvt_tcpwrite(fd)
@@ -425,6 +461,8 @@ func (pthis*ePollConnection)_go_EpollConnection_epollwait() {
 				}
 			}
 		}
+
+		pthis._checkTcpIdle(tnow)
 
 /*		if pthis._evt_need_process_next_loop {
 			pthis.EpollConnection_process_evt()

@@ -25,6 +25,7 @@ const(
 	EN_TCP_CLOSE_REASON_read_err   EN_TCP_CLOSE_REASON = 1
 	EN_TCP_CLOSE_REASON_write_err  EN_TCP_CLOSE_REASON = 2
 	EN_TCP_CLOSE_REASON_epoll_err  EN_TCP_CLOSE_REASON = 3
+	EN_TCP_CLOSE_REASON_idle_timeout EN_TCP_CLOSE_REASON = 4
 	EN_TCP_CLOSE_REASON_inter_max  EN_TCP_CLOSE_REASON = 100
 )
 
@@ -91,6 +92,8 @@ type tcpConnectionInfo struct {
 	_attachData interface{}
 
 	_closeReason EN_TCP_CLOSE_REASON
+
+	_tLastActive int64
 }
 type MAP_TCPCONNECTION map[int]*tcpConnectionInfo
 
@@ -129,6 +132,7 @@ type ePollConnection struct {
 
 	_binRead []byte
 	_mapTcp MAP_TCPCONNECTION
+	_tLastCheckIde int64
 
 	ePollConnectionStatic
 }
@@ -152,6 +156,7 @@ type ePollAccept struct {
 type ParamEPollListener struct {
 	ParamMaxEpollEventCount int
 	ParamEpollWaitTimeoutMills int
+	ParamIdleCheckInterval int // tcp connect idle check
 	ParamTmpReadBufLen int    // epoll coroutine tmp read buf
 	ParamTcpRWBuffLen  int // tcp r/w data buffer
 	ParamMaxTcpRead int
@@ -161,6 +166,7 @@ type ParamEPollListener struct {
 type interParamEPollListener struct {
 	_paramMaxEpollEventCount int
 	_paramEpollWaitTimeoutMills int
+	_paramIdleCheckInterval int // tcp connect idle check
 	_paramTmpReadBufLen int    // epoll coroutine tmp read buf
 	_paramTcpRWBuffLen  int // tcp r/w data buffer
 	_paramMaxTcpRead int
@@ -237,6 +243,7 @@ func ConstructorEPollListener(cb EPollCallback, addr string, epollCoroutineCount
 		interParamEPollListener:interParamEPollListener{
 			_paramMaxEpollEventCount : param.ParamMaxEpollEventCount,
 			_paramEpollWaitTimeoutMills : param.ParamEpollWaitTimeoutMills,
+			_paramIdleCheckInterval :  param.ParamIdleCheckInterval,
 			_paramTmpReadBufLen : param.ParamTmpReadBufLen,
 			_paramTcpRWBuffLen : param.ParamTcpRWBuffLen,
 			_paramMaxTcpRead : param.ParamMaxTcpRead,
@@ -256,6 +263,9 @@ func ConstructorEPollListener(cb EPollCallback, addr string, epollCoroutineCount
 	}
 	if el._paramEpollWaitTimeoutMills <= 0 {
 		el._paramEpollWaitTimeoutMills = 300 * 1000
+	}
+	if el._paramIdleCheckInterval <= 0 {
+		el._paramIdleCheckInterval = el._paramEpollWaitTimeoutMills
 	}
 	if el._paramTmpReadBufLen <= 0 {
 		el._paramTmpReadBufLen = MTU

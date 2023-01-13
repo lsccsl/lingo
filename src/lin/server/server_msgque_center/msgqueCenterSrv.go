@@ -12,12 +12,13 @@ import (
 	"sync/atomic"
 )
 
+// MsgQueCenterSrv this struct is access by multi go coroutine, all member must be 'thread safe'
 type MsgQueCenterSrv struct {
 	lsn *lin_common.EPollListener
 
 	mapMsgQueSrv sync.Map // server_common.MSGQUE_SRV_ID - msgQueSrvInfo
 
-	queSrvIDSeed atomic.Int32
+	srvIDSeed atomic.Int32
 }
 
 type msgQueSrvInfo struct {
@@ -59,7 +60,7 @@ func (pthis*MsgQueCenterSrv)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer,
 	switch msgpacket.PB_MSG_INTER_TYPE(packType) {
 	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_REGISTER:
 		{
-			outAttachData = pthis.processMsgQueReg(fd, protoMsg)
+			outAttachData = pthis.process_PB_MSG_INTER_QUESRV_REGISTER(fd, protoMsg)
 			return
 		}
 	}
@@ -73,7 +74,7 @@ func (pthis*MsgQueCenterSrv)TcpClose(fd lin_common.FD_DEF, closeReason lin_commo
 	switch t := inAttachData.(type) {
 	case *tcpAttachDataMsgQueSrv:
 		{
-			pthis.processMsgQueSrvClose(t)
+			pthis.process_TcpClose_MsgQueSrv(fd, t)
 		}
 	}
 }
@@ -85,24 +86,24 @@ func (pthis*MsgQueCenterSrv)TcpOutBandData(fd lin_common.FD_DEF, data interface{
 
 
 
-func (pthis*MsgQueCenterSrv)processMsgQueReg(fd lin_common.FD_DEF, pbMsg proto.Message) interface{}{
+func (pthis*MsgQueCenterSrv)process_PB_MSG_INTER_QUESRV_REGISTER(fd lin_common.FD_DEF, pbMsg proto.Message) interface{}{
 
 	regMsg, ok := pbMsg.(*msgpacket.PB_MSG_INTER_QUESRV_REGISTER)
 	if !ok || regMsg == nil {
 		return nil
 	}
 
-	//分配id
+	//assign id
 	qsiReg := msgQueSrvInfo{
 		queSrvID : server_common.MSGQUE_SRV_ID(pthis.genQueSrvID()),
 		fd :       fd,
 		ip :       regMsg.Ip,
 		port:      regMsg.Port,
 	}
-	//加入msg que server列表
+	//add msg que server list
 	pthis.mapMsgQueSrv.Store(qsiReg.queSrvID, qsiReg)
 
-	//回包
+	//response
 	regRet := &msgpacket.PB_MSG_INTER_QUESRV_REGISTER_RES{}
 	regRet.QueSrvId = int64(qsiReg.queSrvID)
 
@@ -132,7 +133,7 @@ func (pthis*MsgQueCenterSrv)processMsgQueReg(fd lin_common.FD_DEF, pbMsg proto.M
 		if qsi.queSrvID == qsiReg.queSrvID {
 			return true
 		}
-		//通知其它msg que srv有消息服务器断线上线
+		//notify other msg que srv online
 		ntf := &msgpacket.PB_MSG_INTER_QUESRV_ONLINE_NTF{
 			QueSrvInfo : &msgpacket.PB_MSG_INTER_QUESRV_INFO{
 				QueSrvId:int64(qsiReg.queSrvID),
@@ -150,8 +151,25 @@ func (pthis*MsgQueCenterSrv)processMsgQueReg(fd lin_common.FD_DEF, pbMsg proto.M
 	}
 }
 
-func (pthis*MsgQueCenterSrv)processMsgQueSrvClose(attachData *tcpAttachDataMsgQueSrv) {
+func (pthis*MsgQueCenterSrv)process_TcpClose_MsgQueSrv(fd lin_common.FD_DEF, attachData *tcpAttachDataMsgQueSrv) {
 	lin_common.LogInfo(attachData.queSrvID.ToString())
+
+	val, ok := pthis.mapMsgQueSrv.Load(attachData.queSrvID)
+	if !ok {
+		lin_common.LogErr(attachData.queSrvID.ToString(), " can't find")
+		return
+	}
+	qsi, ok := val.(msgQueSrvInfo)
+	if !ok {
+		lin_common.LogErr(attachData.queSrvID.ToString(), " data convert err")
+		return
+	}
+
+	if !qsi.fd.IsSame(&fd) {
+		lin_common.LogErr(attachData.queSrvID.ToString(), " fd is not same, current:", qsi.fd, " close:", fd)
+		return
+	}
+
 	pthis.mapMsgQueSrv.Delete(attachData.queSrvID)
 
 	pthis.mapMsgQueSrv.Range(func(key, value any) bool{
@@ -159,7 +177,7 @@ func (pthis*MsgQueCenterSrv)processMsgQueSrvClose(attachData *tcpAttachDataMsgQu
 		if !ok {
 			return true
 		}
-		//通知其它msg que srv有消息服务器断线
+		//notify other msg que srv offline
 		ntf := &msgpacket.PB_MSG_INTER_QUESRV_OFFLINE_NTF{
 			QueSrvId:int64(attachData.queSrvID),
 		}
@@ -169,7 +187,7 @@ func (pthis*MsgQueCenterSrv)processMsgQueSrvClose(attachData *tcpAttachDataMsgQu
 }
 
 func (pthis*MsgQueCenterSrv)genQueSrvID() int32 {
-	return pthis.queSrvIDSeed.Add(1)
+	return pthis.srvIDSeed.Add(1)
 }
 
 func (pthis*MsgQueCenterSrv)SendProtoMsg(fd lin_common.FD_DEF, msgType msgpacket.PB_MSG_INTER_TYPE, protoMsg proto.Message){
@@ -183,9 +201,13 @@ func (pthis*MsgQueCenterSrv)Wait() {
 // ConstructMsgQueCenterSrv <addr> example 127.0.0.1:8888
 func ConstructMsgQueCenterSrv(addr string, epollCoroutineCount int) *MsgQueCenterSrv {
 	mqMgr := &MsgQueCenterSrv{}
-	mqMgr.queSrvIDSeed.Store(1)
+	mqMgr.srvIDSeed.Store(1)
 
-	lsn, err := lin_common.ConstructorEPollListener(mqMgr, addr, epollCoroutineCount, lin_common.ParamEPollListener{ParamET: true})
+	lsn, err := lin_common.ConstructorEPollListener(mqMgr, addr, epollCoroutineCount,
+		lin_common.ParamEPollListener{ParamET: true,
+			ParamEpollWaitTimeoutMills:30*1000,
+			ParamIdleCheckInterval:60 * 1000,
+		})
 	if err != nil {
 		lin_common.LogErr("constructor epoll listener err:", err)
 		return nil
@@ -197,7 +219,7 @@ func ConstructMsgQueCenterSrv(addr string, epollCoroutineCount int) *MsgQueCente
 
 func (pthis*MsgQueCenterSrv)Dump(bDetail bool) (str string) {
 
-	str = "que srv id seed:" + strconv.FormatInt(int64(pthis.queSrvIDSeed.Load()), 10) + "\r\n"
+	str = "\r\nque srv id seed:" + strconv.FormatInt(int64(pthis.srvIDSeed.Load()), 10) + "\r\n"
 
 	str += "msg que srv reg:\r\n"
 	pthis.mapMsgQueSrv.Range(func(key, value any) bool{

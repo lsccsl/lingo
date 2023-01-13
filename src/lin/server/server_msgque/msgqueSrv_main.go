@@ -49,3 +49,5 @@ func main() {
 
 	mqMgr.Wait()
 }
+
+// todo reconnect

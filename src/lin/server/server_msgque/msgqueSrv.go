@@ -9,13 +9,17 @@ import (
 	"net"
 	"strconv"
 	"sync"
+	"time"
 )
 
 type MsgQueSrv struct {
 	lsn *lin_common.EPollListener
 
+	fdCenter lin_common.FD_DEF
 	addrOut string
 	queSrvID server_common.MSGQUE_SRV_ID
+
+	timerReconnMsgQueCenter time.Timer // timer reconnect to msg que server
 
 	mapOtherMsgQueSrv sync.Map // server_common.MSGQUE_SRV_ID - otherMsgQueSrvInfo
 }
@@ -57,6 +61,10 @@ func (pthis*MsgQueSrv)TcpDialConnection(fd lin_common.FD_DEF, addr net.Addr, inA
 	switch inAttachData.(type) {
 	case *tcpAttachDataMsgQueCenter: // dial to msg que center tcp connection ok
 		{
+			if !fd.IsSame(&pthis.fdCenter) {
+				pthis.lsn.EPollListenerCloseTcp(fd, server_common.EN_TCP_CLOSE_REASON_repeated_msgque_center)
+				return
+			}
 			// send reg msg to msq que center
 			tcpAddr, err := net.ResolveTCPAddr("tcp", pthis.addrOut)
 			if err != nil {
@@ -85,7 +93,24 @@ func (pthis*MsgQueSrv)TcpDialConnection(fd lin_common.FD_DEF, addr net.Addr, inA
 }
 
 func (pthis*MsgQueSrv)TcpClose(fd lin_common.FD_DEF, closeReason lin_common.EN_TCP_CLOSE_REASON, inAttachData interface{}) {
-	lin_common.LogDebug(fd, inAttachData, " closeReason:", closeReason)
+	lin_common.LogDebug(fd, " attach data:", inAttachData, " closeReason:", closeReason)
+
+	switch t := inAttachData.(type) {
+	case *tcpAttachDataMsgQueSrvDial:
+		{
+		}
+
+	case *tcpAttachDataMsgQueSrvConn:
+		{
+		}
+
+	case *tcpAttachDataMsgQueCenter:
+		{
+			lin_common.LogDebug(t)
+			if fd.IsSame(&pthis.fdCenter) {
+			}
+		}
+	}
 }
 
 func (pthis*MsgQueSrv)TcpOutBandData(fd lin_common.FD_DEF, data interface{}, inAttachData interface{}) {
@@ -266,7 +291,11 @@ func ConstructMsgQueSrv(msgqueCenterAddr string, addrBind string, addrOut string
 	mqMgr.lsn = lsn
 
 	//connect to msg que center, when connect success send reg pack
-	lsn.EPollListenerDial(msgqueCenterAddr, &tcpAttachDataMsgQueCenter{}, false)
+	mqMgr.fdCenter, err = lsn.EPollListenerDial(msgqueCenterAddr, &tcpAttachDataMsgQueCenter{}, false)
+	if err != nil {
+		lin_common.LogErr("dial to msg que center err:", err)
+	}
+	lin_common.LogInfo("connect end~~~~~~~~~~~~~~~~~~~~~")
 
 	return mqMgr
 }
@@ -277,7 +306,7 @@ func (pthis*MsgQueSrv)Wait() {
 
 func (pthis*MsgQueSrv)Dump(bDetail bool) (str string) {
 
-	str += "addr out:" + pthis.addrOut + "\r\n"
+	str += "\r\naddr out:" + pthis.addrOut + "\r\n"
 	str += "que srv id:" + pthis.queSrvID.ToString() + "\r\n\r\n"
 
 	str += "connect to other msg que srv\r\n"
