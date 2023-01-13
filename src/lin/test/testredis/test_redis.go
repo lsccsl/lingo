@@ -168,7 +168,7 @@ func test_redis_scan(redisAddr string) {
 }
 
 func main() {
-	ip := "192.168.15.146"
+	ip := "192.168.3.71"
 
 	for {
 		test_redis_scan(ip + ":7001")

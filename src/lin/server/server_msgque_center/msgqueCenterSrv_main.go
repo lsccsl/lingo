@@ -18,5 +18,8 @@ func main() {
 	server_common.ReadCfg(pathCfg)
 
 	mqMgr := ConstructMsgQueCenterSrv(server_common.Global_ServerCfg.MsgQueCent.BindAddr, 10)
+
+	lin_common.ParseCmd()
+
 	mqMgr.Wait()
 }
