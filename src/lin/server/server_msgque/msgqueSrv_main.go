@@ -11,6 +11,8 @@ import (
 func main() {
 	lin_common.InitLog("./srv.log", "./srv_err.log", true, true)
 
+
+
 	msgpacket.InitMsgParseVirtualTable("../cfg")
 
 	// read config

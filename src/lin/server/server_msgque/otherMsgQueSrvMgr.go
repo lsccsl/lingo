@@ -14,22 +14,22 @@ func (pthis*otherMsgQueSrvMgr)Clear() {
 	pthis.mapOtherMsgQueSrv = sync.Map{}
 }
 
-func (pthis*otherMsgQueSrvMgr)updateQueSrvConn(queSrvID server_common.MSGQUE_SRV_ID, fdConn lin_common.FD_DEF) {
+func (pthis*otherMsgQueSrvMgr)updateQueSrvAccept(queSrvID server_common.MSGQUE_SRV_ID, fdAccept lin_common.FD_DEF) {
 	qsi := otherMsgQueSrvInfo{
 		queSrvID: queSrvID,
 	}
 	val, ok := pthis.mapOtherMsgQueSrv.Load(queSrvID)
 	if ok {
-		lin_common.LogInfo("find que srv", queSrvID.ToString())
+		lin_common.LogInfo("find que srv", queSrvID.String())
 		qsi, ok = val.(otherMsgQueSrvInfo)
 		if !ok {
-			lin_common.LogInfo("map value convert err, que srv", queSrvID.ToString())
+			lin_common.LogInfo("map value convert err, que srv", queSrvID.String())
 			return
 		}
 	} else {
-		lin_common.LogInfo("can't find que srv", queSrvID.ToString())
+		lin_common.LogInfo("can't find que srv", queSrvID.String())
 	}
-	qsi.fdConn = fdConn
+	qsi.fdAccept = fdAccept
 	pthis.mapOtherMsgQueSrv.Store(qsi.queSrvID, qsi)
 }
 
@@ -48,7 +48,7 @@ func (pthis*otherMsgQueSrvMgr)updateQueSrv(queSrvID server_common.MSGQUE_SRV_ID,
 	if ok1 {
 		otherQSI, ok2 := val.(otherMsgQueSrvInfo)
 		if ok2 {
-			qsi.fdConn = otherQSI.fdConn
+			qsi.fdAccept = otherQSI.fdAccept
 		}
 	}
 	pthis.mapOtherMsgQueSrv.Store(qsi.queSrvID, qsi)

@@ -14,6 +14,6 @@ const(
 	EN_TCP_CLOSE_REASON_repeated_msgque_center = lin_common.EN_TCP_CLOSE_REASON_inter_max + 3
 )
 
-func (id MSGQUE_SRV_ID)ToString() string {
+func (id MSGQUE_SRV_ID)String() string {
 	return " que srv id:" + strconv.FormatInt(int64(id), 10)
 }

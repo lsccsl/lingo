@@ -27,17 +27,17 @@ type MsgQueSrv struct {
 
 type otherMsgQueSrvInfo struct {
 	fdDial lin_common.FD_DEF
-	fdConn lin_common.FD_DEF
+	fdAccept lin_common.FD_DEF
 	ip string
 	port int32
 	queSrvID server_common.MSGQUE_SRV_ID
 }
 
 func (pthis *otherMsgQueSrvInfo)String() (str string) {
-	str += "que srv id:" + pthis.queSrvID.ToString() +
+	str += "que srv id:" + pthis.queSrvID.String() +
 		"[" + pthis.ip + ":" + strconv.FormatInt(int64(pthis.port), 10) + "]" +
 		" fdDial:" + pthis.fdDial.String() +
-		" fdConn:" + pthis.fdConn.String()
+		" fdConn:" + pthis.fdAccept.String()
 
 	return
 }
@@ -45,7 +45,7 @@ func (pthis *otherMsgQueSrvInfo)String() (str string) {
 type tcpAttachDataMsgQueSrvDial struct{
 	queSrvID server_common.MSGQUE_SRV_ID
 }
-type tcpAttachDataMsgQueSrvConn struct {
+type tcpAttachDataMsgQueSrvAccept struct {
 	queSrvID server_common.MSGQUE_SRV_ID
 }
 type tcpAttachDataMsgQueCenter struct {
@@ -57,7 +57,6 @@ func (pthis*MsgQueSrv)TcpAcceptConnection(fd lin_common.FD_DEF, addr net.Addr, i
 }
 
 func (pthis*MsgQueSrv)TcpDialConnection(fd lin_common.FD_DEF, addr net.Addr, inAttachData interface{})(outAttachData interface{}) {
-	lin_common.LogDebug(fd, addr, inAttachData)
 
 	switch inAttachData.(type) {
 	case *tcpAttachDataMsgQueCenter: // dial to msg que center tcp connection ok
@@ -88,26 +87,52 @@ func (pthis*MsgQueSrv)TcpDialConnection(fd lin_common.FD_DEF, addr net.Addr, inA
 			}
 			pthis.SendProtoMsg(fd, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_CONNECT, pbMsgConn)
 		}
+
+	default:
+		{
+			lin_common.LogDebug(fd, addr, inAttachData)
+		}
 	}
 
 	return
 }
 
 func (pthis*MsgQueSrv)TcpClose(fd lin_common.FD_DEF, closeReason lin_common.EN_TCP_CLOSE_REASON, inAttachData interface{}) {
-	lin_common.LogDebug(fd, " attach data:", inAttachData, " closeReason:", closeReason)
 
 	switch t := inAttachData.(type) {
 	case *tcpAttachDataMsgQueSrvDial:
 		{
+			queSrvID := t.queSrvID
+			lin_common.LogInfo(fd, "dial fd close, attach data:", inAttachData, " closeReason:", closeReason, " ", queSrvID.String())
+
+			qsi := &otherMsgQueSrvInfo{}
+			ok := pthis.otherMgr.Load(queSrvID, qsi)
+			if !ok {
+				return
+			}
+			if qsi.fdDial.IsSame(&fd) {
+				pthis.deleteMsgQueSrv(queSrvID)
+			}
 		}
 
-	case *tcpAttachDataMsgQueSrvConn:
+	case *tcpAttachDataMsgQueSrvAccept:
 		{
+			queSrvID := t.queSrvID
+			lin_common.LogInfo(fd, "accept fd close, attach data:", inAttachData, " closeReason:", closeReason, " ", queSrvID.String())
+
+			qsi := &otherMsgQueSrvInfo{}
+			ok := pthis.otherMgr.Load(queSrvID, qsi)
+			if !ok {
+				return
+			}
+			if qsi.fdAccept.IsSame(&fd) {
+				pthis.deleteMsgQueSrv(queSrvID)
+			}
 		}
 
 	case *tcpAttachDataMsgQueCenter:
 		{
-			lin_common.LogDebug(t)
+			lin_common.LogInfo(fd, "dial msg que center close, attach data:", inAttachData, " closeReason:", closeReason)
 			if !fd.IsSame(&pthis.fdCenter) {
 				return
 			}
@@ -115,6 +140,11 @@ func (pthis*MsgQueSrv)TcpClose(fd lin_common.FD_DEF, closeReason lin_common.EN_T
 			time.AfterFunc(time.Second * 3, func() {
 				pthis.fdCenter, _ = pthis.lsn.EPollListenerDial(pthis.msgqueCenterAddr, &tcpAttachDataMsgQueCenter{}, false)
 			})
+		}
+
+	default:
+		{
+			lin_common.LogInfo(fd, " attach data:", inAttachData, " closeReason:", closeReason)
 		}
 	}
 }
@@ -128,12 +158,12 @@ func (pthis*MsgQueSrv)TcpTick(fd lin_common.FD_DEF, tNowMill int64, inAttachData
 	switch inAttachData.(type) {
 	case *tcpAttachDataMsgQueCenter:
 		{
-			lin_common.LogDebug("send heart beat to msg que center ", pthis.queSrvID.ToString())
+			lin_common.LogDebug("send heart beat to msg que center ", pthis.queSrvID.String())
 			// send heartbeat
-			pbHB := &msgpacket.PB_MSG_INTER_QUESRV_HEARTBEAT{
+			pbHB := &msgpacket.PB_MSG_INTER_QUECENTER_HEARTBEAT{
 				QueSrvId: int64(pthis.queSrvID),
 			}
-			pthis.SendProtoMsg(pthis.fdCenter, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_HEARTBEAT, pbHB)
+			pthis.SendProtoMsg(pthis.fdCenter, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUECENTER_HEARTBEAT, pbHB)
 		}
 
 	default:
@@ -171,7 +201,7 @@ func (pthis*MsgQueSrv)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, inAtt
 			outAttachData = pthis.process_PB_MSG_INTER_QUESRV_CONNECT(fd, protoMsg)
 		}
 
-	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_HEARTBEAT_RES:
+	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUECENTER_HEARTBEAT_RES:
 		{
 			lin_common.LogDebug("receive heartbeat from msg que center server")
 		}
@@ -186,6 +216,23 @@ func (pthis*MsgQueSrv)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, inAtt
 }
 
 
+
+func (pthis*MsgQueSrv)dialToOtherMsgQue(queSrvID server_common.MSGQUE_SRV_ID, ip string, port int32){
+	addr := ip + ":" + strconv.FormatInt(int64(port), 10)
+	lin_common.LogInfo("addr", addr, " ", queSrvID.String())
+	attachData := &tcpAttachDataMsgQueSrvDial{
+		queSrvID: queSrvID,
+	}
+	fdDial, err := pthis.lsn.EPollListenerDial(addr, attachData, false)
+	if err != nil {
+		lin_common.LogErr("can't connect to:", addr, " ", queSrvID.String())
+	}
+	pthis.otherMgr.updateQueSrv(queSrvID,
+		fdDial,
+		ip,
+		port)
+}
+
 func (pthis*MsgQueSrv)process_PB_MSG_INTER_QUESRV_REGISTER_RES(pbMsg proto.Message) {
 	regRes, ok := pbMsg.(*msgpacket.PB_MSG_INTER_QUESRV_REGISTER_RES)
 	if !ok || regRes == nil {
@@ -196,7 +243,7 @@ func (pthis*MsgQueSrv)process_PB_MSG_INTER_QUESRV_REGISTER_RES(pbMsg proto.Messa
 		//close all current tcp connect to other msg que server
 		qsi := value.(otherMsgQueSrvInfo)
 		pthis.lsn.EPollListenerCloseTcp(qsi.fdDial, server_common.EN_TCP_CLOSE_REASON_reg_reconnect)
-		pthis.lsn.EPollListenerCloseTcp(qsi.fdConn, server_common.EN_TCP_CLOSE_REASON_reg_reconnect)
+		pthis.lsn.EPollListenerCloseTcp(qsi.fdAccept, server_common.EN_TCP_CLOSE_REASON_reg_reconnect)
 		return true
 	})
 
@@ -208,20 +255,8 @@ func (pthis*MsgQueSrv)process_PB_MSG_INTER_QUESRV_REGISTER_RES(pbMsg proto.Messa
 		if pbqsi.QueSrvId == int64(pthis.queSrvID) {
 			continue
 		}
-		addr := pbqsi.Ip + ":" + strconv.FormatInt(int64(pbqsi.Port), 10)
-		lin_common.LogInfo("addr", addr, pbqsi)
-		attachData := &tcpAttachDataMsgQueSrvDial{
-			queSrvID: server_common.MSGQUE_SRV_ID(pbqsi.QueSrvId),
-		}
 
-		fdDial, err := pthis.lsn.EPollListenerDial(addr, attachData, false)
-		if err != nil {
-			lin_common.LogErr("can't connect to:", addr, " ", server_common.MSGQUE_SRV_ID(pbqsi.QueSrvId).ToString())
-		}
-		pthis.otherMgr.updateQueSrv(server_common.MSGQUE_SRV_ID(pbqsi.QueSrvId),
-			fdDial,
-			pbqsi.Ip,
-			pbqsi.Port)
+		pthis.dialToOtherMsgQue(server_common.MSGQUE_SRV_ID(pbqsi.QueSrvId), pbqsi.Ip, pbqsi.Port)
 	}
 }
 
@@ -233,22 +268,7 @@ func (pthis*MsgQueSrv)process_PB_MSG_INTER_QUESRV_ONLINE_NTF(pbMsg proto.Message
 	}
 
 	pbqsi := pbNtf.QueSrvInfo
-	queSrvID := server_common.MSGQUE_SRV_ID(pbqsi.QueSrvId)
-	addr := pbqsi.Ip + ":" + strconv.FormatInt(int64(pbqsi.Port), 10)
-	lin_common.LogInfo("addr", addr, " ", pbqsi, " ", queSrvID.ToString())
-	attachData := &tcpAttachDataMsgQueSrvDial{
-		queSrvID: server_common.MSGQUE_SRV_ID(pbqsi.QueSrvId),
-	}
-
-	fdDial, err := pthis.lsn.EPollListenerDial(addr, attachData, false)
-	if err != nil {
-		lin_common.LogErr("can't connect to:", addr, " ", queSrvID.ToString())
-	}
-
-	pthis.otherMgr.updateQueSrv(server_common.MSGQUE_SRV_ID(pbqsi.QueSrvId),
-		fdDial,
-		pbqsi.Ip,
-		pbqsi.Port)
+	pthis.dialToOtherMsgQue(server_common.MSGQUE_SRV_ID(pbqsi.QueSrvId), pbqsi.Ip, pbqsi.Port)
 }
 
 func (pthis*MsgQueSrv)process_PB_MSG_INTER_QUESRV_OFFLINE_NTF(pbMsg proto.Message) {
@@ -259,14 +279,18 @@ func (pthis*MsgQueSrv)process_PB_MSG_INTER_QUESRV_OFFLINE_NTF(pbMsg proto.Messag
 	}
 
 	queSrvID := server_common.MSGQUE_SRV_ID(pbNtf.QueSrvId)
+	pthis.deleteMsgQueSrv(queSrvID)
+}
+
+func (pthis*MsgQueSrv)deleteMsgQueSrv(queSrvID server_common.MSGQUE_SRV_ID) {
 	qsi := otherMsgQueSrvInfo{}
-	ok = pthis.otherMgr.LoadAndDelete(queSrvID, &qsi)
+	ok := pthis.otherMgr.LoadAndDelete(queSrvID, &qsi)
 	if !ok {
 		return
 	}
 
 	pthis.lsn.EPollListenerCloseTcp(qsi.fdDial, server_common.EN_TCP_CLOSE_REASON_recv_ntf_offline)
-	pthis.lsn.EPollListenerCloseTcp(qsi.fdConn, server_common.EN_TCP_CLOSE_REASON_recv_ntf_offline)
+	pthis.lsn.EPollListenerCloseTcp(qsi.fdAccept, server_common.EN_TCP_CLOSE_REASON_recv_ntf_offline)
 }
 
 func (pthis*MsgQueSrv)process_PB_MSG_INTER_QUESRV_CONNECT(fd lin_common.FD_DEF, pbMsg proto.Message) interface{} {
@@ -276,15 +300,15 @@ func (pthis*MsgQueSrv)process_PB_MSG_INTER_QUESRV_CONNECT(fd lin_common.FD_DEF, 
 	}
 
 	queSrvID := server_common.MSGQUE_SRV_ID(pbConn.QueSrvId)
-	lin_common.LogInfo("que srv connect, fd:", fd, " ", queSrvID.ToString(), " pb msg:", pbConn)
+	lin_common.LogInfo("que srv connect, fd:", fd, " ", queSrvID.String(), " pb msg:", pbConn)
 
-	pthis.otherMgr.updateQueSrvConn(queSrvID, fd)
+	pthis.otherMgr.updateQueSrvAccept(queSrvID, fd)
 
 	// send res pack
 	pbRes := &msgpacket.PB_MSG_INTER_QUESRV_CONNECT_RES{QueSrvId: int64(queSrvID)}
 	pthis.SendProtoMsg(fd, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_CONNECT_RES, pbRes)
 
-	return &tcpAttachDataMsgQueSrvConn{queSrvID: server_common.MSGQUE_SRV_ID(queSrvID)}
+	return &tcpAttachDataMsgQueSrvAccept{queSrvID: server_common.MSGQUE_SRV_ID(queSrvID)}
 }
 
 func (pthis*MsgQueSrv)SendProtoMsg(fd lin_common.FD_DEF, msgType msgpacket.PB_MSG_INTER_TYPE, protoMsg proto.Message){
@@ -328,7 +352,9 @@ func (pthis*MsgQueSrv)Wait() {
 func (pthis*MsgQueSrv)Dump(bDetail bool) (str string) {
 
 	str += "\r\naddr out:" + pthis.addrOut + "\r\n"
-	str += pthis.queSrvID.ToString() + "\r\n\r\n"
+	str += "msg que center:" + pthis.msgqueCenterAddr + pthis.fdCenter.String()
+	str += pthis.queSrvID.String() + "\r\n\r\n"
+
 
 	str += "connect to other msg que srv\r\n"
 	pthis.otherMgr.Range(func(key, value any) bool{

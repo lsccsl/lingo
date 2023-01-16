@@ -29,7 +29,7 @@ type msgQueSrvInfo struct {
 }
 
 func (pthis*msgQueSrvInfo)String()(str string){
-	str = pthis.queSrvID.ToString() + " fd:" + pthis.fd.String() +
+	str = pthis.queSrvID.String() + " fd:" + pthis.fd.String() +
 		"[" + pthis.ip + ":" + strconv.FormatInt(int64(pthis.port), 10) + "]"
 	return
 }
@@ -62,7 +62,7 @@ func (pthis*MsgQueCenterSrv)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer,
 			outAttachData = pthis.process_PB_MSG_INTER_QUESRV_REGISTER(fd, protoMsg)
 		}
 
-	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_HEARTBEAT:
+	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUECENTER_HEARTBEAT:
 		{
 			pthis.process_PB_MSG_INTER_QUESRV_HEARTBEAT(fd, protoMsg)
 		}
@@ -98,16 +98,16 @@ func (pthis*MsgQueCenterSrv)TcpTick(fd lin_common.FD_DEF, tNowMill int64, inAtta
 
 
 func (pthis*MsgQueCenterSrv)process_PB_MSG_INTER_QUESRV_HEARTBEAT(fd lin_common.FD_DEF, pbMsg proto.Message){
-	pbHB := pbMsg.(*msgpacket.PB_MSG_INTER_QUESRV_HEARTBEAT)
+	pbHB := pbMsg.(*msgpacket.PB_MSG_INTER_QUECENTER_HEARTBEAT)
 	if pbHB == nil {
 		return
 	}
 	// send heartbeat back
-	pbHBRes := &msgpacket.PB_MSG_INTER_QUESRV_HEARTBEAT_RES{}
+	pbHBRes := &msgpacket.PB_MSG_INTER_QUECENTER_HEARTBEAT_RES{}
 	pbHBRes.QueSrvId = pbHB.QueSrvId
-	lin_common.LogDebug("receive heartbeat ", server_common.MSGQUE_SRV_ID(pbHB.QueSrvId).ToString())
+	lin_common.LogDebug("receive heartbeat ", server_common.MSGQUE_SRV_ID(pbHB.QueSrvId).String())
 
-	pthis.SendProtoMsg(fd, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_HEARTBEAT_RES, pbHBRes)
+	pthis.SendProtoMsg(fd, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUECENTER_HEARTBEAT_RES, pbHBRes)
 }
 
 func (pthis*MsgQueCenterSrv)process_PB_MSG_INTER_QUESRV_REGISTER(fd lin_common.FD_DEF, pbMsg proto.Message) interface{}{
@@ -176,21 +176,21 @@ func (pthis*MsgQueCenterSrv)process_PB_MSG_INTER_QUESRV_REGISTER(fd lin_common.F
 }
 
 func (pthis*MsgQueCenterSrv)process_TcpClose_MsgQueSrv(fd lin_common.FD_DEF, attachData *tcpAttachDataMsgQueSrv) {
-	lin_common.LogInfo(attachData.queSrvID.ToString())
+	lin_common.LogInfo(attachData.queSrvID.String())
 
 	val, ok := pthis.mapMsgQueSrv.Load(attachData.queSrvID)
 	if !ok {
-		lin_common.LogErr(attachData.queSrvID.ToString(), " can't find")
+		lin_common.LogErr(attachData.queSrvID.String(), " can't find")
 		return
 	}
 	qsi, ok := val.(msgQueSrvInfo)
 	if !ok {
-		lin_common.LogErr(attachData.queSrvID.ToString(), " data convert err")
+		lin_common.LogErr(attachData.queSrvID.String(), " data convert err")
 		return
 	}
 
 	if !qsi.fd.IsSame(&fd) {
-		lin_common.LogErr(attachData.queSrvID.ToString(), " fd is not same, current:", qsi.fd, " close:", fd)
+		lin_common.LogErr(attachData.queSrvID.String(), " fd is not same, current:", qsi.fd, " close:", fd)
 		return
 	}
 
