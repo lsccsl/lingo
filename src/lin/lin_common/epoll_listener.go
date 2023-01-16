@@ -421,6 +421,13 @@ func (pthis*ePollConnection)_tcpTick(tNowMill int64) {
 		return
 	}
 
+	tDiffMills := tNowMill - pthis._tLastTickMills
+	if tDiffMills < int64(pthis._lsn._paramEpollWaitTimeoutMills) {
+		return
+	}
+
+	pthis._tLastTickMills = tNowMill
+
 	for k, v := range pthis._mapTcp {
 		if v == nil {
 			LogErr("tcp connection info err, fd", k)
@@ -439,7 +446,8 @@ func (pthis*ePollConnection)_go_EpollConnection_epollwait() {
 		LogErr("_go_EpollConnection_epollwait quit")
 	}()
 
-	pthis._tLastCheckIdeMills = time.Now().Unix()
+	pthis._tLastCheckIdeMills = time.Now().UnixMilli()
+	pthis._tLastTickMills = pthis._tLastCheckIdeMills
 
 	// todo: change the events array size by epoll wait ret count
 	events := make([]unix.EpollEvent, pthis._lsn._paramMaxEpollEventCount)

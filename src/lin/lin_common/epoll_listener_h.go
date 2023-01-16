@@ -133,6 +133,7 @@ type ePollConnection struct {
 	_binRead []byte
 	_mapTcp MAP_TCPCONNECTION
 	_tLastCheckIdeMills int64
+	_tLastTickMills int64
 
 	ePollConnectionStatic
 }

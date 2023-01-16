@@ -54,14 +54,22 @@ func (pthis*MsgQueCenterSrv)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer,
 	if protoMsg == nil {
 		return
 	}
-	lin_common.LogInfo("packType:", packType, " bytesProcess:", bytesProcess)
 
 	outAttachData = nil
 	switch msgpacket.PB_MSG_INTER_TYPE(packType) {
 	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_REGISTER:
 		{
 			outAttachData = pthis.process_PB_MSG_INTER_QUESRV_REGISTER(fd, protoMsg)
-			return
+		}
+
+	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_HEARTBEAT:
+		{
+			pthis.process_PB_MSG_INTER_QUESRV_HEARTBEAT(fd, protoMsg)
+		}
+
+	default:
+		{
+			lin_common.LogInfo("packType:", packType, " bytesProcess:", bytesProcess)
 		}
 	}
 
@@ -88,6 +96,19 @@ func (pthis*MsgQueCenterSrv)TcpTick(fd lin_common.FD_DEF, tNowMill int64, inAtta
 }
 
 
+
+func (pthis*MsgQueCenterSrv)process_PB_MSG_INTER_QUESRV_HEARTBEAT(fd lin_common.FD_DEF, pbMsg proto.Message){
+	pbHB := pbMsg.(*msgpacket.PB_MSG_INTER_QUESRV_HEARTBEAT)
+	if pbHB == nil {
+		return
+	}
+	// send heartbeat back
+	pbHBRes := &msgpacket.PB_MSG_INTER_QUESRV_HEARTBEAT_RES{}
+	pbHBRes.QueSrvId = pbHB.QueSrvId
+	lin_common.LogDebug("receive heartbeat ", server_common.MSGQUE_SRV_ID(pbHB.QueSrvId).ToString())
+
+	pthis.SendProtoMsg(fd, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_HEARTBEAT_RES, pbHBRes)
+}
 
 func (pthis*MsgQueCenterSrv)process_PB_MSG_INTER_QUESRV_REGISTER(fd lin_common.FD_DEF, pbMsg proto.Message) interface{}{
 
@@ -208,8 +229,8 @@ func ConstructMsgQueCenterSrv(addr string, epollCoroutineCount int) *MsgQueCente
 
 	lsn, err := lin_common.ConstructorEPollListener(mqMgr, addr, epollCoroutineCount,
 		lin_common.ParamEPollListener{ParamET: true,
-			ParamEpollWaitTimeoutMills:3*1000,
-			ParamIdleClose:60 * 1000,
+			ParamEpollWaitTimeoutMills:30*1000,
+			ParamIdleClose:180 * 1000,
 		})
 	if err != nil {
 		lin_common.LogErr("constructor epoll listener err:", err)
