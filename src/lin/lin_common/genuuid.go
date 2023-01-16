@@ -9,7 +9,7 @@ import (
 
 const UUID_INVALID int64 = 0
 
-func genUUID64_V1() int64 {
+func GenUUID64_V1() int64 {
 	newUUID, err := uuid_v1.NewUUID()
 	if err != nil {
 		return UUID_INVALID

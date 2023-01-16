@@ -3,6 +3,8 @@ package main
 import "lin/msgpacket"
 
 func main()  {
+	test_uuid()
+	return
 	msgpacket.InitMsgParseVirtualTable("")
 	test_go_routine()
 	test_map()
