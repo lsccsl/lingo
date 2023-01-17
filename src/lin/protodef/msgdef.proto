@@ -1,0 +1,38 @@
+syntax = "proto3";
+package msgpacket;
+
+option go_package = "./;msgpacket";
+
+enum PB_MSG_INTER_TYPE
+{
+    _PB_MSG_INTER_NULL = 0;
+    _PB_MSG_INTER_QUESRV_REGISTER         = 1;
+    _PB_MSG_INTER_QUESRV_REGISTER_RES     = 2;
+    _PB_MSG_INTER_QUESRV_OFFLINE_NTF      = 3;
+    _PB_MSG_INTER_QUESRV_ONLINE_NTF       = 4;
+    _PB_MSG_INTER_QUESRV_CONNECT          = 5;
+    _PB_MSG_INTER_QUESRV_CONNECT_RES      = 6;
+    _PB_MSG_INTER_QUECENTER_HEARTBEAT     = 7;
+    _PB_MSG_INTER_QUECENTER_HEARTBEAT_RES = 8;
+    _PB_MSG_INTER_QUESRV_HEARTBEAT        = 9;
+    _PB_MSG_INTER_QUESRV_HEARTBEAT_RES    = 10;
+
+    _PB_MSG_INTER_SRV_REG = 11;
+    _PB_MSG_INTER_SRV_REG_RES = 12;
+    _PB_MSG_INTER_SRV_HEARTBEAT = 13;
+    _PB_MSG_INTER_SRV_HEARTBEAT_RES = 14;
+    _PB_MSG_INTER_SRV_REG_TO_QUE = 15;
+    _PB_MSG_INTER_SRV_REG_TO_QUE_RES = 16;
+
+    _PB_MSG_INTER_SRV_MSG = 17;
+
+}
+
+enum PB_RESPONSE_CODE
+{
+    PB_RESPONSE_CODE_Fail = 0;
+    PB_RESPONSE_CODE_OK = 1;
+    PB_RESPONSE_CODE_Rpc_not_accept = 2;
+    PB_RESPONSE_CODE_redirect = 3;
+    PB_RESPONSE_CODE_no_que_srv = 4;
+}

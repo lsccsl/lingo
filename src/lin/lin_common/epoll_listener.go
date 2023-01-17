@@ -565,41 +565,42 @@ func (pthis*EPollListener)EPollListenerInit(cb EPollCallback, addr string, epoll
 
 	var err error
 
-	{
-		// create epoll fd
-		pthis._epollAccept._epollFD, err = unixEpollCreate()
-		if err != nil {
-			return GenErrNoERR_NUM("create epoll accept handle fail:", err)
-		}
-		// create tcp listener fd
-		pthis._epollAccept._tcpListenerFD, err = _tcpListen(addr)
-		if err != nil {
-			return err
+	if len(addr) != 0 {
+		{
+			// create epoll fd
+			pthis._epollAccept._epollFD, err = unixEpollCreate()
+			if err != nil {
+				return GenErrNoERR_NUM("create epoll accept handle fail:", err)
+			}
+			// create tcp listener fd
+			pthis._epollAccept._tcpListenerFD, err = _tcpListen(addr)
+			if err != nil {
+				return err
+			}
+
+			// add tcp listener fd to epoll wait
+			err = unixEpollAdd(pthis._epollAccept._epollFD, pthis._epollAccept._tcpListenerFD, EPOLL_EVENT_READ, 0, pthis._paramET)
+			if err != nil {
+				return GenErrNoERR_NUM("add listener fd to epoll fail:", err)
+			}
 		}
 
-		// add tcp listener fd to epoll wait
-		err = unixEpollAdd(pthis._epollAccept._epollFD, pthis._epollAccept._tcpListenerFD, EPOLL_EVENT_READ, 0, pthis._paramET)
-		if err != nil {
-			return GenErrNoERR_NUM("add listener fd to epoll fail:", err)
+		{
+			// create event fd
+			pthis._epollAccept._evtFD, err = unixEvent()
+			if err != nil {
+				return err
+			}
+
+			// add event fd to epoll wait
+			err = unixEpollAdd(pthis._epollAccept._epollFD, pthis._epollAccept._evtFD, EPOLL_EVENT_READ, 0, pthis._paramET)
+			if err != nil {
+				return GenErrNoERR_NUM("add listener fd to epoll fail:", err)
+			}
 		}
+		pthis._wg.Add(1)
+		go pthis._epollAccept._go_EpollAccept_epollwait()
 	}
-
-	{
-		// create event fd
-		pthis._epollAccept._evtFD, err = unixEvent()
-		if err != nil {
-			return err
-		}
-
-		// add event fd to epoll wait
-		err = unixEpollAdd(pthis._epollAccept._epollFD, pthis._epollAccept._evtFD, EPOLL_EVENT_READ, 0, pthis._paramET)
-		if err != nil {
-			return GenErrNoERR_NUM("add listener fd to epoll fail:", err)
-		}
-	}
-
-	pthis._wg.Add(1)
-	go pthis._epollAccept._go_EpollAccept_epollwait()
 
 	for i := 0; i < epollCoroutineCount; i ++ {
 		epollConn := &ePollConnection{

@@ -238,6 +238,11 @@ func (pthis*MsgQueSrv)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, inAtt
 			lin_common.LogDebug(fd, "PB_MSG_INTER_QUESRV_HEARTBEAT_RES:", protoMsg, " attach:", inAttachData)
 		}
 
+	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_SRV_REG_TO_QUE:
+		{
+			lin_common.LogDebug(fd, "PB_MSG_INTER_TYPE__PB_MSG_INTER_SRV_REG_TO_QUE:", protoMsg, " attach:", inAttachData)
+		}
+
 	default:
 		{
 			lin_common.LogDebug(fd, "packType:", packType, " bytesProcess:", bytesProcess, " proto msg", protoMsg, " attach:", inAttachData)

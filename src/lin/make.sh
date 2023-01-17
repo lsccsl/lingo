@@ -11,5 +11,6 @@ go build -o ../../output/test_redis           lin/test/testredis
 
 go build -o ../../output/msgque_center lin/server/server_msgque_center
 go build -o ../../output/msgque        lin/server/server_msgque
+go build -o ../../output/gateway       lin/server/server_gateway
 
 cp ./msgpacket/*.pb.go ../../cfg/

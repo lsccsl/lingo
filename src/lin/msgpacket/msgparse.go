@@ -82,7 +82,7 @@ func genAllMsgParse(msgprotoPath string) {
 		for keyFileName, file := range pkg.Files {
 
 			str := filepath.Base(keyFileName)
-			if str != "msg.pb.go" && str != "msginter.pb.go" {
+			if str != "msg.pb.go" && str != "msginter.pb.go" && str != "msgdef.pb.go" {
 				continue
 			}
 

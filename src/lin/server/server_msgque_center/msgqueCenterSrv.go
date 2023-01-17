@@ -7,33 +7,25 @@ import (
 	"lin/msgpacket"
 	"lin/server/server_common"
 	"net"
-	"strconv"
-	"sync"
 )
 
 // MsgQueCenterSrv this struct is access by multi go coroutine, all member must be 'thread safe'
 type MsgQueCenterSrv struct {
 	lsn *lin_common.EPollListener
 
-	mapMsgQueSrv sync.Map // server_common.MSGQUE_SRV_ID - msgQueSrvInfo
+	queSrvMgr *MsgQueSrvMgr
 
 	//srvIDSeed atomic.Int64
 }
 
-type msgQueSrvInfo struct {
-	fd lin_common.FD_DEF
-	ip string
-	port int32
+
+
+
+type tcpAttachDataMsgQueSrv struct {
 	queSrvID server_common.MSGQUE_SRV_ID
 }
 
-func (pthis*msgQueSrvInfo)String()(str string){
-	str = pthis.queSrvID.String() + " fd:" + pthis.fd.String() +
-		"[" + pthis.ip + ":" + strconv.FormatInt(int64(pthis.port), 10) + "]"
-	return
-}
-
-type tcpAttachDataMsgQueSrv struct {
+type tcpAttachDataSrv struct {
 	queSrvID server_common.MSGQUE_SRV_ID
 }
 
@@ -63,7 +55,13 @@ func (pthis*MsgQueCenterSrv)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer,
 
 	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUECENTER_HEARTBEAT:
 		{
+			lin_common.LogDebug(fd, "PB_MSG_INTER_QUECENTER_HEARTBEAT:", protoMsg, " attach:", inAttachData)
 			pthis.process_PB_MSG_INTER_QUESRV_HEARTBEAT(fd, protoMsg)
+		}
+
+	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_SRV_REG:
+		{
+			pthis.process_PB_MSG_INTER_SRV_REG(fd, protoMsg)
 		}
 
 	default:
@@ -96,7 +94,37 @@ func (pthis*MsgQueCenterSrv)TcpTick(fd lin_common.FD_DEF, tNowMill int64, inAtta
 
 
 
-func (pthis*MsgQueCenterSrv)process_PB_MSG_INTER_QUESRV_HEARTBEAT(fd lin_common.FD_DEF, pbMsg proto.Message){
+func (pthis*MsgQueCenterSrv)process_PB_MSG_INTER_SRV_REG(fd lin_common.FD_DEF, pbMsg proto.Message) {
+	lin_common.LogDebug(fd, "PB_MSG_INTER_SRV_REG:", pbMsg)
+	// choose a que srv
+	pbReg := pbMsg.(*msgpacket.PB_MSG_INTER_SRV_REG)
+
+	pbRes := &msgpacket.PB_MSG_INTER_SRV_REG_RES{
+		Res:msgpacket.PB_RESPONSE_CODE_PB_RESPONSE_CODE_OK,
+	}
+
+	defer pthis.SendProtoMsg(fd, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_SRV_REG_RES, pbRes)
+
+	// choose a que srv
+	qsi, ok := pthis.queSrvMgr.ChooseMostIdleQueSrv()
+	if !ok {
+		pbRes.Res = msgpacket.PB_RESPONSE_CODE_PB_RESPONSE_CODE_no_que_srv
+		return
+	}
+
+	srvUUID := server_common.MSGQUE_SRV_ID(pbReg.SrvUuid)
+	if srvUUID == server_common.MSGQUE_SRV_ID_INVALID {
+		srvUUID = pthis.genSrvID()
+	}
+	pbRes.SrvUuid = int64(srvUUID)
+	pbRes.QueSrvId = int64(qsi.queSrvID)
+	pbRes.QueSrvIp = qsi.ip
+	pbRes.QueSrvPort = qsi.port
+
+	// and client redirect to msg que srv that been chosen
+}
+
+func (pthis*MsgQueCenterSrv)process_PB_MSG_INTER_QUESRV_HEARTBEAT(fd lin_common.FD_DEF, pbMsg proto.Message) {
 	pbHB := pbMsg.(*msgpacket.PB_MSG_INTER_QUECENTER_HEARTBEAT)
 	if pbHB == nil {
 		return
@@ -110,34 +138,35 @@ func (pthis*MsgQueCenterSrv)process_PB_MSG_INTER_QUESRV_HEARTBEAT(fd lin_common.
 }
 
 func (pthis*MsgQueCenterSrv)process_PB_MSG_INTER_QUESRV_REGISTER(fd lin_common.FD_DEF, pbMsg proto.Message) interface{}{
-
+	lin_common.LogDebug(fd, "PB_MSG_INTER_QUESRV_REGISTER:", pbMsg, " attach:")
 	regMsg, ok := pbMsg.(*msgpacket.PB_MSG_INTER_QUESRV_REGISTER)
 	if !ok || regMsg == nil {
+		lin_common.LogErr("err msg", pbMsg)
 		return nil
 	}
 
 	queSrvID := server_common.MSGQUE_SRV_ID(regMsg.QueSrvId)
 	if queSrvID == server_common.MSGQUE_SRV_ID_INVALID {
-		queSrvID = pthis.genQueSrvID()
+		queSrvID = pthis.genSrvID()
 	}
 
 	//assign id
-	qsiReg := msgQueSrvInfo{
+	qsiReg := MsgQueSrvInfo{
 		queSrvID : queSrvID,
 		fd :       fd,
 		ip :       regMsg.Ip,
 		port:      regMsg.Port,
 	}
 	//add msg que server list
-	pthis.mapMsgQueSrv.Store(qsiReg.queSrvID, qsiReg)
+	pthis.queSrvMgr.StoreQueSrvInfo(&qsiReg)
 
 	//response
 	regRet := &msgpacket.PB_MSG_INTER_QUESRV_REGISTER_RES{}
 	regRet.QueSrvId = int64(qsiReg.queSrvID)
 
-	pthis.mapMsgQueSrv.Range(func(key, value any) bool{
+	pthis.queSrvMgr.RangeQueSrvInfo(func(key, value any) bool{
 
-		qsi, ok := value.(msgQueSrvInfo)
+		qsi, ok := value.(MsgQueSrvInfo)
 		if !ok {
 			return true
 		}
@@ -153,8 +182,8 @@ func (pthis*MsgQueCenterSrv)process_PB_MSG_INTER_QUESRV_REGISTER(fd lin_common.F
 
 	pthis.SendProtoMsg(fd, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_REGISTER_RES, regRet)
 
-	pthis.mapMsgQueSrv.Range(func(key, value any) bool{
-		qsi, ok := value.(msgQueSrvInfo)
+	pthis.queSrvMgr.RangeQueSrvInfo(func(key, value any) bool{
+		qsi, ok := value.(MsgQueSrvInfo)
 		if !ok {
 			return true
 		}
@@ -182,14 +211,9 @@ func (pthis*MsgQueCenterSrv)process_PB_MSG_INTER_QUESRV_REGISTER(fd lin_common.F
 func (pthis*MsgQueCenterSrv)process_TcpClose_MsgQueSrv(fd lin_common.FD_DEF, attachData *tcpAttachDataMsgQueSrv) {
 	lin_common.LogInfo(attachData.queSrvID.String())
 
-	val, ok := pthis.mapMsgQueSrv.Load(attachData.queSrvID)
+	qsi, ok := pthis.queSrvMgr.LoadQueSrvInfo(attachData.queSrvID)
 	if !ok {
 		lin_common.LogErr(attachData.queSrvID.String(), " can't find")
-		return
-	}
-	qsi, ok := val.(msgQueSrvInfo)
-	if !ok {
-		lin_common.LogErr(attachData.queSrvID.String(), " data convert err")
 		return
 	}
 
@@ -198,10 +222,10 @@ func (pthis*MsgQueCenterSrv)process_TcpClose_MsgQueSrv(fd lin_common.FD_DEF, att
 		return
 	}
 
-	pthis.mapMsgQueSrv.Delete(attachData.queSrvID)
+	pthis.queSrvMgr.DeleteQueSrvInfo(attachData.queSrvID)
 
-	pthis.mapMsgQueSrv.Range(func(key, value any) bool{
-		qsi, ok := value.(msgQueSrvInfo)
+	pthis.queSrvMgr.RangeQueSrvInfo(func(key, value any) bool{
+		qsi, ok := value.(MsgQueSrvInfo)
 		if !ok {
 			return true
 		}
@@ -214,7 +238,7 @@ func (pthis*MsgQueCenterSrv)process_TcpClose_MsgQueSrv(fd lin_common.FD_DEF, att
 	})
 }
 
-func (pthis*MsgQueCenterSrv)genQueSrvID() server_common.MSGQUE_SRV_ID {
+func (pthis*MsgQueCenterSrv)genSrvID() server_common.MSGQUE_SRV_ID {
 	return server_common.MSGQUE_SRV_ID(lin_common.GenUUID64_V4())
 	//return server_common.MSGQUE_SRV_ID(pthis.srvIDSeed.Add(1))
 }
@@ -229,7 +253,9 @@ func (pthis*MsgQueCenterSrv)Wait() {
 
 // ConstructMsgQueCenterSrv <addr> example 127.0.0.1:8888
 func ConstructMsgQueCenterSrv(addr string, epollCoroutineCount int) *MsgQueCenterSrv {
-	mqMgr := &MsgQueCenterSrv{}
+	mqMgr := &MsgQueCenterSrv{
+		queSrvMgr: ConstructMsgQueSrvMgr(),
+	}
 	//mqMgr.srvIDSeed.Store(1)
 
 	lsn, err := lin_common.ConstructorEPollListener(mqMgr, addr, epollCoroutineCount,
@@ -251,8 +277,8 @@ func (pthis*MsgQueCenterSrv)Dump(bDetail bool) (str string) {
 	//str = "\r\nque srv id seed:" + strconv.FormatInt(pthis.srvIDSeed.Load(), 10) + "\r\n"
 
 	str += "msg que srv reg:\r\n"
-	pthis.mapMsgQueSrv.Range(func(key, value any) bool{
-		qsi, ok := value.(msgQueSrvInfo)
+	pthis.queSrvMgr.RangeQueSrvInfo(func(key, value any) bool{
+		qsi, ok := value.(MsgQueSrvInfo)
 		if !ok {
 			return true
 		}

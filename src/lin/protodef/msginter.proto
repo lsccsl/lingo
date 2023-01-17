@@ -3,25 +3,7 @@ package msgpacket;
 
 option go_package = "./;msgpacket";
 
-enum PB_MSG_INTER_TYPE
-{
-    _PB_MSG_INTER_NULL = 0;
-    _PB_MSG_INTER_QUESRV_REGISTER         = 1;
-    _PB_MSG_INTER_QUESRV_REGISTER_RES     = 2;
-    _PB_MSG_INTER_QUESRV_OFFLINE_NTF      = 3;
-    _PB_MSG_INTER_QUESRV_ONLINE_NTF       = 4;
-    _PB_MSG_INTER_QUESRV_CONNECT          = 5;
-    _PB_MSG_INTER_QUESRV_CONNECT_RES      = 6;
-    _PB_MSG_INTER_QUECENTER_HEARTBEAT     = 7;
-    _PB_MSG_INTER_QUECENTER_HEARTBEAT_RES = 8;
-    _PB_MSG_INTER_QUESRV_HEARTBEAT        = 9;
-    _PB_MSG_INTER_QUESRV_HEARTBEAT_RES    = 10;
-
-    _PB_MSG_INTER_SRV_REG = 11; //
-    _PB_MSG_INTER_SRV_REG_RES = 12;
-    _PB_MSG_INTER_SRV_HEARTBEAT = 13;
-    _PB_MSG_INTER_SRV_HEARTBEAT_RES = 14;
-}
+import "msgdef.proto";
 
 message PB_MSG_INTER_QUESRV_REGISTER
 {
@@ -83,10 +65,15 @@ message PB_MSG_INTER_QUESRV_HEARTBEAT_RES
 message PB_MSG_INTER_SRV_REG
 {
     int32 srv_type = 1;
+    int64 srv_uuid = 2;
 }
 message PB_MSG_INTER_SRV_REG_RES
 {
-    int64 srv_uuid = 1;
+    PB_RESPONSE_CODE res = 1;
+    int64 srv_uuid = 2;
+    int64 que_srv_id = 3;
+    string que_srv_ip = 4;
+    int32 que_srv_port = 5;
 }
 
 message PB_MSG_INTER_SRV_HEARTBEAT
@@ -96,4 +83,21 @@ message PB_MSG_INTER_SRV_HEARTBEAT
 message PB_MSG_INTER_SRV_HEARTBEAT_RES
 {
     int64 srv_uuid = 1;
+}
+
+message PB_MSG_INTER_SRV_MSG
+{
+    int64 srv_uuid = 1;
+    bytes msg_bin = 2;
+}
+
+message PB_MSG_INTER_SRV_REG_TO_QUE
+{
+    int64 srv_uuid = 1;
+    int32 srv_type = 2;
+}
+message PB_MSG_INTER_SRV_REG_TO_QUE_RES
+{
+    int64 srv_uuid = 1;
+    int32 srv_type = 2;
 }
