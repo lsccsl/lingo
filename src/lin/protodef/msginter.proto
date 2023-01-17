@@ -16,12 +16,18 @@ enum PB_MSG_INTER_TYPE
     _PB_MSG_INTER_QUECENTER_HEARTBEAT_RES = 8;
     _PB_MSG_INTER_QUESRV_HEARTBEAT        = 9;
     _PB_MSG_INTER_QUESRV_HEARTBEAT_RES    = 10;
+
+    _PB_MSG_INTER_SRV_REG = 11; //
+    _PB_MSG_INTER_SRV_REG_RES = 12;
+    _PB_MSG_INTER_SRV_HEARTBEAT = 13;
+    _PB_MSG_INTER_SRV_HEARTBEAT_RES = 14;
 }
 
 message PB_MSG_INTER_QUESRV_REGISTER
 {
-    string ip = 1;
-    int32 port = 2;
+    int64 que_srv_id = 1;
+    string ip = 2;
+    int32 port = 3;
 }
 
 message PB_MSG_INTER_QUESRV_INFO
@@ -72,4 +78,22 @@ message PB_MSG_INTER_QUESRV_HEARTBEAT
 message PB_MSG_INTER_QUESRV_HEARTBEAT_RES
 {
     int64 que_srv_id = 1;
+}
+
+message PB_MSG_INTER_SRV_REG
+{
+    int32 srv_type = 1;
+}
+message PB_MSG_INTER_SRV_REG_RES
+{
+    int64 srv_uuid = 1;
+}
+
+message PB_MSG_INTER_SRV_HEARTBEAT
+{
+    int64 srv_uuid = 1;
+}
+message PB_MSG_INTER_SRV_HEARTBEAT_RES
+{
+    int64 srv_uuid = 1;
 }

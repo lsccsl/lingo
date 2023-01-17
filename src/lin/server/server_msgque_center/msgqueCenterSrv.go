@@ -9,7 +9,6 @@ import (
 	"net"
 	"strconv"
 	"sync"
-	"sync/atomic"
 )
 
 // MsgQueCenterSrv this struct is access by multi go coroutine, all member must be 'thread safe'
@@ -18,7 +17,7 @@ type MsgQueCenterSrv struct {
 
 	mapMsgQueSrv sync.Map // server_common.MSGQUE_SRV_ID - msgQueSrvInfo
 
-	srvIDSeed atomic.Int32
+	//srvIDSeed atomic.Int64
 }
 
 type msgQueSrvInfo struct {
@@ -117,9 +116,14 @@ func (pthis*MsgQueCenterSrv)process_PB_MSG_INTER_QUESRV_REGISTER(fd lin_common.F
 		return nil
 	}
 
+	queSrvID := server_common.MSGQUE_SRV_ID(regMsg.QueSrvId)
+	if queSrvID == server_common.MSGQUE_SRV_ID_INVALID {
+		queSrvID = pthis.genQueSrvID()
+	}
+
 	//assign id
 	qsiReg := msgQueSrvInfo{
-		queSrvID : server_common.MSGQUE_SRV_ID(pthis.genQueSrvID()),
+		queSrvID : queSrvID,
 		fd :       fd,
 		ip :       regMsg.Ip,
 		port:      regMsg.Port,
@@ -210,8 +214,9 @@ func (pthis*MsgQueCenterSrv)process_TcpClose_MsgQueSrv(fd lin_common.FD_DEF, att
 	})
 }
 
-func (pthis*MsgQueCenterSrv)genQueSrvID() int32 {
-	return pthis.srvIDSeed.Add(1)
+func (pthis*MsgQueCenterSrv)genQueSrvID() server_common.MSGQUE_SRV_ID {
+	return server_common.MSGQUE_SRV_ID(lin_common.GenUUID64_V4())
+	//return server_common.MSGQUE_SRV_ID(pthis.srvIDSeed.Add(1))
 }
 
 func (pthis*MsgQueCenterSrv)SendProtoMsg(fd lin_common.FD_DEF, msgType msgpacket.PB_MSG_INTER_TYPE, protoMsg proto.Message){
@@ -225,7 +230,7 @@ func (pthis*MsgQueCenterSrv)Wait() {
 // ConstructMsgQueCenterSrv <addr> example 127.0.0.1:8888
 func ConstructMsgQueCenterSrv(addr string, epollCoroutineCount int) *MsgQueCenterSrv {
 	mqMgr := &MsgQueCenterSrv{}
-	mqMgr.srvIDSeed.Store(1)
+	//mqMgr.srvIDSeed.Store(1)
 
 	lsn, err := lin_common.ConstructorEPollListener(mqMgr, addr, epollCoroutineCount,
 		lin_common.ParamEPollListener{ParamET: true,
@@ -243,7 +248,7 @@ func ConstructMsgQueCenterSrv(addr string, epollCoroutineCount int) *MsgQueCente
 
 func (pthis*MsgQueCenterSrv)Dump(bDetail bool) (str string) {
 
-	str = "\r\nque srv id seed:" + strconv.FormatInt(int64(pthis.srvIDSeed.Load()), 10) + "\r\n"
+	//str = "\r\nque srv id seed:" + strconv.FormatInt(pthis.srvIDSeed.Load(), 10) + "\r\n"
 
 	str += "msg que srv reg:\r\n"
 	pthis.mapMsgQueSrv.Range(func(key, value any) bool{

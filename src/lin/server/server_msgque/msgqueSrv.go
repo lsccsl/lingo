@@ -71,6 +71,7 @@ func (pthis*MsgQueSrv)TcpDialConnection(fd lin_common.FD_DEF, addr net.Addr, inA
 				lin_common.LogErr(err)
 			}
 			pbMsgReg := &msgpacket.PB_MSG_INTER_QUESRV_REGISTER{
+				QueSrvId: int64(pthis.queSrvID),
 				Ip: tcpAddr.IP.String(),
 				Port: int32(tcpAddr.Port),
 			}
@@ -104,18 +105,18 @@ func (pthis*MsgQueSrv)TcpClose(fd lin_common.FD_DEF, closeReason lin_common.EN_T
 		{
 			queSrvID := t.queSrvID
 			lin_common.LogInfo(fd, "dial fd close, attach data:", inAttachData, " closeReason:", closeReason, " ", queSrvID.String())
-			qsi := &otherMsgQueSrvInfo{}
-			ok := pthis.otherMgr.Load(queSrvID, qsi)
-			if !ok {
-				lin_common.LogInfo(queSrvID.String(), "where receive dial tcp close, not exist")
-				return
-			}
-			if !qsi.fdDial.IsSame(&fd) {
-				lin_common.LogInfo(queSrvID.String(), "where receive dial tcp close, fd is not the same", "now:", qsi.fdAccept, "close:", fd)
-				return
-			}
 
 			time.AfterFunc(time.Second * 3, func() {
+				qsi := &otherMsgQueSrvInfo{}
+				ok := pthis.otherMgr.Load(queSrvID, qsi)
+				if !ok {
+					lin_common.LogInfo(queSrvID.String(), "where receive dial tcp close, not exist")
+					return
+				}
+				if !qsi.fdDial.IsSame(&fd) {
+					lin_common.LogInfo(queSrvID.String(), "where receive dial tcp close, fd is not the same", "now:", qsi.fdAccept, "close:", fd)
+					return
+				}
 				pthis.dialToOtherMsgQue(qsi.queSrvID, qsi.ip, qsi.port)
 			})
 		}
@@ -360,6 +361,7 @@ func (pthis*MsgQueSrv)SendProtoMsg(fd lin_common.FD_DEF, msgType msgpacket.PB_MS
 func ConstructMsgQueSrv(msgqueCenterAddr string, addrBind string, addrOut string, epollCoroutineCount int) *MsgQueSrv {
 	mqMgr := &MsgQueSrv{
 		addrOut : addrOut,
+		queSrvID : server_common.MSGQUE_SRV_ID_INVALID,
 	}
 
 	lsn, err := lin_common.ConstructorEPollListener(mqMgr, addrBind, epollCoroutineCount,
