@@ -260,8 +260,8 @@ func ConstructMsgQueCenterSrv(addr string, epollCoroutineCount int) *MsgQueCente
 
 	lsn, err := lin_common.ConstructorEPollListener(mqMgr, addr, epollCoroutineCount,
 		lin_common.ParamEPollListener{ParamET: true,
-			ParamEpollWaitTimeoutMills:30*1000,
-			ParamIdleClose:180 * 1000,
+			ParamEpollWaitTimeoutMills:180*1000,
+			ParamIdleClose:600 * 1000,
 		})
 	if err != nil {
 		lin_common.LogErr("constructor epoll listener err:", err)

@@ -15,5 +15,5 @@ const(
 )
 
 func (id MSGQUE_SRV_ID)String() string {
-	return "[que_srv_id:" + strconv.FormatInt(int64(id), 10) + "]"
+	return "[srv_id:" + strconv.FormatInt(int64(id), 10) + "]"
 }

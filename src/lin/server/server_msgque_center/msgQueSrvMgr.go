@@ -11,7 +11,7 @@ type MAP_MSGQUESRV_STATUS map[server_common.MSGQUE_SRV_ID]*MsgQueSrvStatus
 type MsgQueSrvMgr struct {
 	mapMsgQueSrv sync.Map // server_common.MSGQUE_SRV_ID - MsgQueSrvInfo
 
-	mapQueSrvStatusRWLock sync.RWMutex
+	mapQueSrvStatusLock sync.Mutex
 	mapQueSrvStatus MAP_MSGQUESRV_STATUS
 }
 
@@ -37,8 +37,8 @@ func (pthis*MsgQueSrvMgr)StoreQueSrvInfo(qsi * MsgQueSrvInfo) {
 	pthis.mapMsgQueSrv.Store(qsi.queSrvID, *qsi)
 
 	{
-		pthis.mapQueSrvStatusRWLock.Lock()
-		defer pthis.mapQueSrvStatusRWLock.Unlock()
+		pthis.mapQueSrvStatusLock.Lock()
+		defer pthis.mapQueSrvStatusLock.Unlock()
 		v, ok := pthis.mapQueSrvStatus[qsi.queSrvID]
 		if !ok {
 			pthis.mapQueSrvStatus[qsi.queSrvID] = &MsgQueSrvStatus{queSrvID:qsi.queSrvID}
@@ -74,8 +74,8 @@ func (pthis*MsgQueSrvMgr)DeleteQueSrvInfo(queSrvID server_common.MSGQUE_SRV_ID) 
 
 func (pthis*MsgQueSrvMgr)ChooseMostIdleQueSrv() (qsi MsgQueSrvInfo, bRet bool) {
 	bRet = false
-	pthis.mapQueSrvStatusRWLock.RLock()
-	defer pthis.mapQueSrvStatusRWLock.RUnlock()
+	pthis.mapQueSrvStatusLock.Lock()
+	defer pthis.mapQueSrvStatusLock.Unlock()
 
 	var status *MsgQueSrvStatus = nil
 	minCount := 0

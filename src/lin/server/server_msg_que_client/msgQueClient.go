@@ -2,11 +2,11 @@ package server_msg_que_client
 
 import (
 	"bytes"
+	"github.com/golang/protobuf/proto"
 	"lin/lin_common"
 	"lin/msgpacket"
 	"lin/server/server_common"
 	"net"
-	"github.com/golang/protobuf/proto"
 	"strconv"
 )
 
@@ -68,6 +68,7 @@ func (pthis*MgrQueClient)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, in
 }
 
 func (pthis*MgrQueClient)TcpClose(fd lin_common.FD_DEF, closeReason lin_common.EN_TCP_CLOSE_REASON, inAttachData interface{}) {
+	// todo redial to que srv
 }
 
 func (pthis*MgrQueClient)TcpOutBandData(fd lin_common.FD_DEF, data interface{}, inAttachData interface{}) {
