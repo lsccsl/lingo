@@ -7,7 +7,7 @@ import (
 	"sync"
 )
 
-type MAP_MSGQUESRV_STATUS map[server_common.MSGQUE_SRV_ID]*MsgQueSrvStatus
+type MAP_MSGQUESRV_STATUS map[server_common.SRV_ID]*MsgQueSrvStatus
 type MsgQueSrvMgr struct {
 	mapMsgQueSrv sync.Map // server_common.MSGQUE_SRV_ID - MsgQueSrvInfo
 
@@ -19,7 +19,7 @@ type MsgQueSrvInfo struct {
 	fd lin_common.FD_DEF
 	ip string
 	port int32
-	queSrvID server_common.MSGQUE_SRV_ID
+	queSrvID server_common.SRV_ID
 }
 
 func (pthis*MsgQueSrvInfo)String()(str string){
@@ -29,7 +29,7 @@ func (pthis*MsgQueSrvInfo)String()(str string){
 }
 
 type MsgQueSrvStatus struct {
-	queSrvID server_common.MSGQUE_SRV_ID
+	queSrvID server_common.SRV_ID
 	srvConnCount int // msg que connected srv count
 }
 
@@ -52,7 +52,7 @@ func (pthis*MsgQueSrvMgr)RangeQueSrvInfo(fn func(key, value any) bool) {
 	pthis.mapMsgQueSrv.Range(fn)
 }
 
-func  (pthis*MsgQueSrvMgr)LoadQueSrvInfo(queSrvID server_common.MSGQUE_SRV_ID) (qsi MsgQueSrvInfo, bRet bool) {
+func  (pthis*MsgQueSrvMgr)LoadQueSrvInfo(queSrvID server_common.SRV_ID) (qsi MsgQueSrvInfo, bRet bool) {
 	bRet = false
 	val, ok := pthis.mapMsgQueSrv.Load(queSrvID)
 	if !ok {
@@ -68,7 +68,7 @@ func  (pthis*MsgQueSrvMgr)LoadQueSrvInfo(queSrvID server_common.MSGQUE_SRV_ID) (
 	return
 }
 
-func (pthis*MsgQueSrvMgr)DeleteQueSrvInfo(queSrvID server_common.MSGQUE_SRV_ID) {
+func (pthis*MsgQueSrvMgr)DeleteQueSrvInfo(queSrvID server_common.SRV_ID) {
 	pthis.mapMsgQueSrv.Delete(queSrvID)
 }
 

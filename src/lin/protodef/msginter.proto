@@ -1,9 +1,19 @@
 syntax = "proto3";
 package msgpacket;
-
 option go_package = "./;msgpacket";
-
 import "msgdef.proto";
+
+
+message PB_SRV_INFO_ONE
+{
+    int64 srv_uuid = 1;
+    int32 srv_type = 2;
+}
+message PB_SRV_INFO_ALL
+{
+    repeated PB_SRV_INFO_ONE array_srv = 1;
+}
+
 
 message PB_MSG_INTER_QUESRV_REGISTER
 {
@@ -37,10 +47,12 @@ message PB_MSG_INTER_QUESRV_ONLINE_NTF
 message PB_MSG_INTER_QUESRV_CONNECT
 {
     int64 que_srv_id = 1;
+    PB_SRV_INFO_ALL all_srv = 2;
 }
 message PB_MSG_INTER_QUESRV_CONNECT_RES
 {
     int64 que_srv_id = 1;
+    PB_SRV_INFO_ALL all_srv = 2;
 }
 
 message PB_MSG_INTER_QUECENTER_HEARTBEAT
@@ -102,13 +114,9 @@ message PB_MSG_INTER_SRV_REG_TO_QUE_RES
     int32 srv_type = 2;
 }
 
-message pb_srv_def
-{
-    int64 srv_uuid = 1;
-    int32 srv_type = 2;
-}
+
 
 message PB_MSG_INTER_SRV_REPORT_TO_OTHER_QUE
 {
-    repeated pb_srv_def srv = 1;
+    PB_SRV_INFO_ALL all_srv = 1;
 }

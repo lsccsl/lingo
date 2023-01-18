@@ -14,7 +14,7 @@ func (pthis*otherMsgQueSrvMgr)Clear() {
 	pthis.mapOtherMsgQueSrv = sync.Map{}
 }
 
-func (pthis*otherMsgQueSrvMgr)updateQueSrvAccept(queSrvID server_common.MSGQUE_SRV_ID, fdAccept lin_common.FD_DEF) {
+func (pthis*otherMsgQueSrvMgr)updateQueSrvAccept(queSrvID server_common.SRV_ID, fdAccept lin_common.FD_DEF) {
 	qsi := otherMsgQueSrvInfo{
 		queSrvID: queSrvID,
 	}
@@ -33,7 +33,7 @@ func (pthis*otherMsgQueSrvMgr)updateQueSrvAccept(queSrvID server_common.MSGQUE_S
 	pthis.mapOtherMsgQueSrv.Store(qsi.queSrvID, qsi)
 }
 
-func (pthis*otherMsgQueSrvMgr)updateQueSrv(queSrvID server_common.MSGQUE_SRV_ID,
+func (pthis*otherMsgQueSrvMgr)updateQueSrv(queSrvID server_common.SRV_ID,
 	fdDial lin_common.FD_DEF,
 	ip string,
 	port int32){
@@ -54,7 +54,7 @@ func (pthis*otherMsgQueSrvMgr)updateQueSrv(queSrvID server_common.MSGQUE_SRV_ID,
 	pthis.mapOtherMsgQueSrv.Store(qsi.queSrvID, qsi)
 }
 
-func (pthis*otherMsgQueSrvMgr)LoadAndDelete(queSrvID server_common.MSGQUE_SRV_ID, qsi *otherMsgQueSrvInfo) bool {
+func (pthis*otherMsgQueSrvMgr)LoadAndDelete(queSrvID server_common.SRV_ID, qsi *otherMsgQueSrvInfo) bool {
 	if qsi == nil {
 		return false
 	}
@@ -69,7 +69,7 @@ func (pthis*otherMsgQueSrvMgr)LoadAndDelete(queSrvID server_common.MSGQUE_SRV_ID
 	return true
 }
 
-func (pthis*otherMsgQueSrvMgr)Load(queSrvID server_common.MSGQUE_SRV_ID, qsi *otherMsgQueSrvInfo) bool {
+func (pthis*otherMsgQueSrvMgr)Load(queSrvID server_common.SRV_ID, qsi *otherMsgQueSrvInfo) bool {
 	if qsi == nil {
 		return false
 	}
@@ -93,4 +93,19 @@ func (pthis*otherMsgQueSrvMgr)Store(qsi *otherMsgQueSrvInfo) {
 
 func (pthis*otherMsgQueSrvMgr)Range(fn func(key, value any) bool) {
 	pthis.mapOtherMsgQueSrv.Range(fn)
+}
+
+func (pthis*otherMsgQueSrvMgr)Dump() string {
+	str := "connect to other msg que srv\r\n"
+	pthis.Range(func(key, value any) bool{
+		qsi, ok := value.(otherMsgQueSrvInfo)
+		if !ok {
+			return true
+		}
+
+		str += qsi.String() + "\r\n"
+		return true
+	})
+
+	return str
 }

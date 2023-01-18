@@ -12,7 +12,7 @@ import (
 
 type MgrQueClient struct {
 	lsn *lin_common.EPollListener
-	srvUUID server_common.MSGQUE_SRV_ID
+	srvUUID server_common.SRV_ID
 	sryType int
 
 	fdCenter lin_common.FD_DEF
@@ -88,7 +88,7 @@ func (pthis*MgrQueClient)process_PB_MSG_INTER_SRV_REG_RES(fd lin_common.FD_DEF, 
 		lin_common.LogErr("reg to msg que center err:", pbRes.Res)
 	}
 
-	pthis.srvUUID = server_common.MSGQUE_SRV_ID(pbRes.SrvUuid)
+	pthis.srvUUID = server_common.SRV_ID(pbRes.SrvUuid)
 	pthis.queSrvAddr = pbRes.QueSrvIp + ":" + strconv.FormatInt(int64(pbRes.QueSrvPort), 10)
 
 	var err error
@@ -127,7 +127,7 @@ func (pthis*MgrQueClient)Wait() {
 
 func ConstructMgrQueClient(msgqueCenterAddr string, srvType int) *MgrQueClient {
 	mqCli := &MgrQueClient{
-		srvUUID : server_common.MSGQUE_SRV_ID_INVALID,
+		srvUUID : server_common.SRV_ID_INVALID,
 		sryType: srvType,
 	}
 

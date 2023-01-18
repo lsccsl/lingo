@@ -22,11 +22,11 @@ type MsgQueCenterSrv struct {
 
 
 type tcpAttachDataMsgQueSrv struct {
-	queSrvID server_common.MSGQUE_SRV_ID
+	queSrvID server_common.SRV_ID
 }
 
 type tcpAttachDataSrv struct {
-	queSrvID server_common.MSGQUE_SRV_ID
+	queSrvID server_common.SRV_ID
 }
 
 func (pthis*MsgQueCenterSrv)TcpAcceptConnection(fd lin_common.FD_DEF, addr net.Addr, inAttachData interface{})(outAttachData interface{}) {
@@ -112,8 +112,8 @@ func (pthis*MsgQueCenterSrv)process_PB_MSG_INTER_SRV_REG(fd lin_common.FD_DEF, p
 		return
 	}
 
-	srvUUID := server_common.MSGQUE_SRV_ID(pbReg.SrvUuid)
-	if srvUUID == server_common.MSGQUE_SRV_ID_INVALID {
+	srvUUID := server_common.SRV_ID(pbReg.SrvUuid)
+	if srvUUID == server_common.SRV_ID_INVALID {
 		srvUUID = pthis.genSrvID()
 	}
 	pbRes.SrvUuid = int64(srvUUID)
@@ -132,7 +132,7 @@ func (pthis*MsgQueCenterSrv)process_PB_MSG_INTER_QUESRV_HEARTBEAT(fd lin_common.
 	// send heartbeat back
 	pbHBRes := &msgpacket.PB_MSG_INTER_QUECENTER_HEARTBEAT_RES{}
 	pbHBRes.QueSrvId = pbHB.QueSrvId
-	lin_common.LogDebug("receive heartbeat ", server_common.MSGQUE_SRV_ID(pbHB.QueSrvId).String())
+	lin_common.LogDebug("receive heartbeat ", server_common.SRV_ID(pbHB.QueSrvId).String())
 
 	pthis.SendProtoMsg(fd, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUECENTER_HEARTBEAT_RES, pbHBRes)
 }
@@ -145,8 +145,8 @@ func (pthis*MsgQueCenterSrv)process_PB_MSG_INTER_QUESRV_REGISTER(fd lin_common.F
 		return nil
 	}
 
-	queSrvID := server_common.MSGQUE_SRV_ID(regMsg.QueSrvId)
-	if queSrvID == server_common.MSGQUE_SRV_ID_INVALID {
+	queSrvID := server_common.SRV_ID(regMsg.QueSrvId)
+	if queSrvID == server_common.SRV_ID_INVALID {
 		queSrvID = pthis.genSrvID()
 	}
 
@@ -238,8 +238,8 @@ func (pthis*MsgQueCenterSrv)process_TcpClose_MsgQueSrv(fd lin_common.FD_DEF, att
 	})
 }
 
-func (pthis*MsgQueCenterSrv)genSrvID() server_common.MSGQUE_SRV_ID {
-	return server_common.MSGQUE_SRV_ID(lin_common.GenUUID64_V4())
+func (pthis*MsgQueCenterSrv)genSrvID() server_common.SRV_ID {
+	return server_common.SRV_ID(lin_common.GenUUID64_V4())
 	//return server_common.MSGQUE_SRV_ID(pthis.srvIDSeed.Add(1))
 }
 
