@@ -93,7 +93,7 @@ func (pthis*MsgQueSrv)TcpDialConnection(fd lin_common.FD_DEF, addr net.Addr, inA
 				QueSrvId:int64(pthis.queSrvID),
 				AllSrv:&msgpacket.PB_SRV_INFO_ALL{},
 			}
-			pthis.smgr.getAllSrvPB(pbMsgConn.AllSrv)
+			pthis.smgr.getAllSrvNetPB(pbMsgConn.AllSrv)
 			pthis.SendProtoMsg(fd, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_CONNECT, pbMsgConn)
 		}
 
@@ -107,6 +107,7 @@ func (pthis*MsgQueSrv)TcpDialConnection(fd lin_common.FD_DEF, addr net.Addr, inA
 }
 
 func (pthis*MsgQueSrv)TcpClose(fd lin_common.FD_DEF, closeReason lin_common.EN_TCP_CLOSE_REASON, inAttachData interface{}) {
+	lin_common.LogInfo(fd, " attach data:", inAttachData, " closeReason:", closeReason)
 
 	switch t := inAttachData.(type) {
 	case *tcpAttachDataMsgQueSrvDial:
@@ -114,19 +115,17 @@ func (pthis*MsgQueSrv)TcpClose(fd lin_common.FD_DEF, closeReason lin_common.EN_T
 			queSrvID := t.queSrvID
 			lin_common.LogInfo(fd, "dial fd close, attach data:", inAttachData, " closeReason:", closeReason, " ", queSrvID.String())
 
-			time.AfterFunc(time.Second * 3, func() {
-				qsi := &otherMsgQueSrvInfo{}
-				ok := pthis.otherMgr.Load(queSrvID, qsi)
-				if !ok {
-					lin_common.LogInfo(queSrvID.String(), "where receive dial tcp close, not exist")
-					return
-				}
-				if !qsi.fdDial.IsSame(&fd) {
-					lin_common.LogInfo(queSrvID.String(), "where receive dial tcp close, fd is not the same", "now:", qsi.fdAccept, "close:", fd)
-					return
-				}
-				pthis.dialToOtherMsgQue(qsi.queSrvID, qsi.ip, qsi.port)
-			})
+			qsi := &otherMsgQueSrvInfo{}
+			ok := pthis.otherMgr.Load(queSrvID, qsi)
+			if !ok {
+				lin_common.LogInfo(queSrvID.String(), "receive dial tcp close, not exist")
+				return
+			}
+			if !qsi.fdDial.IsSame(&fd) {
+				lin_common.LogInfo(queSrvID.String(), "receive dial tcp close, fd is not the same", "now:", qsi.fdAccept, "close:", fd)
+				return
+			}
+			pthis.deleteMsgQueSrvAndRedia(queSrvID)
 		}
 
 	case *tcpAttachDataMsgQueSrvAccept:
@@ -137,13 +136,14 @@ func (pthis*MsgQueSrv)TcpClose(fd lin_common.FD_DEF, closeReason lin_common.EN_T
 			qsi := &otherMsgQueSrvInfo{}
 			ok := pthis.otherMgr.Load(queSrvID, qsi)
 			if !ok {
-				lin_common.LogInfo(queSrvID.String(), "where receive accept tcp close, not exist")
+				lin_common.LogInfo(queSrvID.String(), "receive accept tcp close, not exist")
 				return
 			}
 			if !qsi.fdAccept.IsSame(&fd) {
-				lin_common.LogInfo(queSrvID.String(), "where receive accept tcp close, fd is not the same", "now:", qsi.fdAccept, "close:", fd)
+				lin_common.LogInfo(queSrvID.String(), "receive accept tcp close, fd is not the same", "now:", qsi.fdAccept, "close:", fd)
 				return
 			}
+
 			pthis.otherMgr.updateQueSrvAccept(queSrvID, lin_common.FD_DEF_NIL)
 		}
 
@@ -161,14 +161,8 @@ func (pthis*MsgQueSrv)TcpClose(fd lin_common.FD_DEF, closeReason lin_common.EN_T
 
 	case *tcpAttachDataSrvAccept:
 		{
-			// todo close tcp accept from srv
 			// report to all other que srv
-			lin_common.LogInfo(fd, " attach data:", inAttachData, " closeReason:", closeReason)
-		}
-
-	default:
-		{
-			lin_common.LogInfo(fd, " attach data:", inAttachData, " closeReason:", closeReason)
+			pthis.process_TcpClose_SrvReg(fd, inAttachData)
 		}
 	}
 }
@@ -276,6 +270,7 @@ func (pthis*MsgQueSrv)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, inAtt
 
 
 
+
 func (pthis*MsgQueSrv)process_PB_MSG_INTER_SRV_REPORT_TO_OTHER_QUE(fd lin_common.FD_DEF, pbMsg proto.Message, inAttachData interface{}) {
 	lin_common.LogDebug(fd, "PB_MSG_INTER_SRV_REPORT_TO_OTHER_QUE:", pbMsg, " inAttachData:", inAttachData)
 
@@ -291,7 +286,7 @@ func (pthis*MsgQueSrv)process_PB_MSG_INTER_SRV_REPORT_TO_OTHER_QUE(fd lin_common
 	}
 
 	// add other srv
-	pthis.smgr.addAllSrvPB(attach.queSrvID, pbReport.AllSrv)
+	pthis.smgr.addOtherQueAllSrvFromPB(attach.queSrvID, pbReport.AllSrv)
 }
 
 func (pthis*MsgQueSrv)broadCastSrvReportToOtherQueSrv() {
@@ -299,7 +294,7 @@ func (pthis*MsgQueSrv)broadCastSrvReportToOtherQueSrv() {
 	pbReport := &msgpacket.PB_MSG_INTER_SRV_REPORT_TO_OTHER_QUE{
 		AllSrv : &msgpacket.PB_SRV_INFO_ALL{},
 	}
-	pthis.smgr.getAllSrvPB(pbReport.AllSrv)
+	pthis.smgr.getAllSrvNetPB(pbReport.AllSrv)
 	pthis.otherMgr.Range(func(key, value any) bool{
 		qsi, ok := value.(otherMsgQueSrvInfo)
 		if !ok {
@@ -308,6 +303,20 @@ func (pthis*MsgQueSrv)broadCastSrvReportToOtherQueSrv() {
 		pthis.SendProtoMsg(qsi.fdDial, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_SRV_REPORT_TO_OTHER_QUE, pbReport)
 		return true
 	})
+}
+
+
+func (pthis*MsgQueSrv)process_TcpClose_SrvReg(fd lin_common.FD_DEF, inAttachData interface{}) {
+	lin_common.LogInfo(fd, inAttachData)
+
+	attachData, ok := inAttachData.(*tcpAttachDataSrvAccept)
+	if !ok || attachData == nil {
+		lin_common.LogInfo("tcp attach data err,", fd, inAttachData)
+		return
+	}
+
+	pthis.smgr.delSrv(attachData.srvUUID)
+	pthis.broadCastSrvReportToOtherQueSrv()
 }
 
 func (pthis*MsgQueSrv)process_PB_MSG_INTER_SRV_REG_TO_QUE(fd lin_common.FD_DEF, pbMsg proto.Message) interface{} {
@@ -325,8 +334,8 @@ func (pthis*MsgQueSrv)process_PB_MSG_INTER_SRV_REG_TO_QUE(fd lin_common.FD_DEF, 
 		fd :fd,
 		addr : lin_common.TcpGetPeerName(fd.FD),
 	}
-	pthis.smgr.addSrv(si)
 
+	pthis.smgr.addSrv(si)
 	pthis.broadCastSrvReportToOtherQueSrv()
 
 	// send response
@@ -411,18 +420,47 @@ func (pthis*MsgQueSrv)process_PB_MSG_INTER_QUESRV_OFFLINE_NTF(pbMsg proto.Messag
 	}
 
 	queSrvID := server_common.SRV_ID(pbNtf.QueSrvId)
-	pthis.deleteMsgQueSrv(queSrvID)
+
+	qsi := &otherMsgQueSrvInfo{}
+	ok = pthis.otherMgr.LoadAndDelete(queSrvID, qsi)
+	if !ok {
+		lin_common.LogInfo(queSrvID.String(), "where receive dial tcp close, not exist")
+		return
+	}
+	pthis.lsn.EPollListenerCloseTcp(qsi.fdDial, server_common.EN_TCP_CLOSE_REASON_msgque_center_ntf_offline)
+	pthis.lsn.EPollListenerCloseTcp(qsi.fdAccept, server_common.EN_TCP_CLOSE_REASON_recv_ntf_offline)
 }
 
-func (pthis*MsgQueSrv)deleteMsgQueSrv(queSrvID server_common.SRV_ID) {
-	qsi := otherMsgQueSrvInfo{}
-	ok := pthis.otherMgr.LoadAndDelete(queSrvID, &qsi)
+func (pthis*MsgQueSrv)deleteMsgQueSrvAndRedia(queSrvID server_common.SRV_ID) {
+	qsi1 := otherMsgQueSrvInfo{}
+	ok := pthis.otherMgr.Load(queSrvID, &qsi1)
 	if !ok {
 		return
 	}
 
-	pthis.lsn.EPollListenerCloseTcp(qsi.fdDial, server_common.EN_TCP_CLOSE_REASON_recv_ntf_offline)
-	pthis.lsn.EPollListenerCloseTcp(qsi.fdAccept, server_common.EN_TCP_CLOSE_REASON_recv_ntf_offline)
+	pthis.smgr.delOtherQueAllSrv(queSrvID)
+
+	pthis.lsn.EPollListenerCloseTcp(qsi1.fdDial, server_common.EN_TCP_CLOSE_REASON_recv_ntf_offline)
+	pthis.lsn.EPollListenerCloseTcp(qsi1.fdAccept, server_common.EN_TCP_CLOSE_REASON_recv_ntf_offline)
+
+	qsi1.fdDial = lin_common.FD_DEF_NIL
+	qsi1.fdAccept = lin_common.FD_DEF_NIL
+	pthis.otherMgr.Store(&qsi1)
+
+	time.AfterFunc(time.Second * 3, func() {
+		qsi := &otherMsgQueSrvInfo{}
+		ok := pthis.otherMgr.Load(queSrvID, qsi)
+		if !ok {
+			lin_common.LogInfo(queSrvID.String(), "que srv not exist", queSrvID.String())
+			return
+		}
+		if !qsi.fdDial.IsNull() {
+			lin_common.LogInfo(queSrvID.String(), "fdDial is not null", "now:", qsi.fdDial)
+			return
+		}
+
+		pthis.dialToOtherMsgQue(qsi.queSrvID, qsi.ip, qsi.port)
+	})
 }
 
 
@@ -442,11 +480,11 @@ func (pthis*MsgQueSrv)process_PB_MSG_INTER_QUESRV_CONNECT(fd lin_common.FD_DEF, 
 		QueSrvId: int64(queSrvID),
 		AllSrv:&msgpacket.PB_SRV_INFO_ALL{},
 	}
-	pthis.smgr.getAllSrvPB(pbRes.AllSrv)
+	pthis.smgr.getAllSrvNetPB(pbRes.AllSrv)
 	pthis.SendProtoMsg(fd, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_CONNECT_RES, pbRes)
 
 	// add other srv
-	pthis.smgr.addAllSrvPB(queSrvID, pbConn.AllSrv)
+	pthis.smgr.addOtherQueAllSrvFromPB(queSrvID, pbConn.AllSrv)
 
 	return &tcpAttachDataMsgQueSrvAccept{queSrvID: queSrvID}
 }
@@ -465,7 +503,7 @@ func (pthis*MsgQueSrv)process_PB_MSG_INTER_QUESRV_CONNECT_RES(fd lin_common.FD_D
 	lin_common.LogInfo("que srv connect, fd:", fd, " ", attachData.queSrvID.String(), " pbConnRes:", pbConnRes, " inAttachData:", inAttachData)
 
 	// add other srv
-	pthis.smgr.addAllSrvPB(attachData.queSrvID, pbConnRes.AllSrv)
+	pthis.smgr.addOtherQueAllSrvFromPB(attachData.queSrvID, pbConnRes.AllSrv)
 }
 
 

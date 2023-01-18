@@ -56,23 +56,28 @@ func (pthis*OtherSrvInfo)String() string {
 
 
 func (pthis*SrvMgr)addSrv(si *SrvNetInfo) {
+	// write lock
 	pthis.mapSrvRWLock.Lock()
 	defer pthis.mapSrvRWLock.Unlock()
 
 	pthis.mapSrvNet[si.srvUUID] = si
 }
 
-func (pthis*SrvMgr)addOtherSrv(soi *OtherSrvInfo) {
+func (pthis*SrvMgr)delSrv(srvUUID server_common.SRV_ID) {
+	// write lock
 	pthis.mapSrvRWLock.Lock()
 	defer pthis.mapSrvRWLock.Unlock()
 
-	pthis.mapOtherSrvInfo[soi.srvUUID] = soi
+	delete(pthis.mapSrvNet, srvUUID)
 }
 
-func (pthis*SrvMgr)getAllSrvPB(pb * msgpacket.PB_SRV_INFO_ALL) {
+// getAllSrvNetPB get all local accept srv
+func (pthis*SrvMgr)getAllSrvNetPB(pb * msgpacket.PB_SRV_INFO_ALL) {
 	if pb == nil {
 		return
 	}
+
+	// read lock
 	pthis.mapSrvRWLock.RLock()
 	defer pthis.mapSrvRWLock.RUnlock()
 
@@ -85,20 +90,44 @@ func (pthis*SrvMgr)getAllSrvPB(pb * msgpacket.PB_SRV_INFO_ALL) {
 	}
 }
 
-func (pthis*SrvMgr)addAllSrvPB(queSrvID server_common.SRV_ID, allSrv * msgpacket.PB_SRV_INFO_ALL) {
+func (pthis*SrvMgr)addOtherQueAllSrvFromPB(queSrvID server_common.SRV_ID, allSrv * msgpacket.PB_SRV_INFO_ALL) {
 	// to other srv
 	if allSrv == nil {
 		return
 	}
+
+	// write lock
+	pthis.mapSrvRWLock.Lock()
+	defer pthis.mapSrvRWLock.Unlock()
+
 	for _, v := range allSrv.ArraySrv {
 		soi := OtherSrvInfo{
 			srvUUID:  server_common.SRV_ID(v.SrvUuid),
 			srvType:  server_common.SRV_TYPE(v.SrvType),
 			queSrvID: queSrvID,
 		}
-		pthis.addOtherSrv(&soi)
+		pthis.mapOtherSrvInfo[soi.srvUUID] = &soi
 	}
 }
+
+func (pthis*SrvMgr)delOtherQueAllSrv(queSrvID server_common.SRV_ID) {
+	// write lock
+	pthis.mapSrvRWLock.Lock()
+	defer pthis.mapSrvRWLock.Unlock()
+
+	arrayID := make([]server_common.SRV_ID, 0)
+	for _, v := range pthis.mapOtherSrvInfo {
+		if v.queSrvID != queSrvID {
+			continue
+		}
+		arrayID = append(arrayID, v.srvUUID)
+	}
+
+	for _, v := range arrayID {
+		delete(pthis.mapOtherSrvInfo, v)
+	}
+}
+
 
 func ConstructorSrvMgr()*SrvMgr {
 	smgr := &SrvMgr{

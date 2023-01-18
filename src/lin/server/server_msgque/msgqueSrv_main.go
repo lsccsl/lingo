@@ -52,3 +52,5 @@ func main() {
 	mqMgr.Wait()
 }
 
+
+// todo msg que close, all srv reg del

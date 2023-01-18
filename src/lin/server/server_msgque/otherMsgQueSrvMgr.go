@@ -33,6 +33,27 @@ func (pthis*otherMsgQueSrvMgr)updateQueSrvAccept(queSrvID server_common.SRV_ID, 
 	pthis.mapOtherMsgQueSrv.Store(qsi.queSrvID, qsi)
 }
 
+/*func (pthis*otherMsgQueSrvMgr)updateQueSrvDial(queSrvID server_common.SRV_ID, fdDial lin_common.FD_DEF) {
+
+	val, ok := pthis.mapOtherMsgQueSrv.Load(queSrvID)
+	if !ok {
+		lin_common.LogInfo("can't find que srv", queSrvID.String())
+		return
+	}
+
+	qsi := otherMsgQueSrvInfo{
+		queSrvID: queSrvID,
+	}
+	qsi, ok = val.(otherMsgQueSrvInfo)
+	if !ok {
+		lin_common.LogInfo("map value convert err, que srv", queSrvID.String())
+		return
+	}
+
+	qsi.fdDial = fdDial
+	pthis.mapOtherMsgQueSrv.Store(qsi.queSrvID, qsi)
+}*/
+
 func (pthis*otherMsgQueSrvMgr)updateQueSrv(queSrvID server_common.SRV_ID,
 	fdDial lin_common.FD_DEF,
 	ip string,
