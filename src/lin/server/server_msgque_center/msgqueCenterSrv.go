@@ -276,6 +276,7 @@ func (pthis*MsgQueCenterSrv)Dump(bDetail bool) (str string) {
 
 	//str = "\r\nque srv id seed:" + strconv.FormatInt(pthis.srvIDSeed.Load(), 10) + "\r\n"
 
+	str += pthis.lsn.EPollListenerDump()
 	str += "msg que srv reg:\r\n"
 	pthis.queSrvMgr.RangeQueSrvInfo(func(key, value any) bool{
 		qsi, ok := value.(MsgQueSrvInfo)

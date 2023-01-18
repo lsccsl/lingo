@@ -8,6 +8,7 @@ import (
 	"golang.org/x/sys/unix"
 	"math/rand"
 	"runtime"
+	"strconv"
 	"time"
 )
 
@@ -695,4 +696,20 @@ func(pthis*EPollListener)EPollListenerGetStatic(es *EPollListenerStatic) {
 		es.ByteProc += val._byteProc
 		es.ByteSend += val._byteSend
 	}
+}
+
+func(pthis*EPollListener)EPollListenerDump() string {
+	var es EPollListenerStatic
+	pthis.EPollListenerGetStatic(&es)
+
+	str := "\r\n tcp conn count:" + strconv.FormatInt(int64(es.TcpConnCount), 10) +
+		"\r\n" +
+		" TcpCloseCount:" + strconv.FormatInt(es.TcpCloseCount, 10) +
+		" byteRecv:" + strconv.FormatInt(es.ByteRecv, 10) +
+		" byteSend:" + strconv.FormatInt(es.ByteSend, 10) +
+		" byteProc:" + strconv.FormatInt(es.ByteProc, 10) +
+		" byte unProc:" + strconv.FormatInt(es.ByteRecv-es.ByteProc, 10) +
+		"\r\n"
+
+	return str
 }

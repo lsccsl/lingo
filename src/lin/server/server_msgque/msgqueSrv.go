@@ -555,6 +555,7 @@ func (pthis*MsgQueSrv)Wait() {
 
 func (pthis*MsgQueSrv)Dump(bDetail bool) (str string) {
 
+	str += pthis.lsn.EPollListenerDump()
 	str += "\r\naddr out:" + pthis.addrOut + "\r\n"
 	str += "msg que center:" + pthis.msgqueCenterAddr + pthis.fdCenter.String()
 	str += pthis.queSrvID.String() + "\r\n\r\n"

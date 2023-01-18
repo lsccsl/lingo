@@ -175,5 +175,6 @@ func ConstructMgrQueClient(msgqueCenterAddr string, srvType int) *MgrQueClient {
 }
 
 func (pthis*MgrQueClient)Dump(bDetail bool) string {
-	return ""
+	str := pthis.lsn.EPollListenerDump()
+	return str
 }
