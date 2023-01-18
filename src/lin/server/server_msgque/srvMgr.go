@@ -96,6 +96,8 @@ func (pthis*SrvMgr)addOtherQueAllSrvFromPB(queSrvID server_common.SRV_ID, allSrv
 		return
 	}
 
+	pthis.delOtherQueAllSrv(queSrvID)
+
 	// write lock
 	pthis.mapSrvRWLock.Lock()
 	defer pthis.mapSrvRWLock.Unlock()

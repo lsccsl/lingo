@@ -30,7 +30,7 @@ func (pthis*MsgQueSrvInfo)String()(str string){
 
 type MsgQueSrvStatus struct {
 	queSrvID server_common.SRV_ID
-	srvConnCount int // msg que connected srv count
+	ChooseConnCount int // msg que connected srv count, todo choose que srv by srv reg count
 }
 
 func (pthis*MsgQueSrvMgr)StoreQueSrvInfo(qsi * MsgQueSrvInfo) {
@@ -81,16 +81,16 @@ func (pthis*MsgQueSrvMgr)ChooseMostIdleQueSrv() (qsi MsgQueSrvInfo, bRet bool) {
 	minCount := 0
 	for _, v := range pthis.mapQueSrvStatus {
 		if status == nil {
-			minCount = v.srvConnCount
+			minCount = v.ChooseConnCount
 			status = v
 			continue
 		}
 
-		if minCount < v.srvConnCount {
+		if minCount < v.ChooseConnCount {
 			continue
 		}
 
-		minCount = v.srvConnCount
+		minCount = v.ChooseConnCount
 		status = v
 	}
 
@@ -98,7 +98,7 @@ func (pthis*MsgQueSrvMgr)ChooseMostIdleQueSrv() (qsi MsgQueSrvInfo, bRet bool) {
 		return
 
 	}
-	status.srvConnCount ++
+	status.ChooseConnCount ++
 
 	qsi, bRet = pthis.LoadQueSrvInfo(status.queSrvID)
 	return

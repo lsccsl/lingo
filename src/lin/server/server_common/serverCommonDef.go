@@ -15,7 +15,7 @@ const(
 	EN_TCP_CLOSE_REASON_recv_ntf_offline = lin_common.EN_TCP_CLOSE_REASON_inter_max + 2
 	EN_TCP_CLOSE_REASON_repeated_msgque_center = lin_common.EN_TCP_CLOSE_REASON_inter_max + 3
 	EN_TCP_CLOSE_REASON_msgque_center_ntf_offline = lin_common.EN_TCP_CLOSE_REASON_inter_max + 4
-	EN_TCP_CLOSE_REASON_msgque_accept_close = lin_common.EN_TCP_CLOSE_REASON_inter_max + 5
+	EN_TCP_CLOSE_REASON_srv_reg_ok = lin_common.EN_TCP_CLOSE_REASON_inter_max + 5
 )
 
 func (id SRV_ID)String() string {

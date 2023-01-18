@@ -114,9 +114,9 @@ message PB_MSG_INTER_SRV_REG_TO_QUE_RES
     int32 srv_type = 2;
 }
 
-
-
 message PB_MSG_INTER_SRV_REPORT_TO_OTHER_QUE
 {
     PB_SRV_INFO_ALL all_srv = 1;
 }
+
+
