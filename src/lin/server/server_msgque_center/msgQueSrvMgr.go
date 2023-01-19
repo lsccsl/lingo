@@ -30,7 +30,7 @@ func (pthis*MsgQueSrvInfo)String()(str string){
 
 type MsgQueSrvStatus struct {
 	queSrvID server_common.SRV_ID
-	ChooseConnCount int // msg que connected srv count, todo choose que srv by srv reg count
+	ChooseConnCount int // msg que connected srv count
 }
 
 func (pthis*MsgQueSrvMgr)StoreQueSrvInfo(qsi * MsgQueSrvInfo) {
@@ -104,10 +104,41 @@ func (pthis*MsgQueSrvMgr)ChooseMostIdleQueSrv() (qsi MsgQueSrvInfo, bRet bool) {
 	return
 }
 
+func (pthis*MsgQueSrvMgr)ResetQueSrvChooseCount(queSrvID server_common.SRV_ID, chooseCount int) {
+	pthis.mapQueSrvStatusLock.Lock()
+	defer pthis.mapQueSrvStatusLock.Unlock()
+
+	pthis.mapQueSrvStatus[queSrvID].ChooseConnCount = chooseCount
+}
+
 func ConstructMsgQueSrvMgr()*MsgQueSrvMgr {
 	mqMgr := &MsgQueSrvMgr{
 		mapQueSrvStatus: make(MAP_MSGQUESRV_STATUS),
 	}
 
 	return mqMgr
+}
+
+func (pthis*MsgQueSrvMgr)Dump() (str string) {
+	pthis.mapQueSrvStatusLock.Lock()
+	defer pthis.mapQueSrvStatusLock.Unlock()
+
+	str += "msg que srv reg:\r\n"
+	pthis.mapMsgQueSrv.Range(func(key, value any) bool{
+		qsi, ok := value.(MsgQueSrvInfo)
+		if !ok {
+			return true
+		}
+
+		str += qsi.String() + " "
+
+		status, ok := pthis.mapQueSrvStatus[qsi.queSrvID]
+		if ok {
+			str += " choose count:" + strconv.FormatInt(int64(status.ChooseConnCount), 10)
+		}
+		str += "\r\n"
+		return true
+	})
+
+	return
 }

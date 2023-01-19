@@ -21,6 +21,7 @@ message PB_MSG_INTER_QUECENTER_REGISTER
     int64 que_srv_id = 1;
     string ip = 2;
     int32 port = 3;
+    PB_SRV_INFO_ALL all_srv = 4;
 }
 message PB_MSG_INTER_QUESRV_INFO
 {
@@ -116,7 +117,7 @@ message PB_MSG_INTER_SRV_MSG
 }
 
 
-//
+// client srv register to msg que srv
 message PB_MSG_INTER_CLISRV_REG_TO_QUE
 {
     int64 srv_uuid = 1;
@@ -129,7 +130,7 @@ message PB_MSG_INTER_CLISRV_REG_TO_QUE_RES
 }
 
 
-//
+// msg que srv report local client srv to the other msg que server
 message PB_MSG_INTER_QUESRV_REPORT_TO_OTHER_QUE
 {
     PB_SRV_INFO_ALL all_srv = 1;

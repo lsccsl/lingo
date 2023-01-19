@@ -82,7 +82,9 @@ func (pthis*MsgQueSrv)TcpDialConnection(fd lin_common.FD_DEF, addr net.Addr, inA
 				QueSrvId: int64(pthis.queSrvID),
 				Ip: tcpAddr.IP.String(),
 				Port: int32(tcpAddr.Port),
+				AllSrv:&msgpacket.PB_SRV_INFO_ALL{},
 			}
+			pthis.smgr.getAllSrvNetPB(pbMsgReg.AllSrv)
 			pthis.SendProtoMsg(fd, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUECENTER_REGISTER, pbMsgReg)
 		}
 

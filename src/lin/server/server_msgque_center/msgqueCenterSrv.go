@@ -159,6 +159,11 @@ func (pthis*MsgQueCenterSrv)process_PB_MSG_INTER_QUECENTER_REGISTER(fd lin_commo
 	}
 	//add msg que server list
 	pthis.queSrvMgr.StoreQueSrvInfo(&qsiReg)
+	if regMsg.AllSrv != nil {
+		if regMsg.AllSrv.ArraySrv != nil {
+			pthis.queSrvMgr.ResetQueSrvChooseCount(queSrvID, len(regMsg.AllSrv.ArraySrv))
+		}
+	}
 
 	//response
 	regRet := &msgpacket.PB_MSG_INTER_QUECENTER_REGISTER_RES{}
@@ -277,16 +282,8 @@ func (pthis*MsgQueCenterSrv)Dump(bDetail bool) (str string) {
 	//str = "\r\nque srv id seed:" + strconv.FormatInt(pthis.srvIDSeed.Load(), 10) + "\r\n"
 
 	str += pthis.lsn.EPollListenerDump()
-	str += "msg que srv reg:\r\n"
-	pthis.queSrvMgr.RangeQueSrvInfo(func(key, value any) bool{
-		qsi, ok := value.(MsgQueSrvInfo)
-		if !ok {
-			return true
-		}
 
-		str += qsi.String() + "\r\n"
-		return true
-	})
+	str += pthis.queSrvMgr.Dump()
 
 	return
 }
