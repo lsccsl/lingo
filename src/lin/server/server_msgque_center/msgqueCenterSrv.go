@@ -95,7 +95,7 @@ func (pthis*MsgQueCenterSrv)TcpTick(fd lin_common.FD_DEF, tNowMill int64, inAtta
 
 
 func (pthis*MsgQueCenterSrv)process_PB_MSG_INTER_CLISRV_REG_MSGQUE_CENTER(fd lin_common.FD_DEF, pbMsg proto.Message) {
-	lin_common.LogDebug(fd, "PB_MSG_INTER_SRV_REG:", pbMsg)
+	lin_common.LogDebug(fd, "PB_MSG_INTER_CLISRV_REG_MSGQUE_CENTER:", pbMsg)
 	// choose a que srv
 	pbReg := pbMsg.(*msgpacket.PB_MSG_INTER_CLISRV_REG_MSGQUE_CENTER)
 
