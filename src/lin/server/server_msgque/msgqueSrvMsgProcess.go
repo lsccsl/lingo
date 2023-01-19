@@ -101,7 +101,7 @@ func (pthis*MsgQueSrv)processMsgLocal(fd lin_common.FD_DEF, msgReq * msgpacket.P
 	switch t := msgBody.(type) {
 	case *msgpacket.PB_MSG_INTER_QUESRV_GET_SRVTYPE:
 		{
-			msgType = int32(msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_GET_SRVTYPE)
+			msgType = int32(msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_GET_SRVTYPE_RES)
 			msgBodyRes = pthis.processMsgLocal_PB_MSG_INTER_QUESRV_GET_SRVTYPE(t, inAttachData)
 		}
 	}
