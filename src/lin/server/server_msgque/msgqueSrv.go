@@ -178,7 +178,7 @@ func (pthis*MsgQueSrv)TcpTick(fd lin_common.FD_DEF, tNowMill int64, inAttachData
 	switch t := inAttachData.(type) {
 	case *tcpAttachDataMsgQueCenterDial:
 		{
-			lin_common.LogDebug("send heart beat to msg que center ", pthis.queSrvID.String())
+			//lin_common.LogDebug("send heart beat to msg que center ", pthis.queSrvID.String())
 			// send heartbeat
 			pbHB := &msgpacket.PB_MSG_INTER_QUECENTER_HEARTBEAT{
 				QueSrvId: int64(pthis.queSrvID),
@@ -188,7 +188,7 @@ func (pthis*MsgQueSrv)TcpTick(fd lin_common.FD_DEF, tNowMill int64, inAttachData
 
 	case *tcpAttachDataMsgQueSrvDial:
 		{
-			lin_common.LogDebug("send heart beat to other que srv ", t.queSrvID.String())
+			//lin_common.LogDebug("send heart beat to other que srv ", t.queSrvID.String())
 			pbHB := &msgpacket.PB_MSG_INTER_QUESRV_HEARTBEAT{
 				QueSrvId: int64(pthis.queSrvID),
 			}
@@ -197,7 +197,7 @@ func (pthis*MsgQueSrv)TcpTick(fd lin_common.FD_DEF, tNowMill int64, inAttachData
 
 	default:
 		{
-			lin_common.LogDebug(fd, " tNowMill:", tNowMill, " inAttachData:", inAttachData)
+			lin_common.LogDebug(fd, " tNowMill:", tNowMill, " inAttachData:", t)
 		}
 	}
 }
@@ -265,6 +265,15 @@ func (pthis*MsgQueSrv)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, inAtt
 		{
 			lin_common.LogDebug(fd, "PB_MSG_INTER_TYPE__PB_MSG_INTER_CLISRV_HEARTBEAT", " proto msg", protoMsg, " attach:", inAttachData)
 			pthis.SendProtoMsg(fd, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_CLISRV_HEARTBEAT_RES, &msgpacket.PB_MSG_INTER_CLISRV_HEARTBEAT_RES{})
+		}
+
+	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_MSG:
+		{
+			pthis.process_PB_MSG_INTER_MSG(fd, protoMsg, inAttachData)
+		}
+	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_MSG_RES:
+		{
+			pthis.process_PB_MSG_INTER_MSG_RES(fd, protoMsg, inAttachData)
 		}
 
 	default:

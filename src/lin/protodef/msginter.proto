@@ -110,10 +110,37 @@ message PB_MSG_INTER_CLISRV_HEARTBEAT_RES
 
 
 // client srv msg
-message PB_MSG_INTER_SRV_MSG
+message PB_MSG_INTER_MSG
 {
-    int64 srv_uuid = 1;
-    bytes msg_bin = 2;
+    int64 srv_uuid_from = 1;
+    int64 srv_uuid_to = 2;
+    int32 srv_type = 3;
+
+    int32 msg_type = 4;
+    bytes msg_bin = 5;
+    int64 msg_id = 6; // msg identify
+    int64 msg_seq = 7;
+
+    int64 timestamp = 8;
+    int64 timestamp_arrive = 9;
+    int64 timeout_wait = 10;
+}
+message PB_MSG_INTER_MSG_RES
+{
+    int64 srv_uuid_from = 1;
+    int64 srv_uuid_to = 2;
+    int32 srv_type = 3;
+
+    int32 msg_type = 4;
+    bytes msg_bin = 5;
+    int64 msg_id = 6; // msg identify
+    int64 msg_seq = 7;
+
+    int64 timestamp = 8;
+    int64 timestamp_arrive = 9;
+    int64 timeout_wait = 10;
+
+    PB_RESPONSE_CODE res = 11;
 }
 
 
@@ -137,4 +164,14 @@ message PB_MSG_INTER_QUESRV_REPORT_TO_OTHER_QUE
     int64 que_srv_id = 2;
 }
 
+
+message PB_MSG_INTER_QUESRV_GET_SRVTYPE
+{
+    int32 srv_type = 1;
+}
+message PB_MSG_INTER_QUESRV_GET_SRVTYPE_RES
+{
+    int32 srv_type = 1;
+    repeated PB_SRV_INFO_ONE arrary_srv = 2;
+}
 

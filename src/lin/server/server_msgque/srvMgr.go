@@ -56,6 +56,9 @@ func (pthis*OtherSrvInfo)String() string {
 
 
 func (pthis*CliSrvMgr)addQueSrv(si *QueSrvNetInfo) {
+	if si == nil {
+		return
+	}
 	// write lock
 	pthis.mapQueSrvRWLock.Lock()
 	defer pthis.mapQueSrvRWLock.Unlock()
@@ -128,6 +131,49 @@ func (pthis*CliSrvMgr)delOtherQueAllSrv(queSrvID server_common.SRV_ID) {
 	for _, v := range arrayID {
 		delete(pthis.mapOtherSrvInfo, v)
 	}
+}
+
+func (pthis*CliSrvMgr)findLocalRoute(srvUUID server_common.SRV_ID) (lin_common.FD_DEF, bool) {
+	pthis.mapQueSrvRWLock.RLock()
+	defer pthis.mapQueSrvRWLock.RUnlock()
+
+	v, ok := pthis.mapQueSrvNet[srvUUID]
+	if !ok || nil == v {
+		return lin_common.FD_DEF_NIL, false
+	}
+
+	return v.fd, true
+}
+
+func (pthis*CliSrvMgr)findRemoteRoute(srvUUID server_common.SRV_ID)server_common.SRV_ID {
+	pthis.mapQueSrvRWLock.RLock()
+	defer pthis.mapQueSrvRWLock.RUnlock()
+
+	v, ok := pthis.mapOtherSrvInfo[srvUUID]
+	if !ok || nil == v {
+		return server_common.SRV_ID_INVALID
+	}
+
+	return v.queSrvID
+}
+
+func (pthis*CliSrvMgr)findSrvByType(srvType server_common.SRV_TYPE) (arraySrvID []server_common.SRV_ID) {
+	pthis.mapQueSrvRWLock.RLock()
+	defer pthis.mapQueSrvRWLock.RUnlock()
+
+	for _, v := range pthis.mapQueSrvNet {
+		if srvType != v.srvType {
+			continue
+		}
+		arraySrvID = append(arraySrvID, v.srvUUID)
+	}
+	for _, v := range pthis.mapOtherSrvInfo {
+		if srvType != v.srvType {
+			continue
+		}
+		arraySrvID = append(arraySrvID, v.srvUUID)
+	}
+	return
 }
 
 

@@ -78,6 +78,12 @@ func (pthis*MsgQueCenterSrv)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer,
 			pthis.queSrvMgr.ResetQueSrvChooseCount(server_common.SRV_ID(pbReport.QueSrvId), count)
 		}
 
+	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_MSG:
+		{
+			lin_common.LogDebug(fd, "PB_MSG_INTER_SRV_MSG:", protoMsg, " attach:", inAttachData)
+			pthis.process_PB_MSG_INTER_MSG(fd, protoMsg, inAttachData)
+		}
+
 	default:
 		{
 			lin_common.LogInfo("packType:", packType, " bytesProcess:", bytesProcess)

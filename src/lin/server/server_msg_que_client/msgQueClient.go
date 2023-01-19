@@ -8,6 +8,7 @@ import (
 	"lin/server/server_common"
 	"net"
 	"strconv"
+	"sync"
 )
 
 type MgrQueClient struct {
@@ -20,6 +21,9 @@ type MgrQueClient struct {
 
 	fdQueSrv lin_common.FD_DEF
 	queSrvAddr string
+	queDialWait sync.WaitGroup
+
+	msgMgr *ClientSrvMsgMgr
 }
 
 
@@ -60,6 +64,21 @@ func (pthis*MgrQueClient)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, in
 			pthis.process_PB_MSG_INTER_CLISRV_REG_MSGQUE_CENTER_RES(fd, protoMsg)
 		}
 
+	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_CLISRV_REG_TO_QUE_RES:
+		{
+			pthis.queDialWait.Done()
+		}
+
+	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_MSG:
+		{
+			pthis.process_PB_MSG_INTER_MSG(fd, protoMsg, inAttachData)
+		}
+
+	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_MSG_RES:
+		{
+			pthis.process_PB_MSG_INTER_MSG_RES(fd, protoMsg, inAttachData)
+		}
+
 	default:
 		{
 			lin_common.LogDebug(fd, "packType:", packType, " bytesProcess:", bytesProcess, " proto msg", protoMsg, " attach:", inAttachData)
@@ -75,7 +94,7 @@ func (pthis*MgrQueClient)TcpClose(fd lin_common.FD_DEF, closeReason lin_common.E
 	case *tcpAttachDataMsgQueDial:
 		{
 			var err error
-			pthis.fdCenter, err = pthis.lsn.EPollListenerDial(pthis.msgqueCenterAddr, &tcpAttachDataMsgQueCenter{}, true)
+			pthis.fdCenter, err = pthis.lsn.EPollListenerDial(pthis.msgqueCenterAddr, &tcpAttachDataMsgQueCenter{}, false)
 			if err != nil {
 				lin_common.LogErr("dial to msg que center err:", err)
 			}
@@ -147,6 +166,7 @@ func ConstructMgrQueClient(msgqueCenterAddr string, srvType server_common.SRV_TY
 	mqCli := &MgrQueClient{
 		srvUUID : server_common.SRV_ID_INVALID,
 		sryType: srvType,
+		msgMgr:ConstructClientSrvMsgMgr(),
 	}
 
 	lsn, err := lin_common.ConstructorEPollListener(mqCli, "", 1,
@@ -162,13 +182,15 @@ func ConstructMgrQueClient(msgqueCenterAddr string, srvType server_common.SRV_TY
 	}
 	mqCli.lsn = lsn
 
+	mqCli.queDialWait.Add(1)
 	// dial to msg que center server
 	mqCli.msgqueCenterAddr = msgqueCenterAddr
-	mqCli.fdCenter, err = lsn.EPollListenerDial(msgqueCenterAddr, &tcpAttachDataMsgQueCenter{}, true)
+	mqCli.fdCenter, err = lsn.EPollListenerDial(msgqueCenterAddr, &tcpAttachDataMsgQueCenter{}, false)
 	if err != nil {
 		lin_common.LogErr("dial to msg que center err:", err)
 	}
 
+	mqCli.queDialWait.Wait()
 	lin_common.LogInfo("connect end~~~~~~~~~~~~~~~~~~~~~")
 
 	return mqCli
@@ -176,5 +198,7 @@ func ConstructMgrQueClient(msgqueCenterAddr string, srvType server_common.SRV_TY
 
 func (pthis*MgrQueClient)Dump(bDetail bool) string {
 	str := pthis.lsn.EPollListenerDump()
+
+	str += "fdQueSrv:" + pthis.fdQueSrv.String() + " addr:" + pthis.queSrvAddr
 	return str
 }

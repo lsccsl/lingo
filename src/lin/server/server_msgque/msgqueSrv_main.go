@@ -52,3 +52,5 @@ func main() {
 	mqMgr.Wait()
 }
 
+// todo send_async msg / get srv id by srvtype
+// todo client srv reconnect

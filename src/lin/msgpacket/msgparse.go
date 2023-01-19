@@ -227,3 +227,21 @@ func ProtoUnPacketFromBin(recvBuf * bytes.Buffer) (uint16, int, proto.Message) {
 	return packType, int(packLen), ParseProtoMsg(binBody, int32(packType))
 }
 
+func ProtoUnPacketFromArrayByte(arrayByte []byte) (uint16, int, proto.Message) {
+	lenData := len(arrayByte)
+	if lenData < 6 {
+		return uint16(MSG_TYPE__MSG_NULL), 0, nil
+	}
+	binHead := arrayByte[0:6]
+
+	packLen := binary.LittleEndian.Uint32(binHead[0:4])
+	packType := binary.LittleEndian.Uint16(binHead[4:6])
+
+	if lenData < int(packLen){
+		return uint16(MSG_TYPE__MSG_NULL), 0, nil
+	}
+
+	binBody := arrayByte[6:packLen]
+
+	return packType, int(packLen), ParseProtoMsg(binBody, int32(packType))
+}

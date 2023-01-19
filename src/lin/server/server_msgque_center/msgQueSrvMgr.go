@@ -108,7 +108,10 @@ func (pthis*MsgQueSrvMgr)ResetQueSrvChooseCount(queSrvID server_common.SRV_ID, c
 	pthis.mapQueSrvStatusLock.Lock()
 	defer pthis.mapQueSrvStatusLock.Unlock()
 
-	pthis.mapQueSrvStatus[queSrvID].ChooseConnCount = chooseCount
+	v, ok := pthis.mapQueSrvStatus[queSrvID]
+	if ok && v != nil {
+		v.ChooseConnCount = chooseCount
+	}
 }
 
 func ConstructMsgQueSrvMgr()*MsgQueSrvMgr {

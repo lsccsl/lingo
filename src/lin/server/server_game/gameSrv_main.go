@@ -5,7 +5,6 @@ import (
 	"lin/lin_common"
 	"lin/msgpacket"
 	"lin/server/server_common"
-	"lin/server/server_msg_que_client"
 	"strconv"
 )
 
@@ -19,7 +18,7 @@ func main() {
 	flag.Parse()
 	server_common.ReadCfg(pathCfg)
 
-	mqCli := msg_que_client.ConstructMgrQueClient(server_common.Global_ServerCfg.MsgQueCent.OutAddr, server_common.SRV_TYPE_game_server)
+	gs := ConstructGameSrv()
 
 	lin_common.AddCmd("dump", "dump", func(argStr []string)string{
 		bDetail := false
@@ -32,12 +31,13 @@ func main() {
 			needLog, _ := strconv.Atoi(argStr[1])
 			bLog = (needLog != 0)
 		}
-		str := mqCli.Dump(bDetail)
+		str := gs.mqClient.Dump(bDetail)
 		if bLog {
 			lin_common.LogDebug(str)
 		}
 		return str
 	})
 	lin_common.ParseCmd()
-	mqCli.Wait()
+
+	gs.Wait()
 }

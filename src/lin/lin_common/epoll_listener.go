@@ -443,6 +443,7 @@ func (pthis*ePollConnection)_go_EpollConnection_epollwait() {
 		if err != nil {
 			LogErr(err)
 		}
+		pthis._lsn._wg.Done()
 		pthis._lsn = nil
 		LogErr("_go_EpollConnection_epollwait quit")
 	}()
@@ -500,6 +501,7 @@ func (pthis*ePollAccept)_go_EpollAccept_epollwait() {
 		if err != nil {
 			LogErr(err)
 		}
+		pthis._lsn._wg.Done()
 		pthis._lsn = nil
 		LogErr("_go_EpollAccept_epollwait quit")
 	}()
