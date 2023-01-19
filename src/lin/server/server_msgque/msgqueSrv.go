@@ -301,6 +301,7 @@ func (pthis*MsgQueSrv)broadCastSrvReportToOtherQueSrv() {
 	// ntf to all other que srv
 	pbReport := &msgpacket.PB_MSG_INTER_QUESRV_REPORT_TO_OTHER_QUE{
 		AllSrv : &msgpacket.PB_SRV_INFO_ALL{},
+		QueSrvId: int64(pthis.queSrvID),
 	}
 	pthis.smgr.getAllSrvNetPB(pbReport.AllSrv)
 	pthis.otherMgr.Range(func(key, value any) bool{
@@ -311,6 +312,7 @@ func (pthis*MsgQueSrv)broadCastSrvReportToOtherQueSrv() {
 		pthis.SendProtoMsg(qsi.fdDial, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_REPORT_TO_OTHER_QUE, pbReport)
 		return true
 	})
+	pthis.SendProtoMsg(pthis.fdCenter, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_REPORT_TO_OTHER_QUE, pbReport)
 }
 
 

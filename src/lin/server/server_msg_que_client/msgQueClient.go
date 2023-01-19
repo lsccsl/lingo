@@ -13,7 +13,7 @@ import (
 type MgrQueClient struct {
 	lsn *lin_common.EPollListener
 	srvUUID server_common.SRV_ID
-	sryType int
+	sryType server_common.SRV_TYPE
 
 	fdCenter lin_common.FD_DEF
 	msgqueCenterAddr string // "x.x.x.x:n"
@@ -143,7 +143,7 @@ func (pthis*MgrQueClient)Wait() {
 	pthis.lsn.EPollListenerWait()
 }
 
-func ConstructMgrQueClient(msgqueCenterAddr string, srvType int) *MgrQueClient {
+func ConstructMgrQueClient(msgqueCenterAddr string, srvType server_common.SRV_TYPE) *MgrQueClient {
 	mqCli := &MgrQueClient{
 		srvUUID : server_common.SRV_ID_INVALID,
 		sryType: srvType,

@@ -40,7 +40,6 @@ func (pthis*MsgQueCenterSrv)TcpDialConnection(fd lin_common.FD_DEF, addr net.Add
 }
 
 func (pthis*MsgQueCenterSrv)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, inAttachData interface{})(bytesProcess int, outAttachData interface{}) {
-	lin_common.LogDebug(fd)
 	packType, bytesProcess, protoMsg := msgpacket.ProtoUnPacketFromBin(readBuf)
 	if protoMsg == nil {
 		return
@@ -62,6 +61,21 @@ func (pthis*MsgQueCenterSrv)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer,
 	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_CLISRV_REG_MSGQUE_CENTER:
 		{
 			pthis.process_PB_MSG_INTER_CLISRV_REG_MSGQUE_CENTER(fd, protoMsg)
+		}
+
+	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_REPORT_TO_OTHER_QUE:
+		{
+			lin_common.LogDebug(fd, "PB_MSG_INTER_QUESRV_REPORT_TO_OTHER_QUE:", protoMsg, " attach:", inAttachData)
+			pbReport, ok := protoMsg.(*msgpacket.PB_MSG_INTER_QUESRV_REPORT_TO_OTHER_QUE)
+			count := 0
+			if ok {
+				if pbReport.AllSrv != nil {
+					if pbReport.AllSrv.ArraySrv != nil {
+						count = len(pbReport.AllSrv.ArraySrv)
+					}
+				}
+			}
+			pthis.queSrvMgr.ResetQueSrvChooseCount(server_common.SRV_ID(pbReport.QueSrvId), count)
 		}
 
 	default:

@@ -134,6 +134,7 @@ message PB_MSG_INTER_CLISRV_REG_TO_QUE_RES
 message PB_MSG_INTER_QUESRV_REPORT_TO_OTHER_QUE
 {
     PB_SRV_INFO_ALL all_srv = 1;
+    int64 que_srv_id = 2;
 }
 
 

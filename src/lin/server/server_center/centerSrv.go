@@ -5,11 +5,11 @@ import (
 	"lin/lin_common"
 	"lin/msgpacket"
 	"lin/server/server_common"
-	"lin/server/server_msg_que_client"
+	msg_que_client "lin/server/server_msg_que_client"
 	"strconv"
 )
 
-func main() {
+func main()  {
 	lin_common.InitLog("./srv.log", "./srv_err.log", true, true)
 
 	msgpacket.InitMsgParseVirtualTable("../cfg")
@@ -19,7 +19,7 @@ func main() {
 	flag.Parse()
 	server_common.ReadCfg(pathCfg)
 
-	mqCli := msg_que_client.ConstructMgrQueClient(server_common.Global_ServerCfg.MsgQueCent.OutAddr, server_common.SRV_TYPE_game_server)
+	mqCli := msg_que_client.ConstructMgrQueClient(server_common.Global_ServerCfg.MsgQueCent.OutAddr, server_common.SRV_TYPE_center_server)
 
 	lin_common.AddCmd("dump", "dump", func(argStr []string)string{
 		bDetail := false
@@ -41,3 +41,4 @@ func main() {
 	lin_common.ParseCmd()
 	mqCli.Wait()
 }
+
