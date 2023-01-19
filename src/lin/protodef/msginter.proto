@@ -15,35 +15,38 @@ message PB_SRV_INFO_ALL
 }
 
 
-message PB_MSG_INTER_QUESRV_REGISTER
+// msg que srv register to msg center
+message PB_MSG_INTER_QUECENTER_REGISTER
 {
     int64 que_srv_id = 1;
     string ip = 2;
     int32 port = 3;
 }
-
 message PB_MSG_INTER_QUESRV_INFO
 {
     int64 que_srv_id = 1;
     string ip = 2;
     int32 port = 3;
 }
-message PB_MSG_INTER_QUESRV_REGISTER_RES
+message PB_MSG_INTER_QUECENTER_REGISTER_RES
 {
     repeated PB_MSG_INTER_QUESRV_INFO que_srv_info = 1;
     int64 que_srv_id = 2;
 }
 
-message PB_MSG_INTER_QUESRV_OFFLINE_NTF
+
+// msg center notfiy msg que srv the other msg que srv online/offline
+message PB_MSG_INTER_QUECENTER_OFFLINE_NTF
 {
     int64 que_srv_id = 1;
 }
-
-message PB_MSG_INTER_QUESRV_ONLINE_NTF
+message PB_MSG_INTER_QUECENTER_ONLINE_NTF
 {
     PB_MSG_INTER_QUESRV_INFO que_srv_info = 1;
 }
 
+
+// msg que srv connect to each other
 message PB_MSG_INTER_QUESRV_CONNECT
 {
     int64 que_srv_id = 1;
@@ -55,6 +58,8 @@ message PB_MSG_INTER_QUESRV_CONNECT_RES
     PB_SRV_INFO_ALL all_srv = 2;
 }
 
+
+// msg que srv heartbeat to msg center
 message PB_MSG_INTER_QUECENTER_HEARTBEAT
 {
     int64 que_srv_id = 1;
@@ -65,6 +70,7 @@ message PB_MSG_INTER_QUECENTER_HEARTBEAT_RES
 }
 
 
+// msg que srv heartbeat to the other msg que srv
 message PB_MSG_INTER_QUESRV_HEARTBEAT
 {
     int64 que_srv_id = 1;
@@ -74,12 +80,14 @@ message PB_MSG_INTER_QUESRV_HEARTBEAT_RES
     int64 que_srv_id = 1;
 }
 
-message PB_MSG_INTER_SRV_REG
+
+// client srv register to msg center
+message PB_MSG_INTER_CLISRV_REG_MSGQUE_CENTER
 {
     int32 srv_type = 1;
     int64 srv_uuid = 2;
 }
-message PB_MSG_INTER_SRV_REG_RES
+message PB_MSG_INTER_CLISRV_REG_MSGQUE_CENTER_RES
 {
     PB_RESPONSE_CODE res = 1;
     int64 srv_uuid = 2;
@@ -88,33 +96,41 @@ message PB_MSG_INTER_SRV_REG_RES
     int32 que_srv_port = 5;
 }
 
-message PB_MSG_INTER_SRV_HEARTBEAT
+
+// client srv heartbeat to msg que srv
+message PB_MSG_INTER_CLISRV_HEARTBEAT
 {
     int64 srv_uuid = 1;
 }
-message PB_MSG_INTER_SRV_HEARTBEAT_RES
+message PB_MSG_INTER_CLISRV_HEARTBEAT_RES
 {
     int64 srv_uuid = 1;
 }
 
+
+// client srv msg
 message PB_MSG_INTER_SRV_MSG
 {
     int64 srv_uuid = 1;
     bytes msg_bin = 2;
 }
 
-message PB_MSG_INTER_SRV_REG_TO_QUE
+
+//
+message PB_MSG_INTER_CLISRV_REG_TO_QUE
 {
     int64 srv_uuid = 1;
     int32 srv_type = 2;
 }
-message PB_MSG_INTER_SRV_REG_TO_QUE_RES
+message PB_MSG_INTER_CLISRV_REG_TO_QUE_RES
 {
     int64 srv_uuid = 1;
     int32 srv_type = 2;
 }
 
-message PB_MSG_INTER_SRV_REPORT_TO_OTHER_QUE
+
+//
+message PB_MSG_INTER_QUESRV_REPORT_TO_OTHER_QUE
 {
     PB_SRV_INFO_ALL all_srv = 1;
 }

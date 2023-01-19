@@ -23,7 +23,7 @@ type MsgQueSrv struct {
 	timerReconnMsgQueCenter time.Timer // timer reconnect to msg que server
 
 	otherMgr otherMsgQueSrvMgr
-	smgr *SrvMgr
+	smgr *CliSrvMgr
 }
 
 type otherMsgQueSrvInfo struct {
@@ -78,12 +78,12 @@ func (pthis*MsgQueSrv)TcpDialConnection(fd lin_common.FD_DEF, addr net.Addr, inA
 			if err != nil {
 				lin_common.LogErr(err)
 			}
-			pbMsgReg := &msgpacket.PB_MSG_INTER_QUESRV_REGISTER{
+			pbMsgReg := &msgpacket.PB_MSG_INTER_QUECENTER_REGISTER{
 				QueSrvId: int64(pthis.queSrvID),
 				Ip: tcpAddr.IP.String(),
 				Port: int32(tcpAddr.Port),
 			}
-			pthis.SendProtoMsg(fd, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_REGISTER, pbMsgReg)
+			pthis.SendProtoMsg(fd, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUECENTER_REGISTER, pbMsgReg)
 		}
 
 	case *tcpAttachDataMsgQueSrvDial: //  dial to other msg que srv tcp connection ok
@@ -207,22 +207,22 @@ func (pthis*MsgQueSrv)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, inAtt
 	}
 
 	switch msgpacket.PB_MSG_INTER_TYPE(packType) {
-	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_REGISTER_RES:
+	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUECENTER_REGISTER_RES:
 		{
 			lin_common.LogDebug(fd, "PB_MSG_INTER_QUESRV_REGISTER_RES:", protoMsg, " attach:", inAttachData)
-			pthis.process_PB_MSG_INTER_QUESRV_REGISTER_RES(protoMsg)
+			pthis.process_PB_MSG_INTER_QUECENTER_REGISTER_RES(protoMsg)
 		}
 
-	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_ONLINE_NTF:
+	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUECENTER_ONLINE_NTF:
 		{
 			lin_common.LogDebug(fd, "PB_MSG_INTER_QUESRV_ONLINE_NTF:", protoMsg, " attach:", inAttachData)
-			pthis.process_PB_MSG_INTER_QUESRV_ONLINE_NTF(protoMsg)
+			pthis.process_PB_MSG_INTER_QUECENTER_ONLINE_NTF(protoMsg)
 		}
 
-	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_OFFLINE_NTF:
+	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUECENTER_OFFLINE_NTF:
 		{
 			lin_common.LogDebug(fd, "PB_MSG_INTER_QUESRV_OFFLINE_NTF:", protoMsg, " attach:", inAttachData)
-			pthis.process_PB_MSG_INTER_QUESRV_OFFLINE_NTF(protoMsg)
+			pthis.process_PB_MSG_INTER_QUECENTER_OFFLINE_NTF(protoMsg)
 		}
 
 	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_CONNECT:
@@ -249,20 +249,20 @@ func (pthis*MsgQueSrv)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, inAtt
 			lin_common.LogDebug(fd, "PB_MSG_INTER_QUESRV_HEARTBEAT_RES:", protoMsg, " attach:", inAttachData)
 		}
 
-	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_SRV_REG_TO_QUE:
+	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_CLISRV_REG_TO_QUE:
 		{
-			outAttachData = pthis.process_PB_MSG_INTER_SRV_REG_TO_QUE(fd, protoMsg)
+			outAttachData = pthis.process_PB_MSG_INTER_CLISRV_REG_TO_QUE(fd, protoMsg)
 		}
 
-	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_SRV_REPORT_TO_OTHER_QUE:
+	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_REPORT_TO_OTHER_QUE:
 		{
-			pthis.process_PB_MSG_INTER_SRV_REPORT_TO_OTHER_QUE(fd, protoMsg, inAttachData)
+			pthis.process_PB_MSG_INTER_QUESRV_REPORT_TO_OTHER_QUE(fd, protoMsg, inAttachData)
 		}
 
-	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_SRV_HEARTBEAT:
+	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_CLISRV_HEARTBEAT:
 		{
-			lin_common.LogDebug(fd, "PB_MSG_INTER_SRV_HEARTBEAT", " proto msg", protoMsg, " attach:", inAttachData)
-			pthis.SendProtoMsg(fd, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_SRV_HEARTBEAT_RES, &msgpacket.PB_MSG_INTER_SRV_HEARTBEAT{})
+			lin_common.LogDebug(fd, "PB_MSG_INTER_TYPE__PB_MSG_INTER_CLISRV_HEARTBEAT", " proto msg", protoMsg, " attach:", inAttachData)
+			pthis.SendProtoMsg(fd, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_CLISRV_HEARTBEAT_RES, &msgpacket.PB_MSG_INTER_CLISRV_HEARTBEAT_RES{})
 		}
 
 	default:
@@ -277,7 +277,7 @@ func (pthis*MsgQueSrv)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, inAtt
 
 
 
-func (pthis*MsgQueSrv)process_PB_MSG_INTER_SRV_REPORT_TO_OTHER_QUE(fd lin_common.FD_DEF, pbMsg proto.Message, inAttachData interface{}) {
+func (pthis*MsgQueSrv)process_PB_MSG_INTER_QUESRV_REPORT_TO_OTHER_QUE(fd lin_common.FD_DEF, pbMsg proto.Message, inAttachData interface{}) {
 	lin_common.LogDebug(fd, "PB_MSG_INTER_SRV_REPORT_TO_OTHER_QUE:", pbMsg, " inAttachData:", inAttachData)
 
 	attach, ok := inAttachData.(*tcpAttachDataMsgQueSrvAccept)
@@ -286,7 +286,7 @@ func (pthis*MsgQueSrv)process_PB_MSG_INTER_SRV_REPORT_TO_OTHER_QUE(fd lin_common
 		return
 	}
 
-	pbReport, ok := pbMsg.(*msgpacket.PB_MSG_INTER_SRV_REPORT_TO_OTHER_QUE)
+	pbReport, ok := pbMsg.(*msgpacket.PB_MSG_INTER_QUESRV_REPORT_TO_OTHER_QUE)
 	if !ok || pbReport == nil {
 		return
 	}
@@ -297,7 +297,7 @@ func (pthis*MsgQueSrv)process_PB_MSG_INTER_SRV_REPORT_TO_OTHER_QUE(fd lin_common
 
 func (pthis*MsgQueSrv)broadCastSrvReportToOtherQueSrv() {
 	// ntf to all other que srv
-	pbReport := &msgpacket.PB_MSG_INTER_SRV_REPORT_TO_OTHER_QUE{
+	pbReport := &msgpacket.PB_MSG_INTER_QUESRV_REPORT_TO_OTHER_QUE{
 		AllSrv : &msgpacket.PB_SRV_INFO_ALL{},
 	}
 	pthis.smgr.getAllSrvNetPB(pbReport.AllSrv)
@@ -306,7 +306,7 @@ func (pthis*MsgQueSrv)broadCastSrvReportToOtherQueSrv() {
 		if !ok {
 			return true
 		}
-		pthis.SendProtoMsg(qsi.fdDial, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_SRV_REPORT_TO_OTHER_QUE, pbReport)
+		pthis.SendProtoMsg(qsi.fdDial, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_REPORT_TO_OTHER_QUE, pbReport)
 		return true
 	})
 }
@@ -325,10 +325,10 @@ func (pthis*MsgQueSrv)process_TcpClose_SrvReg(fd lin_common.FD_DEF, inAttachData
 	pthis.broadCastSrvReportToOtherQueSrv()
 }
 
-func (pthis*MsgQueSrv)process_PB_MSG_INTER_SRV_REG_TO_QUE(fd lin_common.FD_DEF, pbMsg proto.Message) interface{} {
+func (pthis*MsgQueSrv)process_PB_MSG_INTER_CLISRV_REG_TO_QUE(fd lin_common.FD_DEF, pbMsg proto.Message) interface{} {
 	lin_common.LogDebug(fd, "PB_MSG_INTER_TYPE__PB_MSG_INTER_SRV_REG_TO_QUE:", pbMsg)
 
-	pbReg, ok := pbMsg.(*msgpacket.PB_MSG_INTER_SRV_REG_TO_QUE)
+	pbReg, ok := pbMsg.(*msgpacket.PB_MSG_INTER_CLISRV_REG_TO_QUE)
 	if !ok || pbReg == nil{
 		return nil
 	}
@@ -345,11 +345,11 @@ func (pthis*MsgQueSrv)process_PB_MSG_INTER_SRV_REG_TO_QUE(fd lin_common.FD_DEF, 
 	pthis.broadCastSrvReportToOtherQueSrv()
 
 	// send response
-	pbRes := &msgpacket.PB_MSG_INTER_SRV_REG_TO_QUE{
+	pbRes := &msgpacket.PB_MSG_INTER_CLISRV_REG_TO_QUE_RES{
 		SrvUuid :pbReg.SrvUuid,
 		SrvType: pbReg.SrvType,
 	}
-	pthis.SendProtoMsg(fd, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_SRV_REG_TO_QUE, pbRes)
+	pthis.SendProtoMsg(fd, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_CLISRV_REG_TO_QUE_RES, pbRes)
 
 	return &tcpAttachDataSrvAccept{srvUUID: si.srvUUID}
 }
@@ -380,8 +380,8 @@ func (pthis*MsgQueSrv)dialToOtherMsgQue(queSrvID server_common.SRV_ID, ip string
 		port)
 }
 
-func (pthis*MsgQueSrv)process_PB_MSG_INTER_QUESRV_REGISTER_RES(pbMsg proto.Message) {
-	regRes, ok := pbMsg.(*msgpacket.PB_MSG_INTER_QUESRV_REGISTER_RES)
+func (pthis*MsgQueSrv)process_PB_MSG_INTER_QUECENTER_REGISTER_RES(pbMsg proto.Message) {
+	regRes, ok := pbMsg.(*msgpacket.PB_MSG_INTER_QUECENTER_REGISTER_RES)
 	if !ok || regRes == nil {
 		return
 	}
@@ -407,9 +407,9 @@ func (pthis*MsgQueSrv)process_PB_MSG_INTER_QUESRV_REGISTER_RES(pbMsg proto.Messa
 	}
 }
 
-func (pthis*MsgQueSrv)process_PB_MSG_INTER_QUESRV_ONLINE_NTF(pbMsg proto.Message) {
+func (pthis*MsgQueSrv)process_PB_MSG_INTER_QUECENTER_ONLINE_NTF(pbMsg proto.Message) {
 	//connect to msg que srv
-	pbNtf, ok := pbMsg.(*msgpacket.PB_MSG_INTER_QUESRV_ONLINE_NTF)
+	pbNtf, ok := pbMsg.(*msgpacket.PB_MSG_INTER_QUECENTER_ONLINE_NTF)
 	if !ok || pbNtf == nil || nil == pbNtf.QueSrvInfo {
 		return
 	}
@@ -418,9 +418,9 @@ func (pthis*MsgQueSrv)process_PB_MSG_INTER_QUESRV_ONLINE_NTF(pbMsg proto.Message
 	pthis.dialToOtherMsgQue(server_common.SRV_ID(pbqsi.QueSrvId), pbqsi.Ip, pbqsi.Port)
 }
 
-func (pthis*MsgQueSrv)process_PB_MSG_INTER_QUESRV_OFFLINE_NTF(pbMsg proto.Message) {
+func (pthis*MsgQueSrv)process_PB_MSG_INTER_QUECENTER_OFFLINE_NTF(pbMsg proto.Message) {
 	// disconnect to msg que srv and delete from map
-	pbNtf, ok := pbMsg.(*msgpacket.PB_MSG_INTER_QUESRV_OFFLINE_NTF)
+	pbNtf, ok := pbMsg.(*msgpacket.PB_MSG_INTER_QUECENTER_OFFLINE_NTF)
 	if !ok || pbNtf == nil {
 		return
 	}
@@ -522,7 +522,7 @@ func ConstructMsgQueSrv(msgqueCenterAddr string, addrBind string, addrOut string
 	mqMgr := &MsgQueSrv{
 		addrOut : addrOut,
 		queSrvID : server_common.SRV_ID_INVALID,
-		smgr : ConstructorSrvMgr(),
+		smgr : ConstructorCliSrvMgr(),
 	}
 
 	lsn, err := lin_common.ConstructorEPollListener(mqMgr, addrBind, epollCoroutineCount,

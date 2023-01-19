@@ -12,7 +12,7 @@ import (
 type MAP_SRV_NET_INFO   map[server_common.SRV_ID]*SrvNetInfo
 type MAP_OTHER_SRV_INFO map[server_common.SRV_ID]*OtherSrvInfo
 
-type SrvMgr struct {
+type CliSrvMgr struct {
 	mapSrvRWLock sync.RWMutex
 	mapSrvNet MAP_SRV_NET_INFO
 	mapOtherSrvInfo MAP_OTHER_SRV_INFO
@@ -55,7 +55,7 @@ func (pthis*OtherSrvInfo)String() string {
 }
 
 
-func (pthis*SrvMgr)addSrv(si *SrvNetInfo) {
+func (pthis*CliSrvMgr)addSrv(si *SrvNetInfo) {
 	// write lock
 	pthis.mapSrvRWLock.Lock()
 	defer pthis.mapSrvRWLock.Unlock()
@@ -63,7 +63,7 @@ func (pthis*SrvMgr)addSrv(si *SrvNetInfo) {
 	pthis.mapSrvNet[si.srvUUID] = si
 }
 
-func (pthis*SrvMgr)delSrv(srvUUID server_common.SRV_ID) {
+func (pthis*CliSrvMgr)delSrv(srvUUID server_common.SRV_ID) {
 	// write lock
 	pthis.mapSrvRWLock.Lock()
 	defer pthis.mapSrvRWLock.Unlock()
@@ -72,7 +72,7 @@ func (pthis*SrvMgr)delSrv(srvUUID server_common.SRV_ID) {
 }
 
 // getAllSrvNetPB get all local accept srv
-func (pthis*SrvMgr)getAllSrvNetPB(pb * msgpacket.PB_SRV_INFO_ALL) {
+func (pthis*CliSrvMgr)getAllSrvNetPB(pb * msgpacket.PB_SRV_INFO_ALL) {
 	if pb == nil {
 		return
 	}
@@ -90,7 +90,7 @@ func (pthis*SrvMgr)getAllSrvNetPB(pb * msgpacket.PB_SRV_INFO_ALL) {
 	}
 }
 
-func (pthis*SrvMgr)addOtherQueAllSrvFromPB(queSrvID server_common.SRV_ID, allSrv * msgpacket.PB_SRV_INFO_ALL) {
+func (pthis*CliSrvMgr)addOtherQueAllSrvFromPB(queSrvID server_common.SRV_ID, allSrv * msgpacket.PB_SRV_INFO_ALL) {
 	// to other srv
 	if allSrv == nil {
 		return
@@ -112,7 +112,7 @@ func (pthis*SrvMgr)addOtherQueAllSrvFromPB(queSrvID server_common.SRV_ID, allSrv
 	}
 }
 
-func (pthis*SrvMgr)delOtherQueAllSrv(queSrvID server_common.SRV_ID) {
+func (pthis*CliSrvMgr)delOtherQueAllSrv(queSrvID server_common.SRV_ID) {
 	// write lock
 	pthis.mapSrvRWLock.Lock()
 	defer pthis.mapSrvRWLock.Unlock()
@@ -131,8 +131,8 @@ func (pthis*SrvMgr)delOtherQueAllSrv(queSrvID server_common.SRV_ID) {
 }
 
 
-func ConstructorSrvMgr()*SrvMgr {
-	smgr := &SrvMgr{
+func ConstructorCliSrvMgr()*CliSrvMgr {
+	smgr := &CliSrvMgr{
 		mapSrvNet : make(MAP_SRV_NET_INFO),
 		mapOtherSrvInfo : make(MAP_OTHER_SRV_INFO),
 	}
@@ -140,7 +140,7 @@ func ConstructorSrvMgr()*SrvMgr {
 	return smgr
 }
 
-func (pthis*SrvMgr)Dump() string {
+func (pthis*CliSrvMgr)Dump() string {
 	pthis.mapSrvRWLock.RLock()
 	defer pthis.mapSrvRWLock.RUnlock()
 

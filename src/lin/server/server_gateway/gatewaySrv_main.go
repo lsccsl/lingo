@@ -12,7 +12,7 @@ func main() {
 
 	msgpacket.InitMsgParseVirtualTable("../cfg")
 
-	mqCli := server_msg_que_client.ConstructMgrQueClient("117.78.3.242:10000", 123)
+	mqCli := msg_que_client.ConstructMgrQueClient("117.78.3.242:10000", 123)
 
 	lin_common.AddCmd("dump", "dump", func(argStr []string)string{
 		bDetail := false
