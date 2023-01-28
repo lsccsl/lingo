@@ -154,14 +154,16 @@ message PB_MSG_INTER_CLISRV_REG_TO_QUE_RES
 {
     int64 srv_uuid = 1;
     int32 srv_type = 2;
+    PB_SRV_INFO_ALL all_srv = 3;
 }
 
 
 // msg que srv report local client srv to the other msg que server
-message PB_MSG_INTER_QUESRV_REPORT_TO_OTHER_QUE
+message PB_MSG_INTER_QUESRV_REPORT_BROADCAST
 {
     PB_SRV_INFO_ALL local_all_srv = 1;
     int64 que_srv_id = 2;
+    PB_SRV_INFO_ALL all_srv = 3;
 }
 
 

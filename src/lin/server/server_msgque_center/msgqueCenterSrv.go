@@ -63,10 +63,10 @@ func (pthis*MsgQueCenterSrv)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer,
 			pthis.process_PB_MSG_INTER_CLISRV_REG_MSGQUE_CENTER(fd, protoMsg)
 		}
 
-	case msgpacket.PB_MSG_TYPE__PB_MSG_INTER_QUESRV_REPORT_TO_OTHER_QUE:
+	case msgpacket.PB_MSG_TYPE__PB_MSG_INTER_QUESRV_REPORT_BROADCAST:
 		{
 			lin_common.LogDebug(fd, "PB_MSG_INTER_QUESRV_REPORT_TO_OTHER_QUE:", protoMsg, " attach:", inAttachData)
-			pbReport, ok := protoMsg.(*msgpacket.PB_MSG_INTER_QUESRV_REPORT_TO_OTHER_QUE)
+			pbReport, ok := protoMsg.(*msgpacket.PB_MSG_INTER_QUESRV_REPORT_BROADCAST)
 			count := 0
 			if ok {
 				if pbReport.LocalAllSrv != nil {

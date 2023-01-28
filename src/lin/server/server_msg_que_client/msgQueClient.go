@@ -24,6 +24,7 @@ type MgrQueClient struct {
 	queDialWait sync.WaitGroup
 
 	msgMgr *ClientSrvMsgMgr
+	otherClisrvMgr *OtherClientSrvMgr
 }
 
 
@@ -66,7 +67,12 @@ func (pthis*MgrQueClient)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, in
 
 	case msgpacket.PB_MSG_TYPE__PB_MSG_INTER_CLISRV_REG_TO_QUE_RES:
 		{
-			pthis.queDialWait.Done()
+			pthis.process_PB_MSG_INTER_CLISRV_REG_TO_QUE_RES(protoMsg)
+		}
+
+	case msgpacket.PB_MSG_TYPE__PB_MSG_INTER_QUESRV_REPORT_BROADCAST:
+		{
+			pthis.process_PB_MSG_INTER_QUESRV_REPORT_BROADCAST(protoMsg)
 		}
 
 	case msgpacket.PB_MSG_TYPE__PB_MSG_INTER_MSG:
@@ -117,6 +123,28 @@ func (pthis*MgrQueClient)TcpTick(fd lin_common.FD_DEF, tNowMill int64, inAttachD
 }
 
 
+
+func (pthis*MgrQueClient)process_PB_MSG_INTER_CLISRV_REG_TO_QUE_RES(pbMsg proto.Message) {
+	pthis.queDialWait.Done()
+
+	pbRes, ok := pbMsg.(*msgpacket.PB_MSG_INTER_CLISRV_REG_TO_QUE_RES)
+	if !ok  || nil == pbRes {
+		return
+	}
+	lin_common.LogDebug(pbRes)
+
+	pthis.otherClisrvMgr.SetOtherClientSrvFromPB(pbRes.AllSrv)
+}
+
+func (pthis*MgrQueClient)process_PB_MSG_INTER_QUESRV_REPORT_BROADCAST(pbMsg proto.Message) {
+	pbReport, ok := pbMsg.(*msgpacket.PB_MSG_INTER_QUESRV_REPORT_BROADCAST)
+	if !ok  || nil == pbReport {
+		return
+	}
+	lin_common.LogDebug(pbReport)
+
+	pthis.otherClisrvMgr.SetOtherClientSrvFromPB(pbReport.AllSrv)
+}
 
 func (pthis*MgrQueClient)process_PB_MSG_INTER_CLISRV_REG_MSGQUE_CENTER_RES(fd lin_common.FD_DEF, pbMsg proto.Message) {
 	lin_common.LogDebug(fd, pbMsg)
@@ -176,6 +204,7 @@ func ConstructMgrQueClient(msgqueCenterAddr string, srvType server_common.SRV_TY
 		srvUUID : server_common.SRV_ID_INVALID,
 		sryType: srvType,
 		msgMgr:ConstructClientSrvMsgMgr(),
+		otherClisrvMgr:ConstructOtherClientSrvMgr(),
 	}
 
 	lsn, err := lin_common.ConstructorEPollListener(mqCli, "", 1,

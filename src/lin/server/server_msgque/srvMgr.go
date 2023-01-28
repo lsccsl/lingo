@@ -93,6 +93,15 @@ func (pthis*CliSrvMgr)getAllSrvNetPB(pb * msgpacket.PB_SRV_INFO_ALL) {
 	}
 }
 
+func (pthis*CliSrvMgr)RangeAllSrvNet(fn func(server_common.SRV_ID, *QueSrvNetInfo)){
+	pthis.mapQueSrvRWLock.RLock()
+	defer pthis.mapQueSrvRWLock.RUnlock()
+
+	for _, v := range pthis.mapQueSrvNet {
+		fn(v.srvUUID, v)
+	}
+}
+
 func (pthis*CliSrvMgr)addOtherQueAllSrvFromPB(queSrvID server_common.SRV_ID, allSrv * msgpacket.PB_SRV_INFO_ALL) {
 	// to other srv
 	if allSrv == nil {
@@ -130,6 +139,19 @@ func (pthis*CliSrvMgr)delOtherQueAllSrv(queSrvID server_common.SRV_ID) {
 
 	for _, v := range arrayID {
 		delete(pthis.mapOtherSrvInfo, v)
+	}
+}
+
+func (pthis*CliSrvMgr)getOtherQueAllSrv(pb * msgpacket.PB_SRV_INFO_ALL) {
+	if nil == pb {
+		return
+	}
+	for _, v := range pthis.mapOtherSrvInfo {
+		pb.ArraySrv = append(pb.ArraySrv,
+			&msgpacket.PB_SRV_INFO_ONE{
+				SrvUuid:int64(v.srvUUID),
+				SrvType :int32(v.srvType),
+			})
 	}
 }
 

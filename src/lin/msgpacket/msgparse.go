@@ -26,8 +26,8 @@ func isMsgType(str string) (b bool, msgName string, msgType string) {
 	if strings.Index(str, "MSG_TYPE_") == 0 {
 		return true, str[len("MSG_TYPE_"):len(str)], "msgpacket." + str[len("MSG_TYPE__"):len(str)]
 	}
-	if strings.Index(str, "PB_MSG_INTER_TYPE_") == 0 {
-		return true, str[len("PB_MSG_INTER_TYPE_"):len(str)], "msgpacket." + str[len("PB_MSG_INTER_TYPE__"):len(str)]
+	if strings.Index(str, "PB_MSG_TYPE_") == 0 {
+		return true, str[len("PB_MSG_TYPE_"):len(str)], "msgpacket." + str[len("PB_MSG_TYPE__"):len(str)]
 	}
 	return false, "", ""
 }
@@ -91,10 +91,11 @@ func genAllMsgParse(msgprotoPath string) {
 					continue
 				}
 				b, msgType, msgName := isMsgType(valobj.Name)
-				lin_common.LogDebug("name:", msgName, " type:", msgType)
 				if !b {
+					lin_common.LogDebug("not msg type name:",valobj.Name)
 					continue
 				}
+				lin_common.LogDebug("obj name:",valobj.Name, " name:", msgName, " type:", msgType)
 				ProtoParseAddText(msgName, msgType)
 				addMsgNameType(msgName, msgType)
 			}

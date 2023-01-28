@@ -256,9 +256,9 @@ func (pthis*MsgQueSrv)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, inAtt
 			outAttachData = pthis.process_PB_MSG_INTER_CLISRV_REG_TO_QUE(fd, protoMsg)
 		}
 
-	case msgpacket.PB_MSG_TYPE__PB_MSG_INTER_QUESRV_REPORT_TO_OTHER_QUE:
+	case msgpacket.PB_MSG_TYPE__PB_MSG_INTER_QUESRV_REPORT_BROADCAST:
 		{
-			pthis.process_PB_MSG_INTER_QUESRV_REPORT_TO_OTHER_QUE(fd, protoMsg, inAttachData)
+			pthis.process_PB_MSG_INTER_QUESRV_REPORT_BROADCAST(fd, protoMsg, inAttachData)
 		}
 
 	case msgpacket.PB_MSG_TYPE__PB_MSG_INTER_CLISRV_HEARTBEAT:
@@ -291,20 +291,33 @@ func (pthis*MsgQueSrv)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, inAtt
 
 func (pthis*MsgQueSrv)broadCastSrvReportToOtherQueSrv() {
 	// ntf to all other que srv
-	pbReport := &msgpacket.PB_MSG_INTER_QUESRV_REPORT_TO_OTHER_QUE{
-		LocalAllSrv : &msgpacket.PB_SRV_INFO_ALL{},
-		QueSrvId: int64(pthis.queSrvID),
+	pbReport := &msgpacket.PB_MSG_INTER_QUESRV_REPORT_BROADCAST{
+		LocalAllSrv: &msgpacket.PB_SRV_INFO_ALL{},
+		QueSrvId:    int64(pthis.queSrvID),
 	}
 	pthis.smgr.getAllSrvNetPB(pbReport.LocalAllSrv)
-	pthis.otherMgr.Range(func(key, value any) bool{
+	pthis.otherMgr.Range(func(key, value any) bool {
 		qsi, ok := value.(otherMsgQueSrvInfo)
 		if !ok {
 			return true
 		}
-		pthis.SendProtoMsg(qsi.fdDial, msgpacket.PB_MSG_TYPE__PB_MSG_INTER_QUESRV_REPORT_TO_OTHER_QUE, pbReport)
+		pthis.SendProtoMsg(qsi.fdDial, msgpacket.PB_MSG_TYPE__PB_MSG_INTER_QUESRV_REPORT_BROADCAST, pbReport)
 		return true
 	})
-	pthis.SendProtoMsg(pthis.fdCenter, msgpacket.PB_MSG_TYPE__PB_MSG_INTER_QUESRV_REPORT_TO_OTHER_QUE, pbReport)
+	pthis.SendProtoMsg(pthis.fdCenter, msgpacket.PB_MSG_TYPE__PB_MSG_INTER_QUESRV_REPORT_BROADCAST, pbReport)
+}
+
+func (pthis*MsgQueSrv)broadCastSrvReportToClientSrv() {
+	// ntf to all local cli srv
+	pbReport := &msgpacket.PB_MSG_INTER_QUESRV_REPORT_BROADCAST{
+		AllSrv : &msgpacket.PB_SRV_INFO_ALL{},
+		QueSrvId: int64(pthis.queSrvID),
+	}
+	pthis.smgr.getAllSrvNetPB(pbReport.AllSrv)
+	pthis.smgr.getOtherQueAllSrv(pbReport.AllSrv)
+	pthis.smgr.RangeAllSrvNet(func(id server_common.SRV_ID, info *QueSrvNetInfo) {
+		pthis.SendProtoMsg(info.fd, msgpacket.PB_MSG_TYPE__PB_MSG_INTER_QUESRV_REPORT_BROADCAST, pbReport)
+	})
 }
 
 
@@ -319,6 +332,7 @@ func (pthis*MsgQueSrv)process_TcpClose_SrvReg(fd lin_common.FD_DEF, inAttachData
 
 	pthis.smgr.delQueSrv(attachData.srvUUID)
 	pthis.broadCastSrvReportToOtherQueSrv()
+	pthis.broadCastSrvReportToClientSrv()
 }
 
 func (pthis*MsgQueSrv)process_PB_MSG_INTER_CLISRV_REG_TO_QUE(fd lin_common.FD_DEF, pbMsg proto.Message) interface{} {
@@ -339,12 +353,16 @@ func (pthis*MsgQueSrv)process_PB_MSG_INTER_CLISRV_REG_TO_QUE(fd lin_common.FD_DE
 
 	pthis.smgr.addQueSrv(si)
 	pthis.broadCastSrvReportToOtherQueSrv()
+	pthis.broadCastSrvReportToClientSrv()
 
 	// send response
 	pbRes := &msgpacket.PB_MSG_INTER_CLISRV_REG_TO_QUE_RES{
 		SrvUuid :pbReg.SrvUuid,
 		SrvType: pbReg.SrvType,
+		AllSrv:&msgpacket.PB_SRV_INFO_ALL{},
 	}
+	pthis.smgr.getAllSrvNetPB(pbRes.AllSrv)
+	pthis.smgr.getOtherQueAllSrv(pbRes.AllSrv)
 	pthis.SendProtoMsg(fd, msgpacket.PB_MSG_TYPE__PB_MSG_INTER_CLISRV_REG_TO_QUE_RES, pbRes)
 
 	return &tcpAttachDataSrvAccept{srvUUID: si.srvUUID}
@@ -509,7 +527,7 @@ func (pthis*MsgQueSrv)process_PB_MSG_INTER_QUESRV_CONNECT_RES(fd lin_common.FD_D
 }
 
 
-func (pthis*MsgQueSrv)process_PB_MSG_INTER_QUESRV_REPORT_TO_OTHER_QUE(fd lin_common.FD_DEF, pbMsg proto.Message, inAttachData interface{}) {
+func (pthis*MsgQueSrv)process_PB_MSG_INTER_QUESRV_REPORT_BROADCAST(fd lin_common.FD_DEF, pbMsg proto.Message, inAttachData interface{}) {
 	lin_common.LogDebug(fd, "PB_MSG_INTER_SRV_REPORT_TO_OTHER_QUE:", pbMsg, " inAttachData:", inAttachData)
 
 	attach, ok := inAttachData.(*tcpAttachDataMsgQueSrvAccept)
@@ -518,13 +536,14 @@ func (pthis*MsgQueSrv)process_PB_MSG_INTER_QUESRV_REPORT_TO_OTHER_QUE(fd lin_com
 		return
 	}
 
-	pbReport, ok := pbMsg.(*msgpacket.PB_MSG_INTER_QUESRV_REPORT_TO_OTHER_QUE)
+	pbReport, ok := pbMsg.(*msgpacket.PB_MSG_INTER_QUESRV_REPORT_BROADCAST)
 	if !ok || pbReport == nil {
 		return
 	}
 
 	// add other srv
 	pthis.smgr.addOtherQueAllSrvFromPB(attach.queSrvID, pbReport.LocalAllSrv)
+	pthis.broadCastSrvReportToClientSrv()
 }
 
 
