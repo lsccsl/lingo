@@ -147,8 +147,8 @@ func (pthis*MsgQueSrv)processMsgLocal_PB_MSG_INTER_QUESRV_GET_SRVTYPE(pbMsg * ms
 
 	for _, v := range arraySrvID {
 		res.ArrarySrv = append(res.ArrarySrv, &msgpacket.PB_SRV_INFO_ONE{
-			SrvUuid : int64(v),
-			SrvType : pbMsg.SrvType,
+			SrvUuid : int64(v.srvUUID),
+			SrvType : int32(v.srvType),
 		})
 	}
 

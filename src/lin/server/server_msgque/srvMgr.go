@@ -18,11 +18,16 @@ type CliSrvMgr struct {
 	mapOtherSrvInfo MAP_OTHER_SRV_INFO
 }
 
+type SrvBaseInfo struct {
+	srvUUID server_common.SRV_ID
+	srvType server_common.SRV_TYPE
+
+}
 
 // SrvNetInfo the server reg to this msg que
 type QueSrvNetInfo struct{
-	srvUUID server_common.SRV_ID
-	srvType server_common.SRV_TYPE
+	SrvBaseInfo
+
 	fd lin_common.FD_DEF
 	addr net.Addr
 }
@@ -40,8 +45,7 @@ func (pthis*QueSrvNetInfo)String() string {
 
 // OtherSrvInfo server in the other msg que
 type OtherSrvInfo struct{
-	srvUUID server_common.SRV_ID
-	srvType server_common.SRV_TYPE
+	SrvBaseInfo
 
 	queSrvID server_common.SRV_ID
 }
@@ -116,8 +120,10 @@ func (pthis*CliSrvMgr)addOtherQueAllSrvFromPB(queSrvID server_common.SRV_ID, all
 
 	for _, v := range allSrv.ArraySrv {
 		soi := OtherSrvInfo{
-			srvUUID:  server_common.SRV_ID(v.SrvUuid),
-			srvType:  server_common.SRV_TYPE(v.SrvType),
+			SrvBaseInfo:SrvBaseInfo{
+				srvUUID:  server_common.SRV_ID(v.SrvUuid),
+				srvType:  server_common.SRV_TYPE(v.SrvType),
+			},
 			queSrvID: queSrvID,
 		}
 		pthis.mapOtherSrvInfo[soi.srvUUID] = &soi
@@ -179,7 +185,7 @@ func (pthis*CliSrvMgr)findRemoteRoute(srvUUID server_common.SRV_ID)server_common
 	return v.queSrvID
 }
 
-func (pthis*CliSrvMgr)findSrvByType(srvType server_common.SRV_TYPE) (arraySrvID []server_common.SRV_ID) {
+func (pthis*CliSrvMgr)findSrvByType(srvType server_common.SRV_TYPE) (arraySrvID []*SrvBaseInfo) {
 	pthis.mapQueSrvRWLock.RLock()
 	defer pthis.mapQueSrvRWLock.RUnlock()
 
@@ -187,13 +193,13 @@ func (pthis*CliSrvMgr)findSrvByType(srvType server_common.SRV_TYPE) (arraySrvID 
 		if srvType != v.srvType && srvType != server_common.SRV_TYPE_none {
 			continue
 		}
-		arraySrvID = append(arraySrvID, v.srvUUID)
+		arraySrvID = append(arraySrvID, &SrvBaseInfo{srvUUID:v.srvUUID, srvType:v.srvType})
 	}
 	for _, v := range pthis.mapOtherSrvInfo {
 		if srvType != v.srvType && srvType != server_common.SRV_TYPE_none {
 			continue
 		}
-		arraySrvID = append(arraySrvID, v.srvUUID)
+		arraySrvID = append(arraySrvID, &SrvBaseInfo{srvUUID:v.srvUUID, srvType:v.srvType})
 	}
 	return
 }

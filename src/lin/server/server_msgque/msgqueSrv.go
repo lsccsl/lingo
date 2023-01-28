@@ -345,8 +345,10 @@ func (pthis*MsgQueSrv)process_PB_MSG_INTER_CLISRV_REG_TO_QUE(fd lin_common.FD_DE
 
 	// add srv to mgr,
 	si := &QueSrvNetInfo{
-		srvUUID :server_common.SRV_ID(pbReg.SrvUuid),
-		srvType: server_common.SRV_TYPE(pbReg.SrvType),
+		SrvBaseInfo:SrvBaseInfo{
+			srvUUID :server_common.SRV_ID(pbReg.SrvUuid),
+			srvType: server_common.SRV_TYPE(pbReg.SrvType),
+		},
 		fd :fd,
 		addr : lin_common.TcpGetPeerName(fd.FD),
 	}
