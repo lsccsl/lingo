@@ -3,8 +3,9 @@ package msgpacket;
 
 option go_package = "./;msgpacket";
 
-enum PB_MSG_INTER_TYPE
+enum PB_MSG_TYPE
 {
+    // msg que inter
     _PB_MSG_INTER_NULL = 0;
     _PB_MSG_INTER_QUECENTER_REGISTER      = 1;
     _PB_MSG_INTER_QUECENTER_REGISTER_RES  = 2;
@@ -29,6 +30,9 @@ enum PB_MSG_INTER_TYPE
     _PB_MSG_INTER_MSG_RES = 19;
     _PB_MSG_INTER_QUESRV_GET_SRVTYPE     = 20;
     _PB_MSG_INTER_QUESRV_GET_SRVTYPE_RES = 21;
+
+    _PB_MSG_INTER_MAX = 1000;
+
 }
 
 enum PB_RESPONSE_CODE

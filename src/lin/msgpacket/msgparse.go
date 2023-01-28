@@ -38,7 +38,7 @@ func addMsgNameType(msgName string, msgType string) {
 		mapMsgNameType[msgName] = intType
 		return
 	}
-	intType, ok = PB_MSG_INTER_TYPE_value[msgType]
+	intType, ok = PB_MSG_TYPE_value[msgType]
 	if ok{
 		mapMsgNameType[msgName] = intType
 		return
@@ -170,7 +170,7 @@ func ProtoParseAddText(name string, msgType string){
 		return
 	}
 
-	intType, ok = PB_MSG_INTER_TYPE_value[msgType]
+	intType, ok = PB_MSG_TYPE_value[msgType]
 	if ok {
 		ProtoParseAdd(name, intType)
 		return

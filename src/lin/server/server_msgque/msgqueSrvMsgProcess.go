@@ -25,14 +25,14 @@ func (pthis*MsgQueSrv)process_PB_MSG_INTER_MSG(fd lin_common.FD_DEF, pbMsg proto
 
 	if srvUUIDTo == server_common.SRV_ID_INVALID {
 		if srvType == server_common.SRV_TYPE_msg_center {
-			pthis.SendProtoMsg(pthis.fdCenter, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_MSG, pmsg)
+			pthis.SendProtoMsg(pthis.fdCenter, msgpacket.PB_MSG_TYPE__PB_MSG_INTER_MSG, pmsg)
 		} else {
 			pthis.processMsgLocal(fd, pmsg, inAttachData)
 		}
 	} else {
 		fdRoute, ok := pthis.smgr.findLocalRoute(srvUUIDTo)
 		if ok {
-			pthis.SendProtoMsg(fdRoute, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_MSG, pmsg)
+			pthis.SendProtoMsg(fdRoute, msgpacket.PB_MSG_TYPE__PB_MSG_INTER_MSG, pmsg)
 			return
 		} else {
 			queSrvID := pthis.smgr.findRemoteRoute(srvUUIDTo)
@@ -47,7 +47,7 @@ func (pthis*MsgQueSrv)process_PB_MSG_INTER_MSG(fd lin_common.FD_DEF, pbMsg proto
 				lin_common.LogErr("can't find que srv", queSrvID, srvUUIDTo, msgID)
 				return
 			}
-			pthis.SendProtoMsg(qsi.fdDial, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_MSG, pmsg)
+			pthis.SendProtoMsg(qsi.fdDial, msgpacket.PB_MSG_TYPE__PB_MSG_INTER_MSG, pmsg)
 		}
 	}
 }
@@ -66,7 +66,7 @@ func (pthis*MsgQueSrv)process_PB_MSG_INTER_MSG_RES(fd lin_common.FD_DEF, pbMsg p
 	lin_common.LogInfo("from:", srvUUIDFrom, "to:", srvUUIDTo, msgID)
 	fdRoute, ok := pthis.smgr.findLocalRoute(srvUUIDFrom)
 	if ok {
-		pthis.SendProtoMsg(fdRoute, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_MSG_RES, pmsg)
+		pthis.SendProtoMsg(fdRoute, msgpacket.PB_MSG_TYPE__PB_MSG_INTER_MSG_RES, pmsg)
 		return
 	} else {
 		queSrvID := pthis.smgr.findRemoteRoute(srvUUIDFrom)
@@ -81,7 +81,7 @@ func (pthis*MsgQueSrv)process_PB_MSG_INTER_MSG_RES(fd lin_common.FD_DEF, pbMsg p
 			lin_common.LogErr("can't find que srv", queSrvID, srvUUIDFrom, msgID)
 			return
 		}
-		pthis.SendProtoMsg(qsi.fdDial, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_MSG_RES, pmsg)
+		pthis.SendProtoMsg(qsi.fdDial, msgpacket.PB_MSG_TYPE__PB_MSG_INTER_MSG_RES, pmsg)
 	}
 }
 
@@ -101,7 +101,8 @@ func (pthis*MsgQueSrv)processMsgLocal(fd lin_common.FD_DEF, msgReq * msgpacket.P
 	switch t := msgBody.(type) {
 	case *msgpacket.PB_MSG_INTER_QUESRV_GET_SRVTYPE:
 		{
-			msgType = int32(msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_GET_SRVTYPE_RES)
+			//time.Sleep(time.Second * 3)
+			msgType = int32(msgpacket.PB_MSG_TYPE__PB_MSG_INTER_QUESRV_GET_SRVTYPE_RES)
 			msgBodyRes = pthis.processMsgLocal_PB_MSG_INTER_QUESRV_GET_SRVTYPE(t, inAttachData)
 		}
 	}
@@ -127,7 +128,7 @@ func (pthis*MsgQueSrv)processMsgLocal(fd lin_common.FD_DEF, msgReq * msgpacket.P
 		}
 	}
 
-	pthis.SendProtoMsg(fd, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_MSG_RES, msgRes)
+	pthis.SendProtoMsg(fd, msgpacket.PB_MSG_TYPE__PB_MSG_INTER_MSG_RES, msgRes)
 }
 
 

@@ -1,81 +1,16 @@
-package msg_que_client
+package msgque_client
 
 import (
 	"github.com/golang/protobuf/proto"
 	"lin/lin_common"
 	"lin/msgpacket"
 	"lin/server/server_common"
-	"sync"
-	"sync/atomic"
 	"time"
 )
 
 
-type MAP_MSG_REQ map[server_common.MSG_ID]*MsgReq
-type ClientSrvMsgMgr struct {
-	mapMsgReqMutex sync.Mutex
-	mapMsgReq      MAP_MSG_REQ
-
-	seq atomic.Int64
-
-	cb MsgProcessCB
-}
-type MsgReq struct {
-	MsgID server_common.MSG_ID
-	chNtf chan interface{}
-}
-
-type MsgProcessCB interface {
-	ProcessMsg(pbMsg proto.Message, pbMsgType int32,
-		srvUUIDFrom server_common.SRV_ID,
-		srvType server_common.SRV_TYPE) (msgType int32, protoMsg proto.Message)
-}
-
-func ConstructClientSrvMsgMgr() *ClientSrvMsgMgr {
-	rmgr := &ClientSrvMsgMgr{
-		mapMsgReq:make(MAP_MSG_REQ),
-	}
-
-	return rmgr
-}
-
-func (pthis*ClientSrvMsgMgr)ClientSrvMsgMgrAddReq(MsgID server_common.MSG_ID) *MsgReq {
-	pthis.mapMsgReqMutex.Lock()
-	defer pthis.mapMsgReqMutex.Unlock()
-
-	val, _ := pthis.mapMsgReq[MsgID]
-	if val != nil {
-		return nil
-	}
-	rreq := &MsgReq{MsgID: MsgID,
-		chNtf: make(chan interface{}, 10),
-	}
-	pthis.mapMsgReq[MsgID] = rreq
-	return rreq
-}
-
-func (pthis*ClientSrvMsgMgr)ClientSrvMsgMgrFindReq(MsgID server_common.MSG_ID) *MsgReq {
-	pthis.mapMsgReqMutex.Lock()
-	defer pthis.mapMsgReqMutex.Unlock()
-	val, _ := pthis.mapMsgReq[MsgID]
-	return val
-}
-
-func (pthis*ClientSrvMsgMgr)ClientSrvMsgMgrDelReq(MsgID server_common.MSG_ID) {
-	pthis.mapMsgReqMutex.Lock()
-	defer pthis.mapMsgReqMutex.Unlock()
-	val, _ := pthis.mapMsgReq[MsgID]
-	if val != nil {
-		if val.chNtf != nil {
-			close(val.chNtf)
-		}
-	}
-	delete(pthis.mapMsgReq, MsgID)
-}
-
-
 func (pthis*MgrQueClient)SendMsgAsyn(srvUUIDTo server_common.SRV_ID, srvType server_common.SRV_TYPE,
-	msgType msgpacket.PB_MSG_INTER_TYPE, protoMsg proto.Message, timeoutMilliSec int) (proto.Message, error) {
+	msgType msgpacket.PB_MSG_TYPE, protoMsg proto.Message, timeoutMilliSec int) (proto.Message, error) {
 	defer func() {
 		err := recover()
 		if err != nil {
@@ -105,7 +40,7 @@ func (pthis*MgrQueClient)SendMsgAsyn(srvUUIDTo server_common.SRV_ID, srvType ser
 
 	rreq := pthis.msgMgr.ClientSrvMsgMgrAddReq(msgID)
 
-	pthis.SendProtoMsg(pthis.fdQueSrv, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_MSG, pmsg)
+	pthis.SendProtoMsg(pthis.fdQueSrv, msgpacket.PB_MSG_TYPE__PB_MSG_INTER_MSG, pmsg)
 
 	var res proto.Message = nil
 	select{
@@ -126,6 +61,8 @@ func (pthis*MgrQueClient)SendMsgAsyn(srvUUIDTo server_common.SRV_ID, srvType ser
 
 	return res, nil
 }
+
+
 func (pthis*MgrQueClient)process_PB_MSG_INTER_MSG(fd lin_common.FD_DEF, pbMsg proto.Message, inAttachData interface{}) {
 
 	msgReq, ok := pbMsg.(*msgpacket.PB_MSG_INTER_MSG)
@@ -182,7 +119,7 @@ func (pthis*MgrQueClient)Go_ProcessMsg(msgReq *msgpacket.PB_MSG_INTER_MSG, pbMsg
 		lin_common.LogDebug("no call back")
 	}
 
-	pthis.SendProtoMsg(pthis.fdQueSrv, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_MSG_RES, msgRes)
+	pthis.SendProtoMsg(pthis.fdQueSrv, msgpacket.PB_MSG_TYPE__PB_MSG_INTER_MSG_RES, msgRes)
 }
 
 

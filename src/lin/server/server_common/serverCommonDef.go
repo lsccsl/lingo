@@ -22,6 +22,7 @@ func (id SRV_ID)String() string {
 
 type SRV_TYPE int32
 const(
+	SRV_TYPE_none            SRV_TYPE = 0
 	SRV_TYPE_msq_que         SRV_TYPE = 1
 	SRV_TYPE_msg_center      SRV_TYPE = 2
 	SRV_TYPE_center_server   SRV_TYPE = 3

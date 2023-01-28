@@ -162,13 +162,13 @@ func (pthis*CliSrvMgr)findSrvByType(srvType server_common.SRV_TYPE) (arraySrvID 
 	defer pthis.mapQueSrvRWLock.RUnlock()
 
 	for _, v := range pthis.mapQueSrvNet {
-		if srvType != v.srvType {
+		if srvType != v.srvType && srvType != server_common.SRV_TYPE_none {
 			continue
 		}
 		arraySrvID = append(arraySrvID, v.srvUUID)
 	}
 	for _, v := range pthis.mapOtherSrvInfo {
-		if srvType != v.srvType {
+		if srvType != v.srvType && srvType != server_common.SRV_TYPE_none {
 			continue
 		}
 		arraySrvID = append(arraySrvID, v.srvUUID)

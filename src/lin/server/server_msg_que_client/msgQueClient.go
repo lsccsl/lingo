@@ -1,4 +1,4 @@
-package msg_que_client
+package msgque_client
 
 import (
 	"bytes"
@@ -58,25 +58,30 @@ func (pthis*MgrQueClient)TcpDialConnection(fd lin_common.FD_DEF, addr net.Addr, 
 func (pthis*MgrQueClient)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, inAttachData interface{})(bytesProcess int, outAttachData interface{}) {
 	packType, bytesProcess, protoMsg := msgpacket.ProtoUnPacketFromBin(readBuf)
 
-	switch msgpacket.PB_MSG_INTER_TYPE(packType) {
-	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_CLISRV_REG_MSGQUE_CENTER_RES:
+	switch msgpacket.PB_MSG_TYPE(packType) {
+	case msgpacket.PB_MSG_TYPE__PB_MSG_INTER_CLISRV_REG_MSGQUE_CENTER_RES:
 		{
 			pthis.process_PB_MSG_INTER_CLISRV_REG_MSGQUE_CENTER_RES(fd, protoMsg)
 		}
 
-	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_CLISRV_REG_TO_QUE_RES:
+	case msgpacket.PB_MSG_TYPE__PB_MSG_INTER_CLISRV_REG_TO_QUE_RES:
 		{
 			pthis.queDialWait.Done()
 		}
 
-	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_MSG:
+	case msgpacket.PB_MSG_TYPE__PB_MSG_INTER_MSG:
 		{
 			pthis.process_PB_MSG_INTER_MSG(fd, protoMsg, inAttachData)
 		}
 
-	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_MSG_RES:
+	case msgpacket.PB_MSG_TYPE__PB_MSG_INTER_MSG_RES:
 		{
 			pthis.process_PB_MSG_INTER_MSG_RES(fd, protoMsg, inAttachData)
+		}
+
+	case msgpacket.PB_MSG_TYPE__PB_MSG_INTER_CLISRV_HEARTBEAT_RES:
+		{
+			lin_common.LogDebug(fd, "PB_MSG_INTER_CLISRV_HEARTBEAT_RES", " attach:", inAttachData)
 		}
 
 	default:
@@ -106,10 +111,9 @@ func (pthis*MgrQueClient)TcpOutBandData(fd lin_common.FD_DEF, data interface{}, 
 }
 
 func (pthis*MgrQueClient)TcpTick(fd lin_common.FD_DEF, tNowMill int64, inAttachData interface{}) {
-
-	lin_common.LogDebug(fd, " tNowMill:", tNowMill, " inAttachData:", inAttachData)
+	//lin_common.LogDebug(fd, " tNowMill:", tNowMill, " inAttachData:", inAttachData)
 	pbHB := &msgpacket.PB_MSG_INTER_CLISRV_HEARTBEAT{SrvUuid: int64(pthis.srvUUID)}
-	pthis.SendProtoMsg(fd, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_CLISRV_HEARTBEAT, pbHB)
+	pthis.SendProtoMsg(fd, msgpacket.PB_MSG_TYPE__PB_MSG_INTER_CLISRV_HEARTBEAT, pbHB)
 }
 
 
@@ -138,7 +142,7 @@ func (pthis*MgrQueClient)process_PB_MSG_INTER_CLISRV_REG_MSGQUE_CENTER_RES(fd li
 			SrvUuid: int64(pthis.srvUUID),
 			SrvType: int32(pthis.sryType),
 		}
-		pthis.SendProtoMsg(pthis.fdQueSrv, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_CLISRV_REG_TO_QUE, pbReg)
+		pthis.SendProtoMsg(pthis.fdQueSrv, msgpacket.PB_MSG_TYPE__PB_MSG_INTER_CLISRV_REG_TO_QUE, pbReg)
 	}
 
 	pthis.lsn.EPollListenerCloseTcp(fd, server_common.EN_TCP_CLOSE_REASON_srv_reg_ok)
@@ -151,11 +155,16 @@ func (pthis*MgrQueClient)process_TcpDialToMsgCenter(fd lin_common.FD_DEF) {
 		SrvType: int32(pthis.sryType),
 	}
 
-	pthis.SendProtoMsg(fd, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_CLISRV_REG_MSGQUE_CENTER, pbReg)
+	pthis.SendProtoMsg(fd, msgpacket.PB_MSG_TYPE__PB_MSG_INTER_CLISRV_REG_MSGQUE_CENTER, pbReg)
 }
 
-func (pthis*MgrQueClient)SendProtoMsg(fd lin_common.FD_DEF, msgType msgpacket.PB_MSG_INTER_TYPE, protoMsg proto.Message){
+func (pthis*MgrQueClient)SendProtoMsg(fd lin_common.FD_DEF, msgType msgpacket.PB_MSG_TYPE, protoMsg proto.Message){
 	pthis.lsn.EPollListenerWrite(fd, msgpacket.ProtoPacketToBin(uint16(msgType), protoMsg))
+}
+
+
+func (pthis*MgrQueClient)MgrQueClientSetCallBack(cb MsgProcessCB) {
+	pthis.msgMgr.cb = cb
 }
 
 func (pthis*MgrQueClient)Wait() {

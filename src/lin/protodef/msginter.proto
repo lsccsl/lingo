@@ -51,12 +51,12 @@ message PB_MSG_INTER_QUECENTER_ONLINE_NTF
 message PB_MSG_INTER_QUESRV_CONNECT
 {
     int64 que_srv_id = 1;
-    PB_SRV_INFO_ALL all_srv = 2;
+    PB_SRV_INFO_ALL local_all_srv = 2;
 }
 message PB_MSG_INTER_QUESRV_CONNECT_RES
 {
     int64 que_srv_id = 1;
-    PB_SRV_INFO_ALL all_srv = 2;
+    PB_SRV_INFO_ALL local_all_srv = 2;
 }
 
 
@@ -160,7 +160,7 @@ message PB_MSG_INTER_CLISRV_REG_TO_QUE_RES
 // msg que srv report local client srv to the other msg que server
 message PB_MSG_INTER_QUESRV_REPORT_TO_OTHER_QUE
 {
-    PB_SRV_INFO_ALL all_srv = 1;
+    PB_SRV_INFO_ALL local_all_srv = 1;
     int64 que_srv_id = 2;
 }
 

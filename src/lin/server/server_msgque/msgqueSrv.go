@@ -85,7 +85,7 @@ func (pthis*MsgQueSrv)TcpDialConnection(fd lin_common.FD_DEF, addr net.Addr, inA
 				AllSrv:&msgpacket.PB_SRV_INFO_ALL{},
 			}
 			pthis.smgr.getAllSrvNetPB(pbMsgReg.AllSrv)
-			pthis.SendProtoMsg(fd, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUECENTER_REGISTER, pbMsgReg)
+			pthis.SendProtoMsg(fd, msgpacket.PB_MSG_TYPE__PB_MSG_INTER_QUECENTER_REGISTER, pbMsgReg)
 		}
 
 	case *tcpAttachDataMsgQueSrvDial: //  dial to other msg que srv tcp connection ok
@@ -93,10 +93,10 @@ func (pthis*MsgQueSrv)TcpDialConnection(fd lin_common.FD_DEF, addr net.Addr, inA
 			// send conn msg to other msg que
 			pbMsgConn := &msgpacket.PB_MSG_INTER_QUESRV_CONNECT{
 				QueSrvId:int64(pthis.queSrvID),
-				AllSrv:&msgpacket.PB_SRV_INFO_ALL{},
+				LocalAllSrv:&msgpacket.PB_SRV_INFO_ALL{},
 			}
-			pthis.smgr.getAllSrvNetPB(pbMsgConn.AllSrv)
-			pthis.SendProtoMsg(fd, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_CONNECT, pbMsgConn)
+			pthis.smgr.getAllSrvNetPB(pbMsgConn.LocalAllSrv)
+			pthis.SendProtoMsg(fd, msgpacket.PB_MSG_TYPE__PB_MSG_INTER_QUESRV_CONNECT, pbMsgConn)
 		}
 
 	default:
@@ -183,7 +183,7 @@ func (pthis*MsgQueSrv)TcpTick(fd lin_common.FD_DEF, tNowMill int64, inAttachData
 			pbHB := &msgpacket.PB_MSG_INTER_QUECENTER_HEARTBEAT{
 				QueSrvId: int64(pthis.queSrvID),
 			}
-			pthis.SendProtoMsg(pthis.fdCenter, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUECENTER_HEARTBEAT, pbHB)
+			pthis.SendProtoMsg(pthis.fdCenter, msgpacket.PB_MSG_TYPE__PB_MSG_INTER_QUECENTER_HEARTBEAT, pbHB)
 		}
 
 	case *tcpAttachDataMsgQueSrvDial:
@@ -192,7 +192,7 @@ func (pthis*MsgQueSrv)TcpTick(fd lin_common.FD_DEF, tNowMill int64, inAttachData
 			pbHB := &msgpacket.PB_MSG_INTER_QUESRV_HEARTBEAT{
 				QueSrvId: int64(pthis.queSrvID),
 			}
-			pthis.SendProtoMsg(fd, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_HEARTBEAT, pbHB)
+			pthis.SendProtoMsg(fd, msgpacket.PB_MSG_TYPE__PB_MSG_INTER_QUESRV_HEARTBEAT, pbHB)
 		}
 
 	default:
@@ -208,70 +208,70 @@ func (pthis*MsgQueSrv)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, inAtt
 		return
 	}
 
-	switch msgpacket.PB_MSG_INTER_TYPE(packType) {
-	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUECENTER_REGISTER_RES:
+	switch msgpacket.PB_MSG_TYPE(packType) {
+	case msgpacket.PB_MSG_TYPE__PB_MSG_INTER_QUECENTER_REGISTER_RES:
 		{
 			lin_common.LogDebug(fd, "PB_MSG_INTER_QUESRV_REGISTER_RES:", protoMsg, " attach:", inAttachData)
 			pthis.process_PB_MSG_INTER_QUECENTER_REGISTER_RES(protoMsg)
 		}
 
-	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUECENTER_ONLINE_NTF:
+	case msgpacket.PB_MSG_TYPE__PB_MSG_INTER_QUECENTER_ONLINE_NTF:
 		{
 			lin_common.LogDebug(fd, "PB_MSG_INTER_QUESRV_ONLINE_NTF:", protoMsg, " attach:", inAttachData)
 			pthis.process_PB_MSG_INTER_QUECENTER_ONLINE_NTF(protoMsg)
 		}
 
-	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUECENTER_OFFLINE_NTF:
+	case msgpacket.PB_MSG_TYPE__PB_MSG_INTER_QUECENTER_OFFLINE_NTF:
 		{
 			lin_common.LogDebug(fd, "PB_MSG_INTER_QUESRV_OFFLINE_NTF:", protoMsg, " attach:", inAttachData)
 			pthis.process_PB_MSG_INTER_QUECENTER_OFFLINE_NTF(protoMsg)
 		}
 
-	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_CONNECT:
+	case msgpacket.PB_MSG_TYPE__PB_MSG_INTER_QUESRV_CONNECT:
 		{
 			outAttachData = pthis.process_PB_MSG_INTER_QUESRV_CONNECT(fd, protoMsg, inAttachData)
 		}
-	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_CONNECT_RES:
+	case msgpacket.PB_MSG_TYPE__PB_MSG_INTER_QUESRV_CONNECT_RES:
 		{
 			pthis.process_PB_MSG_INTER_QUESRV_CONNECT_RES(fd, protoMsg, inAttachData)
 		}
 
-	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUECENTER_HEARTBEAT_RES:
+	case msgpacket.PB_MSG_TYPE__PB_MSG_INTER_QUECENTER_HEARTBEAT_RES:
 		{
 			lin_common.LogDebug(fd, "PB_MSG_INTER_QUECENTER_HEARTBEAT_RES:", protoMsg, " attach:", inAttachData)
 		}
 
-	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_HEARTBEAT:
+	case msgpacket.PB_MSG_TYPE__PB_MSG_INTER_QUESRV_HEARTBEAT:
 		{
 			pthis.process_PB_MSG_INTER_QUESRV_HEARTBEAT(fd, protoMsg, inAttachData)
 		}
 
-	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_HEARTBEAT_RES:
+	case msgpacket.PB_MSG_TYPE__PB_MSG_INTER_QUESRV_HEARTBEAT_RES:
 		{
 			lin_common.LogDebug(fd, "PB_MSG_INTER_QUESRV_HEARTBEAT_RES:", protoMsg, " attach:", inAttachData)
 		}
 
-	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_CLISRV_REG_TO_QUE:
+	case msgpacket.PB_MSG_TYPE__PB_MSG_INTER_CLISRV_REG_TO_QUE:
 		{
 			outAttachData = pthis.process_PB_MSG_INTER_CLISRV_REG_TO_QUE(fd, protoMsg)
 		}
 
-	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_REPORT_TO_OTHER_QUE:
+	case msgpacket.PB_MSG_TYPE__PB_MSG_INTER_QUESRV_REPORT_TO_OTHER_QUE:
 		{
 			pthis.process_PB_MSG_INTER_QUESRV_REPORT_TO_OTHER_QUE(fd, protoMsg, inAttachData)
 		}
 
-	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_CLISRV_HEARTBEAT:
+	case msgpacket.PB_MSG_TYPE__PB_MSG_INTER_CLISRV_HEARTBEAT:
 		{
 			lin_common.LogDebug(fd, "PB_MSG_INTER_TYPE__PB_MSG_INTER_CLISRV_HEARTBEAT", " proto msg", protoMsg, " attach:", inAttachData)
-			pthis.SendProtoMsg(fd, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_CLISRV_HEARTBEAT_RES, &msgpacket.PB_MSG_INTER_CLISRV_HEARTBEAT_RES{})
+			pthis.SendProtoMsg(fd, msgpacket.PB_MSG_TYPE__PB_MSG_INTER_CLISRV_HEARTBEAT_RES, &msgpacket.PB_MSG_INTER_CLISRV_HEARTBEAT_RES{})
 		}
 
-	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_MSG:
+	case msgpacket.PB_MSG_TYPE__PB_MSG_INTER_MSG:
 		{
 			pthis.process_PB_MSG_INTER_MSG(fd, protoMsg, inAttachData)
 		}
-	case msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_MSG_RES:
+	case msgpacket.PB_MSG_TYPE__PB_MSG_INTER_MSG_RES:
 		{
 			pthis.process_PB_MSG_INTER_MSG_RES(fd, protoMsg, inAttachData)
 		}
@@ -288,40 +288,23 @@ func (pthis*MsgQueSrv)TcpData(fd lin_common.FD_DEF, readBuf *bytes.Buffer, inAtt
 
 
 
-func (pthis*MsgQueSrv)process_PB_MSG_INTER_QUESRV_REPORT_TO_OTHER_QUE(fd lin_common.FD_DEF, pbMsg proto.Message, inAttachData interface{}) {
-	lin_common.LogDebug(fd, "PB_MSG_INTER_SRV_REPORT_TO_OTHER_QUE:", pbMsg, " inAttachData:", inAttachData)
-
-	attach, ok := inAttachData.(*tcpAttachDataMsgQueSrvAccept)
-	if !ok || attach == nil {
-		lin_common.LogErr("attach data err:",  inAttachData, pbMsg, fd)
-		return
-	}
-
-	pbReport, ok := pbMsg.(*msgpacket.PB_MSG_INTER_QUESRV_REPORT_TO_OTHER_QUE)
-	if !ok || pbReport == nil {
-		return
-	}
-
-	// add other srv
-	pthis.smgr.addOtherQueAllSrvFromPB(attach.queSrvID, pbReport.AllSrv)
-}
 
 func (pthis*MsgQueSrv)broadCastSrvReportToOtherQueSrv() {
 	// ntf to all other que srv
 	pbReport := &msgpacket.PB_MSG_INTER_QUESRV_REPORT_TO_OTHER_QUE{
-		AllSrv : &msgpacket.PB_SRV_INFO_ALL{},
+		LocalAllSrv : &msgpacket.PB_SRV_INFO_ALL{},
 		QueSrvId: int64(pthis.queSrvID),
 	}
-	pthis.smgr.getAllSrvNetPB(pbReport.AllSrv)
+	pthis.smgr.getAllSrvNetPB(pbReport.LocalAllSrv)
 	pthis.otherMgr.Range(func(key, value any) bool{
 		qsi, ok := value.(otherMsgQueSrvInfo)
 		if !ok {
 			return true
 		}
-		pthis.SendProtoMsg(qsi.fdDial, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_REPORT_TO_OTHER_QUE, pbReport)
+		pthis.SendProtoMsg(qsi.fdDial, msgpacket.PB_MSG_TYPE__PB_MSG_INTER_QUESRV_REPORT_TO_OTHER_QUE, pbReport)
 		return true
 	})
-	pthis.SendProtoMsg(pthis.fdCenter, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_REPORT_TO_OTHER_QUE, pbReport)
+	pthis.SendProtoMsg(pthis.fdCenter, msgpacket.PB_MSG_TYPE__PB_MSG_INTER_QUESRV_REPORT_TO_OTHER_QUE, pbReport)
 }
 
 
@@ -362,7 +345,7 @@ func (pthis*MsgQueSrv)process_PB_MSG_INTER_CLISRV_REG_TO_QUE(fd lin_common.FD_DE
 		SrvUuid :pbReg.SrvUuid,
 		SrvType: pbReg.SrvType,
 	}
-	pthis.SendProtoMsg(fd, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_CLISRV_REG_TO_QUE_RES, pbRes)
+	pthis.SendProtoMsg(fd, msgpacket.PB_MSG_TYPE__PB_MSG_INTER_CLISRV_REG_TO_QUE_RES, pbRes)
 
 	return &tcpAttachDataSrvAccept{srvUUID: si.srvUUID}
 }
@@ -374,7 +357,7 @@ func (pthis*MsgQueSrv)process_PB_MSG_INTER_QUESRV_HEARTBEAT(fd lin_common.FD_DEF
 		QueSrvId : pbHB.QueSrvId,
 	}
 	lin_common.LogDebug("receive heartbeat from other msg que srv:", server_common.SRV_ID(pbHB.QueSrvId).String(), " inAttachData:", inAttachData)
-	pthis.SendProtoMsg(fd, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_HEARTBEAT_RES, pbRes)
+	pthis.SendProtoMsg(fd, msgpacket.PB_MSG_TYPE__PB_MSG_INTER_QUESRV_HEARTBEAT_RES, pbRes)
 }
 
 func (pthis*MsgQueSrv)dialToOtherMsgQue(queSrvID server_common.SRV_ID, ip string, port int32){
@@ -497,13 +480,13 @@ func (pthis*MsgQueSrv)process_PB_MSG_INTER_QUESRV_CONNECT(fd lin_common.FD_DEF, 
 	// send res pack
 	pbRes := &msgpacket.PB_MSG_INTER_QUESRV_CONNECT_RES{
 		QueSrvId: int64(queSrvID),
-		AllSrv:&msgpacket.PB_SRV_INFO_ALL{},
+		LocalAllSrv:&msgpacket.PB_SRV_INFO_ALL{},
 	}
-	pthis.smgr.getAllSrvNetPB(pbRes.AllSrv)
-	pthis.SendProtoMsg(fd, msgpacket.PB_MSG_INTER_TYPE__PB_MSG_INTER_QUESRV_CONNECT_RES, pbRes)
+	pthis.smgr.getAllSrvNetPB(pbRes.LocalAllSrv)
+	pthis.SendProtoMsg(fd, msgpacket.PB_MSG_TYPE__PB_MSG_INTER_QUESRV_CONNECT_RES, pbRes)
 
 	// add other srv
-	pthis.smgr.addOtherQueAllSrvFromPB(queSrvID, pbConn.AllSrv)
+	pthis.smgr.addOtherQueAllSrvFromPB(queSrvID, pbConn.LocalAllSrv)
 
 	return &tcpAttachDataMsgQueSrvAccept{queSrvID: queSrvID}
 }
@@ -522,11 +505,30 @@ func (pthis*MsgQueSrv)process_PB_MSG_INTER_QUESRV_CONNECT_RES(fd lin_common.FD_D
 	lin_common.LogInfo("que srv connect, fd:", fd, " ", attachData.queSrvID.String(), " pbConnRes:", pbConnRes, " inAttachData:", inAttachData)
 
 	// add other srv
-	pthis.smgr.addOtherQueAllSrvFromPB(attachData.queSrvID, pbConnRes.AllSrv)
+	pthis.smgr.addOtherQueAllSrvFromPB(attachData.queSrvID, pbConnRes.LocalAllSrv)
 }
 
 
-func (pthis*MsgQueSrv)SendProtoMsg(fd lin_common.FD_DEF, msgType msgpacket.PB_MSG_INTER_TYPE, protoMsg proto.Message){
+func (pthis*MsgQueSrv)process_PB_MSG_INTER_QUESRV_REPORT_TO_OTHER_QUE(fd lin_common.FD_DEF, pbMsg proto.Message, inAttachData interface{}) {
+	lin_common.LogDebug(fd, "PB_MSG_INTER_SRV_REPORT_TO_OTHER_QUE:", pbMsg, " inAttachData:", inAttachData)
+
+	attach, ok := inAttachData.(*tcpAttachDataMsgQueSrvAccept)
+	if !ok || attach == nil {
+		lin_common.LogErr("attach data err:",  inAttachData, pbMsg, fd)
+		return
+	}
+
+	pbReport, ok := pbMsg.(*msgpacket.PB_MSG_INTER_QUESRV_REPORT_TO_OTHER_QUE)
+	if !ok || pbReport == nil {
+		return
+	}
+
+	// add other srv
+	pthis.smgr.addOtherQueAllSrvFromPB(attach.queSrvID, pbReport.LocalAllSrv)
+}
+
+
+func (pthis*MsgQueSrv)SendProtoMsg(fd lin_common.FD_DEF, msgType msgpacket.PB_MSG_TYPE, protoMsg proto.Message){
 	pthis.lsn.EPollListenerWrite(fd, msgpacket.ProtoPacketToBin(uint16(msgType), protoMsg))
 }
 
