@@ -18,23 +18,19 @@ type CliSrvMgr struct {
 	mapOtherSrvInfo MAP_OTHER_SRV_INFO
 }
 
-type SrvBaseInfo struct {
-	srvUUID server_common.SRV_ID
-	srvType server_common.SRV_TYPE
 
-}
 
 // SrvNetInfo the server reg to this msg que
 type QueSrvNetInfo struct{
-	SrvBaseInfo
+	server_common.SrvBaseInfo
 
 	fd lin_common.FD_DEF
 	addr net.Addr
 }
 
 func (pthis*QueSrvNetInfo)String() string {
-	str := pthis.srvUUID.String() +
-		pthis.srvType.String() +
+	str := pthis.SrvUUID.String() +
+		pthis.SrvType.String() +
 		pthis.fd.String() +
 		" " + pthis.addr.String() +
 		"\r\n"
@@ -45,14 +41,14 @@ func (pthis*QueSrvNetInfo)String() string {
 
 // OtherSrvInfo server in the other msg que
 type OtherSrvInfo struct{
-	SrvBaseInfo
+	server_common.SrvBaseInfo
 
 	queSrvID server_common.SRV_ID
 }
 
 func (pthis*OtherSrvInfo)String() string {
-	str := pthis.srvUUID.String() +
-		pthis.srvType.String() +
+	str := pthis.SrvUUID.String() +
+		pthis.SrvType.String() +
 		" reg to msgque" + pthis.queSrvID.String()
 
 	return str
@@ -67,7 +63,7 @@ func (pthis*CliSrvMgr)addQueSrv(si *QueSrvNetInfo) {
 	pthis.mapQueSrvRWLock.Lock()
 	defer pthis.mapQueSrvRWLock.Unlock()
 
-	pthis.mapQueSrvNet[si.srvUUID] = si
+	pthis.mapQueSrvNet[si.SrvUUID] = si
 }
 
 func (pthis*CliSrvMgr)delQueSrv(srvUUID server_common.SRV_ID) {
@@ -91,8 +87,8 @@ func (pthis*CliSrvMgr)getAllSrvNetPB(pb * msgpacket.PB_SRV_INFO_ALL) {
 	for _, v := range pthis.mapQueSrvNet {
 		pb.ArraySrv = append(pb.ArraySrv,
 			&msgpacket.PB_SRV_INFO_ONE{
-				SrvUuid:int64(v.srvUUID),
-				SrvType :int32(v.srvType),
+				SrvUuid:int64(v.SrvUUID),
+				SrvType :int32(v.SrvType),
 			})
 	}
 }
@@ -102,7 +98,7 @@ func (pthis*CliSrvMgr)RangeAllSrvNet(fn func(server_common.SRV_ID, *QueSrvNetInf
 	defer pthis.mapQueSrvRWLock.RUnlock()
 
 	for _, v := range pthis.mapQueSrvNet {
-		fn(v.srvUUID, v)
+		fn(v.SrvUUID, v)
 	}
 }
 
@@ -120,13 +116,13 @@ func (pthis*CliSrvMgr)addOtherQueAllSrvFromPB(queSrvID server_common.SRV_ID, all
 
 	for _, v := range allSrv.ArraySrv {
 		soi := OtherSrvInfo{
-			SrvBaseInfo:SrvBaseInfo{
-				srvUUID:  server_common.SRV_ID(v.SrvUuid),
-				srvType:  server_common.SRV_TYPE(v.SrvType),
+			SrvBaseInfo:server_common.SrvBaseInfo{
+				SrvUUID:  server_common.SRV_ID(v.SrvUuid),
+				SrvType:  server_common.SRV_TYPE(v.SrvType),
 			},
 			queSrvID: queSrvID,
 		}
-		pthis.mapOtherSrvInfo[soi.srvUUID] = &soi
+		pthis.mapOtherSrvInfo[soi.SrvUUID] = &soi
 	}
 }
 
@@ -140,7 +136,7 @@ func (pthis*CliSrvMgr)delOtherQueAllSrv(queSrvID server_common.SRV_ID) {
 		if v.queSrvID != queSrvID {
 			continue
 		}
-		arrayID = append(arrayID, v.srvUUID)
+		arrayID = append(arrayID, v.SrvUUID)
 	}
 
 	for _, v := range arrayID {
@@ -155,8 +151,8 @@ func (pthis*CliSrvMgr)getOtherQueAllSrv(pb * msgpacket.PB_SRV_INFO_ALL) {
 	for _, v := range pthis.mapOtherSrvInfo {
 		pb.ArraySrv = append(pb.ArraySrv,
 			&msgpacket.PB_SRV_INFO_ONE{
-				SrvUuid:int64(v.srvUUID),
-				SrvType :int32(v.srvType),
+				SrvUuid:int64(v.SrvUUID),
+				SrvType :int32(v.SrvType),
 			})
 	}
 }
@@ -185,21 +181,21 @@ func (pthis*CliSrvMgr)findRemoteRoute(srvUUID server_common.SRV_ID)server_common
 	return v.queSrvID
 }
 
-func (pthis*CliSrvMgr)findSrvByType(srvType server_common.SRV_TYPE) (arraySrvID []*SrvBaseInfo) {
+func (pthis*CliSrvMgr)findSrvByType(srvType server_common.SRV_TYPE) (arraySrvID []*server_common.SrvBaseInfo) {
 	pthis.mapQueSrvRWLock.RLock()
 	defer pthis.mapQueSrvRWLock.RUnlock()
 
 	for _, v := range pthis.mapQueSrvNet {
-		if srvType != v.srvType && srvType != server_common.SRV_TYPE_none {
+		if srvType != v.SrvType && srvType != server_common.SRV_TYPE_none {
 			continue
 		}
-		arraySrvID = append(arraySrvID, &SrvBaseInfo{srvUUID:v.srvUUID, srvType:v.srvType})
+		arraySrvID = append(arraySrvID, &server_common.SrvBaseInfo{SrvUUID:v.SrvUUID, SrvType:v.SrvType})
 	}
 	for _, v := range pthis.mapOtherSrvInfo {
-		if srvType != v.srvType && srvType != server_common.SRV_TYPE_none {
+		if srvType != v.SrvType && srvType != server_common.SRV_TYPE_none {
 			continue
 		}
-		arraySrvID = append(arraySrvID, &SrvBaseInfo{srvUUID:v.srvUUID, srvType:v.srvType})
+		arraySrvID = append(arraySrvID, &server_common.SrvBaseInfo{SrvUUID:v.SrvUUID, SrvType:v.SrvType})
 	}
 	return
 }

@@ -259,6 +259,8 @@ func (pthis*ePollConnection)EpollConnection_epllEvt_tcpread(fd FD_DEF, tNowMills
 					if err != nil {
 						LogErr(err)
 					}
+					// err, skip all tcp data in this connection
+					ti._readBuf.Reset()
 				}()
 				for ti._readBuf.Len() > 0 {
 					bytesProcess, attachData := pthis._lsn._cb.TcpData(ti._fd, ti._readBuf, ti._attachData)

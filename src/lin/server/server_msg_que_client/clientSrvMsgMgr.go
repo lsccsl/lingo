@@ -1,7 +1,6 @@
 package msgque_client
 
 import (
-	"github.com/golang/protobuf/proto"
 	"lin/server/server_common"
 	"sync"
 	"sync/atomic"
@@ -13,19 +12,12 @@ type ClientSrvMsgMgr struct {
 	mapMsgReq      MAP_MSG_REQ
 
 	seq atomic.Int64
-
-	cb MsgProcessCB
 }
 type MsgReq struct {
 	MsgID server_common.MSG_ID
 	chNtf chan interface{}
 }
 
-type MsgProcessCB interface {
-	ProcessMsg(pbMsg proto.Message, pbMsgType int32,
-		srvUUIDFrom server_common.SRV_ID,
-		srvType server_common.SRV_TYPE) (msgType int32, protoMsg proto.Message)
-}
 
 func ConstructClientSrvMsgMgr() *ClientSrvMsgMgr {
 	rmgr := &ClientSrvMsgMgr{
@@ -69,3 +61,7 @@ func (pthis*ClientSrvMsgMgr)ClientSrvMsgMgrDelReq(MsgID server_common.MSG_ID) {
 	delete(pthis.mapMsgReq, MsgID)
 }
 
+func (pthis*ClientSrvMsgMgr)Dump() string {
+	str := "\r\n\r\n client srv msg mgr:\r\n"
+	return str
+}

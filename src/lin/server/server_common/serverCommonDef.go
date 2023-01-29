@@ -31,11 +31,31 @@ const(
 	SRV_TYPE_login_server    SRV_TYPE = 6
 )
 func (st SRV_TYPE)String() string {
-	return "[srv_type:" + strconv.FormatInt(int64(st), 10) + "]"
+	typeName := "SRV_TYPE_none"
+	switch st {
+	case SRV_TYPE_msq_que:
+		typeName = "SRV_TYPE_msq_que"
+	case SRV_TYPE_msg_center:
+		typeName = "SRV_TYPE_msg_center"
+	case SRV_TYPE_center_server:
+		typeName = "SRV_TYPE_center_server"
+	case SRV_TYPE_game_server:
+		typeName = "SRV_TYPE_game_server"
+	case SRV_TYPE_database_server:
+		typeName = "SRV_TYPE_database_server"
+	case SRV_TYPE_login_server:
+		typeName = "SRV_TYPE_login_server"
+	}
+	return "[srv_type:" + typeName + "(" + strconv.FormatInt(int64(st), 10) + ")]"
 }
 
 
 type MSG_ID int64
 func (id MSG_ID)String() string {
 	return "[msg_id:" + strconv.FormatInt(int64(id), 10) + "]"
+}
+
+type SrvBaseInfo struct {
+	SrvUUID SRV_ID
+	SrvType SRV_TYPE
 }

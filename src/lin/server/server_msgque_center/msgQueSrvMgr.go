@@ -100,6 +100,8 @@ func (pthis*MsgQueSrvMgr)ChooseMostIdleQueSrv() (qsi MsgQueSrvInfo, bRet bool) {
 	}
 	status.ChooseConnCount ++
 
+	lin_common.LogDebug("choose que:", status)
+
 	qsi, bRet = pthis.LoadQueSrvInfo(status.queSrvID)
 	return
 }

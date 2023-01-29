@@ -45,3 +45,14 @@ func ConstructOtherClientSrvMgr()*OtherClientSrvMgr {
 
 	return omgr
 }
+
+func (pthis*OtherClientSrvMgr)Dump() string {
+	pthis.mapOtherCliSrvRWLock.Lock()
+	defer pthis.mapOtherCliSrvRWLock.Unlock()
+
+	str := "\r\n\r\nclient srv:\r\n"
+	for _, v := range pthis.mapOtherCliSrv {
+		str += v.srvUUID.String() + v.srvType.String() + "\r\n"
+	}
+	return str
+}

@@ -345,9 +345,9 @@ func (pthis*MsgQueSrv)process_PB_MSG_INTER_CLISRV_REG_TO_QUE(fd lin_common.FD_DE
 
 	// add srv to mgr,
 	si := &QueSrvNetInfo{
-		SrvBaseInfo:SrvBaseInfo{
-			srvUUID :server_common.SRV_ID(pbReg.SrvUuid),
-			srvType: server_common.SRV_TYPE(pbReg.SrvType),
+		SrvBaseInfo:server_common.SrvBaseInfo{
+			SrvUUID :server_common.SRV_ID(pbReg.SrvUuid),
+			SrvType: server_common.SRV_TYPE(pbReg.SrvType),
 		},
 		fd :fd,
 		addr : lin_common.TcpGetPeerName(fd.FD),
@@ -367,7 +367,7 @@ func (pthis*MsgQueSrv)process_PB_MSG_INTER_CLISRV_REG_TO_QUE(fd lin_common.FD_DE
 	pthis.smgr.getOtherQueAllSrv(pbRes.AllSrv)
 	pthis.SendProtoMsg(fd, msgpacket.PB_MSG_TYPE__PB_MSG_INTER_CLISRV_REG_TO_QUE_RES, pbRes)
 
-	return &tcpAttachDataSrvAccept{srvUUID: si.srvUUID}
+	return &tcpAttachDataSrvAccept{srvUUID: si.SrvUUID}
 }
 
 func (pthis*MsgQueSrv)process_PB_MSG_INTER_QUESRV_HEARTBEAT(fd lin_common.FD_DEF, pbMsg proto.Message, inAttachData interface{}) {

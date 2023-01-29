@@ -25,8 +25,20 @@ type MgrQueClient struct {
 
 	msgMgr *ClientSrvMsgMgr
 	otherClisrvMgr *OtherClientSrvMgr
+
+	cb MsgProcessCB
 }
 
+type MsgProcessCB interface {
+	// new coroutine
+	Go_CallBackProcessMsg(pbMsg proto.Message, pbMsgType int32,
+		srvUUIDFrom server_common.SRV_ID,
+		srvType server_common.SRV_TYPE,
+		timeOutMills int) (msgType int32, protoMsg proto.Message)
+
+	// new coroutine
+	Go_CallBackProcessReport()
+}
 
 
 type tcpAttachDataMsgQueCenter struct {
@@ -134,6 +146,9 @@ func (pthis*MgrQueClient)process_PB_MSG_INTER_CLISRV_REG_TO_QUE_RES(pbMsg proto.
 	lin_common.LogDebug(pbRes)
 
 	pthis.otherClisrvMgr.SetOtherClientSrvFromPB(pbRes.AllSrv)
+	if pthis.cb != nil {
+		go pthis.cb.Go_CallBackProcessReport()
+	}
 }
 
 func (pthis*MgrQueClient)process_PB_MSG_INTER_QUESRV_REPORT_BROADCAST(pbMsg proto.Message) {
@@ -144,6 +159,9 @@ func (pthis*MgrQueClient)process_PB_MSG_INTER_QUESRV_REPORT_BROADCAST(pbMsg prot
 	lin_common.LogDebug(pbReport)
 
 	pthis.otherClisrvMgr.SetOtherClientSrvFromPB(pbReport.AllSrv)
+	if pthis.cb != nil {
+		go pthis.cb.Go_CallBackProcessReport()
+	}
 }
 
 func (pthis*MgrQueClient)process_PB_MSG_INTER_CLISRV_REG_MSGQUE_CENTER_RES(fd lin_common.FD_DEF, pbMsg proto.Message) {
@@ -192,25 +210,26 @@ func (pthis*MgrQueClient)SendProtoMsg(fd lin_common.FD_DEF, msgType msgpacket.PB
 
 
 func (pthis*MgrQueClient)MgrQueClientSetCallBack(cb MsgProcessCB) {
-	pthis.msgMgr.cb = cb
+	pthis.cb = cb
 }
 
 func (pthis*MgrQueClient)Wait() {
 	pthis.lsn.EPollListenerWait()
 }
 
-func ConstructMgrQueClient(msgqueCenterAddr string, srvType server_common.SRV_TYPE) *MgrQueClient {
+func ConstructMgrQueClient(msgqueCenterAddr string, srvType server_common.SRV_TYPE, cb MsgProcessCB) *MgrQueClient {
 	mqCli := &MgrQueClient{
 		srvUUID : server_common.SRV_ID_INVALID,
 		sryType: srvType,
 		msgMgr:ConstructClientSrvMsgMgr(),
 		otherClisrvMgr:ConstructOtherClientSrvMgr(),
+		cb:cb,
 	}
 
 	lsn, err := lin_common.ConstructorEPollListener(mqCli, "", 1,
 		lin_common.ParamEPollListener{
 			ParamET: true,
-			ParamEpollWaitTimeoutMills: 30 * 1000,
+			ParamEpollWaitTimeoutMills: 180 * 1000,
 			ParamIdleClose: 600*1000,
 			ParamNeedTick: true,
 		})
@@ -238,5 +257,11 @@ func (pthis*MgrQueClient)Dump(bDetail bool) string {
 	str := pthis.lsn.EPollListenerDump()
 
 	str += "fdQueSrv:" + pthis.fdQueSrv.String() + " addr:" + pthis.queSrvAddr
+
+	str += pthis.srvUUID.String() + pthis.sryType.String()
+
+	str += pthis.otherClisrvMgr.Dump()
+	str += pthis.msgMgr.Dump()
+
 	return str
 }
