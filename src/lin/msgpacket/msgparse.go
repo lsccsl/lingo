@@ -106,6 +106,7 @@ func genAllMsgParse(msgprotoPath string) {
 func InitMsgParseVirtualTable(msgprotoPath string){
 
 	genAllMsgParse(msgprotoPath)
+	ParseDump()
 
 /*	msg := &MSG_TEST{}
 	fmt.Println(GetMsgTypeByMsgInstance(msg))
@@ -153,13 +154,14 @@ func ProtoParseAdd(name string, msgTye int32){
 
 	_, ok := mapProtoMsgParse[msgTye]
 	if ok{
+		lin_common.LogErr("msg type all ready exist:", msgTye)
 		return
 	}
 
 	msgFullName := protoreflect.FullName(name)
 	msgType, err := protoregistry.GlobalTypes.FindMessageByName(msgFullName)
 	if nil == msgType{
-		fmt.Println(err)
+		lin_common.LogInfo(err, " msgFullName:", msgFullName)
 		return
 	}
 	mapProtoMsgParse[msgTye] = ProtoMsgParse{msgTye, name, msgType}
@@ -190,10 +192,12 @@ func ProtoParseByName(binMsg []byte, msgType int32)proto.Message {
 	if nil == parse.msgRef{
 		return nil
 	}
+
 	msgIns := proto.MessageV1(parse.msgRef.New())
 	if nil == msgIns{
 		return nil
 	}
+
 	proto.Unmarshal(binMsg, msgIns)
 	return msgIns
 }
@@ -245,4 +249,10 @@ func ProtoUnPacketFromArrayByte(arrayByte []byte) (uint16, int, proto.Message) {
 	binBody := arrayByte[6:packLen]
 
 	return packType, int(packLen), ParseProtoMsg(binBody, int32(packType))
+}
+
+func ParseDump() {
+	for k, v := range mapProtoMsgParse {
+		lin_common.LogDebug("type:", k, " name:", v.fullName)
+	}
 }

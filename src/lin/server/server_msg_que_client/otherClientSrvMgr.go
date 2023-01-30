@@ -38,6 +38,20 @@ func (pthis*OtherClientSrvMgr)SetOtherClientSrvFromPB(allSrv * msgpacket.PB_SRV_
 	}
 }
 
+func (pthis*OtherClientSrvMgr)GetCliSrvByType(srvType server_common.SRV_TYPE) (arraySrv []*server_common.SrvBaseInfo) {
+	pthis.mapOtherCliSrvRWLock.RLock()
+	defer pthis.mapOtherCliSrvRWLock.RUnlock()
+
+	for _, v := range pthis.mapOtherCliSrv {
+		if srvType != v.srvType && srvType != server_common.SRV_TYPE_none {
+			continue
+		}
+		arraySrv = append(arraySrv, &server_common.SrvBaseInfo{SrvUUID: v.srvUUID, SrvType: v.srvType})
+	}
+
+	return
+}
+
 func ConstructOtherClientSrvMgr()*OtherClientSrvMgr {
 	omgr := &OtherClientSrvMgr{
 		mapOtherCliSrv:make(MAP_OTHER_CLIENTSRV_INFO),
@@ -47,8 +61,8 @@ func ConstructOtherClientSrvMgr()*OtherClientSrvMgr {
 }
 
 func (pthis*OtherClientSrvMgr)Dump() string {
-	pthis.mapOtherCliSrvRWLock.Lock()
-	defer pthis.mapOtherCliSrvRWLock.Unlock()
+	pthis.mapOtherCliSrvRWLock.RLock()
+	defer pthis.mapOtherCliSrvRWLock.RUnlock()
 
 	str := "\r\n\r\nclient srv:\r\n"
 	for _, v := range pthis.mapOtherCliSrv {

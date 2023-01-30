@@ -177,3 +177,14 @@ message PB_MSG_INTER_QUESRV_GET_SRVTYPE_RES
     repeated PB_SRV_INFO_ONE arrary_srv = 2;
 }
 
+message PB_MSG_GAMESRV_CENTERSRV_REG
+{
+    string out_ip = 1;
+    int32 out_port = 2;
+}
+message PB_MSG_GAMESRV_CENTERSRV_REG_RES
+{
+}
+
+
+

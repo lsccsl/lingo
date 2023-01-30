@@ -213,8 +213,24 @@ func (pthis*MgrQueClient)MgrQueClientSetCallBack(cb MsgProcessCB) {
 	pthis.cb = cb
 }
 
-func (pthis*MgrQueClient)Wait() {
+func (pthis*MgrQueClient)GetCliSrvByType(srvType server_common.SRV_TYPE) []*server_common.SrvBaseInfo {
+	return pthis.otherClisrvMgr.GetCliSrvByType(srvType)
+}
+
+func (pthis*MgrQueClient)WaitEpoll() {
 	pthis.lsn.EPollListenerWait()
+}
+func (pthis*MgrQueClient)DialToQueSrv() {
+	pthis.queDialWait.Add(1)
+	// dial to msg que center server
+	var err error
+	pthis.fdCenter, err = pthis.lsn.EPollListenerDial(pthis.msgqueCenterAddr, &tcpAttachDataMsgQueCenter{}, false)
+	if err != nil {
+		lin_common.LogErr("dial to msg que center err:", err)
+	}
+
+	pthis.queDialWait.Wait()
+	lin_common.LogInfo("connect end~~~~~~~~~~~~~~~~~~~~~")
 }
 
 func ConstructMgrQueClient(msgqueCenterAddr string, srvType server_common.SRV_TYPE, cb MsgProcessCB) *MgrQueClient {
@@ -238,17 +254,7 @@ func ConstructMgrQueClient(msgqueCenterAddr string, srvType server_common.SRV_TY
 		return nil
 	}
 	mqCli.lsn = lsn
-
-	mqCli.queDialWait.Add(1)
-	// dial to msg que center server
 	mqCli.msgqueCenterAddr = msgqueCenterAddr
-	mqCli.fdCenter, err = lsn.EPollListenerDial(msgqueCenterAddr, &tcpAttachDataMsgQueCenter{}, false)
-	if err != nil {
-		lin_common.LogErr("dial to msg que center err:", err)
-	}
-
-	mqCli.queDialWait.Wait()
-	lin_common.LogInfo("connect end~~~~~~~~~~~~~~~~~~~~~")
 
 	return mqCli
 }

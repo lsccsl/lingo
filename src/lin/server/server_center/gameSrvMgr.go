@@ -2,6 +2,7 @@ package main
 
 import (
 	"lin/server/server_common"
+	"strconv"
 	"sync"
 )
 
@@ -14,6 +15,35 @@ type GameSrvMgr struct {
 
 type GameSrvInfo struct {
 	server_common.SrvBaseInfo
+	outIP string
+	outPort int
+}
+
+func (pthis*GameSrvMgr)SetGameSrv(arraySrv []*server_common.SrvBaseInfo) {
+	pthis.mapGameSrvLock.Lock()
+	defer pthis.mapGameSrvLock.Unlock()
+
+	pthis.mapGameSrv = make(MAP_GAMESRV_INFO)
+	for _, v := range arraySrv {
+		pthis.mapGameSrv[v.SrvUUID] = &GameSrvInfo{
+			SrvBaseInfo:server_common.SrvBaseInfo{
+				SrvUUID: v.SrvUUID,
+				SrvType: v.SrvType,
+			},
+		}
+	}
+}
+
+func (pthis*GameSrvMgr)SetGameSrvOutAddr(srvUUID server_common.SRV_ID, ip string, port int) {
+	pthis.mapGameSrvLock.Lock()
+	defer pthis.mapGameSrvLock.Unlock()
+
+	gs, ok := pthis.mapGameSrv[srvUUID]
+	if !ok || nil == gs {
+		return
+	}
+	gs.outIP = ip
+	gs.outPort = port
 }
 
 func ConstructGameSrvMgr()*GameSrvMgr {
@@ -24,3 +54,15 @@ func ConstructGameSrvMgr()*GameSrvMgr {
 	return gmgr
 }
 
+func (pthis*GameSrvMgr)Dump() string {
+	str := "\r\n\r\n game srv:"
+
+	pthis.mapGameSrvLock.RLock()
+	defer pthis.mapGameSrvLock.RUnlock()
+
+	for _, v := range pthis.mapGameSrv {
+		str += v.SrvUUID.String() + v.SrvType.String() + "[" + v.outIP + ":" + strconv.FormatInt(int64(v.outPort), 10) + "]" + "\r\n"
+	}
+
+	return str
+}

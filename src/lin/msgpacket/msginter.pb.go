@@ -1470,6 +1470,99 @@ func (x *PB_MSG_INTER_QUESRV_GET_SRVTYPE_RES) GetArrarySrv() []*PB_SRV_INFO_ONE 
 	return nil
 }
 
+type PB_MSG_GAMESRV_CENTERSRV_REG struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	OutIp   string `protobuf:"bytes,1,opt,name=out_ip,json=outIp,proto3" json:"out_ip,omitempty"`
+	OutPort int32  `protobuf:"varint,2,opt,name=out_port,json=outPort,proto3" json:"out_port,omitempty"`
+}
+
+func (x *PB_MSG_GAMESRV_CENTERSRV_REG) Reset() {
+	*x = PB_MSG_GAMESRV_CENTERSRV_REG{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_msginter_proto_msgTypes[24]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *PB_MSG_GAMESRV_CENTERSRV_REG) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PB_MSG_GAMESRV_CENTERSRV_REG) ProtoMessage() {}
+
+func (x *PB_MSG_GAMESRV_CENTERSRV_REG) ProtoReflect() protoreflect.Message {
+	mi := &file_msginter_proto_msgTypes[24]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PB_MSG_GAMESRV_CENTERSRV_REG.ProtoReflect.Descriptor instead.
+func (*PB_MSG_GAMESRV_CENTERSRV_REG) Descriptor() ([]byte, []int) {
+	return file_msginter_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *PB_MSG_GAMESRV_CENTERSRV_REG) GetOutIp() string {
+	if x != nil {
+		return x.OutIp
+	}
+	return ""
+}
+
+func (x *PB_MSG_GAMESRV_CENTERSRV_REG) GetOutPort() int32 {
+	if x != nil {
+		return x.OutPort
+	}
+	return 0
+}
+
+type PB_MSG_GAMESRV_CENTERSRV_REG_RES struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *PB_MSG_GAMESRV_CENTERSRV_REG_RES) Reset() {
+	*x = PB_MSG_GAMESRV_CENTERSRV_REG_RES{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_msginter_proto_msgTypes[25]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *PB_MSG_GAMESRV_CENTERSRV_REG_RES) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PB_MSG_GAMESRV_CENTERSRV_REG_RES) ProtoMessage() {}
+
+func (x *PB_MSG_GAMESRV_CENTERSRV_REG_RES) ProtoReflect() protoreflect.Message {
+	mi := &file_msginter_proto_msgTypes[25]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PB_MSG_GAMESRV_CENTERSRV_REG_RES.ProtoReflect.Descriptor instead.
+func (*PB_MSG_GAMESRV_CENTERSRV_REG_RES) Descriptor() ([]byte, []int) {
+	return file_msginter_proto_rawDescGZIP(), []int{25}
+}
+
 var File_msginter_proto protoreflect.FileDescriptor
 
 var file_msginter_proto_rawDesc = []byte{
@@ -1661,9 +1754,16 @@ var file_msginter_proto_rawDesc = []byte{
 	0x0a, 0x0a, 0x61, 0x72, 0x72, 0x61, 0x72, 0x79, 0x5f, 0x73, 0x72, 0x76, 0x18, 0x02, 0x20, 0x03,
 	0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x6d, 0x73, 0x67, 0x70, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x2e, 0x50,
 	0x42, 0x5f, 0x53, 0x52, 0x56, 0x5f, 0x49, 0x4e, 0x46, 0x4f, 0x5f, 0x4f, 0x4e, 0x45, 0x52, 0x09,
-	0x61, 0x72, 0x72, 0x61, 0x72, 0x79, 0x53, 0x72, 0x76, 0x42, 0x0e, 0x5a, 0x0c, 0x2e, 0x2f, 0x3b,
-	0x6d, 0x73, 0x67, 0x70, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f,
-	0x33,
+	0x61, 0x72, 0x72, 0x61, 0x72, 0x79, 0x53, 0x72, 0x76, 0x22, 0x50, 0x0a, 0x1c, 0x50, 0x42, 0x5f,
+	0x4d, 0x53, 0x47, 0x5f, 0x47, 0x41, 0x4d, 0x45, 0x53, 0x52, 0x56, 0x5f, 0x43, 0x45, 0x4e, 0x54,
+	0x45, 0x52, 0x53, 0x52, 0x56, 0x5f, 0x52, 0x45, 0x47, 0x12, 0x15, 0x0a, 0x06, 0x6f, 0x75, 0x74,
+	0x5f, 0x69, 0x70, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x6f, 0x75, 0x74, 0x49, 0x70,
+	0x12, 0x19, 0x0a, 0x08, 0x6f, 0x75, 0x74, 0x5f, 0x70, 0x6f, 0x72, 0x74, 0x18, 0x02, 0x20, 0x01,
+	0x28, 0x05, 0x52, 0x07, 0x6f, 0x75, 0x74, 0x50, 0x6f, 0x72, 0x74, 0x22, 0x22, 0x0a, 0x20, 0x50,
+	0x42, 0x5f, 0x4d, 0x53, 0x47, 0x5f, 0x47, 0x41, 0x4d, 0x45, 0x53, 0x52, 0x56, 0x5f, 0x43, 0x45,
+	0x4e, 0x54, 0x45, 0x52, 0x53, 0x52, 0x56, 0x5f, 0x52, 0x45, 0x47, 0x5f, 0x52, 0x45, 0x53, 0x42,
+	0x0e, 0x5a, 0x0c, 0x2e, 0x2f, 0x3b, 0x6d, 0x73, 0x67, 0x70, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x62,
+	0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -1678,7 +1778,7 @@ func file_msginter_proto_rawDescGZIP() []byte {
 	return file_msginter_proto_rawDescData
 }
 
-var file_msginter_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
+var file_msginter_proto_msgTypes = make([]protoimpl.MessageInfo, 26)
 var file_msginter_proto_goTypes = []interface{}{
 	(*PB_SRV_INFO_ONE)(nil),                           // 0: msgpacket.PB_SRV_INFO_ONE
 	(*PB_SRV_INFO_ALL)(nil),                           // 1: msgpacket.PB_SRV_INFO_ALL
@@ -1704,7 +1804,9 @@ var file_msginter_proto_goTypes = []interface{}{
 	(*PB_MSG_INTER_QUESRV_REPORT_BROADCAST)(nil),      // 21: msgpacket.PB_MSG_INTER_QUESRV_REPORT_BROADCAST
 	(*PB_MSG_INTER_QUESRV_GET_SRVTYPE)(nil),           // 22: msgpacket.PB_MSG_INTER_QUESRV_GET_SRVTYPE
 	(*PB_MSG_INTER_QUESRV_GET_SRVTYPE_RES)(nil),       // 23: msgpacket.PB_MSG_INTER_QUESRV_GET_SRVTYPE_RES
-	(PB_RESPONSE_CODE)(0),                             // 24: msgpacket.PB_RESPONSE_CODE
+	(*PB_MSG_GAMESRV_CENTERSRV_REG)(nil),              // 24: msgpacket.PB_MSG_GAMESRV_CENTERSRV_REG
+	(*PB_MSG_GAMESRV_CENTERSRV_REG_RES)(nil),          // 25: msgpacket.PB_MSG_GAMESRV_CENTERSRV_REG_RES
+	(PB_RESPONSE_CODE)(0),                             // 26: msgpacket.PB_RESPONSE_CODE
 }
 var file_msginter_proto_depIdxs = []int32{
 	0,  // 0: msgpacket.PB_SRV_INFO_ALL.array_srv:type_name -> msgpacket.PB_SRV_INFO_ONE
@@ -1713,8 +1815,8 @@ var file_msginter_proto_depIdxs = []int32{
 	3,  // 3: msgpacket.PB_MSG_INTER_QUECENTER_ONLINE_NTF.que_srv_info:type_name -> msgpacket.PB_MSG_INTER_QUESRV_INFO
 	1,  // 4: msgpacket.PB_MSG_INTER_QUESRV_CONNECT.local_all_srv:type_name -> msgpacket.PB_SRV_INFO_ALL
 	1,  // 5: msgpacket.PB_MSG_INTER_QUESRV_CONNECT_RES.local_all_srv:type_name -> msgpacket.PB_SRV_INFO_ALL
-	24, // 6: msgpacket.PB_MSG_INTER_CLISRV_REG_MSGQUE_CENTER_RES.res:type_name -> msgpacket.PB_RESPONSE_CODE
-	24, // 7: msgpacket.PB_MSG_INTER_MSG_RES.res:type_name -> msgpacket.PB_RESPONSE_CODE
+	26, // 6: msgpacket.PB_MSG_INTER_CLISRV_REG_MSGQUE_CENTER_RES.res:type_name -> msgpacket.PB_RESPONSE_CODE
+	26, // 7: msgpacket.PB_MSG_INTER_MSG_RES.res:type_name -> msgpacket.PB_RESPONSE_CODE
 	1,  // 8: msgpacket.PB_MSG_INTER_CLISRV_REG_TO_QUE_RES.all_srv:type_name -> msgpacket.PB_SRV_INFO_ALL
 	1,  // 9: msgpacket.PB_MSG_INTER_QUESRV_REPORT_BROADCAST.local_all_srv:type_name -> msgpacket.PB_SRV_INFO_ALL
 	1,  // 10: msgpacket.PB_MSG_INTER_QUESRV_REPORT_BROADCAST.all_srv:type_name -> msgpacket.PB_SRV_INFO_ALL
@@ -2021,6 +2123,30 @@ func file_msginter_proto_init() {
 				return nil
 			}
 		}
+		file_msginter_proto_msgTypes[24].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*PB_MSG_GAMESRV_CENTERSRV_REG); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_msginter_proto_msgTypes[25].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*PB_MSG_GAMESRV_CENTERSRV_REG_RES); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -2028,7 +2154,7 @@ func file_msginter_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_msginter_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   24,
+			NumMessages:   26,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

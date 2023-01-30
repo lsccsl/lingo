@@ -70,6 +70,10 @@ func  (pthis*MsgQueSrvMgr)LoadQueSrvInfo(queSrvID server_common.SRV_ID) (qsi Msg
 
 func (pthis*MsgQueSrvMgr)DeleteQueSrvInfo(queSrvID server_common.SRV_ID) {
 	pthis.mapMsgQueSrv.Delete(queSrvID)
+
+	pthis.mapQueSrvStatusLock.Lock()
+	defer pthis.mapQueSrvStatusLock.Unlock()
+	delete(pthis.mapQueSrvStatus, queSrvID)
 }
 
 func (pthis*MsgQueSrvMgr)ChooseMostIdleQueSrv() (qsi MsgQueSrvInfo, bRet bool) {

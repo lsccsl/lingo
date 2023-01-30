@@ -8,6 +8,14 @@ import (
 	"runtime"
 )
 
+
+type ServerCfg struct {
+	MsgQueCent      MsgQueCenterCfg         `yaml:"msgquecenter"`
+	MapMsgQueServer map[string]MsgQueSrvCfg `yaml:"msgqueserver"`
+	MsgDef          string                  `yaml:"msgdef"`
+	MapGSCfg        map[string]GameSrvCfg   `yaml:"gameserver"`
+}
+
 type MsgQueCenterCfg struct {
 	BindAddr string `yaml:"bind_addr"`
 	OutAddr string `yaml:"out_addr"`
@@ -18,11 +26,11 @@ type MsgQueSrvCfg struct {
 	OutAddr string `yaml:"out_addr"`
 }
 
-type ServerCfg struct {
-	MsgQueCent      MsgQueCenterCfg         `yaml:"msgquecenter"`
-	MapMsgQueServer map[string]MsgQueSrvCfg `yaml:"msgqueserver"`
-	MsgDef          string                  `yaml:"msgdef"`
+type GameSrvCfg struct {
+	BindAddr string `yaml:"bind_addr"`
+	OutAddr string `yaml:"out_addr"`
 }
+
 
 var Global_ServerCfg ServerCfg
 
@@ -53,4 +61,13 @@ func GetMsgQueSrvCfg(id string)*MsgQueSrvCfg {
 	}
 
 	return &qCfg
+}
+
+func GetGameSrvCfg(id string)*GameSrvCfg {
+	gsCfg, ok := Global_ServerCfg.MapGSCfg[id]
+	if !ok {
+		return nil
+	}
+
+	return &gsCfg
 }
