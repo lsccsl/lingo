@@ -76,7 +76,11 @@ func (pthis*GameSrv)GetCenterSrvUUID() (centerSrvUUID server_common.SRV_ID) {
 
 
 func ConstructGameSrv(id string)*GameSrv {
+	gsCfg := server_common.GetGameSrvCfg(id)
+	common.LogInfo(gsCfg)
+
 	gs := &GameSrv{}
+	gs.outAddr = gsCfg.OutAddr
 
 	gs.mqClient = msgque_client.ConstructMgrQueClient(server_common.Global_ServerCfg.MsgQueCent.OutAddr, server_common.SRV_TYPE_game_server, gs)
 	gs.mqClient.DialToQueSrv()
@@ -84,11 +88,6 @@ func ConstructGameSrv(id string)*GameSrv {
 	// get center server uuid
 	gs.GetCenterSrvUUID()
 	common.LogInfo("center server:", gs.centerSrvUUID)
-
-	gsCfg := server_common.GetGameSrvCfg(id)
-	common.LogInfo(gsCfg)
-
-	gs.outAddr = gsCfg.OutAddr
 
 	// create client tcp epoll listener
 	var err error

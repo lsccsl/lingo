@@ -1,10 +1,8 @@
 package main
 
 import (
-	msgque_client "goserver/server/server_msg_que_client"
-	"goserver/common"
-	"goserver/msgpacket"
 	"goserver/server/server_common"
+	msgque_client "goserver/server/server_msg_que_client"
 )
 
 type CenterSrv struct {
@@ -17,23 +15,6 @@ func (pthis*CenterSrv)Wait() {
 }
 
 
-
-func (pthis*CenterSrv)Go_CallBackReport(pbLocal *msgpacket.PB_SRV_INFO_ALL) {
-	// record all game server
-	arrayGS := pthis.mqClient.GetCliSrvByType(server_common.SRV_TYPE_game_server)
-	common.LogDebug("gs:", arrayGS)
-	pthis.gmgr.SetGameSrv(arrayGS)
-
-	for _, v := range arrayGS {
-		pthis.mqClient.SendMsg(v.SrvUUID, server_common.SRV_TYPE_game_server,
-			msgpacket.PB_MSG_TYPE__PB_MSG_CENTERSRV_GAMESRV_GETINFO, nil,
-			3 * 1000)
-	}
-}
-
-func (pthis*CenterSrv)Go_CallBackNtf(ntf * msgpacket.PB_MSG_INTER_QUESRV_NTF) {
-	common.LogDebug(ntf)
-}
 
 func ConstructCenterSrv()*CenterSrv {
 	cs := &CenterSrv{

@@ -88,9 +88,8 @@ func (pthis*MgrQueClient)process_PB_MSG_INTER_MSG(fd common.FD_DEF, pbMsg proto.
 	srvUUIDTo := server_common.SRV_ID(msgReq.SrvUuidTo)
 	msgID := server_common.MSG_ID(msgReq.MsgId)
 
-	common.LogInfo("from:", srvUUIDFrom, "to:", srvUUIDTo, msgID, " msg type:", msgReq.MsgType)
 	protoMsg := msgpacket.ParseProtoMsg(msgReq.MsgBin, msgReq.MsgType)
-	common.LogInfo("packType:", msgReq.MsgType, " protoMsg:", protoMsg)
+	common.LogInfo("from:", srvUUIDFrom, "to:", srvUUIDTo, msgID, "packType:", msgReq.MsgType, " protoMsg:", protoMsg)
 
 	pthis.Go_ProcessMsg(msgReq, msgReq.MsgType, protoMsg)
 }
@@ -121,6 +120,7 @@ func (pthis*MgrQueClient)Go_ProcessMsg(msgReq *msgpacket.PB_MSG_INTER_MSG, pbMsg
 				var msgBodyRes proto.Message
 				msgRes.MsgType, msgBodyRes = pthis.cb.Go_CallBackMsg(msgBody, pbMsgType,
 					server_common.SRV_ID(msgReq.SrvUuidFrom), server_common.SRV_TYPE(msgReq.SrvType), int(msgReq.TimeoutWait))
+				common.LogDebug(msgRes.MsgType, " ", msgBodyRes)
 
 				if msgRes != nil {
 					var err error
@@ -159,9 +159,8 @@ func (pthis*MgrQueClient)process_PB_MSG_INTER_MSG_RES(fd common.FD_DEF, pbMsg pr
 	srvUUIDTo := server_common.SRV_ID(msgRes.SrvUuidTo)
 	msgID := server_common.MSG_ID(msgRes.MsgId)
 
-	common.LogInfo("from:", srvUUIDFrom, "to:", srvUUIDTo, msgID, " msg type:", msgRes.MsgType)
 	protoMsg := msgpacket.ParseProtoMsg(msgRes.MsgBin, msgRes.MsgType)
-	common.LogInfo("packType:", msgRes.MsgType, " protoMsg:", protoMsg)
+	common.LogInfo("from:", srvUUIDFrom, "to:", srvUUIDTo, msgID, "packType:", msgRes.MsgType, " protoMsg:", protoMsg)
 
 	if pthis.msgMgr == nil {
 		return

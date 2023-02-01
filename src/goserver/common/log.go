@@ -47,7 +47,7 @@ func LogDebug(args ... interface{}) {
 		return
 	}
 	l := &LogMsg{logLevel: LOG_LEVEL_DEBUG}
-	l.strLog = fmt.Sprintf("DEBUG %s[%s:%d] route:%d %s %s\r\n",
+	l.strLog = fmt.Sprintf("DEBUG %s[%s:%d] route:%d %s %s\r\n\r\n",
 		time.Now().Format(time.RFC3339Nano), path.Base(filename), line, GetGID(), funcName, fmt.Sprint(args...))
 	globalLogMgr.chLog <- l
 }
@@ -63,7 +63,7 @@ func LogInfo(args ... interface{}) {
 		return
 	}
 	l := &LogMsg{logLevel: LOG_LEVEL_INFO}
-	l.strLog = fmt.Sprintf("INFO %s[%s:%d] route:%d %s %s\r\n",
+	l.strLog = fmt.Sprintf("INFO %s[%s:%d] route:%d %s %s\r\n\r\n",
 		time.Now().Format(time.RFC3339Nano), path.Base(filename), line, GetGID(), funcName, fmt.Sprint(args...))
 	globalLogMgr.chLog <- l
 }

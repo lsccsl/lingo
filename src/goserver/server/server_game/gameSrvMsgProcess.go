@@ -56,6 +56,7 @@ func (pthis*GameSrv)process_PB_MSG_CENTERSRV_GAMESRV_GETINFO()(msgType int32, pr
 	}
 	pbRes.OutIp = tcpAddr.IP.String()
 	pbRes.OutPort = int32(tcpAddr.Port)
+	common.LogDebug(pbRes, " ", protoMsg)
 
 	return
 }
