@@ -1,0 +1,204 @@
+syntax = "proto3";
+package msgpacket;
+option go_package = "./;msgpacket";
+import "msgdef.proto";
+
+
+message PB_SRV_INFO_ONE
+{
+    int64 srv_uuid = 1;
+    int32 srv_type = 2;
+}
+message PB_SRV_INFO_ALL
+{
+    repeated PB_SRV_INFO_ONE array_srv = 1;
+}
+
+
+// msg que srv register to msg center
+message PB_MSG_INTER_QUECENTER_REGISTER
+{
+    int64 que_srv_id = 1;
+    string ip = 2;
+    int32 port = 3;
+    PB_SRV_INFO_ALL local_all_srv = 4;
+}
+message PB_MSG_INTER_QUESRV_INFO
+{
+    int64 que_srv_id = 1;
+    string ip = 2;
+    int32 port = 3;
+}
+message PB_MSG_INTER_QUECENTER_REGISTER_RES
+{
+    repeated PB_MSG_INTER_QUESRV_INFO que_srv_info = 1;
+    int64 que_srv_id = 2;
+}
+
+
+// msg center notfiy msg que srv the other msg que srv online/offline
+message PB_MSG_INTER_QUECENTER_OFFLINE_NTF
+{
+    int64 que_srv_id = 1;
+}
+message PB_MSG_INTER_QUECENTER_ONLINE_NTF
+{
+    PB_MSG_INTER_QUESRV_INFO que_srv_info = 1;
+}
+
+
+// msg que srv connect to each other
+message PB_MSG_INTER_QUESRV_CONNECT
+{
+    int64 que_srv_id = 1;
+    PB_SRV_INFO_ALL local_all_srv = 2;
+}
+message PB_MSG_INTER_QUESRV_CONNECT_RES
+{
+    int64 que_srv_id = 1;
+    PB_SRV_INFO_ALL local_all_srv = 2;
+}
+
+
+// msg que srv heartbeat to msg center
+message PB_MSG_INTER_QUECENTER_HEARTBEAT
+{
+    int64 que_srv_id = 1;
+}
+message PB_MSG_INTER_QUECENTER_HEARTBEAT_RES
+{
+    int64 que_srv_id = 1;
+}
+
+
+// msg que srv heartbeat to the other msg que srv
+message PB_MSG_INTER_QUESRV_HEARTBEAT
+{
+    int64 que_srv_id = 1;
+}
+message PB_MSG_INTER_QUESRV_HEARTBEAT_RES
+{
+    int64 que_srv_id = 1;
+}
+
+
+// client srv register to msg center
+message PB_MSG_INTER_CLISRV_REG_MSGQUE_CENTER
+{
+    int32 srv_type = 1;
+    int64 srv_uuid = 2;
+}
+message PB_MSG_INTER_CLISRV_REG_MSGQUE_CENTER_RES
+{
+    PB_RESPONSE_CODE res = 1;
+    int64 srv_uuid = 2;
+    int64 que_srv_id = 3;
+    string que_srv_ip = 4;
+    int32 que_srv_port = 5;
+}
+
+
+// client srv heartbeat to msg que srv
+message PB_MSG_INTER_CLISRV_HEARTBEAT
+{
+    int64 srv_uuid = 1;
+}
+message PB_MSG_INTER_CLISRV_HEARTBEAT_RES
+{
+    int64 srv_uuid = 1;
+}
+
+
+// client srv msg
+message PB_MSG_INTER_MSG
+{
+    int64 srv_uuid_from = 1;
+    int64 srv_uuid_to = 2;
+    int32 srv_type = 3;
+
+    int32 msg_type = 4;
+    bytes msg_bin = 5;
+    int64 msg_id = 6; // msg identify
+    int64 msg_seq = 7;
+
+    int64 timestamp = 8;
+    int64 timestamp_arrive = 9;
+    int64 timeout_wait = 10;
+}
+message PB_MSG_INTER_MSG_RES
+{
+    int64 srv_uuid_from = 1;
+    int64 srv_uuid_to = 2;
+    int32 srv_type = 3;
+
+    int32 msg_type = 4;
+    bytes msg_bin = 5;
+    int64 msg_id = 6; // msg identify
+    int64 msg_seq = 7;
+
+    int64 timestamp = 8;
+    int64 timestamp_arrive = 9;
+    int64 timeout_wait = 10;
+
+    PB_RESPONSE_CODE res = 11;
+}
+
+
+// client srv register to msg que srv
+message PB_MSG_INTER_CLISRV_REG_TO_QUE
+{
+    int64 srv_uuid = 1;
+    int32 srv_type = 2;
+}
+message PB_MSG_INTER_CLISRV_REG_TO_QUE_RES
+{
+    int64 srv_uuid = 1;
+    int32 srv_type = 2;
+    PB_SRV_INFO_ALL all_srv = 3;
+    PB_SRV_INFO_ALL local_all_srv = 4;
+}
+
+
+// msg que srv report local client srv to the other msg que server
+message PB_MSG_INTER_QUESRV_REPORT_BROADCAST
+{
+    int64 que_srv_id = 1;
+    PB_SRV_INFO_ALL local_all_srv = 2;
+    PB_SRV_INFO_ALL all_srv = 3;
+}
+
+
+// msg que server notify
+message PB_MSG_INTER_QUESRV_NTF
+{
+    message online_offline_ntf
+    {
+        int64 srv_uuid = 1;
+        int32 srv_type = 2;
+        bool is_on_line = 3;
+    }
+    optional online_offline_ntf online_offline = 1;
+}
+
+// get que srv get type
+message PB_MSG_INTER_QUESRV_GET_SRVTYPE
+{
+    int32 srv_type = 1;
+}
+message PB_MSG_INTER_QUESRV_GET_SRVTYPE_RES
+{
+    int32 srv_type = 1;
+    repeated PB_SRV_INFO_ONE arrary_srv = 2;
+}
+
+
+message PB_MSG_CENTERSRV_GAMESRV_GETINFO
+{}
+message PB_MSG_CENTERSRV_GAMESRV_GETINFO_RES
+{
+    string out_ip = 1;
+    int32 out_port = 2;
+}
+
+
+

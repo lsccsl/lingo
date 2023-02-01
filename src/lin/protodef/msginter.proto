@@ -21,7 +21,7 @@ message PB_MSG_INTER_QUECENTER_REGISTER
     int64 que_srv_id = 1;
     string ip = 2;
     int32 port = 3;
-    PB_SRV_INFO_ALL all_srv = 4;
+    PB_SRV_INFO_ALL local_all_srv = 4;
 }
 message PB_MSG_INTER_QUESRV_INFO
 {
@@ -155,18 +155,32 @@ message PB_MSG_INTER_CLISRV_REG_TO_QUE_RES
     int64 srv_uuid = 1;
     int32 srv_type = 2;
     PB_SRV_INFO_ALL all_srv = 3;
+    PB_SRV_INFO_ALL local_all_srv = 4;
 }
 
 
 // msg que srv report local client srv to the other msg que server
 message PB_MSG_INTER_QUESRV_REPORT_BROADCAST
 {
-    PB_SRV_INFO_ALL local_all_srv = 1;
-    int64 que_srv_id = 2;
+    int64 que_srv_id = 1;
+    PB_SRV_INFO_ALL local_all_srv = 2;
     PB_SRV_INFO_ALL all_srv = 3;
 }
 
 
+// msg que server notify
+message PB_MSG_INTER_QUESRV_NTF
+{
+    message online_offline_ntf
+    {
+        int64 srv_uuid = 1;
+        int32 srv_type = 2;
+        bool is_on_line = 3;
+    }
+    optional online_offline_ntf online_offline = 1;
+}
+
+// get que srv get type
 message PB_MSG_INTER_QUESRV_GET_SRVTYPE
 {
     int32 srv_type = 1;
@@ -177,13 +191,13 @@ message PB_MSG_INTER_QUESRV_GET_SRVTYPE_RES
     repeated PB_SRV_INFO_ONE arrary_srv = 2;
 }
 
-message PB_MSG_GAMESRV_CENTERSRV_REG
+
+message PB_MSG_CENTERSRV_GAMESRV_GETINFO
+{}
+message PB_MSG_CENTERSRV_GAMESRV_GETINFO_RES
 {
     string out_ip = 1;
     int32 out_port = 2;
-}
-message PB_MSG_GAMESRV_CENTERSRV_REG_RES
-{
 }
 
 
