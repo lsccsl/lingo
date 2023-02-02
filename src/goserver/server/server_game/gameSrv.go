@@ -82,13 +82,6 @@ func ConstructGameSrv(id string)*GameSrv {
 	gs := &GameSrv{}
 	gs.outAddr = gsCfg.OutAddr
 
-	gs.mqClient = msgque_client.ConstructMgrQueClient(server_common.Global_ServerCfg.MsgQueCent.OutAddr, server_common.SRV_TYPE_game_server, gs)
-	gs.mqClient.DialToQueSrv()
-
-	// get center server uuid
-	gs.GetCenterSrvUUID()
-	common.LogInfo("center server:", gs.centerSrvUUID)
-
 	// create client tcp epoll listener
 	var err error
 	gs.lsn, err = common.ConstructorEPollListener(gs, gsCfg.BindAddr, 10,
@@ -102,6 +95,13 @@ func ConstructGameSrv(id string)*GameSrv {
 		common.LogErr("create epoll err")
 		return nil
 	}
+
+	gs.mqClient = msgque_client.ConstructMgrQueClient(server_common.Global_ServerCfg.MsgQueCent.OutAddr, server_common.SRV_TYPE_game_server, gs)
+	gs.mqClient.DialToQueSrv()
+
+	// get center server uuid
+	gs.GetCenterSrvUUID()
+	common.LogInfo("center server:", gs.centerSrvUUID)
 
 	return gs
 }

@@ -10,6 +10,76 @@ import (
 
 
 
+
+/*func (pthis*MgrQueClient)SendMsgGen[T msgpacket.PB_MSG_CENTERSRV_GAMESRV_GETINFO_RES](srvUUIDTo server_common.SRV_ID, srvType server_common.SRV_TYPE,
+	msgType msgpacket.PB_MSG_TYPE, protoMsg proto.Message, timeoutMilliSec int)(res *T, err error) {
+	res = nil
+	err = nil
+	defer func() {
+		err := recover()
+		if err != nil {
+			common.LogErr(err)
+		}
+	}()
+	if pthis.msgMgr == nil{
+		err = common.GenErr(common.ERR_sys, "no rpc mgr")
+		return
+	}
+
+	msgID := server_common.MSG_ID(common.GenUUID64_V4())
+	pmsg := &msgpacket.PB_MSG_INTER_MSG{
+		MsgId:int64(msgID),
+		MsgType:int32(msgType),
+		SrvUuidFrom:int64(pthis.srvUUID),
+		SrvUuidTo:int64(srvUUIDTo),
+		SrvType:int32(srvType),
+		MsgSeq:pthis.msgMgr.seq.Add(1),
+		Timestamp:time.Now().UnixMilli(),
+		TimeoutWait:int64(timeoutMilliSec),
+	}
+
+	common.LogDebug("from:", pthis.srvUUID, "to:", srvUUIDTo, msgID, srvType, " msg type:", pmsg.MsgType)
+
+	pmsg.MsgBin, err = proto.Marshal(protoMsg)
+	if err != nil {
+		common.LogErr(err)
+		err = common.GenErr(common.ERR_sys, "packet err")
+		return
+	}
+
+	var rreq *MsgReq = nil
+	if timeoutMilliSec > 0 {
+		rreq = pthis.msgMgr.ClientSrvMsgMgrAddReq(msgID)
+	}
+
+	pthis.SendProtoMsg(pthis.fdQueSrv, msgpacket.PB_MSG_TYPE__PB_MSG_INTER_MSG, pmsg)
+
+	ok := false
+	if timeoutMilliSec > 0 && rreq != nil {
+		select {
+		case resCh := <-rreq.chNtf:
+			if resCh != nil {
+				if resCh.Res == msgpacket.PB_RESPONSE_CODE_PB_RESPONSE_CODE_OK {
+					res, ok = resCh.PBMsg.(*T)
+					if !ok {
+						err = common.GenErr(common.ERR_rpc_response_err, " return type err:", resCh.Res)
+						return
+					}
+				} else {
+					err = common.GenErr(common.ERR_rpc_response_err, " res:", resCh.Res)
+					return
+				}
+			}
+		case <-time.After(time.Millisecond * time.Duration(timeoutMilliSec)):
+			err = common.GenErr(common.ERR_rpc_timeout, " msg time out srv:", srvUUIDTo, msgID)
+		}
+
+		pthis.msgMgr.ClientSrvMsgMgrDelReq(msgID)
+	}
+
+	return
+}*/
+
 func (pthis*MgrQueClient)SendMsg(srvUUIDTo server_common.SRV_ID, srvType server_common.SRV_TYPE,
 	msgType msgpacket.PB_MSG_TYPE, protoMsg proto.Message, timeoutMilliSec int) (res proto.Message, err error) {
 	res = nil

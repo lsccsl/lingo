@@ -49,7 +49,8 @@ type OtherSrvInfo struct{
 func (pthis*OtherSrvInfo)String() string {
 	str := pthis.SrvUUID.String() +
 		pthis.SrvType.String() +
-		" reg to msgque" + pthis.queSrvID.String()
+		" reg to msgque" + pthis.queSrvID.String() +
+		"\r\n"
 
 	return str
 }

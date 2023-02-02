@@ -46,6 +46,22 @@ func (pthis*GameSrvMgr)SetGameSrvOutAddr(srvUUID server_common.SRV_ID, ip string
 	gs.outPort = port
 }
 
+func (pthis*GameSrvMgr)GetGameSrv() (gi GameSrvInfo) {
+	pthis.mapGameSrvLock.RLock()
+	defer pthis.mapGameSrvLock.RUnlock()
+
+	if 0 == len(pthis.mapGameSrv) {
+		gi = GameSrvInfo{}
+		return
+	}
+
+	for _, k := range pthis.mapGameSrv {
+		gi = *k
+		break
+	}
+	return
+}
+
 func ConstructGameSrvMgr()*GameSrvMgr {
 	gmgr := &GameSrvMgr{
 		mapGameSrv: make(MAP_GAMESRV_INFO),
@@ -55,7 +71,7 @@ func ConstructGameSrvMgr()*GameSrvMgr {
 }
 
 func (pthis*GameSrvMgr)Dump() string {
-	str := "\r\n\r\n game srv:"
+	str := "\r\n\r\n game srv:\r\n"
 
 	pthis.mapGameSrvLock.RLock()
 	defer pthis.mapGameSrvLock.RUnlock()

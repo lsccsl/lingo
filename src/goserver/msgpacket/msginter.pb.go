@@ -1620,6 +1620,234 @@ func (x *PB_MSG_CENTERSRV_GAMESRV_GETINFO_RES) GetOutPort() int32 {
 	return 0
 }
 
+type PB_MSG_LOGON struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ClientId int64 `protobuf:"varint,1,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
+}
+
+func (x *PB_MSG_LOGON) Reset() {
+	*x = PB_MSG_LOGON{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_msginter_proto_msgTypes[27]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *PB_MSG_LOGON) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PB_MSG_LOGON) ProtoMessage() {}
+
+func (x *PB_MSG_LOGON) ProtoReflect() protoreflect.Message {
+	mi := &file_msginter_proto_msgTypes[27]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PB_MSG_LOGON.ProtoReflect.Descriptor instead.
+func (*PB_MSG_LOGON) Descriptor() ([]byte, []int) {
+	return file_msginter_proto_rawDescGZIP(), []int{27}
+}
+
+func (x *PB_MSG_LOGON) GetClientId() int64 {
+	if x != nil {
+		return x.ClientId
+	}
+	return 0
+}
+
+type PB_MSG_LOGON_RES struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ClientId int64  `protobuf:"varint,1,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
+	Ip       string `protobuf:"bytes,2,opt,name=ip,proto3" json:"ip,omitempty"`
+	Port     int32  `protobuf:"varint,3,opt,name=port,proto3" json:"port,omitempty"`
+}
+
+func (x *PB_MSG_LOGON_RES) Reset() {
+	*x = PB_MSG_LOGON_RES{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_msginter_proto_msgTypes[28]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *PB_MSG_LOGON_RES) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PB_MSG_LOGON_RES) ProtoMessage() {}
+
+func (x *PB_MSG_LOGON_RES) ProtoReflect() protoreflect.Message {
+	mi := &file_msginter_proto_msgTypes[28]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PB_MSG_LOGON_RES.ProtoReflect.Descriptor instead.
+func (*PB_MSG_LOGON_RES) Descriptor() ([]byte, []int) {
+	return file_msginter_proto_rawDescGZIP(), []int{28}
+}
+
+func (x *PB_MSG_LOGON_RES) GetClientId() int64 {
+	if x != nil {
+		return x.ClientId
+	}
+	return 0
+}
+
+func (x *PB_MSG_LOGON_RES) GetIp() string {
+	if x != nil {
+		return x.Ip
+	}
+	return ""
+}
+
+func (x *PB_MSG_LOGON_RES) GetPort() int32 {
+	if x != nil {
+		return x.Port
+	}
+	return 0
+}
+
+type PB_MSG_LOGONSRV_CENTERSRV_LOGON struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ClientId int64 `protobuf:"varint,1,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
+}
+
+func (x *PB_MSG_LOGONSRV_CENTERSRV_LOGON) Reset() {
+	*x = PB_MSG_LOGONSRV_CENTERSRV_LOGON{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_msginter_proto_msgTypes[29]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *PB_MSG_LOGONSRV_CENTERSRV_LOGON) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PB_MSG_LOGONSRV_CENTERSRV_LOGON) ProtoMessage() {}
+
+func (x *PB_MSG_LOGONSRV_CENTERSRV_LOGON) ProtoReflect() protoreflect.Message {
+	mi := &file_msginter_proto_msgTypes[29]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PB_MSG_LOGONSRV_CENTERSRV_LOGON.ProtoReflect.Descriptor instead.
+func (*PB_MSG_LOGONSRV_CENTERSRV_LOGON) Descriptor() ([]byte, []int) {
+	return file_msginter_proto_rawDescGZIP(), []int{29}
+}
+
+func (x *PB_MSG_LOGONSRV_CENTERSRV_LOGON) GetClientId() int64 {
+	if x != nil {
+		return x.ClientId
+	}
+	return 0
+}
+
+type PB_MSG_LOGONSRV_CENTERSRV_LOGON_RES struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ClientId    int64  `protobuf:"varint,1,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
+	GameSrvUuid int64  `protobuf:"varint,2,opt,name=game_srv_uuid,json=gameSrvUuid,proto3" json:"game_srv_uuid,omitempty"`
+	Ip          string `protobuf:"bytes,3,opt,name=ip,proto3" json:"ip,omitempty"`
+	Port        int32  `protobuf:"varint,4,opt,name=port,proto3" json:"port,omitempty"`
+}
+
+func (x *PB_MSG_LOGONSRV_CENTERSRV_LOGON_RES) Reset() {
+	*x = PB_MSG_LOGONSRV_CENTERSRV_LOGON_RES{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_msginter_proto_msgTypes[30]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *PB_MSG_LOGONSRV_CENTERSRV_LOGON_RES) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PB_MSG_LOGONSRV_CENTERSRV_LOGON_RES) ProtoMessage() {}
+
+func (x *PB_MSG_LOGONSRV_CENTERSRV_LOGON_RES) ProtoReflect() protoreflect.Message {
+	mi := &file_msginter_proto_msgTypes[30]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PB_MSG_LOGONSRV_CENTERSRV_LOGON_RES.ProtoReflect.Descriptor instead.
+func (*PB_MSG_LOGONSRV_CENTERSRV_LOGON_RES) Descriptor() ([]byte, []int) {
+	return file_msginter_proto_rawDescGZIP(), []int{30}
+}
+
+func (x *PB_MSG_LOGONSRV_CENTERSRV_LOGON_RES) GetClientId() int64 {
+	if x != nil {
+		return x.ClientId
+	}
+	return 0
+}
+
+func (x *PB_MSG_LOGONSRV_CENTERSRV_LOGON_RES) GetGameSrvUuid() int64 {
+	if x != nil {
+		return x.GameSrvUuid
+	}
+	return 0
+}
+
+func (x *PB_MSG_LOGONSRV_CENTERSRV_LOGON_RES) GetIp() string {
+	if x != nil {
+		return x.Ip
+	}
+	return ""
+}
+
+func (x *PB_MSG_LOGONSRV_CENTERSRV_LOGON_RES) GetPort() int32 {
+	if x != nil {
+		return x.Port
+	}
+	return 0
+}
+
 type PB_MSG_INTER_QUESRV_NTFOnlineOfflineNtf struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -1633,7 +1861,7 @@ type PB_MSG_INTER_QUESRV_NTFOnlineOfflineNtf struct {
 func (x *PB_MSG_INTER_QUESRV_NTFOnlineOfflineNtf) Reset() {
 	*x = PB_MSG_INTER_QUESRV_NTFOnlineOfflineNtf{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_msginter_proto_msgTypes[27]
+		mi := &file_msginter_proto_msgTypes[31]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1646,7 +1874,7 @@ func (x *PB_MSG_INTER_QUESRV_NTFOnlineOfflineNtf) String() string {
 func (*PB_MSG_INTER_QUESRV_NTFOnlineOfflineNtf) ProtoMessage() {}
 
 func (x *PB_MSG_INTER_QUESRV_NTFOnlineOfflineNtf) ProtoReflect() protoreflect.Message {
-	mi := &file_msginter_proto_msgTypes[27]
+	mi := &file_msginter_proto_msgTypes[31]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1902,9 +2130,30 @@ var file_msginter_proto_rawDesc = []byte{
 	0x5f, 0x47, 0x45, 0x54, 0x49, 0x4e, 0x46, 0x4f, 0x5f, 0x52, 0x45, 0x53, 0x12, 0x15, 0x0a, 0x06,
 	0x6f, 0x75, 0x74, 0x5f, 0x69, 0x70, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x6f, 0x75,
 	0x74, 0x49, 0x70, 0x12, 0x19, 0x0a, 0x08, 0x6f, 0x75, 0x74, 0x5f, 0x70, 0x6f, 0x72, 0x74, 0x18,
-	0x02, 0x20, 0x01, 0x28, 0x05, 0x52, 0x07, 0x6f, 0x75, 0x74, 0x50, 0x6f, 0x72, 0x74, 0x42, 0x0e,
-	0x5a, 0x0c, 0x2e, 0x2f, 0x3b, 0x6d, 0x73, 0x67, 0x70, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x62, 0x06,
-	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x02, 0x20, 0x01, 0x28, 0x05, 0x52, 0x07, 0x6f, 0x75, 0x74, 0x50, 0x6f, 0x72, 0x74, 0x22, 0x2b,
+	0x0a, 0x0c, 0x50, 0x42, 0x5f, 0x4d, 0x53, 0x47, 0x5f, 0x4c, 0x4f, 0x47, 0x4f, 0x4e, 0x12, 0x1b,
+	0x0a, 0x09, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x03, 0x52, 0x08, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x49, 0x64, 0x22, 0x53, 0x0a, 0x10, 0x50,
+	0x42, 0x5f, 0x4d, 0x53, 0x47, 0x5f, 0x4c, 0x4f, 0x47, 0x4f, 0x4e, 0x5f, 0x52, 0x45, 0x53, 0x12,
+	0x1b, 0x0a, 0x09, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x03, 0x52, 0x08, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x49, 0x64, 0x12, 0x0e, 0x0a, 0x02,
+	0x69, 0x70, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x70, 0x12, 0x12, 0x0a, 0x04,
+	0x70, 0x6f, 0x72, 0x74, 0x18, 0x03, 0x20, 0x01, 0x28, 0x05, 0x52, 0x04, 0x70, 0x6f, 0x72, 0x74,
+	0x22, 0x3e, 0x0a, 0x1f, 0x50, 0x42, 0x5f, 0x4d, 0x53, 0x47, 0x5f, 0x4c, 0x4f, 0x47, 0x4f, 0x4e,
+	0x53, 0x52, 0x56, 0x5f, 0x43, 0x45, 0x4e, 0x54, 0x45, 0x52, 0x53, 0x52, 0x56, 0x5f, 0x4c, 0x4f,
+	0x47, 0x4f, 0x4e, 0x12, 0x1b, 0x0a, 0x09, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x5f, 0x69, 0x64,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x08, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x49, 0x64,
+	0x22, 0x8a, 0x01, 0x0a, 0x23, 0x50, 0x42, 0x5f, 0x4d, 0x53, 0x47, 0x5f, 0x4c, 0x4f, 0x47, 0x4f,
+	0x4e, 0x53, 0x52, 0x56, 0x5f, 0x43, 0x45, 0x4e, 0x54, 0x45, 0x52, 0x53, 0x52, 0x56, 0x5f, 0x4c,
+	0x4f, 0x47, 0x4f, 0x4e, 0x5f, 0x52, 0x45, 0x53, 0x12, 0x1b, 0x0a, 0x09, 0x63, 0x6c, 0x69, 0x65,
+	0x6e, 0x74, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x08, 0x63, 0x6c, 0x69,
+	0x65, 0x6e, 0x74, 0x49, 0x64, 0x12, 0x22, 0x0a, 0x0d, 0x67, 0x61, 0x6d, 0x65, 0x5f, 0x73, 0x72,
+	0x76, 0x5f, 0x75, 0x75, 0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x03, 0x52, 0x0b, 0x67, 0x61,
+	0x6d, 0x65, 0x53, 0x72, 0x76, 0x55, 0x75, 0x69, 0x64, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x70, 0x18,
+	0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x70, 0x12, 0x12, 0x0a, 0x04, 0x70, 0x6f, 0x72,
+	0x74, 0x18, 0x04, 0x20, 0x01, 0x28, 0x05, 0x52, 0x04, 0x70, 0x6f, 0x72, 0x74, 0x42, 0x0e, 0x5a,
+	0x0c, 0x2e, 0x2f, 0x3b, 0x6d, 0x73, 0x67, 0x70, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x62, 0x06, 0x70,
+	0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -1919,7 +2168,7 @@ func file_msginter_proto_rawDescGZIP() []byte {
 	return file_msginter_proto_rawDescData
 }
 
-var file_msginter_proto_msgTypes = make([]protoimpl.MessageInfo, 28)
+var file_msginter_proto_msgTypes = make([]protoimpl.MessageInfo, 32)
 var file_msginter_proto_goTypes = []interface{}{
 	(*PB_SRV_INFO_ONE)(nil),                           // 0: msgpacket.PB_SRV_INFO_ONE
 	(*PB_SRV_INFO_ALL)(nil),                           // 1: msgpacket.PB_SRV_INFO_ALL
@@ -1948,8 +2197,12 @@ var file_msginter_proto_goTypes = []interface{}{
 	(*PB_MSG_INTER_QUESRV_GET_SRVTYPE_RES)(nil),       // 24: msgpacket.PB_MSG_INTER_QUESRV_GET_SRVTYPE_RES
 	(*PB_MSG_CENTERSRV_GAMESRV_GETINFO)(nil),          // 25: msgpacket.PB_MSG_CENTERSRV_GAMESRV_GETINFO
 	(*PB_MSG_CENTERSRV_GAMESRV_GETINFO_RES)(nil),      // 26: msgpacket.PB_MSG_CENTERSRV_GAMESRV_GETINFO_RES
-	(*PB_MSG_INTER_QUESRV_NTFOnlineOfflineNtf)(nil),   // 27: msgpacket.PB_MSG_INTER_QUESRV_NTF.online_offline_ntf
-	(PB_RESPONSE_CODE)(0),                             // 28: msgpacket.PB_RESPONSE_CODE
+	(*PB_MSG_LOGON)(nil),                              // 27: msgpacket.PB_MSG_LOGON
+	(*PB_MSG_LOGON_RES)(nil),                          // 28: msgpacket.PB_MSG_LOGON_RES
+	(*PB_MSG_LOGONSRV_CENTERSRV_LOGON)(nil),           // 29: msgpacket.PB_MSG_LOGONSRV_CENTERSRV_LOGON
+	(*PB_MSG_LOGONSRV_CENTERSRV_LOGON_RES)(nil),       // 30: msgpacket.PB_MSG_LOGONSRV_CENTERSRV_LOGON_RES
+	(*PB_MSG_INTER_QUESRV_NTFOnlineOfflineNtf)(nil),   // 31: msgpacket.PB_MSG_INTER_QUESRV_NTF.online_offline_ntf
+	(PB_RESPONSE_CODE)(0),                             // 32: msgpacket.PB_RESPONSE_CODE
 }
 var file_msginter_proto_depIdxs = []int32{
 	0,  // 0: msgpacket.PB_SRV_INFO_ALL.array_srv:type_name -> msgpacket.PB_SRV_INFO_ONE
@@ -1958,13 +2211,13 @@ var file_msginter_proto_depIdxs = []int32{
 	3,  // 3: msgpacket.PB_MSG_INTER_QUECENTER_ONLINE_NTF.que_srv_info:type_name -> msgpacket.PB_MSG_INTER_QUESRV_INFO
 	1,  // 4: msgpacket.PB_MSG_INTER_QUESRV_CONNECT.local_all_srv:type_name -> msgpacket.PB_SRV_INFO_ALL
 	1,  // 5: msgpacket.PB_MSG_INTER_QUESRV_CONNECT_RES.local_all_srv:type_name -> msgpacket.PB_SRV_INFO_ALL
-	28, // 6: msgpacket.PB_MSG_INTER_CLISRV_REG_MSGQUE_CENTER_RES.res:type_name -> msgpacket.PB_RESPONSE_CODE
-	28, // 7: msgpacket.PB_MSG_INTER_MSG_RES.res:type_name -> msgpacket.PB_RESPONSE_CODE
+	32, // 6: msgpacket.PB_MSG_INTER_CLISRV_REG_MSGQUE_CENTER_RES.res:type_name -> msgpacket.PB_RESPONSE_CODE
+	32, // 7: msgpacket.PB_MSG_INTER_MSG_RES.res:type_name -> msgpacket.PB_RESPONSE_CODE
 	1,  // 8: msgpacket.PB_MSG_INTER_CLISRV_REG_TO_QUE_RES.all_srv:type_name -> msgpacket.PB_SRV_INFO_ALL
 	1,  // 9: msgpacket.PB_MSG_INTER_CLISRV_REG_TO_QUE_RES.local_all_srv:type_name -> msgpacket.PB_SRV_INFO_ALL
 	1,  // 10: msgpacket.PB_MSG_INTER_QUESRV_REPORT_BROADCAST.local_all_srv:type_name -> msgpacket.PB_SRV_INFO_ALL
 	1,  // 11: msgpacket.PB_MSG_INTER_QUESRV_REPORT_BROADCAST.all_srv:type_name -> msgpacket.PB_SRV_INFO_ALL
-	27, // 12: msgpacket.PB_MSG_INTER_QUESRV_NTF.online_offline:type_name -> msgpacket.PB_MSG_INTER_QUESRV_NTF.online_offline_ntf
+	31, // 12: msgpacket.PB_MSG_INTER_QUESRV_NTF.online_offline:type_name -> msgpacket.PB_MSG_INTER_QUESRV_NTF.online_offline_ntf
 	0,  // 13: msgpacket.PB_MSG_INTER_QUESRV_GET_SRVTYPE_RES.arrary_srv:type_name -> msgpacket.PB_SRV_INFO_ONE
 	14, // [14:14] is the sub-list for method output_type
 	14, // [14:14] is the sub-list for method input_type
@@ -2305,6 +2558,54 @@ func file_msginter_proto_init() {
 			}
 		}
 		file_msginter_proto_msgTypes[27].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*PB_MSG_LOGON); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_msginter_proto_msgTypes[28].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*PB_MSG_LOGON_RES); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_msginter_proto_msgTypes[29].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*PB_MSG_LOGONSRV_CENTERSRV_LOGON); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_msginter_proto_msgTypes[30].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*PB_MSG_LOGONSRV_CENTERSRV_LOGON_RES); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_msginter_proto_msgTypes[31].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*PB_MSG_INTER_QUESRV_NTFOnlineOfflineNtf); i {
 			case 0:
 				return &v.state
@@ -2324,7 +2625,7 @@ func file_msginter_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_msginter_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   28,
+			NumMessages:   32,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

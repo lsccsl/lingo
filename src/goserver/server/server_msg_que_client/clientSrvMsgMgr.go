@@ -1,7 +1,6 @@
 package msgque_client
 
 import (
-	"github.com/golang/protobuf/proto"
 	"goserver/msgpacket"
 	"goserver/server/server_common"
 	"sync"
@@ -20,7 +19,7 @@ type MsgReq struct {
 	chNtf chan *MsgRes
 }
 type MsgRes struct {
-	PBMsg proto.Message
+	PBMsg interface{}
 	Res msgpacket.PB_RESPONSE_CODE
 }
 

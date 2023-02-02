@@ -29,6 +29,22 @@ const(
 	EN_TCP_CLOSE_REASON_inter_max    EN_TCP_CLOSE_REASON = 100
 )
 
+func (closeReason EN_TCP_CLOSE_REASON)String() (str string) {
+	switch closeReason {
+	case EN_TCP_CLOSE_REASON_read_err:
+		str = "[close reason:read_err]"
+	case EN_TCP_CLOSE_REASON_write_err:
+		str = "[close reason:write_err]"
+	case EN_TCP_CLOSE_REASON_epoll_err:
+		str = "[close reason:epoll_err]"
+	case EN_TCP_CLOSE_REASON_idle_timeout:
+		str = "[close reason:idle_timeout]"
+	default:
+		str = "[close reason:" + strconv.FormatInt(int64(closeReason), 10) + "]"
+	}
+	return
+}
+
 type FD_DEF struct {
 	FD int
 	Magic int32

@@ -13,5 +13,6 @@ go build -o ../../output/msgque_center goserver/server/server_msgque_center
 go build -o ../../output/msgque        goserver/server/server_msgque
 go build -o ../../output/gamesrv       goserver/server/server_game
 go build -o ../../output/centersrv     goserver/server/server_center
+go build -o ../../output/logonsrv      goserver/server/server_logon
 
 cp ./msgpacket/*.pb.go ../../cfg/
