@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="D:\mywork\git\lingo\src\cpp\protobuf-cpp-3.19.2\protobuf-3.19.2\src\google\protobuf\compiler\mock_code_generator.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\mywork\git\lingo\src\cpp\protobuf-cpp-3.19.2\protobuf-3.19.2\src\google\protobuf\compiler\test_plugin.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\mywork\git\lingo\src\cpp\protobuf-cpp-3.19.2\protobuf-3.19.2\src\google\protobuf\testing\file.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\mywork\git\lingo\src\cpp\protobuf-cpp-3.19.2\protobuf-3.19.2\src\google\protobuf\testing\file.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\mywork\git\lingo\src\cpp\protobuf-cpp-3.19.2\protobuf-3.19.2\cmake\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{8633DF8F-1D56-3818-BE4E-9E4CF89EE2C2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{58627917-5268-3FDE-B77E-C163EACCD76D}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

@@ -28,23 +28,23 @@ const(
 	SRV_TYPE_center_server   SRV_TYPE = 3
 	SRV_TYPE_game_server     SRV_TYPE = 4
 	SRV_TYPE_database_server SRV_TYPE = 5
-	SRV_TYPE_login_server    SRV_TYPE = 6
+	SRV_TYPE_logon_server    SRV_TYPE = 6
 )
 func (st SRV_TYPE)String() string {
 	typeName := "SRV_TYPE_none"
 	switch st {
 	case SRV_TYPE_msq_que:
-		typeName = "SRV_TYPE_msq_que"
+		typeName = "msq_que"
 	case SRV_TYPE_msg_center:
-		typeName = "SRV_TYPE_msg_center"
+		typeName = "msg_center"
 	case SRV_TYPE_center_server:
-		typeName = "SRV_TYPE_center_server"
+		typeName = "center_server"
 	case SRV_TYPE_game_server:
-		typeName = "SRV_TYPE_game_server"
+		typeName = "game_server"
 	case SRV_TYPE_database_server:
-		typeName = "SRV_TYPE_database_server"
-	case SRV_TYPE_login_server:
-		typeName = "SRV_TYPE_login_server"
+		typeName = "database_server"
+	case SRV_TYPE_logon_server:
+		typeName = "logon_server"
 	}
 	return "[srv_type:" + typeName + "(" + strconv.FormatInt(int64(st), 10) + ")]"
 }

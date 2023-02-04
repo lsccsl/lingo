@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="D:\mywork\git\lingo\src\cpp\protobuf-cpp-3.19.2\protobuf-3.19.2\src\google\protobuf\lite_arena_unittest.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\mywork\git\lingo\src\cpp\protobuf-cpp-3.19.2\protobuf-3.19.2\src\google\protobuf\arena_test_util.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\mywork\git\lingo\src\cpp\protobuf-cpp-3.19.2\protobuf-3.19.2\src\google\protobuf\map_lite_test_util.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\mywork\git\lingo\src\cpp\protobuf-cpp-3.19.2\protobuf-3.19.2\src\google\protobuf\test_util_lite.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\mywork\git\lingo\src\cpp\protobuf-cpp-3.19.2\protobuf-3.19.2\src\google\protobuf\map_lite_unittest.pb.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\mywork\git\lingo\src\cpp\protobuf-cpp-3.19.2\protobuf-3.19.2\src\google\protobuf\unittest_import_lite.pb.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\mywork\git\lingo\src\cpp\protobuf-cpp-3.19.2\protobuf-3.19.2\src\google\protobuf\unittest_import_public_lite.pb.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\mywork\git\lingo\src\cpp\protobuf-cpp-3.19.2\protobuf-3.19.2\src\google\protobuf\unittest_lite.pb.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\mywork\git\lingo\src\cpp\protobuf-cpp-3.19.2\build_win_64\CMakeFiles\e0146dd2b68d90cdba34c88b6c94672f\map_lite_unittest.pb.cc.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="D:\mywork\git\lingo\src\cpp\protobuf-cpp-3.19.2\build_win_64\CMakeFiles\e0146dd2b68d90cdba34c88b6c94672f\unittest_import_lite.pb.cc.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="D:\mywork\git\lingo\src\cpp\protobuf-cpp-3.19.2\build_win_64\CMakeFiles\e0146dd2b68d90cdba34c88b6c94672f\unittest_import_public_lite.pb.cc.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="D:\mywork\git\lingo\src\cpp\protobuf-cpp-3.19.2\build_win_64\CMakeFiles\e0146dd2b68d90cdba34c88b6c94672f\unittest_lite.pb.cc.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="D:\mywork\git\lingo\src\cpp\protobuf-cpp-3.19.2\protobuf-3.19.2\cmake\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{583DFCAA-3702-3644-B6A4-35C773F1062D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{58627917-5268-3FDE-B77E-C163EACCD76D}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

@@ -110,7 +110,7 @@ func ConstructLogonSrv(id string)*LogonSrv {
 		return nil
 	}
 
-	ls.mqClient = msgque_client.ConstructMgrQueClient(server_common.Global_ServerCfg.MsgQueCent.OutAddr, server_common.SRV_TYPE_game_server, ls)
+	ls.mqClient = msgque_client.ConstructMgrQueClient(server_common.Global_ServerCfg.MsgQueCent.OutAddr, server_common.SRV_TYPE_logon_server, ls)
 	ls.mqClient.DialToQueSrv()
 
 	// get center server uuid

@@ -37,8 +37,8 @@ func (pthis*CenterSrv)Go_CallBackReport(pbLocal *msgpacket.PB_SRV_INFO_ALL) {
 			common.LogErr("get game srv out addr err:", err)
 			continue
 		}
-		pbAddr := pbRes.(*msgpacket.PB_MSG_CENTERSRV_GAMESRV_GETINFO_RES)
-		if nil == pbAddr {
+		pbAddr, ok := pbRes.(*msgpacket.PB_MSG_CENTERSRV_GAMESRV_GETINFO_RES)
+		if nil == pbAddr || !ok {
 			common.LogErr("get game srv out addr response nil")
 			continue
 		}

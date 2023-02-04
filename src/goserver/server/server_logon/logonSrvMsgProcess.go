@@ -53,5 +53,5 @@ func (pthis*LogonSrv)process_PB_MSG_LOGON(fd common.FD_DEF, pbMsg * msgpacket.PB
 		Port:     pbAddr.Port,
 	}
 
-	server_common.SendProtoMsg(pthis.lsn, fd, msgpacket.PB_MSG_TYPE__PB_MSG_LOGONSRV_CENTERSRV_LOGON_RES, pbClientRes)
+	server_common.SendProtoMsg(pthis.lsn, fd, msgpacket.PB_MSG_TYPE__PB_MSG_LOGON_RES, pbClientRes)
 }
