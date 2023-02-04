@@ -80,6 +80,14 @@ import (
 	return
 }*/
 
+func (pthis*MgrQueClient)SendMsgToSrvUUID(srvUUIDTo server_common.SRV_ID,
+	msgType msgpacket.PB_MSG_TYPE, protoMsg proto.Message) (res proto.Message, err error) {
+	return pthis.SendMsg(srvUUIDTo, server_common.SRV_TYPE_none, msgType, protoMsg, 30 * 1000)
+}
+func (pthis*MgrQueClient)SendMsgToSrvType(srvType server_common.SRV_TYPE,
+	msgType msgpacket.PB_MSG_TYPE, protoMsg proto.Message) (res proto.Message, err error) {
+	return pthis.SendMsg(server_common.SRV_ID_INVALID, srvType, msgType, protoMsg, 30 * 1000)
+}
 func (pthis*MgrQueClient)SendMsg(srvUUIDTo server_common.SRV_ID, srvType server_common.SRV_TYPE,
 	msgType msgpacket.PB_MSG_TYPE, protoMsg proto.Message, timeoutMilliSec int) (res proto.Message, err error) {
 	res = nil

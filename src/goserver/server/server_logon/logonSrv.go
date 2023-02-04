@@ -59,9 +59,8 @@ func (pthis*LogonSrv)TcpTick(fd common.FD_DEF, tNowMill int64, inAttachData inte
 func (pthis*LogonSrv)GetCenterSrvUUID() (centerSrvUUID server_common.SRV_ID) {
 	pbMsg := &msgpacket.PB_MSG_INTER_QUESRV_GET_SRVTYPE{}
 	pbMsg.SrvType = int32(server_common.SRV_TYPE_center_server)
-	pbMsgRes, err := pthis.mqClient.SendMsg(server_common.SRV_ID_INVALID, server_common.SRV_TYPE_msq_que,
-		msgpacket.PB_MSG_TYPE__PB_MSG_INTER_QUESRV_GET_SRVTYPE, pbMsg,
-		30 * 1000)
+	pbMsgRes, err := pthis.mqClient.SendMsgToSrvType(server_common.SRV_TYPE_msq_que,
+		msgpacket.PB_MSG_TYPE__PB_MSG_INTER_QUESRV_GET_SRVTYPE, pbMsg)
 
 	if nil != err {
 		common.LogErr("get center server uuid err:", err)

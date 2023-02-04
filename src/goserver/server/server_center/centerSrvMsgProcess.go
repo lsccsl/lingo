@@ -30,9 +30,8 @@ func (pthis*CenterSrv)Go_CallBackReport(pbLocal *msgpacket.PB_SRV_INFO_ALL) {
 
 	//var pbAddr *msgpacket.PB_MSG_CENTERSRV_GAMESRV_GETINFO_RES
 	for _, v := range arrayGS {
-		pbRes, err := pthis.mqClient.SendMsg(v.SrvUUID, server_common.SRV_TYPE_game_server,
-			msgpacket.PB_MSG_TYPE__PB_MSG_CENTERSRV_GAMESRV_GETINFO, &msgpacket.PB_MSG_CENTERSRV_GAMESRV_GETINFO{},
-			3 * 1000)
+		pbRes, err := pthis.mqClient.SendMsgToSrvUUID(v.SrvUUID,
+			msgpacket.PB_MSG_TYPE__PB_MSG_CENTERSRV_GAMESRV_GETINFO, &msgpacket.PB_MSG_CENTERSRV_GAMESRV_GETINFO{})
 		if err != nil {
 			common.LogErr("get game srv out addr err:", err)
 			continue
