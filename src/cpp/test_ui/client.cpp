@@ -34,7 +34,53 @@ int client::connectToLogon(const std::string& ip, int port)
 
 	this->recv_one_msg();
 
+	if (this->lst_msg_recv_.empty())
+		return -1;
+
+	auto pret = this->get_msg_type(msgpacket::_PB_MSG_LOGON_RES);
+	if (!pret)
+		return -1;
+	auto pRes = std::dynamic_pointer_cast<msgpacket::PB_MSG_LOGON_RES>(pret);
+	if (!pRes)
+		return -1;
+
+	this->gs_ip_ = pRes->ip();
+	this->gs_port_ = pRes->port();
+
 	return 0;
+}
+
+int client::connectToGameSrv()
+{
+	if (this->fd_ > 0)
+		CChannel::CloseFd(this->fd_gs_);
+	this->fd_ = -1;
+	this->fd_ = CChannel::TcpConnect(this->gs_ip_.c_str(), this->gs_port_, 10, 30);
+	if (this->fd_ < 0)
+	{
+		MYLOG_ERR(("clientid:%lld connect err:%d-%d", this->id_, ::WSAGetLastError(), ::GetLastError()));
+		return false;
+	}
+
+	CChannel::set_no_block(this->fd_gs_);
+
+	return 0;
+}
+
+std::shared_ptr<google::protobuf::Message> client::get_msg_type(msgpacket::PB_MSG_TYPE msgtype)
+{
+	std::shared_ptr<google::protobuf::Message> ptr = nullptr;
+	bool bret = false;
+	for (auto& it : this->lst_msg_recv_)
+	{
+		if (it.msg_type != msgtype)
+			continue;
+
+		ptr = it.proto_msg;
+		break;
+	}
+	this->lst_msg_recv_.clear();
+	return ptr;
 }
 
 int32 client::send_msg(int msg_typ, google::protobuf::Message* proto_msg)

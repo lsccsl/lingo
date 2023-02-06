@@ -31,17 +31,25 @@ public:
 	~client();
 
 	int connectToLogon(const std::string& ip, int port);
+	int connectToGameSrv();
 
 private:
 
 	int send_msg(int msg_typ, google::protobuf::Message* proto_msg);
 	int32 recv_one_msg();
 
+	std::shared_ptr<google::protobuf::Message> get_msg_type(msgpacket::PB_MSG_TYPE msgtype);
+
 private:
 
 	int32 fd_ = -1;
 	int64 id_ = 0;
 	int32 magic_ = 0;
+
+	int32 fd_gs_ = -1;
+	int32 magic_gs_ = 0;
+	std::string gs_ip_;
+	int gs_port_;
 
 	int64 client_id_ = 0;
 

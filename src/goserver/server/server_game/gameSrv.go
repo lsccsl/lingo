@@ -24,13 +24,20 @@ func (pthis*GameSrv)Wait() {
 }
 
 func (pthis*GameSrv)TcpAcceptConnection(fd common.FD_DEF, addr net.Addr, inAttachData interface{})(outAttachData interface{}) {
+	common.LogDebug(fd, addr, inAttachData)
 	return nil
 }
 func (pthis*GameSrv)TcpDialConnection(fd common.FD_DEF, addr net.Addr, inAttachData interface{})(outAttachData interface{}) {
+	common.LogDebug(fd, addr, inAttachData)
 	return nil
 }
 func (pthis*GameSrv)TcpData(fd common.FD_DEF, readBuf *bytes.Buffer, inAttachData interface{})(bytesProcess int, outAttachData interface{}) {
-	return 0, nil
+	packType, bytesProcess, protoMsg := msgpacket.ProtoUnPacketFromBin(readBuf)
+	if protoMsg == nil {
+		return
+	}
+	common.LogDebug("packType:", packType, protoMsg)
+	return
 }
 func (pthis*GameSrv)TcpClose(fd common.FD_DEF, closeReason common.EN_TCP_CLOSE_REASON, inAttachData interface{}) {
 

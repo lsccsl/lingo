@@ -118,6 +118,7 @@ BOOL CtestuiDlg::OnInitDialog()
 	CChannel::init_sock();
 	client c;
 	c.connectToLogon("192.168.15.151", 13001);
+	c.connectToGameSrv();
 
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
