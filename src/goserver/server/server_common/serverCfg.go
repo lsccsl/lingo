@@ -15,6 +15,8 @@ type ServerCfg struct {
 	MsgDef          string                  `yaml:"msgdef"`
 	MapGSCfg        map[string]SrvCfg       `yaml:"gameserver"`
 	MapLogonCfg     map[string]SrvCfg       `yaml:"logonserver"`
+	MapDBCfg        map[string]DBSrvCfg     `yaml:"dbserver"`
+
 }
 
 type MsgQueCenterCfg struct {
@@ -28,6 +30,11 @@ type MsgQueSrvCfg struct {
 }
 
 type SrvCfg struct {
+	BindAddr string `yaml:"bind_addr"`
+	OutAddr string `yaml:"out_addr"`
+}
+
+type DBSrvCfg struct {
 	BindAddr string `yaml:"bind_addr"`
 	OutAddr string `yaml:"out_addr"`
 }
@@ -80,4 +87,13 @@ func GetLogonsrvCfg(id string)*SrvCfg {
 	}
 
 	return &logonCfg
+}
+
+func GetDBSrvCfg(id string)*DBSrvCfg {
+	dbCfg, ok := Global_ServerCfg.MapDBCfg[id]
+	if !ok {
+		return nil
+	}
+
+	return &dbCfg
 }

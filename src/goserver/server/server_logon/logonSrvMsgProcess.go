@@ -38,6 +38,9 @@ func (pthis*LogonSrv)Go_CallBackNtf(ntf * msgpacket.PB_MSG_INTER_QUESRV_NTF) {
 
 
 func (pthis*LogonSrv)process_PB_MSG_LOGON(fd common.FD_DEF, pbMsg * msgpacket.PB_MSG_LOGON) {
+
+	// auth client here
+
 	pbReq := &msgpacket.PB_MSG_LOGONSRV_CENTERSRV_LOGON{ClientId: pbMsg.ClientId}
 	pbRes, err := pthis.mqClient.SendMsgToSrvUUID(pthis.centerSrvUUID,
 		msgpacket.PB_MSG_TYPE__PB_MSG_LOGONSRV_CENTERSRV_LOGON, pbReq)

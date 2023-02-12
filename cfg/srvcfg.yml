@@ -26,3 +26,11 @@ logonserver:
   2:
     bind_addr: 0.0.0.0:13002
     out_addr: 192.168.15.151:13002
+
+dbserver:
+  1:
+    bind_addr: 0.0.0.0:14001
+    out_addr: 192.168.15.151:14001
+  2:
+    bind_addr: 0.0.0.0:14002
+    out_addr: 192.168.15.151:14002

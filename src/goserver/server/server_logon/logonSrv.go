@@ -97,7 +97,7 @@ func ConstructLogonSrv(id string)*LogonSrv {
 
 	// create client tcp epoll listener
 	var err error
-	ls.lsn, err = common.ConstructorEPollListener(ls, logonCfg.BindAddr, 10,
+	ls.lsn, err = common.ConstructorEPollListener(ls, logonCfg.BindAddr, 50,
 		common.ParamEPollListener{
 			ParamET: true,
 			ParamEpollWaitTimeoutMills: 180 * 1000,
