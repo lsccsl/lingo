@@ -35,8 +35,10 @@ type SrvCfg struct {
 }
 
 type DBSrvCfg struct {
-	BindAddr string `yaml:"bind_addr"`
-	OutAddr string `yaml:"out_addr"`
+	DBUser string `yaml:"db_user"`
+	DBPwd string `yaml:"db_pwd"`
+	DBIp string `yaml:"db_ip"`
+	DBPort int `yaml:"db_port"`
 }
 
 

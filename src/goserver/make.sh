@@ -8,11 +8,13 @@ go build -o ../../output/test_cross_link      goserver/test/test_cross_link
 go build -o ../cpp/navwrapper/bin/test_recast goserver/test/test_recast
 go build -o ../../output/test_mysql           goserver/test/testmysql
 go build -o ../../output/test_redis           goserver/test/testredis
+go build -o ../../output/test_mongo           goserver/test/test_mongo
 
 go build -o ../../output/msgque_center goserver/server/server_msgque_center
 go build -o ../../output/msgque        goserver/server/server_msgque
 go build -o ../../output/gamesrv       goserver/server/server_game
 go build -o ../../output/centersrv     goserver/server/server_center
 go build -o ../../output/logonsrv      goserver/server/server_logon
+go build -o ../../output/dbsrv      goserver/server/server_db
 
 cp ./msgpacket/*.pb.go ../../cfg/

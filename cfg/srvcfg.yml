@@ -29,8 +29,12 @@ logonserver:
 
 dbserver:
   1:
-    bind_addr: 0.0.0.0:14001
-    out_addr: 192.168.15.151:14001
+    db_user: admin
+    db_pwd: 123456
+    db_ip: 192.168.0.105
+    db_port: 27017
   2:
-    bind_addr: 0.0.0.0:14002
-    out_addr: 192.168.15.151:14002
+    db_user: admin
+    db_pwd: 123456
+    db_ip: 192.168.0.105
+    db_port: 27018
