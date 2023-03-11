@@ -1,0 +1,37 @@
+syntax = "proto3";
+package msgpacket;
+option go_package = "./;msgpacket";
+
+
+message DBUserKey
+{
+    int64 user_id = 1;
+}
+
+message DBUserDetail
+{
+    string detail_data = 1;
+    int32 detail_id = 2;
+}
+
+message DBMapTest
+{
+    string map_str = 1;
+    int64 map_int =2;
+}
+
+message DBRepeatedTest
+{
+    string repeated_str = 1;
+    int64 repeated_int = 2;
+
+    map<int64, DBMapTest> test_map = 3;
+}
+
+message DBUser
+{
+    string _id = 1;
+    int64 user_id = 2;
+    DBUserDetail detail = 3;
+    repeated DBRepeatedTest test_repeated = 4;
+}

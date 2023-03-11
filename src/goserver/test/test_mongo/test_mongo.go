@@ -9,6 +9,9 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/runtime/protoiface"
+	"goserver/msgpacket"
 	"log"
 	"time"
 )
@@ -53,9 +56,164 @@ func getAll(collection *mongo.Collection) {
 	}
 }
 
+func test_pb_ref(client * mongo.Client) {
+	collection := client.Database("test_db").Collection("test_user_collection")
+
+	{
+		delRes, err := collection.DeleteOne(context.TODO(), bson.M{"user_id":"123"})
+		fmt.Println(delRes, err)
+		delRes, err = collection.DeleteOne(context.TODO(), bson.M{"user_id":123})
+		fmt.Println(delRes, err)
+	}
+
+	userMap := bson.M{}
+	userMap["user_id"] = int64(123)
+
+	userDetail := bson.M{}
+	userDetail["detail_data"] = "detail data"
+	userDetail["detail_id"] = int32(123456)
+	userMap["detail"] = userDetail
+
+	{
+		var vlist []interface{}
+		{
+			mapRepeated := bson.M{}
+			mapRepeated["repeated_str"] = "aaa repeated"
+			mapRepeated["repeated_int"] = 667
+
+			testMap := bson.M{}
+			{
+				testMapElem := bson.M{}
+				testMapElem["map_str"] = "map string 1"
+				testMapElem["map_int"] = 878
+
+				testMap["1"] = testMapElem
+			}
+			{
+				testMapElem := bson.M{}
+				testMapElem["map_str"] = "map string 2"
+				testMapElem["map_int"] = 888
+
+				testMap["2"] = testMapElem
+			}
+			mapRepeated["test_map"] = testMap
+
+			vlist = append(vlist, mapRepeated)
+		}
+
+		{
+			mapRepeated := bson.M{}
+			mapRepeated["repeated_str"] = "bbb repeated"
+			mapRepeated["repeated_int"] = 668
+
+			testMapElem := bson.M{}
+			testMapElem["map_str"] = "map string 3"
+			testMapElem["map_int"] = 889
+
+			testMap := bson.M{}
+			testMap["1"] = testMapElem
+			mapRepeated["test_map"] = testMap
+
+			vlist = append(vlist, mapRepeated)
+		}
+
+		userMap["test_repeated"] = vlist
+
+	}
+
+	res, _ := collection.InsertOne(context.TODO(), userMap)
+	idHexMap, _ := res.InsertedID.(primitive.ObjectID)
+	fmt.Println(idHexMap)
+	idString := idHexMap.Hex()
+	fmt.Println("insert bson map,idString:", idString)
+
+	// read from db
+	{
+		sres := collection.FindOne(context.TODO(), bson.M{"_id": idHexMap})
+		tmpMap := bson.M{}
+		sres.Decode(tmpMap)
+		fmt.Println("find one, decode as map:", tmpMap)
+
+		msg := PBMsgGen("msgpacket.DBUser", tmpMap).(protoiface.MessageV1)
+
+		fmt.Println("proto msg:", msg)
+	}
+}
+
+func test_protocal(client * mongo.Client) {
+	collection := client.Database("test_db").Collection("test_user_collection")
+
+	{
+		delRes, err := collection.DeleteOne(context.TODO(), bson.M{"user_id":"123"})
+		fmt.Println(delRes, err)
+		delRes, err = collection.DeleteOne(context.TODO(), bson.M{"user_id":123})
+		fmt.Println(delRes, err)
+	}
+
+	userMap := bson.M{}
+	userMap["user_id"] = int64(123)
+
+	userDetail := bson.M{}
+	userDetail["detail_data"] = "detail data"
+	userDetail["detail_id"] = int32(123456)
+	userMap["detail"] = userDetail
+
+	res, _ := collection.InsertOne(context.TODO(), userMap)
+	idHexMap, _ := res.InsertedID.(primitive.ObjectID)
+	fmt.Println(idHexMap)
+	idString := idHexMap.Hex()
+	fmt.Println("insert bson map,idString:", idString)
+
+	msg := &msgpacket.DBUser{}
+	{
+		sres := collection.FindOne(context.TODO(), bson.M{"_id": idHexMap})
+		tmpMap := bson.M{}
+		sres.Decode(tmpMap)
+		fmt.Println("find one, decode as map:", tmpMap)
+
+		jsonByte, _ := json.Marshal(tmpMap)
+		fmt.Println("~~~~json byte", string(jsonByte))
+
+		protojson.Unmarshal(jsonByte, msg)
+		fmt.Println("proto msg:", msg.String())
+	}
+
+	//msg.UserId = int64(6789)
+	msg.Detail.DetailData = "abbbb"
+	{
+		ms := protojson.MarshalOptions{UseProtoNames:true}
+		jsonByte, _ := ms.Marshal(msg)
+		fmt.Println("~~~~proto json byte", string(jsonByte))
+		bsonMap := bson.M{}
+		bson.UnmarshalExtJSON(jsonByte, true, bsonMap)
+		delete(bsonMap, "_id")
+		fmt.Println("bsonMap:", bsonMap)
+		//bson.D{}
+		uRes , err := collection.UpdateOne(context.TODO(), bson.M{"_id": idHexMap}/*bson.D{{"_id", idHexMap}}*/, bson.D{{"$set",bsonMap}})
+		fmt.Println(uRes, err)
+		//bsonMap["user_id"] = 9090
+		//uRes , err = collection.UpdateByID(context.TODO(), idHexMap, bson.D{{"$set",bsonMap}})
+		//fmt.Println(uRes, err)
+	}
+
+	{
+		msg1 := &msgpacket.DBUser{}
+		sres := collection.FindOne(context.TODO(), bson.M{"_id": idHexMap})
+		tmpMap := bson.M{}
+		sres.Decode(tmpMap)
+		fmt.Println("find one, decode as map:", tmpMap)
+
+		jsonByte, _ := json.Marshal(tmpMap)
+		fmt.Println("~~~~json byte", string(jsonByte))
+
+		protojson.Unmarshal(jsonByte, msg1)
+		fmt.Println("proto msg:", msg1.String())
+	}
+}
+
 func main()  {
 	// 设置客户端选项
-	clientOptions := options.Client().ApplyURI("mongodb://admin:123456@192.168.0.105:27017")
+	clientOptions := options.Client().ApplyURI("mongodb://admin:123456@127.0.0.1:27017")
 	// 连接 MongoDB
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
@@ -67,6 +225,10 @@ func main()  {
 		log.Fatal(err)
 	}
 	fmt.Println("Connected to MongoDB!")
+
+	test_pb_ref(client)
+	return
+	test_protocal(client)
 
 	stu:=StudentIn{Name:"李四",
 		Age:int(time.Now().Unix()),
@@ -123,7 +285,7 @@ func main()  {
 
 
 	//collection.DeleteOne(context.TODO(), stuTmp)
-	//collection.DeleteOne(context.TODO(), bson.M{"_id":idHex})
+	collection.DeleteOne(context.TODO(), bson.M{"_id":idHex})
 
 	getAll(collection)
 }
