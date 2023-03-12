@@ -26,8 +26,12 @@ func ConstructorDBMongo(DBUser string,
 	if err != nil {
 		common.LogErr("connect to mongo db err,", uri, " err", err)
 	}
-
-	common.LogInfo("connect to mongo db suc,", uri)
+	err = db.mongoClient.Ping(context.TODO(), nil)
+	if err != nil {
+		common.LogErr("connect to mongo db err,", uri, " err", err)
+	} else {
+		common.LogInfo("connect to mongo db suc,", uri, " err:", err)
+	}
 
 	return db
 }
