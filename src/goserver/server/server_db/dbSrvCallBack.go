@@ -12,6 +12,15 @@ func (pthis*DBSrv)Go_CallBackMsg(pbMsg proto.Message, pbMsgType int32,
 	srvType server_common.SRV_TYPE,
 	timeOutMills int) (msgType int32, protoMsg proto.Message) {
 
+	switch msgpacket.PB_MSG_TYPE(pbMsgType) {
+	case msgpacket.PB_MSG_TYPE__PB_MSG_DBSERVER_READ:
+		msg, ok := pbMsg.(*msgpacket.PB_MSG_DBSERVER_READ)
+		if ok {
+			msgType, protoMsg = pthis.process_Go_CallBackMsg_PB_MSG_DBSERVER_READ(msg)
+		}
+	case msgpacket.PB_MSG_TYPE__PB_MSG_DBSERVER_WRITE:
+	}
+
 	return 0, nil
 }
 

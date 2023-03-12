@@ -36,7 +36,7 @@ func main() {
 		profilePort, _ = strconv.Atoi(os.Args[1])
 	}
 
-	common.InitLog("./testsrv.log", "./testsrv_err.log",true, false)
+	common.InitLog("./testsrv.log", "./testsrv_err.log",true, false, false)
 	common.ProfileInit(false, profilePort)
 
 	if len(os.Args) >= 3 {

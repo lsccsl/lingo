@@ -3,7 +3,15 @@ package msgpacket;
 option go_package = "./;msgpacket";
 
 
-message DBUserKey
+enum EN_TEST
+{
+    EN_TEST0 = 0;
+    EN_TEST1 = 1;
+    EN_TEST2 = 2;
+    EN_TEST3 = 3;
+}
+
+message DBUserMainKey
 {
     int64 user_id = 1;
 }
@@ -28,10 +36,11 @@ message DBRepeatedTest
     map<int64, DBMapTest> test_map = 3;
 }
 
-message DBUser
+message DBUserMain
 {
     string _id = 1;
     int64 user_id = 2;
     DBUserDetail detail = 3;
     repeated DBRepeatedTest test_repeated = 4;
+    EN_TEST en_test = 5;
 }

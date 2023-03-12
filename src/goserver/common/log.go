@@ -28,6 +28,7 @@ type LogMgr struct {
 	enableLog bool
 	enableConsolePrint bool
 	enableFilePrint bool
+	enableSync bool
 }
 var globalLogMgr = LogMgr{
 	chLog : make(chan *LogMsg, 1000),
@@ -49,7 +50,11 @@ func LogDebug(args ... interface{}) {
 	l := &LogMsg{logLevel: LOG_LEVEL_DEBUG}
 	l.strLog = fmt.Sprintf("DEBUG %s[%s:%d] route:%d %s %s\r\n\r\n",
 		time.Now().Format(time.RFC3339Nano), path.Base(filename), line, GetGID(), funcName, fmt.Sprint(args...))
-	globalLogMgr.chLog <- l
+	if globalLogMgr.enableSync {
+		fmt.Print(l.strLog)
+	} else {
+		globalLogMgr.chLog <- l
+	}
 }
 
 func LogInfo(args ... interface{}) {
@@ -65,7 +70,11 @@ func LogInfo(args ... interface{}) {
 	l := &LogMsg{logLevel: LOG_LEVEL_INFO}
 	l.strLog = fmt.Sprintf("INFO %s[%s:%d] route:%d %s %s\r\n\r\n",
 		time.Now().Format(time.RFC3339Nano), path.Base(filename), line, GetGID(), funcName, fmt.Sprint(args...))
-	globalLogMgr.chLog <- l
+	if globalLogMgr.enableSync {
+		fmt.Print(l.strLog)
+	} else {
+		globalLogMgr.chLog <- l
+	}
 }
 
 func LogErr(args ... interface{}) {
@@ -78,15 +87,20 @@ func LogErr(args ... interface{}) {
 	l := &LogMsg{logLevel: LOG_LEVEL_ERR}
 	l.strLog = fmt.Sprintf("ERROR %s[%s:%d] route:%d %s %s\r\n%s\r\n",
 		time.Now().Format(time.RFC3339Nano), path.Base(filename), line, GetGID(), funcName, fmt.Sprint(args...), fmt.Sprintf(string(debug.Stack())))
-	globalLogMgr.chLog <- l
+	if globalLogMgr.enableSync {
+		fmt.Print(l.strLog)
+	} else {
+		globalLogMgr.chLog <- l
+	}
 }
 
-func InitLog(str string, strErr string, enableConsolePrint bool, enableFilePrint bool) {
+func InitLog(str string, strErr string, enableConsolePrint bool, enableFilePrint bool, enableSync bool) {
 	globalLogMgr.logFile = str
 	globalLogMgr.logFileErr = strErr
 	globalLogMgr.enableLog = true
 	globalLogMgr.enableConsolePrint = enableConsolePrint
 	globalLogMgr.enableFilePrint = enableFilePrint
+	globalLogMgr.enableSync = enableSync
 	go go_logPrint()
 }
 

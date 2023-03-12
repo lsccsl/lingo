@@ -9,16 +9,20 @@ import (
 )
 
 func main() {
-	common.InitLog("./srv.log", "./srv_err.log", true, true)
+	common.InitLog("./srv.log", "./srv_err.log", true, true, false)
 
 	msgpacket.InitMsgParseVirtualTable("../cfg")
 
 	var pathCfg string
 	flag.StringVar(&pathCfg, "cfg", "../cfg/srvcfg.yml", "config path")
-	flag.Parse()
+	var pathDBCfg string
+	flag.StringVar(&pathDBCfg, "dbcfg", "../cfg/dbcfg.yml", "database config path")
 	var id string
 	flag.StringVar(&id, "id", "1", "que srv id")
+	flag.Parse()
 	server_common.ReadCfg(pathCfg)
+
+	server_common.ReadDBCfg(pathDBCfg)
 
 	dbSrv := ConstructDBSrv(id)
 

@@ -236,3 +236,16 @@ message PB_MSG_DBSERVER_READ_RES
     string table_name = 2;
     repeated bytes record = 3;
 }
+
+message PB_MSG_DBSERVER_WRITE
+{
+    string database_name = 1;
+    string table_name = 2;
+
+    bytes key = 3;
+    repeated bytes record = 4;
+}
+message PB_MSG_DBSERVER_WRITE_RES
+{
+    PB_RESPONSE_CODE res = 1;
+}

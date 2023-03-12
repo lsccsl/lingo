@@ -40,7 +40,7 @@ func main() {
 	}
 
 	// log and profile
-	common.InitLog("./epollsrv.log", "./epollsrv_err.log", srvCfg.LogEnableConsolePrint, true)
+	common.InitLog("./epollsrv.log", "./epollsrv_err.log", srvCfg.LogEnableConsolePrint, true, false)
 	common.ProfileInit(true, 6060)
 
 	common.LogErr("test err log")

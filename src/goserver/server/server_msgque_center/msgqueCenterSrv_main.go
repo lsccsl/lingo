@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	common.InitLog("./srv.log", "./srv_err.log", true, true)
+	common.InitLog("./srv.log", "./srv_err.log", true, true, false)
 
 	msgpacket.InitMsgParseVirtualTable("../cfg")
 

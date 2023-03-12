@@ -5,12 +5,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/golang/protobuf/proto"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"google.golang.org/protobuf/encoding/protojson"
-	"google.golang.org/protobuf/runtime/protoiface"
+	"goserver/common"
 	"goserver/msgpacket"
 	"log"
 	"time"
@@ -73,6 +74,7 @@ func test_pb_ref(client * mongo.Client) {
 	userDetail["detail_data"] = "detail data"
 	userDetail["detail_id"] = int32(123456)
 	userMap["detail"] = userDetail
+	userMap["en_test"] = msgpacket.EN_TEST_EN_TEST2
 
 	{
 		var vlist []interface{}
@@ -128,15 +130,32 @@ func test_pb_ref(client * mongo.Client) {
 	fmt.Println("insert bson map,idString:", idString)
 
 	// read from db
+	var msg proto.Message
 	{
 		sres := collection.FindOne(context.TODO(), bson.M{"_id": idHexMap})
 		tmpMap := bson.M{}
 		sres.Decode(tmpMap)
 		fmt.Println("find one, decode as map:", tmpMap)
 
-		msg := PBMsgGen("msgpacket.DBUser", tmpMap).(protoiface.MessageV1)
-
+		msgParse := PBMsgGen("msgpacket.DBUserMain", tmpMap, 10)
+		msg = msgParse.(proto.Message)
 		fmt.Println("proto msg:", msg)
+	}
+
+	// write proto to db
+	{
+		var idHexMapNew primitive.ObjectID
+		{
+			dbMsg := msg.(*msgpacket.DBUserMain)
+			dbMsg.Detail.DetailData = "new detail data"
+			dbMsg.EnTest = msgpacket.EN_TEST_EN_TEST3
+			dbMsg.TestRepeated[0].TestMap[1].MapStr = "update map str 11"
+			idHexMapNew, _ = primitive.ObjectIDFromHex(dbMsg.XId)
+		}
+		bsonWrite := PBToBson(msg, 10)
+		delete(bsonWrite, "_id")
+		fmt.Println(bsonWrite)
+		collection.UpdateOne(context.TODO(), bson.M{"_id": idHexMapNew}, bson.D{{"$set",bsonWrite}})
 	}
 }
 
@@ -164,7 +183,7 @@ func test_protocal(client * mongo.Client) {
 	idString := idHexMap.Hex()
 	fmt.Println("insert bson map,idString:", idString)
 
-	msg := &msgpacket.DBUser{}
+	msg := &msgpacket.DBUserMain{}
 	{
 		sres := collection.FindOne(context.TODO(), bson.M{"_id": idHexMap})
 		tmpMap := bson.M{}
@@ -197,7 +216,7 @@ func test_protocal(client * mongo.Client) {
 	}
 
 	{
-		msg1 := &msgpacket.DBUser{}
+		msg1 := &msgpacket.DBUserMain{}
 		sres := collection.FindOne(context.TODO(), bson.M{"_id": idHexMap})
 		tmpMap := bson.M{}
 		sres.Decode(tmpMap)
@@ -211,9 +230,16 @@ func test_protocal(client * mongo.Client) {
 	}
 }
 
+func test_read_cfg() {
+	ReadDBCfg("D:\\mywork\\git\\lingo\\cfg\\dbcfg.yml")
+}
+
 func main()  {
+	common.InitLog("./test.log", "./test_err.log", true, true, true)
+
+	//test_read_cfg()
 	// 设置客户端选项
-	clientOptions := options.Client().ApplyURI("mongodb://admin:123456@127.0.0.1:27017")
+	clientOptions := options.Client().ApplyURI("mongodb://admin:123456@192.168.0.103:27017")
 	// 连接 MongoDB
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {

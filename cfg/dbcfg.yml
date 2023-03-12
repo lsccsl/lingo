@@ -1,0 +1,31 @@
+databases: # database user define
+  - database_app_name: user
+    database: dbuser # db base name
+    database_user: admin
+    database_pwd: 123
+    database_ip: 127.0.0.1
+    database_port: 27017
+    tables:
+      - table_name: DBUserMain          # db table/collection name, also proto will define DBUser
+        table_query_key: DBUserMainKey  # contain query param, proto will define DBUserKey
+        table_update_key: DBUserMainKey # if no define, consider same as table_query_key
+        table_delete_key: DBUserMainKey # if no define, consider same as table_query_key
+
+      - table_name: DBUserDetail          # db table/collection name, also proto will define DBUser
+        table_query_key: DBUserDetailKey  # contain query param, proto will define DBUserKey
+        table_update_key: DBUserDetailKey # if no define, consider same as table_query_key
+        table_delete_key: DBUserDetailKey # if no define, consider same as table_query_key
+
+
+
+  - database_app_name: test
+    database: test
+    database_user: admin
+    database_pwd: 123
+    database_ip: 127.0.0.1
+    database_port: 27018
+    tables:
+      - table_name: DBTest
+        table_query_key: DBTestKey
+        table_update_key: DBTestKey
+        table_delete_key: DBTestKey

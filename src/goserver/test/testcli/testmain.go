@@ -25,7 +25,7 @@ var Global_testCfg = &TestCfg {
 
 // testcli 500 100 | lt
 func main() {
-	common.InitLog("./testcli.log", true, false)
+	common.InitLog("./testcli.log", true, false, false)
 	//lin_common.ProfileInit()
 	AddAllCmd()
 	msgpacket.InitMsgParseVirtualTable()
