@@ -117,7 +117,7 @@ BOOL CtestuiDlg::OnInitDialog()
 	// TODO: 在此添加额外的初始化代码
 	CChannel::init_sock();
 	client c;
-	c.connectToLogon("192.168.15.151", 13001);
+	c.connectToLogon("192.168.15.152", 13001);
 	c.connectToGameSrv();
 
 

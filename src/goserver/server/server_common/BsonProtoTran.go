@@ -1,6 +1,17 @@
-package main
+package server_common
 
-/*func PBGenFieldValue(kind protoreflect.Kind, des protoreflect.FieldDescriptor, v interface{}, recursiveCount int) (vRet protoreflect.Value) {
+import (
+	"github.com/golang/protobuf/proto"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"google.golang.org/protobuf/reflect/protoreflect"
+	"google.golang.org/protobuf/reflect/protoregistry"
+	"google.golang.org/protobuf/runtime/protoiface"
+	"goserver/common"
+	"strconv"
+)
+
+func PBGenFieldValue(kind protoreflect.Kind, des protoreflect.FieldDescriptor, v interface{}, recursiveCount int) (vRet protoreflect.Value) {
 	switch kind {
 	case protoreflect.BoolKind:
 		var b bool
@@ -57,7 +68,7 @@ package main
 			msg, _ = v.(proto.Message)
 			vRet = protoreflect.ValueOfMessage(proto.MessageReflect(msg))
 		case bson.M:
-			mv1 := PBMsgGen(string(des.Message().FullName()), t, recursiveCount - 1).(protoiface.MessageV1)
+			mv1 := BsonToPBByName(string(des.Message().FullName()), t, recursiveCount - 1).(protoiface.MessageV1)
 			vRet = protoreflect.ValueOfMessage(proto.MessageReflect(mv1))
 		default:
 			common.LogErr("kind:", kind, " des:", des, " val:", v)
@@ -100,26 +111,8 @@ package main
 	}
 	return
 }
-*/
 
-/*
-func PBMsgGen(MsgName string, MapKV map[string]interface{}, recursiveCount int)interface{} {
-	if (recursiveCount < 0) {
-		common.LogErr("too many recursive")
-		return nil
-	}
-
-	msgName := protoreflect.FullName(MsgName)
-	msgType, err := protoregistry.GlobalTypes.FindMessageByName(msgName)
-	if nil == msgType{
-		common.LogErr(err)
-		return nil
-	}
-	msgIns := proto.MessageV1(msgType.New())
-	if nil == msgIns{
-		common.LogErr("no msg ins")
-		return nil
-	}
+func BsonToPB(msgIns proto.Message, MapKV map[string]interface{}, recursiveCount int)interface{} {
 	msgInsRef:= proto.MessageReflect(msgIns)
 	if nil == msgInsRef{
 		common.LogErr("no msg ref")
@@ -187,9 +180,27 @@ func PBMsgGen(MsgName string, MapKV map[string]interface{}, recursiveCount int)i
 
 	return msgIns
 }
-*/
+func BsonToPBByName(MsgName string, MapKV map[string]interface{}, recursiveCount int)interface{} {
+	if (recursiveCount < 0) {
+		common.LogErr("too many recursive")
+		return nil
+	}
 
-/*
+	msgName := protoreflect.FullName(MsgName)
+	msgType, err := protoregistry.GlobalTypes.FindMessageByName(msgName)
+	if nil == msgType{
+		common.LogErr(err)
+		return nil
+	}
+	msgIns := proto.MessageV1(msgType.New())
+	if nil == msgIns{
+		common.LogErr("no msg ins")
+		return nil
+	}
+
+	return BsonToPB(msgIns, MapKV, recursiveCount)
+}
+
 func PBGetValue(field protoreflect.FieldDescriptor, val protoreflect.Value, recursiveCount int) interface{} {
 	switch field.Kind() {
 	case protoreflect.BoolKind:
@@ -240,9 +251,8 @@ func PBGetValue(field protoreflect.FieldDescriptor, val protoreflect.Value, recu
 
 	return nil
 }
-*/
 
-/*
+
 func PBToBson(msg proto.Message, recursiveCount int) bson.M {
 	if recursiveCount < 0 {
 		common.LogErr("too many recursive")
@@ -302,4 +312,3 @@ func PBToBson(msg proto.Message, recursiveCount int) bson.M {
 
 	return bsonMap
 }
-*/

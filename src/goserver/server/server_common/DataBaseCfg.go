@@ -10,9 +10,10 @@ import (
 
 type DataBaseTableCfgDef struct {
 	TableName      string `yaml:"table_name"`
-	TableQueryKey  string `yaml:"table_query_key"`
-	TableUpdateKey string `yaml:"table_update_key"`
-	TableDeleteKey string `yaml:"table_delete_key"`
+	TableProto     string `yaml:"table_proto"`
+	QueryKeyProto  string `yaml:"query_key_proto"`
+	UpdateKeyProto string `yaml:"update_key_proto"`
+	DeleteKeyProto string `yaml:"delete_key_proto"`
 }
 type DataBaseCfgDef struct {
 	DataBaseAppName string `yaml:"database_app_name"`
@@ -49,4 +50,8 @@ func ReadDBCfg(pathCfg string) {
 		return
 	}
 	common.LogDebug(&Global_DBCfg)
+}
+
+func GetAllDataBaseCfg() []DataBaseCfgDef {
+	return Global_DBCfg.DataBases
 }

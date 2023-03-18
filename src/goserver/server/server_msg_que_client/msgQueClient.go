@@ -6,6 +6,7 @@ import (
 	"goserver/common"
 	"goserver/msgpacket"
 	"goserver/server/server_common"
+	"goserver/server/server_linux_common"
 	"net"
 	"strconv"
 	"sync"
@@ -210,7 +211,7 @@ func (pthis*MgrQueClient)process_PB_MSG_INTER_CLISRV_REG_MSGQUE_CENTER_RES(fd co
 		pthis.SendProtoMsg(pthis.fdQueSrv, msgpacket.PB_MSG_TYPE__PB_MSG_INTER_CLISRV_REG_TO_QUE, pbReg)
 	}
 
-	pthis.lsn.EPollListenerCloseTcp(fd, server_common.EN_TCP_CLOSE_REASON_srv_reg_ok)
+	pthis.lsn.EPollListenerCloseTcp(fd, server_linux_common.EN_TCP_CLOSE_REASON_srv_reg_ok)
 }
 
 func (pthis*MgrQueClient)process_TcpDialToMsgCenter(fd common.FD_DEF) {

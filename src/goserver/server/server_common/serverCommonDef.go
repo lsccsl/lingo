@@ -1,20 +1,13 @@
 package server_common
 
 import (
-	"goserver/common"
 	"strconv"
 )
 
 
 type SRV_ID int64
 const SRV_ID_INVALID SRV_ID = 0
-const(
-	EN_TCP_CLOSE_REASON_reg_reconnect = common.EN_TCP_CLOSE_REASON_inter_max + 1
-	EN_TCP_CLOSE_REASON_recv_ntf_offline = common.EN_TCP_CLOSE_REASON_inter_max + 2
-	EN_TCP_CLOSE_REASON_repeated_msgque_center = common.EN_TCP_CLOSE_REASON_inter_max + 3
-	EN_TCP_CLOSE_REASON_msgque_center_ntf_offline = common.EN_TCP_CLOSE_REASON_inter_max + 4
-	EN_TCP_CLOSE_REASON_srv_reg_ok = common.EN_TCP_CLOSE_REASON_inter_max + 5
-)
+
 func (id SRV_ID)String() string {
 	return "[srv_id:" + strconv.FormatInt(int64(id), 10) + "]"
 }

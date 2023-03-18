@@ -13,6 +13,7 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 	"goserver/common"
 	"goserver/msgpacket"
+	"goserver/server/server_common"
 	"log"
 	"time"
 )
@@ -137,24 +138,33 @@ func test_pb_ref(client * mongo.Client) {
 		sres.Decode(tmpMap)
 		fmt.Println("find one, decode as map:", tmpMap)
 
-		msgParse := PBMsgGen("msgpacket.DBUserMain", tmpMap, 10)
+		msgParse := server_common.BsonToPBByName("msgpacket.DBUserMain", tmpMap, 10)
 		msg = msgParse.(proto.Message)
 		fmt.Println("proto msg:", msg)
 	}
 
 	// write proto to db
+	var idHexMapNew primitive.ObjectID
 	{
-		var idHexMapNew primitive.ObjectID
 		{
-			dbMsg := msg.(*msgpacket.DBUserMain)
+			dbMsg := msg.(*msgpacket.DBUserMainTest)
 			dbMsg.Detail.DetailData = "new detail data"
 			dbMsg.EnTest = msgpacket.EN_TEST_EN_TEST3
 			dbMsg.TestRepeated[0].TestMap[1].MapStr = "update map str 11"
 			idHexMapNew, _ = primitive.ObjectIDFromHex(dbMsg.XId)
 		}
-		bsonWrite := PBToBson(msg, 10)
+		bsonWrite := server_common.PBToBson(msg, 10)
 		delete(bsonWrite, "_id")
 		fmt.Println(bsonWrite)
+		collection.UpdateOne(context.TODO(), bson.M{"_id": idHexMapNew}, bson.D{{"$set",bsonWrite}})
+	}
+
+	{
+		msgUser := &msgpacket.DBUserMainTest{}
+
+		msgUser.Str1 = "str111"
+		msgUser.Int1 = 1
+		bsonWrite := server_common.PBToBson(msgUser, 10)
 		collection.UpdateOne(context.TODO(), bson.M{"_id": idHexMapNew}, bson.D{{"$set",bsonWrite}})
 	}
 }
@@ -183,7 +193,7 @@ func test_protocal(client * mongo.Client) {
 	idString := idHexMap.Hex()
 	fmt.Println("insert bson map,idString:", idString)
 
-	msg := &msgpacket.DBUserMain{}
+	msg := &msgpacket.DBUserMainTest{}
 	{
 		sres := collection.FindOne(context.TODO(), bson.M{"_id": idHexMap})
 		tmpMap := bson.M{}

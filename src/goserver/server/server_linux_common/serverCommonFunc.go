@@ -1,4 +1,4 @@
-package server_common
+package server_linux_common
 
 import (
 	"github.com/golang/protobuf/proto"

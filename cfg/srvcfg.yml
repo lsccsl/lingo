@@ -6,26 +6,26 @@ msgquecenter:
 msgqueserver:
   1:
     bind_addr: 0.0.0.0:11000
-    out_addr: 192.168.15.151:11000
+    out_addr: 192.168.15.152:11000
   2:
     bind_addr: 0.0.0.0:11001
-    out_addr: 192.168.15.151:11001
+    out_addr: 192.168.15.152:11001
 
 gameserver:
   1:
     bind_addr: 0.0.0.0:12001
-    out_addr: 192.168.15.151:12001
+    out_addr: 192.168.15.152:12001
   2:
     bind_addr: 0.0.0.0:12002
-    out_addr: 192.168.15.151:12002
+    out_addr: 192.168.15.152:12002
 
 logonserver:
   1:
     bind_addr: 0.0.0.0:13001
-    out_addr: 192.168.15.151:13001
+    out_addr: 192.168.15.152:13001
   2:
     bind_addr: 0.0.0.0:13002
-    out_addr: 192.168.15.151:13002
+    out_addr: 192.168.15.152:13002
 
 dbserver:
   1:

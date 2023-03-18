@@ -1,8 +1,12 @@
 package main
 
 import (
+	"context"
 	"github.com/golang/protobuf/proto"
+	"go.mongodb.org/mongo-driver/bson"
+	"goserver/common"
 	"goserver/msgpacket"
+	"goserver/server/server_common"
 )
 
 func (pthis*DBSrv)process_Go_CallBackMsg_PB_MSG_DBSERVER_READ(msg * msgpacket.PB_MSG_DBSERVER_READ) (msgType int32, protoMsg proto.Message) {
@@ -11,8 +15,27 @@ func (pthis*DBSrv)process_Go_CallBackMsg_PB_MSG_DBSERVER_READ(msg * msgpacket.PB
 	protoMsg = msgRet
 
 	// get db type by table name
-	// read from db
+	pbTbl, pbQueryKey, _, _ := pthis.dbDataTypeMgr.GetDBType(msg.DatabaseAppName, msg.TableName, DB_DATATYPE_QUERY_BIT)
+	proto.Unmarshal(msg.Key, pbQueryKey)
+	bsonKey := server_common.PBToBson(pbQueryKey, 10)
+	common.LogDebug(bsonKey)
 
+	// read from db
+	dbClient := pthis.dbMgr.GetDBConnection(msg.DatabaseAppName)
+	sRes := dbClient.MongoClient.Database(dbClient.DB).Collection(msg.TableName).FindOne(context.TODO(), bsonKey)
+	if sRes.Err() != nil {
+		common.LogErr(sRes.Err())
+	}
+	bsonRes := bson.M{}
+	sRes.Decode(bsonRes)
+
+	server_common.BsonToPB(pbTbl, bsonRes, 10)
+	common.LogDebug(pbTbl)
+
+	bin, _ := proto.Marshal(pbTbl)
+	msgRet.DatabaseAppName = msg.DatabaseAppName
+	msgRet.TableName = msg.TableName
+	msgRet.Record = append(msgRet.Record, bin)
 
 	return
 }

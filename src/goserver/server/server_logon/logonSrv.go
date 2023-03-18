@@ -17,6 +17,7 @@ type LogonSrv struct {
 	outAddr string
 
 	centerSrvUUID server_common.SRV_ID
+	dbSrvUUID server_common.SRV_ID
 }
 
 func (pthis*LogonSrv)Wait() {
@@ -87,6 +88,36 @@ func (pthis*LogonSrv)GetCenterSrvUUID() (centerSrvUUID server_common.SRV_ID) {
 	return
 }
 
+func (pthis*LogonSrv)GetDBSrvUUID() {
+	pbMsg := &msgpacket.PB_MSG_INTER_QUESRV_GET_SRVTYPE{}
+	pbMsg.SrvType = int32(server_common.SRV_TYPE_database_server)
+	pbMsgRes, err := pthis.mqClient.SendMsgToSrvType(server_common.SRV_TYPE_msq_que,
+		msgpacket.PB_MSG_TYPE__PB_MSG_INTER_QUESRV_GET_SRVTYPE, pbMsg)
+
+	if nil != err {
+		common.LogErr("get center server uuid err:", err)
+		return
+	}
+
+	pbRes, ok := pbMsgRes.(*msgpacket.PB_MSG_INTER_QUESRV_GET_SRVTYPE_RES)
+	if !ok {
+		common.LogErr("get center server uuid err")
+		return
+	}
+	if nil == pbRes.ArrarySrv {
+		common.LogErr("get center server uuid err")
+		return
+	}
+	if 0 == len(pbRes.ArrarySrv) {
+		common.LogErr("get center server uuid err")
+		return
+	}
+
+	pthis.dbSrvUUID = server_common.SRV_ID(pbRes.ArrarySrv[0].SrvUuid)
+	common.LogInfo("centerSrvUUID:", pthis.dbSrvUUID)
+	return
+}
+
 
 func ConstructLogonSrv(id string)*LogonSrv {
 	logonCfg := server_common.GetLogonsrvCfg(id)
@@ -114,7 +145,8 @@ func ConstructLogonSrv(id string)*LogonSrv {
 
 	// get center server uuid
 	ls.GetCenterSrvUUID()
-	common.LogInfo("center server:", ls.centerSrvUUID)
+	ls.GetDBSrvUUID()
+	common.LogInfo("center server:", ls.centerSrvUUID, " db server:", ls.dbSrvUUID)
 
 	return ls
 }

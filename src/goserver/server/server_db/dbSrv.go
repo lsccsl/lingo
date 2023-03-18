@@ -8,7 +8,7 @@ import (
 type DBSrv struct {
 	mqClient *msgque_client.MgrQueClient
 
-	db * DBMongo
+	dbMgr * DBMongoMgr
 
 	dbDataTypeMgr *DBDataTypeMgr
 }
@@ -21,10 +21,8 @@ func (pthis*DBSrv)Wait() {
 
 func ConstructDBSrv(id string)*DBSrv {
 
-	dbCfg := server_common.GetDBSrvCfg(id)
-
 	cs := &DBSrv{
-		db:ConstructorDBMongo(dbCfg.DBUser, dbCfg.DBPwd, dbCfg.DBIp, dbCfg.DBPort),
+		dbMgr:ConstructorDBMongoMgr(),
 		dbDataTypeMgr:ConstructDBDataTypeMgr(),
 	}
 

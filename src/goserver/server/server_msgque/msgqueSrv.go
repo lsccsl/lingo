@@ -6,6 +6,7 @@ import (
 	"goserver/common"
 	"goserver/msgpacket"
 	"goserver/server/server_common"
+	"goserver/server/server_linux_common"
 	"net"
 	"strconv"
 	"time"
@@ -70,7 +71,7 @@ func (pthis*MsgQueSrv)TcpDialConnection(fd common.FD_DEF, addr net.Addr, inAttac
 	case *tcpAttachDataMsgQueCenterDial: // dial to msg que center tcp connection ok
 		{
 			if !fd.IsSame(&pthis.fdCenter) {
-				pthis.lsn.EPollListenerCloseTcp(fd, server_common.EN_TCP_CLOSE_REASON_repeated_msgque_center)
+				pthis.lsn.EPollListenerCloseTcp(fd, server_linux_common.EN_TCP_CLOSE_REASON_repeated_msgque_center)
 				return
 			}
 			// send reg msg to msq que center
@@ -424,8 +425,8 @@ func (pthis*MsgQueSrv)process_PB_MSG_INTER_QUECENTER_REGISTER_RES(pbMsg proto.Me
 	pthis.otherMgr.Range(func(key, value any) bool{
 		//close all current tcp connect to other msg que server
 		qsi := value.(otherMsgQueSrvInfo)
-		pthis.lsn.EPollListenerCloseTcp(qsi.fdDial, server_common.EN_TCP_CLOSE_REASON_reg_reconnect)
-		pthis.lsn.EPollListenerCloseTcp(qsi.fdAccept, server_common.EN_TCP_CLOSE_REASON_reg_reconnect)
+		pthis.lsn.EPollListenerCloseTcp(qsi.fdDial, server_linux_common.EN_TCP_CLOSE_REASON_reg_reconnect)
+		pthis.lsn.EPollListenerCloseTcp(qsi.fdAccept, server_linux_common.EN_TCP_CLOSE_REASON_reg_reconnect)
 		return true
 	})
 
@@ -468,8 +469,8 @@ func (pthis*MsgQueSrv)process_PB_MSG_INTER_QUECENTER_OFFLINE_NTF(pbMsg proto.Mes
 		common.LogInfo(queSrvID.String(), "where receive dial tcp close, not exist")
 		return
 	}
-	pthis.lsn.EPollListenerCloseTcp(qsi.fdDial, server_common.EN_TCP_CLOSE_REASON_msgque_center_ntf_offline)
-	pthis.lsn.EPollListenerCloseTcp(qsi.fdAccept, server_common.EN_TCP_CLOSE_REASON_recv_ntf_offline)
+	pthis.lsn.EPollListenerCloseTcp(qsi.fdDial, server_linux_common.EN_TCP_CLOSE_REASON_msgque_center_ntf_offline)
+	pthis.lsn.EPollListenerCloseTcp(qsi.fdAccept, server_linux_common.EN_TCP_CLOSE_REASON_recv_ntf_offline)
 }
 
 func (pthis*MsgQueSrv)deleteMsgQueSrvAndRedia(queSrvID server_common.SRV_ID) {
@@ -481,8 +482,8 @@ func (pthis*MsgQueSrv)deleteMsgQueSrvAndRedia(queSrvID server_common.SRV_ID) {
 
 	pthis.smgr.delOtherQueAllSrv(queSrvID)
 
-	pthis.lsn.EPollListenerCloseTcp(qsi1.fdDial, server_common.EN_TCP_CLOSE_REASON_recv_ntf_offline)
-	pthis.lsn.EPollListenerCloseTcp(qsi1.fdAccept, server_common.EN_TCP_CLOSE_REASON_recv_ntf_offline)
+	pthis.lsn.EPollListenerCloseTcp(qsi1.fdDial, server_linux_common.EN_TCP_CLOSE_REASON_recv_ntf_offline)
+	pthis.lsn.EPollListenerCloseTcp(qsi1.fdAccept, server_linux_common.EN_TCP_CLOSE_REASON_recv_ntf_offline)
 
 	qsi1.fdDial = common.FD_DEF_NIL
 	qsi1.fdAccept = common.FD_DEF_NIL

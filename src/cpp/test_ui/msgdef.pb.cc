@@ -25,7 +25,7 @@ static constexpr ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema* schemas = n
 static constexpr ::PROTOBUF_NAMESPACE_ID::Message* const* file_default_instances = nullptr;
 
 const char descriptor_table_protodef_msgdef_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\014msgdef.proto\022\tmsgpacket*\327\010\n\013PB_MSG_TYP"
+  "\n\014msgdef.proto\022\tmsgpacket*\321\t\n\013PB_MSG_TYP"
   "E\022\026\n\022_PB_MSG_INTER_NULL\020\000\022$\n _PB_MSG_INT"
   "ER_QUECENTER_REGISTER\020\001\022(\n$_PB_MSG_INTER"
   "_QUECENTER_REGISTER_RES\020\002\022\'\n#_PB_MSG_INT"
@@ -52,18 +52,21 @@ const char descriptor_table_protodef_msgdef_2eproto[] PROTOBUF_SECTION_VARIABLE(
   "ETINFO\020\351\007\022*\n%_PB_MSG_CENTERSRV_GAMESRV_G"
   "ETINFO_RES\020\352\007\022%\n _PB_MSG_LOGONSRV_CENTER"
   "SRV_LOGON\020\353\007\022)\n$_PB_MSG_LOGONSRV_CENTERS"
-  "RV_LOGON_RES\020\354\007\022\022\n\r_PB_MSG_LOGON\020\321\017\022\026\n\021_"
-  "PB_MSG_LOGON_RES\020\322\017*\315\001\n\020PB_RESPONSE_CODE"
-  "\022\031\n\025PB_RESPONSE_CODE_Fail\020\000\022\027\n\023PB_RESPON"
-  "SE_CODE_OK\020\001\022#\n\037PB_RESPONSE_CODE_Rpc_not"
-  "_accept\020\002\022\035\n\031PB_RESPONSE_CODE_redirect\020\003"
-  "\022\037\n\033PB_RESPONSE_CODE_no_que_srv\020\004\022 \n\034PB_"
-  "RESPONSE_CODE_no_srv_uuid\020\005B\016Z\014./;msgpac"
-  "ketb\006proto3"
+  "RV_LOGON_RES\020\354\007\022\032\n\025_PB_MSG_DBSERVER_READ"
+  "\020\355\007\022\036\n\031_PB_MSG_DBSERVER_READ_RES\020\356\007\022\033\n\026_"
+  "PB_MSG_DBSERVER_WRITE\020\357\007\022\037\n\032_PB_MSG_DBSE"
+  "RVER_WRITE_RES\020\360\007\022\022\n\r_PB_MSG_LOGON\020\321\017\022\026\n"
+  "\021_PB_MSG_LOGON_RES\020\322\017*\315\001\n\020PB_RESPONSE_CO"
+  "DE\022\031\n\025PB_RESPONSE_CODE_Fail\020\000\022\027\n\023PB_RESP"
+  "ONSE_CODE_OK\020\001\022#\n\037PB_RESPONSE_CODE_Rpc_n"
+  "ot_accept\020\002\022\035\n\031PB_RESPONSE_CODE_redirect"
+  "\020\003\022\037\n\033PB_RESPONSE_CODE_no_que_srv\020\004\022 \n\034P"
+  "B_RESPONSE_CODE_no_srv_uuid\020\005B\016Z\014./;msgp"
+  "acketb\006proto3"
   ;
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_msgdef_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_msgdef_2eproto = {
-  false, false, 1371, descriptor_table_protodef_msgdef_2eproto, "msgdef.proto", 
+  false, false, 1493, descriptor_table_protodef_msgdef_2eproto, "msgdef.proto", 
   &descriptor_table_msgdef_2eproto_once, nullptr, 0, 0,
   schemas, file_default_instances, TableStruct_msgdef_2eproto::offsets,
   nullptr, file_level_enum_descriptors_msgdef_2eproto, file_level_service_descriptors_msgdef_2eproto,
@@ -109,6 +112,10 @@ bool PB_MSG_TYPE_IsValid(int value) {
     case 1002:
     case 1003:
     case 1004:
+    case 1005:
+    case 1006:
+    case 1007:
+    case 1008:
     case 2001:
     case 2002:
       return true;

@@ -24,49 +24,92 @@ namespace Msgpacket {
     static MsgdefReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "Cgxtc2dkZWYucHJvdG8SCW1zZ3BhY2tldCrBBAoRUEJfTVNHX0lOVEVSX1RZ",
-            "UEUSFgoSX1BCX01TR19JTlRFUl9OVUxMEAASIQodX1BCX01TR19JTlRFUl9R",
-            "VUVTUlZfUkVHSVNURVIQARIlCiFfUEJfTVNHX0lOVEVSX1FVRVNSVl9SRUdJ",
-            "U1RFUl9SRVMQAhIkCiBfUEJfTVNHX0lOVEVSX1FVRVNSVl9PRkZMSU5FX05U",
-            "RhADEiMKH19QQl9NU0dfSU5URVJfUVVFU1JWX09OTElORV9OVEYQBBIgChxf",
-            "UEJfTVNHX0lOVEVSX1FVRVNSVl9DT05ORUNUEAUSJAogX1BCX01TR19JTlRF",
-            "Ul9RVUVTUlZfQ09OTkVDVF9SRVMQBhIlCiFfUEJfTVNHX0lOVEVSX1FVRUNF",
-            "TlRFUl9IRUFSVEJFQVQQBxIpCiVfUEJfTVNHX0lOVEVSX1FVRUNFTlRFUl9I",
-            "RUFSVEJFQVRfUkVTEAgSIgoeX1BCX01TR19JTlRFUl9RVUVTUlZfSEVBUlRC",
-            "RUFUEAkSJgoiX1BCX01TR19JTlRFUl9RVUVTUlZfSEVBUlRCRUFUX1JFUxAK",
-            "EhkKFV9QQl9NU0dfSU5URVJfU1JWX1JFRxALEh0KGV9QQl9NU0dfSU5URVJf",
-            "U1JWX1JFR19SRVMQDBIfChtfUEJfTVNHX0lOVEVSX1NSVl9IRUFSVEJFQVQQ",
-            "DRIjCh9fUEJfTVNHX0lOVEVSX1NSVl9IRUFSVEJFQVRfUkVTEA4SGQoVX1BC",
-            "X01TR19JTlRFUl9TUlZfTVNHEA8qigEKEFBCX1JFU1BPTlNFX0NPREUSGQoV",
-            "UEJfUkVTUE9OU0VfQ09ERV9GYWlsEAASFwoTUEJfUkVTUE9OU0VfQ09ERV9P",
-            "SxABEiMKH1BCX1JFU1BPTlNFX0NPREVfUnBjX25vdF9hY2NlcHQQAhIdChlQ",
-            "Ql9SRVNQT05TRV9DT0RFX3JlZGlyZWN0EANCDloMLi87bXNncGFja2V0YgZw",
-            "cm90bzM="));
+            "Cgxtc2dkZWYucHJvdG8SCW1zZ3BhY2tldCrRCQoLUEJfTVNHX1RZUEUSFgoS",
+            "X1BCX01TR19JTlRFUl9OVUxMEAASJAogX1BCX01TR19JTlRFUl9RVUVDRU5U",
+            "RVJfUkVHSVNURVIQARIoCiRfUEJfTVNHX0lOVEVSX1FVRUNFTlRFUl9SRUdJ",
+            "U1RFUl9SRVMQAhInCiNfUEJfTVNHX0lOVEVSX1FVRUNFTlRFUl9PRkZMSU5F",
+            "X05URhADEiYKIl9QQl9NU0dfSU5URVJfUVVFQ0VOVEVSX09OTElORV9OVEYQ",
+            "BBIgChxfUEJfTVNHX0lOVEVSX1FVRVNSVl9DT05ORUNUEAUSJAogX1BCX01T",
+            "R19JTlRFUl9RVUVTUlZfQ09OTkVDVF9SRVMQBhIlCiFfUEJfTVNHX0lOVEVS",
+            "X1FVRUNFTlRFUl9IRUFSVEJFQVQQBxIpCiVfUEJfTVNHX0lOVEVSX1FVRUNF",
+            "TlRFUl9IRUFSVEJFQVRfUkVTEAgSIgoeX1BCX01TR19JTlRFUl9RVUVTUlZf",
+            "SEVBUlRCRUFUEAkSJgoiX1BCX01TR19JTlRFUl9RVUVTUlZfSEVBUlRCRUFU",
+            "X1JFUxAKEioKJl9QQl9NU0dfSU5URVJfQ0xJU1JWX1JFR19NU0dRVUVfQ0VO",
+            "VEVSEAsSLgoqX1BCX01TR19JTlRFUl9DTElTUlZfUkVHX01TR1FVRV9DRU5U",
+            "RVJfUkVTEAwSIgoeX1BCX01TR19JTlRFUl9DTElTUlZfSEVBUlRCRUFUEA0S",
+            "JgoiX1BCX01TR19JTlRFUl9DTElTUlZfSEVBUlRCRUFUX1JFUxAOEiMKH19Q",
+            "Ql9NU0dfSU5URVJfQ0xJU1JWX1JFR19UT19RVUUQDxInCiNfUEJfTVNHX0lO",
+            "VEVSX0NMSVNSVl9SRUdfVE9fUVVFX1JFUxAQEikKJV9QQl9NU0dfSU5URVJf",
+            "UVVFU1JWX1JFUE9SVF9CUk9BRENBU1QQERIcChhfUEJfTVNHX0lOVEVSX1FV",
+            "RVNSVl9OVEYQEhIVChFfUEJfTVNHX0lOVEVSX01TRxAeEhkKFV9QQl9NU0df",
+            "SU5URVJfTVNHX1JFUxAfEiQKIF9QQl9NU0dfSU5URVJfUVVFU1JWX0dFVF9T",
+            "UlZUWVBFECASKAokX1BCX01TR19JTlRFUl9RVUVTUlZfR0VUX1NSVlRZUEVf",
+            "UkVTECESFgoRX1BCX01TR19JTlRFUl9NQVgQ6AcSJgohX1BCX01TR19DRU5U",
+            "RVJTUlZfR0FNRVNSVl9HRVRJTkZPEOkHEioKJV9QQl9NU0dfQ0VOVEVSU1JW",
+            "X0dBTUVTUlZfR0VUSU5GT19SRVMQ6gcSJQogX1BCX01TR19MT0dPTlNSVl9D",
+            "RU5URVJTUlZfTE9HT04Q6wcSKQokX1BCX01TR19MT0dPTlNSVl9DRU5URVJT",
+            "UlZfTE9HT05fUkVTEOwHEhoKFV9QQl9NU0dfREJTRVJWRVJfUkVBRBDtBxIe",
+            "ChlfUEJfTVNHX0RCU0VSVkVSX1JFQURfUkVTEO4HEhsKFl9QQl9NU0dfREJT",
+            "RVJWRVJfV1JJVEUQ7wcSHwoaX1BCX01TR19EQlNFUlZFUl9XUklURV9SRVMQ",
+            "8AcSEgoNX1BCX01TR19MT0dPThDRDxIWChFfUEJfTVNHX0xPR09OX1JFUxDS",
+            "DyrNAQoQUEJfUkVTUE9OU0VfQ09ERRIZChVQQl9SRVNQT05TRV9DT0RFX0Zh",
+            "aWwQABIXChNQQl9SRVNQT05TRV9DT0RFX09LEAESIwofUEJfUkVTUE9OU0Vf",
+            "Q09ERV9ScGNfbm90X2FjY2VwdBACEh0KGVBCX1JFU1BPTlNFX0NPREVfcmVk",
+            "aXJlY3QQAxIfChtQQl9SRVNQT05TRV9DT0RFX25vX3F1ZV9zcnYQBBIgChxQ",
+            "Ql9SRVNQT05TRV9DT0RFX25vX3Nydl91dWlkEAVCDloMLi87bXNncGFja2V0",
+            "YgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
-          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Msgpacket.PB_MSG_INTER_TYPE), typeof(global::Msgpacket.PB_RESPONSE_CODE), }, null, null));
+          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Msgpacket.PB_MSG_TYPE), typeof(global::Msgpacket.PB_RESPONSE_CODE), }, null, null));
     }
     #endregion
 
   }
   #region Enums
-  public enum PB_MSG_INTER_TYPE {
+  public enum PB_MSG_TYPE {
+    /// <summary>
+    /// msg que inter
+    /// </summary>
     [pbr::OriginalName("_PB_MSG_INTER_NULL")] PbMsgInterNull = 0,
-    [pbr::OriginalName("_PB_MSG_INTER_QUESRV_REGISTER")] PbMsgInterQuesrvRegister = 1,
-    [pbr::OriginalName("_PB_MSG_INTER_QUESRV_REGISTER_RES")] PbMsgInterQuesrvRegisterRes = 2,
-    [pbr::OriginalName("_PB_MSG_INTER_QUESRV_OFFLINE_NTF")] PbMsgInterQuesrvOfflineNtf = 3,
-    [pbr::OriginalName("_PB_MSG_INTER_QUESRV_ONLINE_NTF")] PbMsgInterQuesrvOnlineNtf = 4,
+    [pbr::OriginalName("_PB_MSG_INTER_QUECENTER_REGISTER")] PbMsgInterQuecenterRegister = 1,
+    [pbr::OriginalName("_PB_MSG_INTER_QUECENTER_REGISTER_RES")] PbMsgInterQuecenterRegisterRes = 2,
+    [pbr::OriginalName("_PB_MSG_INTER_QUECENTER_OFFLINE_NTF")] PbMsgInterQuecenterOfflineNtf = 3,
+    [pbr::OriginalName("_PB_MSG_INTER_QUECENTER_ONLINE_NTF")] PbMsgInterQuecenterOnlineNtf = 4,
     [pbr::OriginalName("_PB_MSG_INTER_QUESRV_CONNECT")] PbMsgInterQuesrvConnect = 5,
     [pbr::OriginalName("_PB_MSG_INTER_QUESRV_CONNECT_RES")] PbMsgInterQuesrvConnectRes = 6,
     [pbr::OriginalName("_PB_MSG_INTER_QUECENTER_HEARTBEAT")] PbMsgInterQuecenterHeartbeat = 7,
     [pbr::OriginalName("_PB_MSG_INTER_QUECENTER_HEARTBEAT_RES")] PbMsgInterQuecenterHeartbeatRes = 8,
     [pbr::OriginalName("_PB_MSG_INTER_QUESRV_HEARTBEAT")] PbMsgInterQuesrvHeartbeat = 9,
     [pbr::OriginalName("_PB_MSG_INTER_QUESRV_HEARTBEAT_RES")] PbMsgInterQuesrvHeartbeatRes = 10,
-    [pbr::OriginalName("_PB_MSG_INTER_SRV_REG")] PbMsgInterSrvReg = 11,
-    [pbr::OriginalName("_PB_MSG_INTER_SRV_REG_RES")] PbMsgInterSrvRegRes = 12,
-    [pbr::OriginalName("_PB_MSG_INTER_SRV_HEARTBEAT")] PbMsgInterSrvHeartbeat = 13,
-    [pbr::OriginalName("_PB_MSG_INTER_SRV_HEARTBEAT_RES")] PbMsgInterSrvHeartbeatRes = 14,
-    [pbr::OriginalName("_PB_MSG_INTER_SRV_MSG")] PbMsgInterSrvMsg = 15,
+    [pbr::OriginalName("_PB_MSG_INTER_CLISRV_REG_MSGQUE_CENTER")] PbMsgInterClisrvRegMsgqueCenter = 11,
+    [pbr::OriginalName("_PB_MSG_INTER_CLISRV_REG_MSGQUE_CENTER_RES")] PbMsgInterClisrvRegMsgqueCenterRes = 12,
+    [pbr::OriginalName("_PB_MSG_INTER_CLISRV_HEARTBEAT")] PbMsgInterClisrvHeartbeat = 13,
+    [pbr::OriginalName("_PB_MSG_INTER_CLISRV_HEARTBEAT_RES")] PbMsgInterClisrvHeartbeatRes = 14,
+    [pbr::OriginalName("_PB_MSG_INTER_CLISRV_REG_TO_QUE")] PbMsgInterClisrvRegToQue = 15,
+    [pbr::OriginalName("_PB_MSG_INTER_CLISRV_REG_TO_QUE_RES")] PbMsgInterClisrvRegToQueRes = 16,
+    [pbr::OriginalName("_PB_MSG_INTER_QUESRV_REPORT_BROADCAST")] PbMsgInterQuesrvReportBroadcast = 17,
+    [pbr::OriginalName("_PB_MSG_INTER_QUESRV_NTF")] PbMsgInterQuesrvNtf = 18,
+    [pbr::OriginalName("_PB_MSG_INTER_MSG")] PbMsgInterMsg = 30,
+    [pbr::OriginalName("_PB_MSG_INTER_MSG_RES")] PbMsgInterMsgRes = 31,
+    [pbr::OriginalName("_PB_MSG_INTER_QUESRV_GET_SRVTYPE")] PbMsgInterQuesrvGetSrvtype = 32,
+    [pbr::OriginalName("_PB_MSG_INTER_QUESRV_GET_SRVTYPE_RES")] PbMsgInterQuesrvGetSrvtypeRes = 33,
+    [pbr::OriginalName("_PB_MSG_INTER_MAX")] PbMsgInterMax = 1000,
+    /// <summary>
+    /// server msg
+    /// </summary>
+    [pbr::OriginalName("_PB_MSG_CENTERSRV_GAMESRV_GETINFO")] PbMsgCentersrvGamesrvGetinfo = 1001,
+    [pbr::OriginalName("_PB_MSG_CENTERSRV_GAMESRV_GETINFO_RES")] PbMsgCentersrvGamesrvGetinfoRes = 1002,
+    [pbr::OriginalName("_PB_MSG_LOGONSRV_CENTERSRV_LOGON")] PbMsgLogonsrvCentersrvLogon = 1003,
+    [pbr::OriginalName("_PB_MSG_LOGONSRV_CENTERSRV_LOGON_RES")] PbMsgLogonsrvCentersrvLogonRes = 1004,
+    [pbr::OriginalName("_PB_MSG_DBSERVER_READ")] PbMsgDbserverRead = 1005,
+    [pbr::OriginalName("_PB_MSG_DBSERVER_READ_RES")] PbMsgDbserverReadRes = 1006,
+    [pbr::OriginalName("_PB_MSG_DBSERVER_WRITE")] PbMsgDbserverWrite = 1007,
+    [pbr::OriginalName("_PB_MSG_DBSERVER_WRITE_RES")] PbMsgDbserverWriteRes = 1008,
+    /// <summary>
+    /// client msg
+    /// </summary>
+    [pbr::OriginalName("_PB_MSG_LOGON")] PbMsgLogon = 2001,
+    [pbr::OriginalName("_PB_MSG_LOGON_RES")] PbMsgLogonRes = 2002,
   }
 
   public enum PB_RESPONSE_CODE {
@@ -74,6 +117,8 @@ namespace Msgpacket {
     [pbr::OriginalName("PB_RESPONSE_CODE_OK")] Ok = 1,
     [pbr::OriginalName("PB_RESPONSE_CODE_Rpc_not_accept")] RpcNotAccept = 2,
     [pbr::OriginalName("PB_RESPONSE_CODE_redirect")] Redirect = 3,
+    [pbr::OriginalName("PB_RESPONSE_CODE_no_que_srv")] NoQueSrv = 4,
+    [pbr::OriginalName("PB_RESPONSE_CODE_no_srv_uuid")] NoSrvUuid = 5,
   }
 
   #endregion
