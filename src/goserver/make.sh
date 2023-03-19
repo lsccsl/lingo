@@ -12,9 +12,9 @@ go build -o ../../output/test_mongo           goserver/test/test_mongo
 
 go build -o ../../output/msgque_center goserver/server/server_msgque_center
 go build -o ../../output/msgque        goserver/server/server_msgque
-go build -o ../../output/gamesrv       goserver/server/server_game
-go build -o ../../output/centersrv     goserver/server/server_center
-go build -o ../../output/logonsrv      goserver/server/server_logon
-go build -o ../../output/dbsrv      goserver/server/server_db
+go build -o ../../output/srv_game      goserver/server/server_game
+go build -o ../../output/srv_center    goserver/server/server_center
+go build -o ../../output/srv_logon     goserver/server/server_logon
+go build -o ../../output/srv_db        goserver/server/server_db
 
 cp ./msgpacket/*.pb.go ../../cfg/

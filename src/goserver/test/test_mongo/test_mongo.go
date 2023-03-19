@@ -138,7 +138,7 @@ func test_pb_ref(client * mongo.Client) {
 		sres.Decode(tmpMap)
 		fmt.Println("find one, decode as map:", tmpMap)
 
-		msgParse := server_common.BsonToPBByName("msgpacket.DBUserMain", tmpMap, 10)
+		msgParse := server_common.BsonToPBByName("msgpacket.DBUserMainTest", tmpMap, 10)
 		msg = msgParse.(proto.Message)
 		fmt.Println("proto msg:", msg)
 	}
@@ -153,7 +153,7 @@ func test_pb_ref(client * mongo.Client) {
 			dbMsg.TestRepeated[0].TestMap[1].MapStr = "update map str 11"
 			idHexMapNew, _ = primitive.ObjectIDFromHex(dbMsg.XId)
 		}
-		bsonWrite := server_common.PBToBson(msg, 10)
+		bsonWrite := server_common.PBToBsonM(msg, 10)
 		delete(bsonWrite, "_id")
 		fmt.Println(bsonWrite)
 		collection.UpdateOne(context.TODO(), bson.M{"_id": idHexMapNew}, bson.D{{"$set",bsonWrite}})
@@ -164,7 +164,7 @@ func test_pb_ref(client * mongo.Client) {
 
 		msgUser.Str1 = "str111"
 		msgUser.Int1 = 1
-		bsonWrite := server_common.PBToBson(msgUser, 10)
+		bsonWrite := server_common.PBToBsonD(msgUser, 10)
 		collection.UpdateOne(context.TODO(), bson.M{"_id": idHexMapNew}, bson.D{{"$set",bsonWrite}})
 	}
 }
@@ -227,7 +227,7 @@ func test_protocal(client * mongo.Client) {
 
 	{
 		msg1 := &msgpacket.DBUserMain{}
-		sres := collection.FindOne(context.TODO(), bson.M{"_id": idHexMap})
+		sres := collection.FindOne(context.TODO(), bson.D{{"_id", idHexMap}})
 		tmpMap := bson.M{}
 		sres.Decode(tmpMap)
 		fmt.Println("find one, decode as map:", tmpMap)

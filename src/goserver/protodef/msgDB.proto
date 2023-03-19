@@ -69,3 +69,8 @@ message DBRepeatedTest
 
     map<int64, DBMapTest> test_map = 3;
 }
+
+message DBTestKey
+{}
+message DBTest
+{}

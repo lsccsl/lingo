@@ -30,6 +30,7 @@ func (pthis*LogonSrv)Go_CallBackMsg(pbMsg proto.Message, pbMsgType int32,
 func (pthis*LogonSrv)Go_CallBackReport(pbLocal *msgpacket.PB_SRV_INFO_ALL) {
 	common.LogDebug(pbLocal)
 	pthis.GetCenterSrvUUID()
+	pthis.GetDBSrvUUID()
 }
 
 
@@ -42,17 +43,30 @@ func (pthis*LogonSrv)process_PB_MSG_LOGON(fd common.FD_DEF, pbMsg * msgpacket.PB
 
 	// todo call auth client here
 
+	dbKey := &msgpacket.DBUserMainKey{
+		UserId:pbMsg.ClientId,
+	}
+
+	dbRecord := &msgpacket.DBUserMain{
+		UserId:pbMsg.ClientId,
+	}
+	//
+	msgWrite := &msgpacket.PB_MSG_DBSERVER_WRITE {
+		DatabaseAppName:"user",
+		TableName:"DBUserMain",
+	}
+	msgWrite.Key, _ = proto.Marshal(dbKey)
+	msgWrite.Record, _= proto.Marshal(dbRecord)
+	pthis.mqClient.SendMsgToSrvUUID(pthis.dbSrvUUID, msgpacket.PB_MSG_TYPE__PB_MSG_DBSERVER_WRITE, msgWrite)
+
 	// 先查询是否存在
 	msgRead := &msgpacket.PB_MSG_DBSERVER_READ{
 		DatabaseAppName:"user",
 		TableName:"DBUserMain",
 	}
-	dbKey := &msgpacket.DBUserMain{
-		UserId:pbMsg.ClientId,
-	}
-	msgRead.Key, _ = proto.Marshal(dbKey)
 
-	// pthis.mqClient.SendMsgToSrvUUID()
+	msgRead.Key, _ = proto.Marshal(dbKey)
+	pthis.mqClient.SendMsgToSrvUUID(pthis.dbSrvUUID, msgpacket.PB_MSG_TYPE__PB_MSG_DBSERVER_READ, msgRead)
 	// 不存在添加
 
 	pbReq := &msgpacket.PB_MSG_LOGONSRV_CENTERSRV_LOGON{ClientId: pbMsg.ClientId}

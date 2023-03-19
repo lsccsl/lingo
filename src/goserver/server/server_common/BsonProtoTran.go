@@ -112,7 +112,7 @@ func PBGenFieldValue(kind protoreflect.Kind, des protoreflect.FieldDescriptor, v
 	return
 }
 
-func BsonToPB(msgIns proto.Message, MapKV map[string]interface{}, recursiveCount int)interface{} {
+func BsonMToPB(msgIns proto.Message, MapKV map[string]interface{}, recursiveCount int)interface{} {
 	msgInsRef:= proto.MessageReflect(msgIns)
 	if nil == msgInsRef{
 		common.LogErr("no msg ref")
@@ -198,10 +198,10 @@ func BsonToPBByName(MsgName string, MapKV map[string]interface{}, recursiveCount
 		return nil
 	}
 
-	return BsonToPB(msgIns, MapKV, recursiveCount)
+	return BsonMToPB(msgIns, MapKV, recursiveCount)
 }
 
-func PBGetValue(field protoreflect.FieldDescriptor, val protoreflect.Value, recursiveCount int) interface{} {
+func PBGetValue(field protoreflect.FieldDescriptor, val protoreflect.Value, bsonCon BsonContainer, recursiveCount int) interface{} {
 	switch field.Kind() {
 	case protoreflect.BoolKind:
 		return val.Bool()
@@ -229,7 +229,9 @@ func PBGetValue(field protoreflect.FieldDescriptor, val protoreflect.Value, recu
 			if !ok {
 				common.LogErr("val:", val, " field:", field)
 			} else {
-				return PBToBson(pbMsg, recursiveCount - 1)
+				subContainer := bsonCon.GetSubContainer()
+				PBToBson(pbMsg, subContainer, recursiveCount - 1)
+				return subContainer.GetBsonContainer()
 			}
 		}
 
@@ -246,30 +248,92 @@ func PBGetValue(field protoreflect.FieldDescriptor, val protoreflect.Value, recu
 	case protoreflect.Fixed64Kind:
 		return val.Int()
 	default:
-		common.LogErr("unknow protocal type:", field.Kind())
+		common.LogErr("unknown protoc type:", field.Kind())
 	}
 
 	return nil
 }
 
+type BsonContainer interface {
+	PutKV(key string, val interface{})
+	GetBsonContainer()interface{}
+	GetSubContainer()BsonContainer
+}
 
-func PBToBson(msg proto.Message, recursiveCount int) bson.M {
+
+// BsonContainerM bson.M container
+type BsonContainerM struct {
+	bsonMap bson.M
+}
+
+func (pthis*BsonContainerM)PutKV(key string, val interface{}) {
+	pthis.bsonMap[key] = val
+}
+
+func (pthis*BsonContainerM)GetBsonContainer()interface{} {
+	return pthis.bsonMap
+}
+
+func (pthis*BsonContainerM)GetSubContainer()BsonContainer {
+	return &BsonContainerM{
+		bsonMap: bson.M{},
+	}
+}
+
+func PBToBsonM(msg proto.Message, recursiveCount int) bson.M {
+	bsonM := &BsonContainerM{
+		bsonMap: bson.M{},
+	}
+
+	PBToBson(msg, bsonM, recursiveCount)
+
+	return bsonM.bsonMap
+}
+
+
+//
+type BsonContainerD struct {
+	bsonD bson.D
+}
+func (pthis*BsonContainerD)PutKV(key string, val interface{}) {
+	pthis.bsonD = append(pthis.bsonD, bson.E{key, val})
+}
+
+func (pthis*BsonContainerD)GetBsonContainer()interface{} {
+	return pthis.bsonD
+}
+
+func (pthis*BsonContainerD)GetSubContainer()BsonContainer {
+	return &BsonContainerD{
+		bsonD: bson.D{},
+	}
+}
+func PBToBsonD(msg proto.Message, recursiveCount int) bson.D {
+	bsonM := &BsonContainerD{
+		bsonD: bson.D{},
+	}
+
+	PBToBson(msg, bsonM, recursiveCount)
+
+	return bsonM.bsonD
+}
+
+
+func PBToBson(msg proto.Message, bsonCon BsonContainer, recursiveCount int) {
 	if recursiveCount < 0 {
 		common.LogErr("too many recursive")
-		return nil
+		return
 	}
 	msgInsRef := proto.MessageReflect(msg)
 
 	MsgDesAll := msgInsRef.Descriptor()
 	if nil == MsgDesAll{
-		return nil
+		return
 	}
 	MsgFields := MsgDesAll.Fields()
 	if nil == MsgFields{
-		return nil
+		return
 	}
-
-	bsonMap := bson.M{}
 
 	for i := 0; i < MsgFields.Len(); i ++ {
 		field := MsgFields.Get(i)
@@ -288,11 +352,11 @@ func PBToBson(msg proto.Message, recursiveCount int) bson.M {
 				bsonSubMap := bson.M{}
 				valMap := val.Map()
 				valMap.Range(func(key protoreflect.MapKey, value protoreflect.Value) bool {
-					bsonVal := PBGetValue(field.MapValue(), value, recursiveCount)
+					bsonVal := PBGetValue(field.MapValue(), value, bsonCon, recursiveCount)
 					bsonSubMap[key.Value().String()] = bsonVal
 					return true
 				})
-				bsonMap[fieldName] = bsonSubMap
+				bsonCon.PutKV(fieldName, bsonSubMap)
 			}
 			if field.IsList() {
 				// repeated
@@ -300,15 +364,15 @@ func PBToBson(msg proto.Message, recursiveCount int) bson.M {
 				valList := val.List()
 				for i := 0; i < valList.Len(); i ++ {
 					value := valList.Get(i)
-					bsonArray = append(bsonArray, PBGetValue(field, value, recursiveCount))
+					bsonArray = append(bsonArray, PBGetValue(field, value, bsonCon, recursiveCount))
 				}
-				bsonMap[fieldName] = bsonArray
+				bsonCon.PutKV(fieldName, bsonArray)
 			}
 			continue
 		}
 
-		bsonMap[fieldName] = PBGetValue(field, val, recursiveCount)
+		bsonCon.PutKV(fieldName, PBGetValue(field, val, bsonCon, recursiveCount))
 	}
 
-	return bsonMap
+	return
 }

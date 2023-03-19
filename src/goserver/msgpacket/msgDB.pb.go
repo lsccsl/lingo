@@ -514,6 +514,82 @@ func (x *DBRepeatedTest) GetTestMap() map[int64]*DBMapTest {
 	return nil
 }
 
+type DBTestKey struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *DBTestKey) Reset() {
+	*x = DBTestKey{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_msgDB_proto_msgTypes[7]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *DBTestKey) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DBTestKey) ProtoMessage() {}
+
+func (x *DBTestKey) ProtoReflect() protoreflect.Message {
+	mi := &file_msgDB_proto_msgTypes[7]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DBTestKey.ProtoReflect.Descriptor instead.
+func (*DBTestKey) Descriptor() ([]byte, []int) {
+	return file_msgDB_proto_rawDescGZIP(), []int{7}
+}
+
+type DBTest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *DBTest) Reset() {
+	*x = DBTest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_msgDB_proto_msgTypes[8]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *DBTest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DBTest) ProtoMessage() {}
+
+func (x *DBTest) ProtoReflect() protoreflect.Message {
+	mi := &file_msgDB_proto_msgTypes[8]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DBTest.ProtoReflect.Descriptor instead.
+func (*DBTest) Descriptor() ([]byte, []int) {
+	return file_msgDB_proto_rawDescGZIP(), []int{8}
+}
+
 var File_msgDB_proto protoreflect.FileDescriptor
 
 var file_msgDB_proto_rawDesc = []byte{
@@ -570,13 +646,14 @@ var file_msgDB_proto_rawDesc = []byte{
 	0x65, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12, 0x2a, 0x0a,
 	0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x14, 0x2e, 0x6d,
 	0x73, 0x67, 0x70, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x2e, 0x44, 0x42, 0x4d, 0x61, 0x70, 0x54, 0x65,
-	0x73, 0x74, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x3a, 0x02, 0x38, 0x01, 0x2a, 0x41, 0x0a,
-	0x07, 0x45, 0x4e, 0x5f, 0x54, 0x45, 0x53, 0x54, 0x12, 0x0c, 0x0a, 0x08, 0x45, 0x4e, 0x5f, 0x54,
-	0x45, 0x53, 0x54, 0x30, 0x10, 0x00, 0x12, 0x0c, 0x0a, 0x08, 0x45, 0x4e, 0x5f, 0x54, 0x45, 0x53,
-	0x54, 0x31, 0x10, 0x01, 0x12, 0x0c, 0x0a, 0x08, 0x45, 0x4e, 0x5f, 0x54, 0x45, 0x53, 0x54, 0x32,
-	0x10, 0x02, 0x12, 0x0c, 0x0a, 0x08, 0x45, 0x4e, 0x5f, 0x54, 0x45, 0x53, 0x54, 0x33, 0x10, 0x03,
-	0x42, 0x0e, 0x5a, 0x0c, 0x2e, 0x2f, 0x3b, 0x6d, 0x73, 0x67, 0x70, 0x61, 0x63, 0x6b, 0x65, 0x74,
-	0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x73, 0x74, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x3a, 0x02, 0x38, 0x01, 0x22, 0x0b, 0x0a,
+	0x09, 0x44, 0x42, 0x54, 0x65, 0x73, 0x74, 0x4b, 0x65, 0x79, 0x22, 0x08, 0x0a, 0x06, 0x44, 0x42,
+	0x54, 0x65, 0x73, 0x74, 0x2a, 0x41, 0x0a, 0x07, 0x45, 0x4e, 0x5f, 0x54, 0x45, 0x53, 0x54, 0x12,
+	0x0c, 0x0a, 0x08, 0x45, 0x4e, 0x5f, 0x54, 0x45, 0x53, 0x54, 0x30, 0x10, 0x00, 0x12, 0x0c, 0x0a,
+	0x08, 0x45, 0x4e, 0x5f, 0x54, 0x45, 0x53, 0x54, 0x31, 0x10, 0x01, 0x12, 0x0c, 0x0a, 0x08, 0x45,
+	0x4e, 0x5f, 0x54, 0x45, 0x53, 0x54, 0x32, 0x10, 0x02, 0x12, 0x0c, 0x0a, 0x08, 0x45, 0x4e, 0x5f,
+	0x54, 0x45, 0x53, 0x54, 0x33, 0x10, 0x03, 0x42, 0x0e, 0x5a, 0x0c, 0x2e, 0x2f, 0x3b, 0x6d, 0x73,
+	0x67, 0x70, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -592,7 +669,7 @@ func file_msgDB_proto_rawDescGZIP() []byte {
 }
 
 var file_msgDB_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_msgDB_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_msgDB_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_msgDB_proto_goTypes = []interface{}{
 	(EN_TEST)(0),            // 0: msgpacket.EN_TEST
 	(*DBUserMainKey)(nil),   // 1: msgpacket.DBUserMainKey
@@ -602,19 +679,21 @@ var file_msgDB_proto_goTypes = []interface{}{
 	(*DBUserMainTest)(nil),  // 5: msgpacket.DBUserMainTest
 	(*DBMapTest)(nil),       // 6: msgpacket.DBMapTest
 	(*DBRepeatedTest)(nil),  // 7: msgpacket.DBRepeatedTest
-	nil,                     // 8: msgpacket.DBRepeatedTest.TestMapEntry
+	(*DBTestKey)(nil),       // 8: msgpacket.DBTestKey
+	(*DBTest)(nil),          // 9: msgpacket.DBTest
+	nil,                     // 10: msgpacket.DBRepeatedTest.TestMapEntry
 }
 var file_msgDB_proto_depIdxs = []int32{
-	4, // 0: msgpacket.DBUserMainTest.detail:type_name -> msgpacket.DBUserDetail
-	7, // 1: msgpacket.DBUserMainTest.test_repeated:type_name -> msgpacket.DBRepeatedTest
-	0, // 2: msgpacket.DBUserMainTest.en_test:type_name -> msgpacket.EN_TEST
-	8, // 3: msgpacket.DBRepeatedTest.test_map:type_name -> msgpacket.DBRepeatedTest.TestMapEntry
-	6, // 4: msgpacket.DBRepeatedTest.TestMapEntry.value:type_name -> msgpacket.DBMapTest
-	5, // [5:5] is the sub-list for method output_type
-	5, // [5:5] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	4,  // 0: msgpacket.DBUserMainTest.detail:type_name -> msgpacket.DBUserDetail
+	7,  // 1: msgpacket.DBUserMainTest.test_repeated:type_name -> msgpacket.DBRepeatedTest
+	0,  // 2: msgpacket.DBUserMainTest.en_test:type_name -> msgpacket.EN_TEST
+	10, // 3: msgpacket.DBRepeatedTest.test_map:type_name -> msgpacket.DBRepeatedTest.TestMapEntry
+	6,  // 4: msgpacket.DBRepeatedTest.TestMapEntry.value:type_name -> msgpacket.DBMapTest
+	5,  // [5:5] is the sub-list for method output_type
+	5,  // [5:5] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_msgDB_proto_init() }
@@ -707,6 +786,30 @@ func file_msgDB_proto_init() {
 				return nil
 			}
 		}
+		file_msgDB_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*DBTestKey); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_msgDB_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*DBTest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -714,7 +817,7 @@ func file_msgDB_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_msgDB_proto_rawDesc,
 			NumEnums:      1,
-			NumMessages:   8,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

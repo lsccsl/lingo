@@ -19,9 +19,13 @@ func (pthis*DBSrv)Go_CallBackMsg(pbMsg proto.Message, pbMsgType int32,
 			msgType, protoMsg = pthis.process_Go_CallBackMsg_PB_MSG_DBSERVER_READ(msg)
 		}
 	case msgpacket.PB_MSG_TYPE__PB_MSG_DBSERVER_WRITE:
+		msg, ok := pbMsg.(*msgpacket.PB_MSG_DBSERVER_WRITE)
+		if ok {
+			msgType, protoMsg = pthis.process_Go_CallBackMsg_PB_MSG_DBSERVER_WRITE(msg)
+		}
 	}
 
-	return 0, nil
+	return
 }
 
 // new coroutine

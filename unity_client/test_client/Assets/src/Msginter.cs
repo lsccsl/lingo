@@ -97,7 +97,7 @@ namespace Msgpacket {
             "QURfUkVTEhkKEWRhdGFiYXNlX2FwcF9uYW1lGAEgASgJEhIKCnRhYmxlX25h",
             "bWUYAiABKAkSDgoGcmVjb3JkGAMgAygMImMKFVBCX01TR19EQlNFUlZFUl9X",
             "UklURRIZChFkYXRhYmFzZV9hcHBfbmFtZRgBIAEoCRISCgp0YWJsZV9uYW1l",
-            "GAIgASgJEgsKA2tleRgDIAEoDBIOCgZyZWNvcmQYBCADKAwiRQoZUEJfTVNH",
+            "GAIgASgJEgsKA2tleRgDIAEoDBIOCgZyZWNvcmQYBCABKAwiRQoZUEJfTVNH",
             "X0RCU0VSVkVSX1dSSVRFX1JFUxIoCgNyZXMYASABKA4yGy5tc2dwYWNrZXQu",
             "UEJfUkVTUE9OU0VfQ09ERUIOWgwuLzttc2dwYWNrZXRiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
@@ -8581,7 +8581,7 @@ namespace Msgpacket {
       databaseAppName_ = other.databaseAppName_;
       tableName_ = other.tableName_;
       key_ = other.key_;
-      record_ = other.record_.Clone();
+      record_ = other.record_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -8629,13 +8629,14 @@ namespace Msgpacket {
 
     /// <summary>Field number for the "record" field.</summary>
     public const int RecordFieldNumber = 4;
-    private static readonly pb::FieldCodec<pb::ByteString> _repeated_record_codec
-        = pb::FieldCodec.ForBytes(34);
-    private readonly pbc::RepeatedField<pb::ByteString> record_ = new pbc::RepeatedField<pb::ByteString>();
+    private pb::ByteString record_ = pb::ByteString.Empty;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pbc::RepeatedField<pb::ByteString> Record {
+    public pb::ByteString Record {
       get { return record_; }
+      set {
+        record_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -8656,7 +8657,7 @@ namespace Msgpacket {
       if (DatabaseAppName != other.DatabaseAppName) return false;
       if (TableName != other.TableName) return false;
       if (Key != other.Key) return false;
-      if(!record_.Equals(other.record_)) return false;
+      if (Record != other.Record) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -8667,7 +8668,7 @@ namespace Msgpacket {
       if (DatabaseAppName.Length != 0) hash ^= DatabaseAppName.GetHashCode();
       if (TableName.Length != 0) hash ^= TableName.GetHashCode();
       if (Key.Length != 0) hash ^= Key.GetHashCode();
-      hash ^= record_.GetHashCode();
+      if (Record.Length != 0) hash ^= Record.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -8698,7 +8699,10 @@ namespace Msgpacket {
         output.WriteRawTag(26);
         output.WriteBytes(Key);
       }
-      record_.WriteTo(output, _repeated_record_codec);
+      if (Record.Length != 0) {
+        output.WriteRawTag(34);
+        output.WriteBytes(Record);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -8721,7 +8725,10 @@ namespace Msgpacket {
         output.WriteRawTag(26);
         output.WriteBytes(Key);
       }
-      record_.WriteTo(ref output, _repeated_record_codec);
+      if (Record.Length != 0) {
+        output.WriteRawTag(34);
+        output.WriteBytes(Record);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -8741,7 +8748,9 @@ namespace Msgpacket {
       if (Key.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeBytesSize(Key);
       }
-      size += record_.CalculateSize(_repeated_record_codec);
+      if (Record.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeBytesSize(Record);
+      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -8763,7 +8772,9 @@ namespace Msgpacket {
       if (other.Key.Length != 0) {
         Key = other.Key;
       }
-      record_.Add(other.record_);
+      if (other.Record.Length != 0) {
+        Record = other.Record;
+      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -8792,7 +8803,7 @@ namespace Msgpacket {
             break;
           }
           case 34: {
-            record_.AddEntriesFrom(input, _repeated_record_codec);
+            Record = input.ReadBytes();
             break;
           }
         }
@@ -8823,7 +8834,7 @@ namespace Msgpacket {
             break;
           }
           case 34: {
-            record_.AddEntriesFrom(ref input, _repeated_record_codec);
+            Record = input.ReadBytes();
             break;
           }
         }

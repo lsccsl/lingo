@@ -30,7 +30,7 @@ func ConstructorDBMongoMgr() *DBMongoMgr {
 
 func (pthis*DBMongoMgr)GetDBConnection(db string) *DBMongo {
 	pthis.mapDBLock.RLock()
-	defer pthis.mapDBLock.Unlock()
+	defer pthis.mapDBLock.RUnlock()
 
 	dbCon, ok := pthis.mapDB[db]
 	if !ok || nil == dbCon{

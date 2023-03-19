@@ -33,6 +33,8 @@ public:
 	int connectToLogon(const std::string& ip, int port);
 	int connectToGameSrv();
 
+
+
 private:
 
 	int send_msg(int msg_typ, google::protobuf::Message* proto_msg);
@@ -51,7 +53,7 @@ private:
 	std::string gs_ip_;
 	int gs_port_;
 
-	int64 client_id_ = 0;
+	int64 client_id_ = 123;
 
 	std::string read_buf_;
 	size_t read_buf_sz_ = 0;

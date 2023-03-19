@@ -114,7 +114,7 @@ func (pthis*LogonSrv)GetDBSrvUUID() {
 	}
 
 	pthis.dbSrvUUID = server_common.SRV_ID(pbRes.ArrarySrv[0].SrvUuid)
-	common.LogInfo("centerSrvUUID:", pthis.dbSrvUUID)
+	common.LogInfo("dbSrvUUID:", pthis.dbSrvUUID)
 	return
 }
 

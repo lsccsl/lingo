@@ -17,7 +17,7 @@ func (pthis*DBSrv)process_Go_CallBackMsg_PB_MSG_DBSERVER_READ(msg * msgpacket.PB
 	// get db type by table name
 	pbTbl, pbQueryKey, _, _ := pthis.dbDataTypeMgr.GetDBType(msg.DatabaseAppName, msg.TableName, DB_DATATYPE_QUERY_BIT)
 	proto.Unmarshal(msg.Key, pbQueryKey)
-	bsonKey := server_common.PBToBson(pbQueryKey, 10)
+	bsonKey := server_common.PBToBsonD(pbQueryKey, 10)
 	common.LogDebug(bsonKey)
 
 	// read from db
@@ -29,7 +29,7 @@ func (pthis*DBSrv)process_Go_CallBackMsg_PB_MSG_DBSERVER_READ(msg * msgpacket.PB
 	bsonRes := bson.M{}
 	sRes.Decode(bsonRes)
 
-	server_common.BsonToPB(pbTbl, bsonRes, 10)
+	server_common.BsonMToPB(pbTbl, bsonRes, 10)
 	common.LogDebug(pbTbl)
 
 	bin, _ := proto.Marshal(pbTbl)
