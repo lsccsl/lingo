@@ -22,20 +22,22 @@ func (pthis*DBSrv)process_Go_CallBackMsg_PB_MSG_DBSERVER_READ(msg * msgpacket.PB
 
 	// read from db
 	dbClient := pthis.dbMgr.GetDBConnection(msg.DatabaseAppName)
-	sRes := dbClient.MongoClient.Database(dbClient.DB).Collection(msg.TableName).FindOne(context.TODO(), bsonKey)
-	if sRes.Err() != nil {
-		common.LogErr(sRes.Err())
+	cur, err := dbClient.MongoClient.Database(dbClient.DB).Collection(msg.TableName).Find(context.TODO(), bsonKey)
+	if err != nil {
+		common.LogErr(err)
 	}
-	bsonRes := bson.M{}
-	sRes.Decode(bsonRes)
 
-	server_common.BsonMToPB(pbTbl, bsonRes, 10)
-	common.LogDebug(pbTbl)
-
-	bin, _ := proto.Marshal(pbTbl)
 	msgRet.DatabaseAppName = msg.DatabaseAppName
 	msgRet.TableName = msg.TableName
-	msgRet.Record = append(msgRet.Record, bin)
+
+	for ; cur.Next(context.TODO()) ; {
+		bsonRes := bson.M{}
+		cur.Decode(bsonRes)
+		server_common.BsonMToPB(pbTbl, bsonRes, 10)
+		common.LogDebug(pbTbl)
+		bin, _ := proto.Marshal(pbTbl)
+		msgRet.Record = append(msgRet.Record, bin)
+	}
 
 	return
 }

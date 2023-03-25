@@ -55,8 +55,10 @@ func (pthis*LogonSrv)process_PB_MSG_LOGON(fd common.FD_DEF, pbMsg * msgpacket.PB
 		DatabaseAppName:"user",
 		TableName:"DBUserMain",
 	}
-	msgWrite.Key, _ = proto.Marshal(dbKey)
-	msgWrite.Record, _= proto.Marshal(dbRecord)
+	rcd := &msgpacket.PB_MSG_DBSERVER_WRITE_WRITE_RECORD{}
+	rcd.Key, _ = proto.Marshal(dbKey)
+	rcd.Record, _= proto.Marshal(dbRecord)
+	msgWrite.WrRcd = append(msgWrite.WrRcd, rcd)
 	pthis.mqClient.SendMsgToSrvUUID(pthis.dbSrvUUID, msgpacket.PB_MSG_TYPE__PB_MSG_DBSERVER_WRITE, msgWrite)
 
 	// 先查询是否存在

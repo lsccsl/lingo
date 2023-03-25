@@ -242,8 +242,12 @@ message PB_MSG_DBSERVER_WRITE
     string database_app_name = 1;
     string table_name = 2;
 
-    bytes key = 3;
-    bytes record = 4;
+    message WRITE_RECORD
+    {
+        bytes key = 3;
+        bytes record = 4;
+    }
+    repeated WRITE_RECORD wr_rcd = 3;
 }
 message PB_MSG_DBSERVER_WRITE_RES
 {

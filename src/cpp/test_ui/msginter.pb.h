@@ -48,7 +48,7 @@ struct TableStruct_msginter_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxiliaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[36]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[37]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -74,6 +74,9 @@ extern PB_MSG_DBSERVER_WRITEDefaultTypeInternal _PB_MSG_DBSERVER_WRITE_default_i
 class PB_MSG_DBSERVER_WRITE_RES;
 struct PB_MSG_DBSERVER_WRITE_RESDefaultTypeInternal;
 extern PB_MSG_DBSERVER_WRITE_RESDefaultTypeInternal _PB_MSG_DBSERVER_WRITE_RES_default_instance_;
+class PB_MSG_DBSERVER_WRITE_WRITE_RECORD;
+struct PB_MSG_DBSERVER_WRITE_WRITE_RECORDDefaultTypeInternal;
+extern PB_MSG_DBSERVER_WRITE_WRITE_RECORDDefaultTypeInternal _PB_MSG_DBSERVER_WRITE_WRITE_RECORD_default_instance_;
 class PB_MSG_INTER_CLISRV_HEARTBEAT;
 struct PB_MSG_INTER_CLISRV_HEARTBEATDefaultTypeInternal;
 extern PB_MSG_INTER_CLISRV_HEARTBEATDefaultTypeInternal _PB_MSG_INTER_CLISRV_HEARTBEAT_default_instance_;
@@ -172,6 +175,7 @@ template<> ::msgpacket::PB_MSG_DBSERVER_READ* Arena::CreateMaybeMessage<::msgpac
 template<> ::msgpacket::PB_MSG_DBSERVER_READ_RES* Arena::CreateMaybeMessage<::msgpacket::PB_MSG_DBSERVER_READ_RES>(Arena*);
 template<> ::msgpacket::PB_MSG_DBSERVER_WRITE* Arena::CreateMaybeMessage<::msgpacket::PB_MSG_DBSERVER_WRITE>(Arena*);
 template<> ::msgpacket::PB_MSG_DBSERVER_WRITE_RES* Arena::CreateMaybeMessage<::msgpacket::PB_MSG_DBSERVER_WRITE_RES>(Arena*);
+template<> ::msgpacket::PB_MSG_DBSERVER_WRITE_WRITE_RECORD* Arena::CreateMaybeMessage<::msgpacket::PB_MSG_DBSERVER_WRITE_WRITE_RECORD>(Arena*);
 template<> ::msgpacket::PB_MSG_INTER_CLISRV_HEARTBEAT* Arena::CreateMaybeMessage<::msgpacket::PB_MSG_INTER_CLISRV_HEARTBEAT>(Arena*);
 template<> ::msgpacket::PB_MSG_INTER_CLISRV_HEARTBEAT_RES* Arena::CreateMaybeMessage<::msgpacket::PB_MSG_INTER_CLISRV_HEARTBEAT_RES>(Arena*);
 template<> ::msgpacket::PB_MSG_INTER_CLISRV_REG_MSGQUE_CENTER* Arena::CreateMaybeMessage<::msgpacket::PB_MSG_INTER_CLISRV_REG_MSGQUE_CENTER>(Arena*);
@@ -5906,6 +5910,173 @@ class PB_MSG_DBSERVER_READ_RES final :
 };
 // -------------------------------------------------------------------
 
+class PB_MSG_DBSERVER_WRITE_WRITE_RECORD final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:msgpacket.PB_MSG_DBSERVER_WRITE.WRITE_RECORD) */ {
+ public:
+  inline PB_MSG_DBSERVER_WRITE_WRITE_RECORD() : PB_MSG_DBSERVER_WRITE_WRITE_RECORD(nullptr) {}
+  ~PB_MSG_DBSERVER_WRITE_WRITE_RECORD() override;
+  explicit constexpr PB_MSG_DBSERVER_WRITE_WRITE_RECORD(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  PB_MSG_DBSERVER_WRITE_WRITE_RECORD(const PB_MSG_DBSERVER_WRITE_WRITE_RECORD& from);
+  PB_MSG_DBSERVER_WRITE_WRITE_RECORD(PB_MSG_DBSERVER_WRITE_WRITE_RECORD&& from) noexcept
+    : PB_MSG_DBSERVER_WRITE_WRITE_RECORD() {
+    *this = ::std::move(from);
+  }
+
+  inline PB_MSG_DBSERVER_WRITE_WRITE_RECORD& operator=(const PB_MSG_DBSERVER_WRITE_WRITE_RECORD& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline PB_MSG_DBSERVER_WRITE_WRITE_RECORD& operator=(PB_MSG_DBSERVER_WRITE_WRITE_RECORD&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const PB_MSG_DBSERVER_WRITE_WRITE_RECORD& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const PB_MSG_DBSERVER_WRITE_WRITE_RECORD* internal_default_instance() {
+    return reinterpret_cast<const PB_MSG_DBSERVER_WRITE_WRITE_RECORD*>(
+               &_PB_MSG_DBSERVER_WRITE_WRITE_RECORD_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    34;
+
+  friend void swap(PB_MSG_DBSERVER_WRITE_WRITE_RECORD& a, PB_MSG_DBSERVER_WRITE_WRITE_RECORD& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(PB_MSG_DBSERVER_WRITE_WRITE_RECORD* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(PB_MSG_DBSERVER_WRITE_WRITE_RECORD* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  PB_MSG_DBSERVER_WRITE_WRITE_RECORD* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<PB_MSG_DBSERVER_WRITE_WRITE_RECORD>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const PB_MSG_DBSERVER_WRITE_WRITE_RECORD& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom(const PB_MSG_DBSERVER_WRITE_WRITE_RECORD& from);
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(PB_MSG_DBSERVER_WRITE_WRITE_RECORD* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "msgpacket.PB_MSG_DBSERVER_WRITE.WRITE_RECORD";
+  }
+  protected:
+  explicit PB_MSG_DBSERVER_WRITE_WRITE_RECORD(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kKeyFieldNumber = 3,
+    kRecordFieldNumber = 4,
+  };
+  // bytes key = 3;
+  void clear_key();
+  const std::string& key() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_key(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_key();
+  PROTOBUF_NODISCARD std::string* release_key();
+  void set_allocated_key(std::string* key);
+  private:
+  const std::string& _internal_key() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_key(const std::string& value);
+  std::string* _internal_mutable_key();
+  public:
+
+  // bytes record = 4;
+  void clear_record();
+  const std::string& record() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
+  void set_record(ArgT0&& arg0, ArgT... args);
+  std::string* mutable_record();
+  PROTOBUF_NODISCARD std::string* release_record();
+  void set_allocated_record(std::string* record);
+  private:
+  const std::string& _internal_record() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_record(const std::string& value);
+  std::string* _internal_mutable_record();
+  public:
+
+  // @@protoc_insertion_point(class_scope:msgpacket.PB_MSG_DBSERVER_WRITE.WRITE_RECORD)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr key_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr record_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_msginter_2eproto;
+};
+// -------------------------------------------------------------------
+
 class PB_MSG_DBSERVER_WRITE final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:msgpacket.PB_MSG_DBSERVER_WRITE) */ {
  public:
@@ -5954,7 +6125,7 @@ class PB_MSG_DBSERVER_WRITE final :
                &_PB_MSG_DBSERVER_WRITE_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    34;
+    35;
 
   friend void swap(PB_MSG_DBSERVER_WRITE& a, PB_MSG_DBSERVER_WRITE& b) {
     a.Swap(&b);
@@ -6025,14 +6196,33 @@ class PB_MSG_DBSERVER_WRITE final :
 
   // nested types ----------------------------------------------------
 
+  typedef PB_MSG_DBSERVER_WRITE_WRITE_RECORD WRITE_RECORD;
+
   // accessors -------------------------------------------------------
 
   enum : int {
+    kWrRcdFieldNumber = 3,
     kDatabaseAppNameFieldNumber = 1,
     kTableNameFieldNumber = 2,
-    kKeyFieldNumber = 3,
-    kRecordFieldNumber = 4,
   };
+  // repeated .msgpacket.PB_MSG_DBSERVER_WRITE.WRITE_RECORD wr_rcd = 3;
+  int wr_rcd_size() const;
+  private:
+  int _internal_wr_rcd_size() const;
+  public:
+  void clear_wr_rcd();
+  ::msgpacket::PB_MSG_DBSERVER_WRITE_WRITE_RECORD* mutable_wr_rcd(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::msgpacket::PB_MSG_DBSERVER_WRITE_WRITE_RECORD >*
+      mutable_wr_rcd();
+  private:
+  const ::msgpacket::PB_MSG_DBSERVER_WRITE_WRITE_RECORD& _internal_wr_rcd(int index) const;
+  ::msgpacket::PB_MSG_DBSERVER_WRITE_WRITE_RECORD* _internal_add_wr_rcd();
+  public:
+  const ::msgpacket::PB_MSG_DBSERVER_WRITE_WRITE_RECORD& wr_rcd(int index) const;
+  ::msgpacket::PB_MSG_DBSERVER_WRITE_WRITE_RECORD* add_wr_rcd();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::msgpacket::PB_MSG_DBSERVER_WRITE_WRITE_RECORD >&
+      wr_rcd() const;
+
   // string database_app_name = 1;
   void clear_database_app_name();
   const std::string& database_app_name() const;
@@ -6061,34 +6251,6 @@ class PB_MSG_DBSERVER_WRITE final :
   std::string* _internal_mutable_table_name();
   public:
 
-  // bytes key = 3;
-  void clear_key();
-  const std::string& key() const;
-  template <typename ArgT0 = const std::string&, typename... ArgT>
-  void set_key(ArgT0&& arg0, ArgT... args);
-  std::string* mutable_key();
-  PROTOBUF_NODISCARD std::string* release_key();
-  void set_allocated_key(std::string* key);
-  private:
-  const std::string& _internal_key() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_key(const std::string& value);
-  std::string* _internal_mutable_key();
-  public:
-
-  // bytes record = 4;
-  void clear_record();
-  const std::string& record() const;
-  template <typename ArgT0 = const std::string&, typename... ArgT>
-  void set_record(ArgT0&& arg0, ArgT... args);
-  std::string* mutable_record();
-  PROTOBUF_NODISCARD std::string* release_record();
-  void set_allocated_record(std::string* record);
-  private:
-  const std::string& _internal_record() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_record(const std::string& value);
-  std::string* _internal_mutable_record();
-  public:
-
   // @@protoc_insertion_point(class_scope:msgpacket.PB_MSG_DBSERVER_WRITE)
  private:
   class _Internal;
@@ -6096,10 +6258,9 @@ class PB_MSG_DBSERVER_WRITE final :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::msgpacket::PB_MSG_DBSERVER_WRITE_WRITE_RECORD > wr_rcd_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr database_app_name_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr table_name_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr key_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr record_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_msginter_2eproto;
 };
@@ -6153,7 +6314,7 @@ class PB_MSG_DBSERVER_WRITE_RES final :
                &_PB_MSG_DBSERVER_WRITE_RES_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    35;
+    36;
 
   friend void swap(PB_MSG_DBSERVER_WRITE_RES& a, PB_MSG_DBSERVER_WRITE_RES& b) {
     a.Swap(&b);
@@ -9242,6 +9403,112 @@ PB_MSG_DBSERVER_READ_RES::mutable_record() {
 
 // -------------------------------------------------------------------
 
+// PB_MSG_DBSERVER_WRITE_WRITE_RECORD
+
+// bytes key = 3;
+inline void PB_MSG_DBSERVER_WRITE_WRITE_RECORD::clear_key() {
+  key_.ClearToEmpty();
+}
+inline const std::string& PB_MSG_DBSERVER_WRITE_WRITE_RECORD::key() const {
+  // @@protoc_insertion_point(field_get:msgpacket.PB_MSG_DBSERVER_WRITE.WRITE_RECORD.key)
+  return _internal_key();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void PB_MSG_DBSERVER_WRITE_WRITE_RECORD::set_key(ArgT0&& arg0, ArgT... args) {
+ 
+ key_.SetBytes(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:msgpacket.PB_MSG_DBSERVER_WRITE.WRITE_RECORD.key)
+}
+inline std::string* PB_MSG_DBSERVER_WRITE_WRITE_RECORD::mutable_key() {
+  std::string* _s = _internal_mutable_key();
+  // @@protoc_insertion_point(field_mutable:msgpacket.PB_MSG_DBSERVER_WRITE.WRITE_RECORD.key)
+  return _s;
+}
+inline const std::string& PB_MSG_DBSERVER_WRITE_WRITE_RECORD::_internal_key() const {
+  return key_.Get();
+}
+inline void PB_MSG_DBSERVER_WRITE_WRITE_RECORD::_internal_set_key(const std::string& value) {
+  
+  key_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+}
+inline std::string* PB_MSG_DBSERVER_WRITE_WRITE_RECORD::_internal_mutable_key() {
+  
+  return key_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+}
+inline std::string* PB_MSG_DBSERVER_WRITE_WRITE_RECORD::release_key() {
+  // @@protoc_insertion_point(field_release:msgpacket.PB_MSG_DBSERVER_WRITE.WRITE_RECORD.key)
+  return key_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
+}
+inline void PB_MSG_DBSERVER_WRITE_WRITE_RECORD::set_allocated_key(std::string* key) {
+  if (key != nullptr) {
+    
+  } else {
+    
+  }
+  key_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), key,
+      GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (key_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+    key_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:msgpacket.PB_MSG_DBSERVER_WRITE.WRITE_RECORD.key)
+}
+
+// bytes record = 4;
+inline void PB_MSG_DBSERVER_WRITE_WRITE_RECORD::clear_record() {
+  record_.ClearToEmpty();
+}
+inline const std::string& PB_MSG_DBSERVER_WRITE_WRITE_RECORD::record() const {
+  // @@protoc_insertion_point(field_get:msgpacket.PB_MSG_DBSERVER_WRITE.WRITE_RECORD.record)
+  return _internal_record();
+}
+template <typename ArgT0, typename... ArgT>
+inline PROTOBUF_ALWAYS_INLINE
+void PB_MSG_DBSERVER_WRITE_WRITE_RECORD::set_record(ArgT0&& arg0, ArgT... args) {
+ 
+ record_.SetBytes(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
+  // @@protoc_insertion_point(field_set:msgpacket.PB_MSG_DBSERVER_WRITE.WRITE_RECORD.record)
+}
+inline std::string* PB_MSG_DBSERVER_WRITE_WRITE_RECORD::mutable_record() {
+  std::string* _s = _internal_mutable_record();
+  // @@protoc_insertion_point(field_mutable:msgpacket.PB_MSG_DBSERVER_WRITE.WRITE_RECORD.record)
+  return _s;
+}
+inline const std::string& PB_MSG_DBSERVER_WRITE_WRITE_RECORD::_internal_record() const {
+  return record_.Get();
+}
+inline void PB_MSG_DBSERVER_WRITE_WRITE_RECORD::_internal_set_record(const std::string& value) {
+  
+  record_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+}
+inline std::string* PB_MSG_DBSERVER_WRITE_WRITE_RECORD::_internal_mutable_record() {
+  
+  return record_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+}
+inline std::string* PB_MSG_DBSERVER_WRITE_WRITE_RECORD::release_record() {
+  // @@protoc_insertion_point(field_release:msgpacket.PB_MSG_DBSERVER_WRITE.WRITE_RECORD.record)
+  return record_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
+}
+inline void PB_MSG_DBSERVER_WRITE_WRITE_RECORD::set_allocated_record(std::string* record) {
+  if (record != nullptr) {
+    
+  } else {
+    
+  }
+  record_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), record,
+      GetArenaForAllocation());
+#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  if (record_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
+    record_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
+  }
+#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  // @@protoc_insertion_point(field_set_allocated:msgpacket.PB_MSG_DBSERVER_WRITE.WRITE_RECORD.record)
+}
+
+// -------------------------------------------------------------------
+
 // PB_MSG_DBSERVER_WRITE
 
 // string database_app_name = 1;
@@ -9346,106 +9613,44 @@ inline void PB_MSG_DBSERVER_WRITE::set_allocated_table_name(std::string* table_n
   // @@protoc_insertion_point(field_set_allocated:msgpacket.PB_MSG_DBSERVER_WRITE.table_name)
 }
 
-// bytes key = 3;
-inline void PB_MSG_DBSERVER_WRITE::clear_key() {
-  key_.ClearToEmpty();
+// repeated .msgpacket.PB_MSG_DBSERVER_WRITE.WRITE_RECORD wr_rcd = 3;
+inline int PB_MSG_DBSERVER_WRITE::_internal_wr_rcd_size() const {
+  return wr_rcd_.size();
 }
-inline const std::string& PB_MSG_DBSERVER_WRITE::key() const {
-  // @@protoc_insertion_point(field_get:msgpacket.PB_MSG_DBSERVER_WRITE.key)
-  return _internal_key();
+inline int PB_MSG_DBSERVER_WRITE::wr_rcd_size() const {
+  return _internal_wr_rcd_size();
 }
-template <typename ArgT0, typename... ArgT>
-inline PROTOBUF_ALWAYS_INLINE
-void PB_MSG_DBSERVER_WRITE::set_key(ArgT0&& arg0, ArgT... args) {
- 
- key_.SetBytes(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:msgpacket.PB_MSG_DBSERVER_WRITE.key)
+inline void PB_MSG_DBSERVER_WRITE::clear_wr_rcd() {
+  wr_rcd_.Clear();
 }
-inline std::string* PB_MSG_DBSERVER_WRITE::mutable_key() {
-  std::string* _s = _internal_mutable_key();
-  // @@protoc_insertion_point(field_mutable:msgpacket.PB_MSG_DBSERVER_WRITE.key)
-  return _s;
+inline ::msgpacket::PB_MSG_DBSERVER_WRITE_WRITE_RECORD* PB_MSG_DBSERVER_WRITE::mutable_wr_rcd(int index) {
+  // @@protoc_insertion_point(field_mutable:msgpacket.PB_MSG_DBSERVER_WRITE.wr_rcd)
+  return wr_rcd_.Mutable(index);
 }
-inline const std::string& PB_MSG_DBSERVER_WRITE::_internal_key() const {
-  return key_.Get();
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::msgpacket::PB_MSG_DBSERVER_WRITE_WRITE_RECORD >*
+PB_MSG_DBSERVER_WRITE::mutable_wr_rcd() {
+  // @@protoc_insertion_point(field_mutable_list:msgpacket.PB_MSG_DBSERVER_WRITE.wr_rcd)
+  return &wr_rcd_;
 }
-inline void PB_MSG_DBSERVER_WRITE::_internal_set_key(const std::string& value) {
-  
-  key_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
+inline const ::msgpacket::PB_MSG_DBSERVER_WRITE_WRITE_RECORD& PB_MSG_DBSERVER_WRITE::_internal_wr_rcd(int index) const {
+  return wr_rcd_.Get(index);
 }
-inline std::string* PB_MSG_DBSERVER_WRITE::_internal_mutable_key() {
-  
-  return key_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
+inline const ::msgpacket::PB_MSG_DBSERVER_WRITE_WRITE_RECORD& PB_MSG_DBSERVER_WRITE::wr_rcd(int index) const {
+  // @@protoc_insertion_point(field_get:msgpacket.PB_MSG_DBSERVER_WRITE.wr_rcd)
+  return _internal_wr_rcd(index);
 }
-inline std::string* PB_MSG_DBSERVER_WRITE::release_key() {
-  // @@protoc_insertion_point(field_release:msgpacket.PB_MSG_DBSERVER_WRITE.key)
-  return key_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
+inline ::msgpacket::PB_MSG_DBSERVER_WRITE_WRITE_RECORD* PB_MSG_DBSERVER_WRITE::_internal_add_wr_rcd() {
+  return wr_rcd_.Add();
 }
-inline void PB_MSG_DBSERVER_WRITE::set_allocated_key(std::string* key) {
-  if (key != nullptr) {
-    
-  } else {
-    
-  }
-  key_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), key,
-      GetArenaForAllocation());
-#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (key_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
-    key_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
-  }
-#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:msgpacket.PB_MSG_DBSERVER_WRITE.key)
+inline ::msgpacket::PB_MSG_DBSERVER_WRITE_WRITE_RECORD* PB_MSG_DBSERVER_WRITE::add_wr_rcd() {
+  ::msgpacket::PB_MSG_DBSERVER_WRITE_WRITE_RECORD* _add = _internal_add_wr_rcd();
+  // @@protoc_insertion_point(field_add:msgpacket.PB_MSG_DBSERVER_WRITE.wr_rcd)
+  return _add;
 }
-
-// bytes record = 4;
-inline void PB_MSG_DBSERVER_WRITE::clear_record() {
-  record_.ClearToEmpty();
-}
-inline const std::string& PB_MSG_DBSERVER_WRITE::record() const {
-  // @@protoc_insertion_point(field_get:msgpacket.PB_MSG_DBSERVER_WRITE.record)
-  return _internal_record();
-}
-template <typename ArgT0, typename... ArgT>
-inline PROTOBUF_ALWAYS_INLINE
-void PB_MSG_DBSERVER_WRITE::set_record(ArgT0&& arg0, ArgT... args) {
- 
- record_.SetBytes(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, static_cast<ArgT0 &&>(arg0), args..., GetArenaForAllocation());
-  // @@protoc_insertion_point(field_set:msgpacket.PB_MSG_DBSERVER_WRITE.record)
-}
-inline std::string* PB_MSG_DBSERVER_WRITE::mutable_record() {
-  std::string* _s = _internal_mutable_record();
-  // @@protoc_insertion_point(field_mutable:msgpacket.PB_MSG_DBSERVER_WRITE.record)
-  return _s;
-}
-inline const std::string& PB_MSG_DBSERVER_WRITE::_internal_record() const {
-  return record_.Get();
-}
-inline void PB_MSG_DBSERVER_WRITE::_internal_set_record(const std::string& value) {
-  
-  record_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
-}
-inline std::string* PB_MSG_DBSERVER_WRITE::_internal_mutable_record() {
-  
-  return record_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArenaForAllocation());
-}
-inline std::string* PB_MSG_DBSERVER_WRITE::release_record() {
-  // @@protoc_insertion_point(field_release:msgpacket.PB_MSG_DBSERVER_WRITE.record)
-  return record_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArenaForAllocation());
-}
-inline void PB_MSG_DBSERVER_WRITE::set_allocated_record(std::string* record) {
-  if (record != nullptr) {
-    
-  } else {
-    
-  }
-  record_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), record,
-      GetArenaForAllocation());
-#ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  if (record_.IsDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited())) {
-    record_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
-  }
-#endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-  // @@protoc_insertion_point(field_set_allocated:msgpacket.PB_MSG_DBSERVER_WRITE.record)
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::msgpacket::PB_MSG_DBSERVER_WRITE_WRITE_RECORD >&
+PB_MSG_DBSERVER_WRITE::wr_rcd() const {
+  // @@protoc_insertion_point(field_list:msgpacket.PB_MSG_DBSERVER_WRITE.wr_rcd)
+  return wr_rcd_;
 }
 
 // -------------------------------------------------------------------
@@ -9475,6 +9680,8 @@ inline void PB_MSG_DBSERVER_WRITE_RES::set_res(::msgpacket::PB_RESPONSE_CODE val
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

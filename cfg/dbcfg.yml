@@ -3,7 +3,7 @@ databases: # database user define
     database: dbuser # db base name
     database_user: admin
     database_pwd: 123456
-    database_ip: 192.168.0.103
+    database_ip: 192.168.0.104
     database_port: 27017
     tables:
       - table_name: DBUserMain
@@ -20,7 +20,7 @@ databases: # database user define
     database: test
     database_user: admin
     database_pwd: 123456
-    database_ip: 192.168.0.103
+    database_ip: 192.168.0.104
     database_port: 27017
     tables:
     - table_name: xxxTest

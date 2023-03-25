@@ -95,11 +95,13 @@ namespace Msgpacket {
             "VkVSX1JFQUQSGQoRZGF0YWJhc2VfYXBwX25hbWUYASABKAkSEgoKdGFibGVf",
             "bmFtZRgCIAEoCRILCgNrZXkYAyABKAwiWQoYUEJfTVNHX0RCU0VSVkVSX1JF",
             "QURfUkVTEhkKEWRhdGFiYXNlX2FwcF9uYW1lGAEgASgJEhIKCnRhYmxlX25h",
-            "bWUYAiABKAkSDgoGcmVjb3JkGAMgAygMImMKFVBCX01TR19EQlNFUlZFUl9X",
-            "UklURRIZChFkYXRhYmFzZV9hcHBfbmFtZRgBIAEoCRISCgp0YWJsZV9uYW1l",
-            "GAIgASgJEgsKA2tleRgDIAEoDBIOCgZyZWNvcmQYBCABKAwiRQoZUEJfTVNH",
-            "X0RCU0VSVkVSX1dSSVRFX1JFUxIoCgNyZXMYASABKA4yGy5tc2dwYWNrZXQu",
-            "UEJfUkVTUE9OU0VfQ09ERUIOWgwuLzttc2dwYWNrZXRiBnByb3RvMw=="));
+            "bWUYAiABKAkSDgoGcmVjb3JkGAMgAygMIrIBChVQQl9NU0dfREJTRVJWRVJf",
+            "V1JJVEUSGQoRZGF0YWJhc2VfYXBwX25hbWUYASABKAkSEgoKdGFibGVfbmFt",
+            "ZRgCIAEoCRI9CgZ3cl9yY2QYAyADKAsyLS5tc2dwYWNrZXQuUEJfTVNHX0RC",
+            "U0VSVkVSX1dSSVRFLldSSVRFX1JFQ09SRBorCgxXUklURV9SRUNPUkQSCwoD",
+            "a2V5GAMgASgMEg4KBnJlY29yZBgEIAEoDCJFChlQQl9NU0dfREJTRVJWRVJf",
+            "V1JJVEVfUkVTEigKA3JlcxgBIAEoDjIbLm1zZ3BhY2tldC5QQl9SRVNQT05T",
+            "RV9DT0RFQg5aDC4vO21zZ3BhY2tldGIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Msgpacket.MsgdefReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
@@ -136,7 +138,7 @@ namespace Msgpacket {
             new pbr::GeneratedClrTypeInfo(typeof(global::Msgpacket.PB_MSG_LOGONSRV_CENTERSRV_LOGON_RES), global::Msgpacket.PB_MSG_LOGONSRV_CENTERSRV_LOGON_RES.Parser, new[]{ "ClientId", "GameSrvUuid", "Ip", "Port" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Msgpacket.PB_MSG_DBSERVER_READ), global::Msgpacket.PB_MSG_DBSERVER_READ.Parser, new[]{ "DatabaseAppName", "TableName", "Key" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Msgpacket.PB_MSG_DBSERVER_READ_RES), global::Msgpacket.PB_MSG_DBSERVER_READ_RES.Parser, new[]{ "DatabaseAppName", "TableName", "Record" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Msgpacket.PB_MSG_DBSERVER_WRITE), global::Msgpacket.PB_MSG_DBSERVER_WRITE.Parser, new[]{ "DatabaseAppName", "TableName", "Key", "Record" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Msgpacket.PB_MSG_DBSERVER_WRITE), global::Msgpacket.PB_MSG_DBSERVER_WRITE.Parser, new[]{ "DatabaseAppName", "TableName", "WrRcd" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::Msgpacket.PB_MSG_DBSERVER_WRITE.Types.WRITE_RECORD), global::Msgpacket.PB_MSG_DBSERVER_WRITE.Types.WRITE_RECORD.Parser, new[]{ "Key", "Record" }, null, null, null, null)}),
             new pbr::GeneratedClrTypeInfo(typeof(global::Msgpacket.PB_MSG_DBSERVER_WRITE_RES), global::Msgpacket.PB_MSG_DBSERVER_WRITE_RES.Parser, new[]{ "Res" }, null, null, null, null)
           }));
     }
@@ -8580,8 +8582,7 @@ namespace Msgpacket {
     public PB_MSG_DBSERVER_WRITE(PB_MSG_DBSERVER_WRITE other) : this() {
       databaseAppName_ = other.databaseAppName_;
       tableName_ = other.tableName_;
-      key_ = other.key_;
-      record_ = other.record_;
+      wrRcd_ = other.wrRcd_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -8615,28 +8616,15 @@ namespace Msgpacket {
       }
     }
 
-    /// <summary>Field number for the "key" field.</summary>
-    public const int KeyFieldNumber = 3;
-    private pb::ByteString key_ = pb::ByteString.Empty;
+    /// <summary>Field number for the "wr_rcd" field.</summary>
+    public const int WrRcdFieldNumber = 3;
+    private static readonly pb::FieldCodec<global::Msgpacket.PB_MSG_DBSERVER_WRITE.Types.WRITE_RECORD> _repeated_wrRcd_codec
+        = pb::FieldCodec.ForMessage(26, global::Msgpacket.PB_MSG_DBSERVER_WRITE.Types.WRITE_RECORD.Parser);
+    private readonly pbc::RepeatedField<global::Msgpacket.PB_MSG_DBSERVER_WRITE.Types.WRITE_RECORD> wrRcd_ = new pbc::RepeatedField<global::Msgpacket.PB_MSG_DBSERVER_WRITE.Types.WRITE_RECORD>();
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pb::ByteString Key {
-      get { return key_; }
-      set {
-        key_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
-      }
-    }
-
-    /// <summary>Field number for the "record" field.</summary>
-    public const int RecordFieldNumber = 4;
-    private pb::ByteString record_ = pb::ByteString.Empty;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pb::ByteString Record {
-      get { return record_; }
-      set {
-        record_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
-      }
+    public pbc::RepeatedField<global::Msgpacket.PB_MSG_DBSERVER_WRITE.Types.WRITE_RECORD> WrRcd {
+      get { return wrRcd_; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -8656,8 +8644,7 @@ namespace Msgpacket {
       }
       if (DatabaseAppName != other.DatabaseAppName) return false;
       if (TableName != other.TableName) return false;
-      if (Key != other.Key) return false;
-      if (Record != other.Record) return false;
+      if(!wrRcd_.Equals(other.wrRcd_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -8667,8 +8654,7 @@ namespace Msgpacket {
       int hash = 1;
       if (DatabaseAppName.Length != 0) hash ^= DatabaseAppName.GetHashCode();
       if (TableName.Length != 0) hash ^= TableName.GetHashCode();
-      if (Key.Length != 0) hash ^= Key.GetHashCode();
-      if (Record.Length != 0) hash ^= Record.GetHashCode();
+      hash ^= wrRcd_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -8695,14 +8681,7 @@ namespace Msgpacket {
         output.WriteRawTag(18);
         output.WriteString(TableName);
       }
-      if (Key.Length != 0) {
-        output.WriteRawTag(26);
-        output.WriteBytes(Key);
-      }
-      if (Record.Length != 0) {
-        output.WriteRawTag(34);
-        output.WriteBytes(Record);
-      }
+      wrRcd_.WriteTo(output, _repeated_wrRcd_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -8721,14 +8700,7 @@ namespace Msgpacket {
         output.WriteRawTag(18);
         output.WriteString(TableName);
       }
-      if (Key.Length != 0) {
-        output.WriteRawTag(26);
-        output.WriteBytes(Key);
-      }
-      if (Record.Length != 0) {
-        output.WriteRawTag(34);
-        output.WriteBytes(Record);
-      }
+      wrRcd_.WriteTo(ref output, _repeated_wrRcd_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -8745,12 +8717,7 @@ namespace Msgpacket {
       if (TableName.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(TableName);
       }
-      if (Key.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeBytesSize(Key);
-      }
-      if (Record.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeBytesSize(Record);
-      }
+      size += wrRcd_.CalculateSize(_repeated_wrRcd_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -8769,12 +8736,7 @@ namespace Msgpacket {
       if (other.TableName.Length != 0) {
         TableName = other.TableName;
       }
-      if (other.Key.Length != 0) {
-        Key = other.Key;
-      }
-      if (other.Record.Length != 0) {
-        Record = other.Record;
-      }
+      wrRcd_.Add(other.wrRcd_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -8799,11 +8761,7 @@ namespace Msgpacket {
             break;
           }
           case 26: {
-            Key = input.ReadBytes();
-            break;
-          }
-          case 34: {
-            Record = input.ReadBytes();
+            wrRcd_.AddEntriesFrom(input, _repeated_wrRcd_codec);
             break;
           }
         }
@@ -8830,17 +8788,247 @@ namespace Msgpacket {
             break;
           }
           case 26: {
-            Key = input.ReadBytes();
-            break;
-          }
-          case 34: {
-            Record = input.ReadBytes();
+            wrRcd_.AddEntriesFrom(ref input, _repeated_wrRcd_codec);
             break;
           }
         }
       }
     }
     #endif
+
+    #region Nested types
+    /// <summary>Container for nested types declared in the PB_MSG_DBSERVER_WRITE message type.</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static partial class Types {
+      public sealed partial class WRITE_RECORD : pb::IMessage<WRITE_RECORD>
+      #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+          , pb::IBufferMessage
+      #endif
+      {
+        private static readonly pb::MessageParser<WRITE_RECORD> _parser = new pb::MessageParser<WRITE_RECORD>(() => new WRITE_RECORD());
+        private pb::UnknownFieldSet _unknownFields;
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public static pb::MessageParser<WRITE_RECORD> Parser { get { return _parser; } }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public static pbr::MessageDescriptor Descriptor {
+          get { return global::Msgpacket.PB_MSG_DBSERVER_WRITE.Descriptor.NestedTypes[0]; }
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        pbr::MessageDescriptor pb::IMessage.Descriptor {
+          get { return Descriptor; }
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public WRITE_RECORD() {
+          OnConstruction();
+        }
+
+        partial void OnConstruction();
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public WRITE_RECORD(WRITE_RECORD other) : this() {
+          key_ = other.key_;
+          record_ = other.record_;
+          _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public WRITE_RECORD Clone() {
+          return new WRITE_RECORD(this);
+        }
+
+        /// <summary>Field number for the "key" field.</summary>
+        public const int KeyFieldNumber = 3;
+        private pb::ByteString key_ = pb::ByteString.Empty;
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public pb::ByteString Key {
+          get { return key_; }
+          set {
+            key_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+          }
+        }
+
+        /// <summary>Field number for the "record" field.</summary>
+        public const int RecordFieldNumber = 4;
+        private pb::ByteString record_ = pb::ByteString.Empty;
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public pb::ByteString Record {
+          get { return record_; }
+          set {
+            record_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+          }
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public override bool Equals(object other) {
+          return Equals(other as WRITE_RECORD);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public bool Equals(WRITE_RECORD other) {
+          if (ReferenceEquals(other, null)) {
+            return false;
+          }
+          if (ReferenceEquals(other, this)) {
+            return true;
+          }
+          if (Key != other.Key) return false;
+          if (Record != other.Record) return false;
+          return Equals(_unknownFields, other._unknownFields);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public override int GetHashCode() {
+          int hash = 1;
+          if (Key.Length != 0) hash ^= Key.GetHashCode();
+          if (Record.Length != 0) hash ^= Record.GetHashCode();
+          if (_unknownFields != null) {
+            hash ^= _unknownFields.GetHashCode();
+          }
+          return hash;
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public override string ToString() {
+          return pb::JsonFormatter.ToDiagnosticString(this);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public void WriteTo(pb::CodedOutputStream output) {
+        #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+          output.WriteRawMessage(this);
+        #else
+          if (Key.Length != 0) {
+            output.WriteRawTag(26);
+            output.WriteBytes(Key);
+          }
+          if (Record.Length != 0) {
+            output.WriteRawTag(34);
+            output.WriteBytes(Record);
+          }
+          if (_unknownFields != null) {
+            _unknownFields.WriteTo(output);
+          }
+        #endif
+        }
+
+        #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+          if (Key.Length != 0) {
+            output.WriteRawTag(26);
+            output.WriteBytes(Key);
+          }
+          if (Record.Length != 0) {
+            output.WriteRawTag(34);
+            output.WriteBytes(Record);
+          }
+          if (_unknownFields != null) {
+            _unknownFields.WriteTo(ref output);
+          }
+        }
+        #endif
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public int CalculateSize() {
+          int size = 0;
+          if (Key.Length != 0) {
+            size += 1 + pb::CodedOutputStream.ComputeBytesSize(Key);
+          }
+          if (Record.Length != 0) {
+            size += 1 + pb::CodedOutputStream.ComputeBytesSize(Record);
+          }
+          if (_unknownFields != null) {
+            size += _unknownFields.CalculateSize();
+          }
+          return size;
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public void MergeFrom(WRITE_RECORD other) {
+          if (other == null) {
+            return;
+          }
+          if (other.Key.Length != 0) {
+            Key = other.Key;
+          }
+          if (other.Record.Length != 0) {
+            Record = other.Record;
+          }
+          _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public void MergeFrom(pb::CodedInputStream input) {
+        #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+          input.ReadRawMessage(this);
+        #else
+          uint tag;
+          while ((tag = input.ReadTag()) != 0) {
+            switch(tag) {
+              default:
+                _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+                break;
+              case 26: {
+                Key = input.ReadBytes();
+                break;
+              }
+              case 34: {
+                Record = input.ReadBytes();
+                break;
+              }
+            }
+          }
+        #endif
+        }
+
+        #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+          uint tag;
+          while ((tag = input.ReadTag()) != 0) {
+            switch(tag) {
+              default:
+                _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+                break;
+              case 26: {
+                Key = input.ReadBytes();
+                break;
+              }
+              case 34: {
+                Record = input.ReadBytes();
+                break;
+              }
+            }
+          }
+        }
+        #endif
+
+      }
+
+    }
+    #endregion
 
   }
 

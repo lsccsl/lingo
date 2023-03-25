@@ -1979,10 +1979,9 @@ type PB_MSG_DBSERVER_WRITE struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	DatabaseAppName string `protobuf:"bytes,1,opt,name=database_app_name,json=databaseAppName,proto3" json:"database_app_name,omitempty"`
-	TableName       string `protobuf:"bytes,2,opt,name=table_name,json=tableName,proto3" json:"table_name,omitempty"`
-	Key             []byte `protobuf:"bytes,3,opt,name=key,proto3" json:"key,omitempty"`
-	Record          []byte `protobuf:"bytes,4,opt,name=record,proto3" json:"record,omitempty"`
+	DatabaseAppName string                                `protobuf:"bytes,1,opt,name=database_app_name,json=databaseAppName,proto3" json:"database_app_name,omitempty"`
+	TableName       string                                `protobuf:"bytes,2,opt,name=table_name,json=tableName,proto3" json:"table_name,omitempty"`
+	WrRcd           []*PB_MSG_DBSERVER_WRITE_WRITE_RECORD `protobuf:"bytes,3,rep,name=wr_rcd,json=wrRcd,proto3" json:"wr_rcd,omitempty"`
 }
 
 func (x *PB_MSG_DBSERVER_WRITE) Reset() {
@@ -2031,16 +2030,9 @@ func (x *PB_MSG_DBSERVER_WRITE) GetTableName() string {
 	return ""
 }
 
-func (x *PB_MSG_DBSERVER_WRITE) GetKey() []byte {
+func (x *PB_MSG_DBSERVER_WRITE) GetWrRcd() []*PB_MSG_DBSERVER_WRITE_WRITE_RECORD {
 	if x != nil {
-		return x.Key
-	}
-	return nil
-}
-
-func (x *PB_MSG_DBSERVER_WRITE) GetRecord() []byte {
-	if x != nil {
-		return x.Record
+		return x.WrRcd
 	}
 	return nil
 }
@@ -2153,6 +2145,61 @@ func (x *PB_MSG_INTER_QUESRV_NTFOnlineOfflineNtf) GetIsOnLine() bool {
 		return x.IsOnLine
 	}
 	return false
+}
+
+type PB_MSG_DBSERVER_WRITE_WRITE_RECORD struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Key    []byte `protobuf:"bytes,3,opt,name=key,proto3" json:"key,omitempty"`
+	Record []byte `protobuf:"bytes,4,opt,name=record,proto3" json:"record,omitempty"`
+}
+
+func (x *PB_MSG_DBSERVER_WRITE_WRITE_RECORD) Reset() {
+	*x = PB_MSG_DBSERVER_WRITE_WRITE_RECORD{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_msginter_proto_msgTypes[36]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *PB_MSG_DBSERVER_WRITE_WRITE_RECORD) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PB_MSG_DBSERVER_WRITE_WRITE_RECORD) ProtoMessage() {}
+
+func (x *PB_MSG_DBSERVER_WRITE_WRITE_RECORD) ProtoReflect() protoreflect.Message {
+	mi := &file_msginter_proto_msgTypes[36]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PB_MSG_DBSERVER_WRITE_WRITE_RECORD.ProtoReflect.Descriptor instead.
+func (*PB_MSG_DBSERVER_WRITE_WRITE_RECORD) Descriptor() ([]byte, []int) {
+	return file_msginter_proto_rawDescGZIP(), []int{33, 0}
+}
+
+func (x *PB_MSG_DBSERVER_WRITE_WRITE_RECORD) GetKey() []byte {
+	if x != nil {
+		return x.Key
+	}
+	return nil
+}
+
+func (x *PB_MSG_DBSERVER_WRITE_WRITE_RECORD) GetRecord() []byte {
+	if x != nil {
+		return x.Record
+	}
+	return nil
 }
 
 var File_msginter_proto protoreflect.FileDescriptor
@@ -2411,22 +2458,27 @@ var file_msginter_proto_rawDesc = []byte{
 	0x62, 0x6c, 0x65, 0x5f, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09,
 	0x74, 0x61, 0x62, 0x6c, 0x65, 0x4e, 0x61, 0x6d, 0x65, 0x12, 0x16, 0x0a, 0x06, 0x72, 0x65, 0x63,
 	0x6f, 0x72, 0x64, 0x18, 0x03, 0x20, 0x03, 0x28, 0x0c, 0x52, 0x06, 0x72, 0x65, 0x63, 0x6f, 0x72,
-	0x64, 0x22, 0x8c, 0x01, 0x0a, 0x15, 0x50, 0x42, 0x5f, 0x4d, 0x53, 0x47, 0x5f, 0x44, 0x42, 0x53,
+	0x64, 0x22, 0xe2, 0x01, 0x0a, 0x15, 0x50, 0x42, 0x5f, 0x4d, 0x53, 0x47, 0x5f, 0x44, 0x42, 0x53,
 	0x45, 0x52, 0x56, 0x45, 0x52, 0x5f, 0x57, 0x52, 0x49, 0x54, 0x45, 0x12, 0x2a, 0x0a, 0x11, 0x64,
 	0x61, 0x74, 0x61, 0x62, 0x61, 0x73, 0x65, 0x5f, 0x61, 0x70, 0x70, 0x5f, 0x6e, 0x61, 0x6d, 0x65,
 	0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0f, 0x64, 0x61, 0x74, 0x61, 0x62, 0x61, 0x73, 0x65,
 	0x41, 0x70, 0x70, 0x4e, 0x61, 0x6d, 0x65, 0x12, 0x1d, 0x0a, 0x0a, 0x74, 0x61, 0x62, 0x6c, 0x65,
 	0x5f, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x74, 0x61, 0x62,
-	0x6c, 0x65, 0x4e, 0x61, 0x6d, 0x65, 0x12, 0x10, 0x0a, 0x03, 0x6b, 0x65, 0x79, 0x18, 0x03, 0x20,
-	0x01, 0x28, 0x0c, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12, 0x16, 0x0a, 0x06, 0x72, 0x65, 0x63, 0x6f,
-	0x72, 0x64, 0x18, 0x04, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x06, 0x72, 0x65, 0x63, 0x6f, 0x72, 0x64,
-	0x22, 0x4a, 0x0a, 0x19, 0x50, 0x42, 0x5f, 0x4d, 0x53, 0x47, 0x5f, 0x44, 0x42, 0x53, 0x45, 0x52,
-	0x56, 0x45, 0x52, 0x5f, 0x57, 0x52, 0x49, 0x54, 0x45, 0x5f, 0x52, 0x45, 0x53, 0x12, 0x2d, 0x0a,
-	0x03, 0x72, 0x65, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x1b, 0x2e, 0x6d, 0x73, 0x67,
-	0x70, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x2e, 0x50, 0x42, 0x5f, 0x52, 0x45, 0x53, 0x50, 0x4f, 0x4e,
-	0x53, 0x45, 0x5f, 0x43, 0x4f, 0x44, 0x45, 0x52, 0x03, 0x72, 0x65, 0x73, 0x42, 0x0e, 0x5a, 0x0c,
-	0x2e, 0x2f, 0x3b, 0x6d, 0x73, 0x67, 0x70, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x62, 0x06, 0x70, 0x72,
-	0x6f, 0x74, 0x6f, 0x33,
+	0x6c, 0x65, 0x4e, 0x61, 0x6d, 0x65, 0x12, 0x44, 0x0a, 0x06, 0x77, 0x72, 0x5f, 0x72, 0x63, 0x64,
+	0x18, 0x03, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x2d, 0x2e, 0x6d, 0x73, 0x67, 0x70, 0x61, 0x63, 0x6b,
+	0x65, 0x74, 0x2e, 0x50, 0x42, 0x5f, 0x4d, 0x53, 0x47, 0x5f, 0x44, 0x42, 0x53, 0x45, 0x52, 0x56,
+	0x45, 0x52, 0x5f, 0x57, 0x52, 0x49, 0x54, 0x45, 0x2e, 0x57, 0x52, 0x49, 0x54, 0x45, 0x5f, 0x52,
+	0x45, 0x43, 0x4f, 0x52, 0x44, 0x52, 0x05, 0x77, 0x72, 0x52, 0x63, 0x64, 0x1a, 0x38, 0x0a, 0x0c,
+	0x57, 0x52, 0x49, 0x54, 0x45, 0x5f, 0x52, 0x45, 0x43, 0x4f, 0x52, 0x44, 0x12, 0x10, 0x0a, 0x03,
+	0x6b, 0x65, 0x79, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12, 0x16,
+	0x0a, 0x06, 0x72, 0x65, 0x63, 0x6f, 0x72, 0x64, 0x18, 0x04, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x06,
+	0x72, 0x65, 0x63, 0x6f, 0x72, 0x64, 0x22, 0x4a, 0x0a, 0x19, 0x50, 0x42, 0x5f, 0x4d, 0x53, 0x47,
+	0x5f, 0x44, 0x42, 0x53, 0x45, 0x52, 0x56, 0x45, 0x52, 0x5f, 0x57, 0x52, 0x49, 0x54, 0x45, 0x5f,
+	0x52, 0x45, 0x53, 0x12, 0x2d, 0x0a, 0x03, 0x72, 0x65, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0e,
+	0x32, 0x1b, 0x2e, 0x6d, 0x73, 0x67, 0x70, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x2e, 0x50, 0x42, 0x5f,
+	0x52, 0x45, 0x53, 0x50, 0x4f, 0x4e, 0x53, 0x45, 0x5f, 0x43, 0x4f, 0x44, 0x45, 0x52, 0x03, 0x72,
+	0x65, 0x73, 0x42, 0x0e, 0x5a, 0x0c, 0x2e, 0x2f, 0x3b, 0x6d, 0x73, 0x67, 0x70, 0x61, 0x63, 0x6b,
+	0x65, 0x74, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -2441,7 +2493,7 @@ func file_msginter_proto_rawDescGZIP() []byte {
 	return file_msginter_proto_rawDescData
 }
 
-var file_msginter_proto_msgTypes = make([]protoimpl.MessageInfo, 36)
+var file_msginter_proto_msgTypes = make([]protoimpl.MessageInfo, 37)
 var file_msginter_proto_goTypes = []interface{}{
 	(*PB_SRV_INFO_ONE)(nil),                           // 0: msgpacket.PB_SRV_INFO_ONE
 	(*PB_SRV_INFO_ALL)(nil),                           // 1: msgpacket.PB_SRV_INFO_ALL
@@ -2479,7 +2531,8 @@ var file_msginter_proto_goTypes = []interface{}{
 	(*PB_MSG_DBSERVER_WRITE)(nil),                     // 33: msgpacket.PB_MSG_DBSERVER_WRITE
 	(*PB_MSG_DBSERVER_WRITE_RES)(nil),                 // 34: msgpacket.PB_MSG_DBSERVER_WRITE_RES
 	(*PB_MSG_INTER_QUESRV_NTFOnlineOfflineNtf)(nil),   // 35: msgpacket.PB_MSG_INTER_QUESRV_NTF.online_offline_ntf
-	(PB_RESPONSE_CODE)(0),                             // 36: msgpacket.PB_RESPONSE_CODE
+	(*PB_MSG_DBSERVER_WRITE_WRITE_RECORD)(nil),        // 36: msgpacket.PB_MSG_DBSERVER_WRITE.WRITE_RECORD
+	(PB_RESPONSE_CODE)(0),                             // 37: msgpacket.PB_RESPONSE_CODE
 }
 var file_msginter_proto_depIdxs = []int32{
 	0,  // 0: msgpacket.PB_SRV_INFO_ALL.array_srv:type_name -> msgpacket.PB_SRV_INFO_ONE
@@ -2488,20 +2541,21 @@ var file_msginter_proto_depIdxs = []int32{
 	3,  // 3: msgpacket.PB_MSG_INTER_QUECENTER_ONLINE_NTF.que_srv_info:type_name -> msgpacket.PB_MSG_INTER_QUESRV_INFO
 	1,  // 4: msgpacket.PB_MSG_INTER_QUESRV_CONNECT.local_all_srv:type_name -> msgpacket.PB_SRV_INFO_ALL
 	1,  // 5: msgpacket.PB_MSG_INTER_QUESRV_CONNECT_RES.local_all_srv:type_name -> msgpacket.PB_SRV_INFO_ALL
-	36, // 6: msgpacket.PB_MSG_INTER_CLISRV_REG_MSGQUE_CENTER_RES.res:type_name -> msgpacket.PB_RESPONSE_CODE
-	36, // 7: msgpacket.PB_MSG_INTER_MSG_RES.res:type_name -> msgpacket.PB_RESPONSE_CODE
+	37, // 6: msgpacket.PB_MSG_INTER_CLISRV_REG_MSGQUE_CENTER_RES.res:type_name -> msgpacket.PB_RESPONSE_CODE
+	37, // 7: msgpacket.PB_MSG_INTER_MSG_RES.res:type_name -> msgpacket.PB_RESPONSE_CODE
 	1,  // 8: msgpacket.PB_MSG_INTER_CLISRV_REG_TO_QUE_RES.all_srv:type_name -> msgpacket.PB_SRV_INFO_ALL
 	1,  // 9: msgpacket.PB_MSG_INTER_CLISRV_REG_TO_QUE_RES.local_all_srv:type_name -> msgpacket.PB_SRV_INFO_ALL
 	1,  // 10: msgpacket.PB_MSG_INTER_QUESRV_REPORT_BROADCAST.local_all_srv:type_name -> msgpacket.PB_SRV_INFO_ALL
 	1,  // 11: msgpacket.PB_MSG_INTER_QUESRV_REPORT_BROADCAST.all_srv:type_name -> msgpacket.PB_SRV_INFO_ALL
 	35, // 12: msgpacket.PB_MSG_INTER_QUESRV_NTF.online_offline:type_name -> msgpacket.PB_MSG_INTER_QUESRV_NTF.online_offline_ntf
 	0,  // 13: msgpacket.PB_MSG_INTER_QUESRV_GET_SRVTYPE_RES.arrary_srv:type_name -> msgpacket.PB_SRV_INFO_ONE
-	36, // 14: msgpacket.PB_MSG_DBSERVER_WRITE_RES.res:type_name -> msgpacket.PB_RESPONSE_CODE
-	15, // [15:15] is the sub-list for method output_type
-	15, // [15:15] is the sub-list for method input_type
-	15, // [15:15] is the sub-list for extension type_name
-	15, // [15:15] is the sub-list for extension extendee
-	0,  // [0:15] is the sub-list for field type_name
+	36, // 14: msgpacket.PB_MSG_DBSERVER_WRITE.wr_rcd:type_name -> msgpacket.PB_MSG_DBSERVER_WRITE.WRITE_RECORD
+	37, // 15: msgpacket.PB_MSG_DBSERVER_WRITE_RES.res:type_name -> msgpacket.PB_RESPONSE_CODE
+	16, // [16:16] is the sub-list for method output_type
+	16, // [16:16] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_msginter_proto_init() }
@@ -2943,6 +2997,18 @@ func file_msginter_proto_init() {
 				return nil
 			}
 		}
+		file_msginter_proto_msgTypes[36].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*PB_MSG_DBSERVER_WRITE_WRITE_RECORD); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	file_msginter_proto_msgTypes[22].OneofWrappers = []interface{}{}
 	type x struct{}
@@ -2951,7 +3017,7 @@ func file_msginter_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_msginter_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   36,
+			NumMessages:   37,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
